@@ -1,0 +1,9 @@
+{
+  "name": "Lagoa Formosa no Momento",
+  "description": "Portal de notícias de Lagoa Formosa e região, apresentado por Welix Duarte. Centro de Comando Social integrado para publicações multimídia.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
