@@ -205,10 +205,14 @@ const App: React.FC = () => {
       }
 
       if (hash === '#/admin') {
+        if (user) {
           setView('admin');
+        } else {
+          setView('login');
+          updateHash('/login');
+        }
       } else if (hash === '#/login') {
-           setView('admin');
-           updateHash('/admin');
+        setView('login');
       } else if (hash.startsWith('#/news/')) {
         const id = hash.split('/').pop();
         const item = news.find(n => n.id === id);
@@ -230,7 +234,7 @@ const App: React.FC = () => {
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [news]);
+  }, [news, user]);
 
   const filteredNews = useMemo(() => {
     let list = news.filter(n => n.status === 'published');
@@ -281,8 +285,13 @@ const App: React.FC = () => {
   };
 
   const handleAdminClick = () => {
-    setView('admin'); 
-    updateHash('/admin'); 
+    if (user) {
+      setView('admin');
+      updateHash('/admin');
+    } else {
+      setView('login');
+      updateHash('/login');
+    }
   };
 
   const handleLoginSuccess = (u: User) => {
