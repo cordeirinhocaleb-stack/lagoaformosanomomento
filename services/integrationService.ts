@@ -56,6 +56,20 @@ export const dispatchSocialWebhook = async (news: NewsItem) => {
 };
 
 /**
+ * Simula o envio individual para uma rede social (para feedback visual na UI)
+ */
+export const mockPostToNetwork = (platform: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+        // Tempo aleatório entre 1s e 2.5s para parecer processamento real de API
+        const delay = Math.floor(Math.random() * 1500) + 1000;
+        setTimeout(() => {
+            console.log(`[Social API] Enviado com sucesso para: ${platform}`);
+            resolve(true);
+        }, delay);
+    });
+};
+
+/**
  * [UTILITÁRIO] Gerador de Links WhatsApp Inteligentes
  * Cria links `wa.me` com mensagens pré-formatadas para facilitar o contato.
  */

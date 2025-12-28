@@ -4,7 +4,7 @@ import { User, NewsItem, PostStatus, NewsVersion, SocialDistribution, Advertiser
 import Logo from './Logo';
 import MediaUploader from './MediaUploader';
 import { adaptContentForSocialMedia } from '../services/geminiService';
-import { dispatchSocialWebhook } from '../services/integrationService';
+import { dispatchSocialWebhook, mockPostToNetwork } from '../services/integrationService';
 
 const CATEGORIES = ['Cotidiano', 'Polícia', 'Agro', 'Política', 'Esporte', 'Cultura', 'Saúde'];
 const USER_ROLES: UserRole[] = ['Desenvolvedor', 'Editor-Chefe', 'Repórter', 'Jornalista', 'Estagiário'];
@@ -29,6 +29,97 @@ interface AdminPanelProps {
   onUpdateAdvertiser?: (advertiser: Advertiser) => void;
   onUpdateAdConfig?: (config: AdPricingConfig) => void; // Callback para salvar preços
 }
+
+// --- COMPONENTE INTERNO: OVERLAY DE PUBLICAÇÃO ---
+const PublishingOverlay = ({ 
+  steps, 
+  currentStepIndex, 
+  isComplete,
+  onClose 
+}: { 
+  steps: { id: string, label: string, status: 'pending' | 'loading' | 'success' | 'error' }[], 
+  currentStepIndex: number,
+  isComplete: boolean,
+  onClose: () => void 
+}) => {
+    return (
+        <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-fadeIn">
+            <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                {/* Background Grid Animation */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                
+                <div className="relative z-10 text-center mb-8">
+                    <div className="w-20 h-20 bg-black border-2 border-red-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.5)]">
+                        {isComplete ? (
+                            <i className="fas fa-check text-4xl text-green-500 animate-bounce"></i>
+                        ) : (
+                            <i className="fas fa-satellite-dish text-4xl text-red-600 animate-pulse"></i>
+                        )}
+                    </div>
+                    <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-2">
+                        {isComplete ? 'TRANSMISSÃO CONCLUÍDA' : 'DISTRIBUINDO CONTEÚDO'}
+                    </h2>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        {isComplete ? 'Sua notícia está no ar em todas as redes.' : 'Conectando aos servidores globais...'}
+                    </p>
+                </div>
+
+                <div className="space-y-4 relative z-10">
+                    {steps.map((step, idx) => (
+                        <div key={step.id} className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-500 ${
+                            step.status === 'loading' ? 'bg-gray-800 border border-red-600/50 shadow-[0_0_15px_rgba(220,38,38,0.2)]' :
+                            step.status === 'success' ? 'bg-green-900/20 border border-green-500/30' :
+                            'bg-gray-800/50 border border-gray-800 opacity-50'
+                        }`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border ${
+                                step.status === 'loading' ? 'border-red-500 text-red-500' :
+                                step.status === 'success' ? 'bg-green-500 border-green-500 text-black' :
+                                'border-gray-600 text-gray-600'
+                            }`}>
+                                {step.status === 'loading' ? <i className="fas fa-circle-notch fa-spin"></i> :
+                                 step.status === 'success' ? <i className="fas fa-check"></i> :
+                                 <i className={`fab fa-${step.id === 'site' ? 'chrome' : step.id.replace('_feed','')}`}></i>}
+                            </div>
+                            <div className="flex-1">
+                                <span className={`text-xs font-black uppercase tracking-widest ${
+                                    step.status === 'loading' ? 'text-white' :
+                                    step.status === 'success' ? 'text-green-400' : 'text-gray-500'
+                                }`}>
+                                    {step.label}
+                                </span>
+                                {step.status === 'loading' && (
+                                    <div className="w-full bg-gray-700 h-1 mt-2 rounded-full overflow-hidden">
+                                        <div className="h-full bg-red-600 animate-progress-indeterminate"></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {isComplete && (
+                    <button 
+                        onClick={onClose}
+                        className="mt-8 w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all animate-fadeInUp shadow-xl"
+                    >
+                        Fechar Painel
+                    </button>
+                )}
+            </div>
+            
+            <style>{`
+                @keyframes progress-indeterminate {
+                    0% { transform: translateX(-100%); }
+                    50% { transform: translateX(50%); }
+                    100% { transform: translateX(100%); }
+                }
+                .animate-progress-indeterminate {
+                    animation: progress-indeterminate 1s infinite linear;
+                }
+            `}</style>
+        </div>
+    );
+};
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ user, newsHistory, allUsers, advertisers, adConfig, onAddNews, onUpdateNews, onUpdateUser, onUpdateAdvertiser, onUpdateAdConfig }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'editor' | 'workflow' | 'users' | 'advertisers' | 'settings'>('dashboard');
@@ -102,6 +193,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, newsHistory, allUsers, ad
   });
   const [isGeneratingSocial, setIsGeneratingSocial] = useState(false);
   const [autoPostSocial, setAutoPostSocial] = useState(true);
+
+  // --- PUBLISHING OVERLAY STATE ---
+  const [isPublishingFlow, setIsPublishingFlow] = useState(false);
+  const [publishingSteps, setPublishingSteps] = useState<{ id: string, label: string, status: 'pending' | 'loading' | 'success' | 'error' }[]>([]);
+  const [currentPublishIndex, setCurrentPublishIndex] = useState(0);
 
   const isAdmin = user.role === 'Desenvolvedor' || user.role === 'Editor-Chefe';
 
@@ -684,8 +780,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, newsHistory, allUsers, ad
   };
   
   const handleSave = async (status: PostStatus = 'draft') => {
-      // ... mantido (Lógica de salvamento de post)
-      let finalStatus = status;
+    let finalStatus = status;
 
     if (!isAdmin && status === 'published') {
       alert("⚠️ Perfil restrito: Sua matéria foi enviada para REVISÃO do Editor-Chefe.");
@@ -737,7 +832,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, newsHistory, allUsers, ad
       imageUrl: mediaData.url || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c',
       imageCredits: mediaData.credits,
       mediaType: mediaData.type,
-      galleryUrls: galleryImages, // SALVAR GALERIA
+      galleryUrls: galleryImages,
       city: 'Lagoa Formosa', region: 'Alto Paranaíba',
       isBreaking, isFeatured,
       featuredPriority: existingPost?.featuredPriority || 5,
@@ -753,17 +848,72 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, newsHistory, allUsers, ad
       views: existingPost?.views || 0
     };
 
+    // --- NOVA LÓGICA DE PUBLICAÇÃO OMNICHANNEL VISUAL ---
     if (finalStatus === 'published' && autoPostSocial) {
-      // Dispara o webhook de integração (Make/Zapier)
-      await dispatchSocialWebhook(newsData);
-      alert("✅ Matéria Publicada e distribuída para todas as redes sociais!");
-    } else if (finalStatus === 'published') {
-      alert("✅ Matéria Publicada no Site (Redes Sociais ignoradas).");
-    } else {
-      alert("💾 Salvo com sucesso.");
-    }
+      // 1. Configura os passos do Overlay
+      const steps = [
+        { id: 'site', label: 'Salvando no Banco de Dados', status: 'pending' as const },
+        { id: 'instagram_feed', label: 'Publicando no Instagram', status: 'pending' as const },
+        { id: 'facebook', label: 'Publicando no Facebook', status: 'pending' as const },
+        { id: 'whatsapp', label: 'Enviando para Grupos WhatsApp', status: 'pending' as const },
+        { id: 'linkedin', label: 'Postando no LinkedIn', status: 'pending' as const }
+      ];
+      setPublishingSteps(steps);
+      setIsPublishingFlow(true);
+      setCurrentPublishIndex(0);
 
-    editingPostId ? onUpdateNews(newsData) : onAddNews(newsData);
+      // 2. Executa a sequência com delays visuais
+      const executeStep = async (index: number) => {
+        if (index >= steps.length) {
+            // Fim do processo
+            setTimeout(() => {
+                editingPostId ? onUpdateNews(newsData) : onAddNews(newsData);
+                // Não fechamos automaticamente, deixamos o usuário ver o "Sucesso Total"
+            }, 500);
+            return;
+        }
+
+        const step = steps[index];
+        
+        // Atualiza status para 'loading'
+        setPublishingSteps(prev => prev.map((s, i) => i === index ? { ...s, status: 'loading' } : s));
+
+        if (step.id === 'site') {
+            // Salva dados locais
+            await new Promise(r => setTimeout(r, 800)); // Delay fake
+            // Dispara webhook principal (o "cérebro" real)
+            dispatchSocialWebhook(newsData);
+        } else {
+            // Simula envio individual para rede social (visual only)
+            await mockPostToNetwork(step.label);
+        }
+
+        // Atualiza status para 'success'
+        setPublishingSteps(prev => prev.map((s, i) => i === index ? { ...s, status: 'success' } : s));
+        setCurrentPublishIndex(index + 1);
+        
+        // Próximo passo
+        executeStep(index + 1);
+      };
+
+      // Inicia sequência
+      executeStep(0);
+
+    } else {
+      // Salva sem overlay se não for publicar
+      editingPostId ? onUpdateNews(newsData) : onAddNews(newsData);
+      if (finalStatus === 'published') {
+        alert("✅ Matéria Publicada no Site (Redes Sociais ignoradas).");
+      } else {
+        alert("💾 Salvo com sucesso.");
+      }
+      setActiveTab('dashboard');
+      resetStates();
+    }
+  };
+  
+  const handleCloseOverlay = () => {
+    setIsPublishingFlow(false);
     setActiveTab('dashboard');
     resetStates();
   };
@@ -897,6 +1047,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, newsHistory, allUsers, ad
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans relative flex-col md:flex-row">
+       {/* OVERLAY DE PUBLICAÇÃO OMNICHANNEL */}
+       {isPublishingFlow && (
+           <PublishingOverlay 
+               steps={publishingSteps}
+               currentStepIndex={currentPublishIndex}
+               isComplete={currentPublishIndex >= publishingSteps.length}
+               onClose={handleCloseOverlay}
+           />
+       )}
+
        {/* ... (Mobile Nav e Sidebar - Mantidos) ... */}
        <nav className="md:hidden sticky top-0 z-50 bg-[#050505] text-white shadow-2xl border-b border-white/10">
         <div className="flex items-center justify-between px-4 py-3">

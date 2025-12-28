@@ -15,7 +15,6 @@ import LoadingScreen from './components/LoadingScreen';
 import BrazilNewsCard from './components/BrazilNewsCard';
 import PermissionModal from './components/PermissionModal';
 import JobsBoard from './components/JobsBoard';
-import TopBillboard from './components/TopBillboard'; // Importado para uso no Layout
 import PricingModal from './components/PricingModal'; // Importado
 import { getBrazilNationalNews, STATIC_BRAZIL_NEWS } from './services/geminiService';
 import { NewsItem, User, Advertiser, Job, AdPricingConfig, AdPlan } from './types';
@@ -352,8 +351,7 @@ const App: React.FC = () => {
           <main className="flex-grow w-full">
             {view === 'home' && (
               <div className="w-full">
-                {/* Agora TopBillboard tem a correção de layout interna */}
-                <TopBillboard /> 
+                {/* Removido TopBillboard daqui conforme solicitado */}
                 <CategoryMenu selectedCategory={selectedCategory} onSelectCategory={handleCategorySelect} onAdminClick={handleAdminClick} user={user} />
                 <AdBanner 
                     advertisers={advertisers} 
