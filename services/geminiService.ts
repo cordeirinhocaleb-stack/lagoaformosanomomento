@@ -1,111 +1,171 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
+import { getSupabase } from './supabaseService';
 
-// Este serviço garante velocidade máxima e carregamento instantâneo.
+// Imagens de Fallback Estáveis (Placehold.co evita problemas de CORS/ORB do Unsplash)
+const CATEGORY_IMAGES: Record<string, string> = {
+    'Política': 'https://placehold.co/600x400/1a1a1a/FFF?text=Politica',
+    'Agronegócio': 'https://placehold.co/600x400/166534/FFF?text=Agro',
+    'Tecnologia': 'https://placehold.co/600x400/2563eb/FFF?text=Tech',
+    'Economia': 'https://placehold.co/600x400/0f172a/FFF?text=Economia',
+    'Mundo': 'https://placehold.co/600x400/475569/FFF?text=Mundo'
+};
 
-const CACHE_KEY = 'lfnm_brazil_news_cache_v2'; // Versão alterada para invalidar cache antigo
-const CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
-
-/**
- * Notícias estáticas de segurança (Fallback)
- * Garante que o site NUNCA apareça vazio na primeira visita.
- */
-export const STATIC_BRAZIL_NEWS = [
-  { title: "Governo Federal projeta crescimento do PIB acima do esperado para este semestre", sourceName: "Economia", sourceUrl: "https://g1.globo.com/economia/", category: "Brasil" },
-  { title: "Congresso avança em votação de pautas prioritárias para o desenvolvimento regional", sourceName: "Política", sourceUrl: "https://g1.globo.com/politica/", category: "Brasília" },
-  { title: "Safra recorde de grãos impulsiona exportações do agronegócio brasileiro", sourceName: "Agro", sourceUrl: "https://globorural.globo.com/", category: "Economia" },
-  { title: "Ministério da Saúde anuncia nova campanha nacional de vacinação", sourceName: "Saúde", sourceUrl: "https://www.gov.br/saude", category: "Serviço" },
-  { title: "Novas tecnologias 5G chegam a mais municípios do interior do país", sourceName: "Tecnologia", sourceUrl: "https://g1.globo.com/tecnologia/", category: "Inovação" },
-  { title: "Banco Central mantém estabilidade na taxa de juros visando controle da inflação", sourceName: "Mercado", sourceUrl: "https://www.cnnbrasil.com.br/economia/", category: "Finanças" }
-];
-
-/**
- * Busca notícias nacionais de Política via RSS com Timeout e Fallback Agressivo
- */
-export const getBrazilNationalNews = async () => {
-  const now = Date.now();
-  const saved = localStorage.getItem(CACHE_KEY);
+// --- FUNÇÃO PRINCIPAL ---
+export const getExternalNews = async () => {
+  const supabase = getSupabase();
+  const now = new Date();
   
-  // 1. Verifica Cache
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      // Só usa o cache se não estiver vazio e estiver dentro do tempo
-      if (parsed.data && parsed.data.length > 0 && (now - parsed.timestamp < CACHE_DURATION)) {
-        return parsed.data;
+  // CACHE: Define o limite de tempo para 1 hora atrás
+  // Se houver notícias no banco criadas nos últimos 60 minutos, usa elas.
+  // Caso contrário, busca novas do RSS.
+  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+
+  // 1. Tenta buscar do Banco de Dados (Supabase) primeiro
+  if (supabase) {
+      try {
+        const { data: dbNews } = await supabase
+            .from('news')
+            .select('*')
+            .eq('source', 'rss_automation')
+            .gte('createdAt', oneHourAgo); // Busca apenas notícias da última hora
+        
+        if (dbNews && dbNews.length > 0) {
+             console.log("📰 [News] Carregado do cache horário (últimos 60min) do Banco de Dados.");
+             const grouped: Record<string, any[]> = {};
+             
+             dbNews.forEach((row: any) => {
+                 if (!grouped[row.category]) grouped[row.category] = [];
+                 grouped[row.category].push({
+                     title: row.title,
+                     sourceName: row.author || 'RSS',
+                     sourceUrl: row.seo?.canonicalUrl || '#',
+                     imageUrl: row.imageUrl,
+                     category: row.category,
+                     theme: ['Política', 'Agronegócio'].includes(row.category) ? 'green' : 'blue'
+                 });
+             });
+             
+             return grouped;
+        }
+      } catch (e) {
+          console.warn("⚠️ Falha ao ler cache RSS do Supabase:", e);
       }
-    } catch (e) {
-      localStorage.removeItem(CACHE_KEY);
-    }
   }
 
+  // 2. Se não estiver no banco (ou cache expirou), busca dos Feeds RSS
+  console.log("🌍 [News] Cache expirado ou vazio. Buscando novos feeds RSS...");
   const feeds = [
-    { name: 'G1', url: 'https://g1.globo.com/rss/g1/politica/', category: 'Brasília' },
-    { name: 'CNN', url: 'https://www.cnnbrasil.com.br/politica/feed/', category: 'Política' }
+      { key: 'Política', url: 'https://g1.globo.com/rss/g1/politica/', theme: 'green' },
+      { key: 'Agronegócio', url: 'https://www.canalrural.com.br/feed/', theme: 'green' },
+      { key: 'Tecnologia', url: 'https://g1.globo.com/rss/g1/tecnologia/', theme: 'blue' },
+      { key: 'Economia', url: 'https://g1.globo.com/rss/g1/economia/', theme: 'blue' },
+      { key: 'Mundo', url: 'https://g1.globo.com/rss/g1/mundo/', theme: 'blue' }
   ];
 
   try {
-    // 2. Cria uma promessa de Timeout de 5 segundos
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Timeout")), 5000)
-    );
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000));
 
-    // 3. Executa a busca real
-    const fetchPromise = Promise.all(feeds.map(async (feed) => {
-      try {
-        // Usa serviço alternativo se o principal falhar, ou tenta carregar direto
-        const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
-        
-        if (!response.ok) throw new Error('API Error');
-        
-        const data = await response.json();
-        
-        if (data.status !== 'ok' || !data.items) return [];
+    const promises = feeds.map(async (feed) => {
+        try {
+            // Usa api.rss2json.com para converter XML -> JSON
+            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
+            const data = await res.json();
+            
+            if (data.status !== 'ok' || !data.items) throw new Error("Feed vazio");
 
-        return (data.items || []).slice(0, 4).map((item: any) => ({
-          title: item.title,
-          sourceName: feed.name,
-          sourceUrl: item.link,
-          category: feed.category
-        }));
-      } catch (err) { 
-        return []; 
-      }
-    }));
+            const items = data.items.slice(0, 5).map((item: any) => {
+                let img = item.enclosure?.link || item.thumbnail;
+                
+                if (!img && item.description) {
+                    const imgMatch = item.description.match(/<img[^>]+src="([^">]+)"/);
+                    if(imgMatch) img = imgMatch[1];
+                }
+                if (!img && item.content) {
+                    const imgMatch = item.content.match(/<img[^>]+src="([^">]+)"/);
+                    if(imgMatch) img = imgMatch[1];
+                }
+                
+                // Fallback para imagem segura se não encontrar ou se falhar
+                if (!img) img = CATEGORY_IMAGES[feed.key];
 
-    // 4. Corrida entre o Fetch e o Timeout
-    // Se a API demorar, o timeout ganha e usamos o estático imediatamente
-    const allNewsRaw = await Promise.race([fetchPromise, timeoutPromise]) as any[][];
+                let sourceName = 'G1';
+                if (feed.key === 'Agronegócio') sourceName = 'Canal Rural';
+                else if (feed.key === 'Política') sourceName = 'G1 Política';
+
+                return {
+                    title: item.title,
+                    sourceName: sourceName,
+                    sourceUrl: item.link,
+                    category: feed.key,
+                    imageUrl: img,
+                    theme: feed.theme
+                };
+            });
+            
+            return { key: feed.key, items };
+        } catch (feedError) {
+            console.warn(`Erro ao carregar feed de ${feed.key}:`, feedError);
+            return { key: feed.key, items: [] }; 
+        }
+    });
+
+    const results = await Promise.race([Promise.all(promises), timeoutPromise]) as any[];
     
-    const result = allNewsRaw.flat().filter(item => item && item.title);
+    const finalData = results.reduce((acc, curr) => {
+        if(curr && curr.key) {
+            acc[curr.key] = curr.items;
+        }
+        return acc;
+    }, {} as Record<string, any[]>);
 
-    // Se falhou tudo (array vazio), retorna estático
-    if (result.length === 0) {
-      return STATIC_BRAZIL_NEWS;
+    // 3. Salvar no Supabase (Cache Horário)
+    if (supabase) {
+        const newsToInsert: any[] = [];
+        Object.entries(finalData).forEach(([category, items]: [string, any[]]) => {
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    newsToInsert.push({
+                        id: `rss_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                        title: item.title,
+                        lead: item.title,
+                        content: `Notícia importada automaticamente de ${item.sourceName}. <a href="${item.sourceUrl}" target="_blank">Ler original</a>.`,
+                        category: category,
+                        author: item.sourceName,
+                        authorId: 'rss_automator',
+                        status: 'published',
+                        source: 'rss_automation',
+                        imageUrl: item.imageUrl,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        isBreaking: false,
+                        isFeatured: false,
+                        seo: { canonicalUrl: item.sourceUrl },
+                        city: 'Mundo',
+                        region: 'Global',
+                        views: 0
+                    });
+                });
+            }
+        });
+
+        if (newsToInsert.length > 0) {
+            console.log(`💾 [DB] Salvando ${newsToInsert.length} novas notícias RSS no Supabase...`);
+            supabase.from('news').insert(newsToInsert).then(({ error }) => {
+                if(error) console.error("Erro ao salvar RSS no banco:", error.message || JSON.stringify(error));
+            });
+        }
     }
 
-    // Sucesso: Salva no cache
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: now, data: result }));
-    return result;
+    return finalData;
 
   } catch (e) {
-    // Erro de Timeout ou Rede: Retorna Estático instantaneamente
-    // Não limpa o cache antigo se existir, tenta usar ele como backup secundário
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            if(parsed.data.length > 0) return parsed.data;
-        } catch {}
-    }
-    return STATIC_BRAZIL_NEWS;
+    console.warn("RSS Fetch failed globally. Returning empty object.", e);
+    return {};
   }
 };
 
-/**
- * Clima Direto (Dados Estáticos Otimizados para Lagoa Formosa)
- * CEP: 38720-000
- */
 export const getCurrentWeather = async () => {
-  // Simulação simples de fase da lua baseada no dia (apenas visual)
   const phases = ['Lua Nova', 'Lua Crescente', 'Lua Cheia', 'Lua Minguante'];
   const dayOfMonth = new Date().getDate();
   const phaseIndex = Math.floor(dayOfMonth / 7.5) % 4;
@@ -119,9 +179,6 @@ export const getCurrentWeather = async () => {
   ];
 };
 
-/**
- * Cotação do Dólar via API de Economia (Resposta em Milissegundos)
- */
 export const getDollarRate = async () => {
   try {
     const res = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
@@ -132,9 +189,6 @@ export const getDollarRate = async () => {
   }
 };
 
-/**
- * Pão Diário (Banco de Dados Local - Carregamento Instantâneo)
- */
 export const getDailyBiblicalMessage = async () => {
   const messages = [
     { verse: "O Senhor é o meu pastor, nada me faltará.", reference: "Salmos 23:1", reflection: "Deus cuida de cada detalhe da sua vida em Lagoa Formosa.", wordOfDay: "CUIDADO" },
@@ -146,29 +200,8 @@ export const getDailyBiblicalMessage = async () => {
   return messages[dayIndex];
 };
 
-// --- FUNÇÃO AUXILIAR DE TEMPLATE (FALLBACK) ---
-const generateFallbackSocialContent = (title: string, lead: string, category: string) => {
-    const cleanLead = lead.substring(0, 150);
-    const baseLink = "https://lagoaformosanomomento.com.br/noticia";
-    const dateStr = new Date().toLocaleDateString('pt-BR');
-    
-    return {
-      instagram_feed: `🚨 ${title.toUpperCase()} 🚨\n\n${cleanLead}...\n\n📅 ${dateStr}\n📍 Lagoa Formosa e Região\n\n👉 Leia a matéria completa no link da bio.\n\n#lagoaformosa #noticias #${category.toLowerCase()} #altoparanaiba`,
-      instagram_stories: `NO MOMENTO:\n${title}\n\n👆 TOQUE NO LINK PARA LER 👆`,
-      facebook: `📰 NOTÍCIA: ${title}\n\n${lead}\n\nConfira todos os detalhes em nosso portal. O que você acha disso? Deixe sua opinião nos comentários!\n\n🔗 ${baseLink}`,
-      whatsapp: `*PLANTÃO LAGOA FORMOSA* 🚨\n\n*${title}*\n\n${cleanLead}...\n\nLeia mais clicando aqui: ${baseLink}`,
-      linkedin: `📄 Atualização sobre ${category}: ${title}.\n\nPara o setor de ${category} em Lagoa Formosa e região, este acontecimento traz impactos importantes. Confira a análise completa.`
-    };
-};
-
-/**
- * Adaptação de Conteúdo para Redes Sociais (Com Inteligência Artificial Gemini)
- * Tenta usar IA para gerar textos personalizados. Se falhar ou sem chave, usa templates.
- */
 export const adaptContentForSocialMedia = async (title: string, lead: string, category: string) => {
   try {
-    // Tenta obter a chave da API do ambiente. 
-    // Em produção, isso deve vir de process.env.API_KEY configurado no servidor ou build.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
@@ -178,7 +211,6 @@ export const adaptContentForSocialMedia = async (title: string, lead: string, ca
 
     const ai = new GoogleGenAI({ apiKey });
     
-    // Prompt Otimizado para Social Media Manager
     const prompt = `Você é o Social Media Manager do jornal "Lagoa Formosa no Momento".
     Crie legendas para redes sociais baseadas nesta notícia:
     
@@ -210,20 +242,34 @@ export const adaptContentForSocialMedia = async (title: string, lead: string, ca
     });
 
     const json = JSON.parse(response.text || '{}');
-    
-    // Fallback caso a IA retorne vazio
     if (!json.instagram) throw new Error("IA retornou resposta vazia");
 
     return {
        instagram_feed: json.instagram,
-       instagram_stories: `NO MOMENTO:\n${title}\n\n👆 TOQUE NO LINK PARA LER 👆`, // Stories geralmente é visual, mantemos padrão
+       instagram_stories: `NO MOMENTO:\n${title}\n\n👆 TOQUE NO LINK PARA LER 👆`,
        facebook: json.facebook,
        whatsapp: json.whatsapp,
        linkedin: json.linkedin
     };
 
-  } catch (error) {
-    console.error("Erro na geração via Gemini:", error);
+  } catch (error: any) {
+    // Tratamento robusto de erros para evitar crashes ou logs excessivos
+    // Se for erro de cota (429) ou qualquer outro, fallback imediato
+    console.warn("⚠️ Gemini API indisponível ou cota excedida. Usando templates locais.", error.message || error);
     return generateFallbackSocialContent(title, lead, category);
   }
+};
+
+const generateFallbackSocialContent = (title: string, lead: string, category: string) => {
+    const cleanLead = lead.substring(0, 150);
+    const baseLink = "https://lagoaformosanomomento.com.br/noticia";
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    
+    return {
+      instagram_feed: `🚨 ${title.toUpperCase()} 🚨\n\n${cleanLead}...\n\n📅 ${dateStr}\n📍 Lagoa Formosa e Região\n\n👉 Leia a matéria completa no link da bio.\n\n#lagoaformosa #noticias #${category.toLowerCase()} #altoparanaiba`,
+      instagram_stories: `NO MOMENTO:\n${title}\n\n👆 TOQUE NO LINK PARA LER 👆`,
+      facebook: `📰 NOTÍCIA: ${title}\n\n${lead}\n\nConfira todos os detalhes em nosso portal. O que você acha disso? Deixe sua opinião nos comentários!\n\n🔗 ${baseLink}`,
+      whatsapp: `*PLANTÃO LAGOA FORMOSA* 🚨\n\n*${title}*\n\n${cleanLead}...\n\nLeia mais clicando aqui: ${baseLink}`,
+      linkedin: `📄 Atualização sobre ${category}: ${title}.\n\nPara o setor de ${category} em Lagoa Formosa e região, este acontecimento traz impactos importantes. Confira a análise completa.`
+    };
 };

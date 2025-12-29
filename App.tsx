@@ -1,247 +1,210 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
-import Header from './components/Header';
-import NewsCard from './components/NewsCard';
-import AdminPanel from './components/AdminPanel';
-import NewsDetails from './components/NewsDetails';
-import AdvertiserPage from './components/AdvertiserPage';
-import AdBanner from './components/AdBanner';
-import CategoryMenu from './components/CategoryMenu';
-import FullWidthPromo from './components/FullWidthPromo';
-import DailyBread from './components/DailyBread';
-import Footer from './components/Footer';
-import Login from './components/Login';
-import LoadingScreen from './components/LoadingScreen';
-import BrazilNewsCard from './components/BrazilNewsCard';
-import PermissionModal from './components/PermissionModal';
-import JobsBoard from './components/JobsBoard';
-import PricingModal from './components/PricingModal'; // Importado
-import { getBrazilNationalNews, STATIC_BRAZIL_NEWS } from './services/geminiService';
-import { NewsItem, User, Advertiser, Job, AdPricingConfig, AdPlan } from './types';
+import React, { useState, useEffect } from 'react';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import LoadingScreen from './components/common/LoadingScreen';
+import PermissionModal from './components/common/PermissionModal';
+import PricingModal from './components/common/PricingModal';
+import MyAccountModal from './components/common/MyAccountModal';
+
+// Pages
+import Home from './pages/Home';
+import Admin from './pages/Admin/index';
+import NewsDetail from './pages/NewsDetail';
+import AdvertiserPage from './pages/Advertiser';
+import Jobs from './pages/Jobs';
+
+// Componentes
+import Login from './components/Login'; 
+
+// Services & Types
+import { getExternalNews } from './services/geminiService';
 import { trackAdClick } from './services/adService';
+import { 
+    initSupabase, 
+    fetchSiteData, 
+    createUser, 
+    updateUser, 
+    createNews, 
+    updateNews,
+    deleteNews,
+    upsertAdvertiser,
+    saveSystemSetting, 
+    getSystemSetting
+} from './services/supabaseService';
+import { NewsItem, User, Advertiser, Job, AdPricingConfig, SystemSettings } from './types';
 
-const INITIAL_USERS: User[] = [
-  { id: '1', name: 'Welix Duarte', email: 'welix@lfnm.com.br', role: 'Editor-Chefe', status: 'active' },
-  { id: '2', name: 'Dev Welix', email: 'dev', role: 'Desenvolvedor', status: 'active' },
-  { id: '3', name: 'Júlia Silva', email: 'julia@lfnm.com.br', role: 'Repórter', status: 'active' },
-  { id: '4', name: 'Marcos Agro', email: 'marcos@lfnm.com.br', role: 'Jornalista', status: 'active' },
-];
-
-const INITIAL_NEWS: NewsItem[] = [
-  {
-    id: '1',
-    status: 'published',
-    title: 'Lagoa Formosa registra aumento no turismo rural em 2025',
-    lead: 'Com novas rotas gastronômicas, a cidade se torna polo regional de visitantes aos finais de semana.',
-    content: 'O ano de 2025 começou com ventos prósperos para o turismo em Lagoa Formosa. Segundo dados da prefeitura, o fluxo de visitantes nas fazendas históricas e pesqueiros da região subiu 40% em comparação ao ano anterior.',
-    category: 'Cotidiano',
-    authorId: 'admin',
-    author: 'Welix Duarte',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800',
-    imageCredits: 'Welix Duarte',
-    mediaType: 'image',
-    city: 'Lagoa Formosa',
-    region: 'Alto Paranaíba',
-    isBreaking: false,
-    isFeatured: true,
-    featuredPriority: 10,
-    seo: {
-      slug: 'turismo-rural-lagoa-formosa-2025',
-      metaTitle: 'Turismo Rural em Lagoa Formosa 2025',
-      metaDescription: 'Aumento no turismo rural em Lagoa Formosa.',
-      focusKeyword: 'turismo rural'
-    },
-    source: 'site'
-  },
-  {
-    id: '2',
-    status: 'published',
-    title: 'Preços do milho e soja trazem otimismo para produtores rurais em 2025',
-    lead: 'A safra deste ano em nossa região destaca-se pela alta produtividade e qualidade.',
-    content: 'O setor do agronegócio em Lagoa Formosa celebra os números da última colheita. Os silos da região estão operando em capacidade máxima.',
-    category: 'Agro',
-    authorId: 'admin',
-    author: 'Welix Duarte',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=800',
-    imageCredits: 'Welix Duarte',
-    mediaType: 'image',
-    city: 'Lagoa Formosa',
-    region: 'Alto Paranaíba',
-    isBreaking: false,
-    isFeatured: false,
-    featuredPriority: 5,
-    seo: {
-      slug: 'precos-milho-soja-2025',
-      metaTitle: 'Preços Milho e Soja 2025',
-      metaDescription: 'Otimismo para o agronegócio em 2025.',
-      focusKeyword: 'agronegócio'
-    },
-    source: 'site'
-  }
-];
-
-const INITIAL_ADVERTISERS: Advertiser[] = [
-  {
-    id: 'ad1',
-    name: 'Comercial Lagoa',
-    category: 'Supermercado',
-    plan: 'master', // Atualizado para Master para aparecer no AdBanner
-    logoIcon: 'fa-shopping-cart',
-    startDate: '2024-01-01',
-    endDate: '2030-12-31',
-    isActive: true,
-    views: 1200,
-    clicks: 45,
-    redirectType: 'internal',
-    internalPage: {
-        description: 'O melhor supermercado da região com ofertas diárias.',
-        whatsapp: '34999999999',
-        instagram: '@comerciallagoa',
-        location: 'Av. Brasil, 100 - Centro',
-        products: [
-          {id: 'p1', name: 'Cesta Básica Premium', price: 'R$ 150,00', description: 'Itens selecionados das melhores marcas.'}
-        ]
-    }
-  }
-];
-
-const INITIAL_JOBS: Job[] = [
-  {
-    id: 'j1',
-    title: 'Auxiliar Administrativo',
-    company: 'Agropecuária Boa Vista',
-    location: 'Lagoa Formosa - MG',
-    type: 'CLT',
-    salary: 'R$ 1.800,00',
-    description: 'Vaga para auxiliar administrativo com experiência em emissão de notas fiscais e controle de estoque. Necessário ensino médio completo e domínio de Excel.',
-    whatsapp: '34999998888',
-    postedAt: new Date().toISOString(),
-    isActive: true
-  },
-  {
-    id: 'j2',
-    title: 'Vendedor Externo',
-    company: 'Distribuidora Aliança',
-    location: 'Região (Patos/Lagoa)',
-    type: 'PJ',
-    salary: 'Comissão + Ajuda de Custo',
-    description: 'Buscamos vendedor com veículo próprio para atuar na região do Alto Paranaíba. Ótimas comissões.',
-    whatsapp: '34999997777',
-    postedAt: new Date().toISOString(),
-    isActive: true
-  }
-];
-
-// Configuração Padrão de Preços
 const INITIAL_AD_CONFIG: AdPricingConfig = {
-    masterDailyPrice: 50,
-    premiumDailyPrice: 30,
-    standardDailyPrice: 15,
-    cashbackPercent: 10,
-    promoText: 'Comece hoje e ganhe bônus!',
+    plans: [
+        {
+            id: 'master',
+            name: 'Master',
+            prices: { daily: 50, weekly: 300, monthly: 1200, quarterly: 3000, semiannual: 5500, yearly: 10000 },
+            description: 'Domínio total do portal',
+            cashbackPercent: 15,
+            features: {
+                placements: ['master_carousel', 'sidebar', 'standard_list'],
+                canCreateJobs: true,
+                maxProducts: 0,
+                socialVideoAd: true,
+                videoLimit: 4,
+                socialFrequency: 'daily',
+                allowedSocialNetworks: ['instagram', 'facebook', 'whatsapp', 'linkedin', 'tiktok'],
+                hasInternalPage: true
+            }
+        },
+        {
+            id: 'premium',
+            name: 'Premium',
+            prices: { daily: 30, weekly: 180, monthly: 700, quarterly: 1800, semiannual: 3200, yearly: 6000 },
+            description: 'Visibilidade constante',
+            cashbackPercent: 5,
+            features: {
+                placements: ['sidebar', 'standard_list'],
+                canCreateJobs: true,
+                maxProducts: 5,
+                socialVideoAd: true,
+                videoLimit: 2,
+                socialFrequency: 'weekly',
+                allowedSocialNetworks: ['instagram', 'facebook', 'tiktok'],
+                hasInternalPage: true
+            }
+        },
+        {
+            id: 'standard',
+            name: 'Standard',
+            prices: { daily: 15, weekly: 90, monthly: 350, quarterly: 900, semiannual: 1600, yearly: 3000 },
+            description: 'Presença garantida',
+            cashbackPercent: 0,
+            features: {
+                placements: ['standard_list'],
+                canCreateJobs: false,
+                maxProducts: 1,
+                socialVideoAd: false,
+                videoLimit: 0,
+                socialFrequency: 'monthly',
+                allowedSocialNetworks: [],
+                hasInternalPage: true
+            }
+        }
+    ],
+    promoText: 'Assine agora e impulsione seu negócio!',
     active: true
+};
+
+const DEFAULT_SETTINGS: SystemSettings = {
+    jobsModuleEnabled: false,
+    enableOmnichannel: true,
+    supabase: {
+        url: 'https://xlqyccbnlqahyxhfswzh.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhscXljY2JubHFhaHl4aGZzd3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjYwNTMsImV4cCI6MjA4MjU0MjA1M30.5sFnDeMEtXBSrKGjt4vILrQEdsg4MytlftGp67Ieiio'
+    }
 };
 
 const App: React.FC = () => {
   const [showLoading, setShowLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(INITIAL_USERS[0]);
-  const [view, setView] = useState<'home' | 'admin' | 'details' | 'login' | 'advertiser' | 'jobs'>('home');
-  const [news, setNews] = useState<NewsItem[]>(INITIAL_NEWS);
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
-  const [advertisers, setAdvertisers] = useState<Advertiser[]>(INITIAL_ADVERTISERS);
-  const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [view, setView] = useState<'home' | 'admin' | 'details' | 'advertiser' | 'jobs'>('home');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [dataSource, setDataSource] = useState<'database' | 'mock' | 'missing_tables'>('mock');
+  
+  const [externalCategories, setExternalCategories] = useState<Record<string, any[]>>({});
+  const [adConfig, setAdConfig] = useState<AdPricingConfig>(INITIAL_AD_CONFIG);
+  const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
+  
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [selectedAdvertiser, setSelectedAdvertiser] = useState<Advertiser | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [brazilNews, setBrazilNews] = useState<any[]>(STATIC_BRAZIL_NEWS);
-  
-  // New States for Pricing Logic
-  const [adConfig, setAdConfig] = useState<AdPricingConfig>(INITIAL_AD_CONFIG);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
-  useEffect(() => {
-    // 1. Carrega dados externos
-    let isMounted = true;
-    getBrazilNationalNews().then(data => {
-      if (isMounted && data && data.length > 0) setBrazilNews(data);
-    });
-
-    const savedUser = localStorage.getItem('lfnm_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) { console.error('Erro ao recuperar sessão', e); }
-    }
-    
-    // Recupera config de preços salva
-    const savedConfig = localStorage.getItem('lfnm_ad_config');
-    if(savedConfig) {
-        try { setAdConfig(JSON.parse(savedConfig)); } catch {}
-    }
-
-    return () => { isMounted = false; };
-  }, []);
-
+  // FIX: Navegação segura via updateHash com Try/Catch global
   const updateHash = (hash: string) => {
-    try {
-      window.location.hash = hash;
+    const target = hash.startsWith('#') ? hash : `#${hash}`;
+    try { 
+      if (window.location.hash !== target) {
+        window.location.hash = target; 
+      }
     } catch (e) {
-      console.warn("Navigation warning: Could not update URL hash in this environment.", e);
+      console.warn("Alteração de Hash bloqueada. O sistema continuará via estado interno.");
     }
   };
 
   useEffect(() => {
-    const handleHashChange = () => {
-      let hash = '';
-      try {
-        hash = window.location.hash;
-      } catch (e) {
-        return;
-      }
+    let isMounted = true;
+    let newsInterval: any;
 
-      if (hash === '#/admin') {
-          setView('admin');
-      } else if (hash === '#/login') {
-           setView('admin');
-           updateHash('/admin');
-      } else if (hash.startsWith('#/news/')) {
-        const id = hash.split('/').pop();
-        const item = news.find(n => n.id === id);
-        if (item) {
-          setSelectedNews(item);
-          setView('details');
-        } else {
-          setView('home');
-          updateHash('/');
+    const initializeSystem = async () => {
+        const savedUser = localStorage.getItem('lfnm_user') || sessionStorage.getItem('lfnm_user');
+        if (savedUser) {
+            try { setUser(JSON.parse(savedUser)); } catch {}
         }
-      } else if (hash === '#/jobs') {
-        setView('jobs');
-      } else {
-        setView('home');
-        if(hash !== '' && hash !== '#/') updateHash('/');
-      }
+
+        const savedSettings = localStorage.getItem('lfnm_system_settings');
+        let currentSettings = DEFAULT_SETTINGS;
+        if(savedSettings) {
+            try { 
+                const parsed = JSON.parse(savedSettings);
+                if(!parsed.supabase || !parsed.supabase.url) parsed.supabase = DEFAULT_SETTINGS.supabase;
+                currentSettings = parsed;
+                setSystemSettings(currentSettings); 
+            } catch {}
+        }
+
+        if (currentSettings.supabase?.url && currentSettings.supabase?.anonKey) {
+            initSupabase(currentSettings.supabase.url, currentSettings.supabase.anonKey);
+            const response = await fetchSiteData();
+            if (isMounted && response) {
+                setNews(response.data.news);
+                setAdvertisers(response.data.advertisers);
+                setUsers(response.data.users);
+                setJobs(response.data.jobs);
+                setDataSource(response.source);
+                if (response.source === 'database') {
+                    const remoteConfig = await getSystemSetting('ad_config');
+                    if (remoteConfig) setAdConfig(remoteConfig);
+                }
+            }
+        }
+
+        const loadExternalNews = () => {
+            getExternalNews().then(data => { if (isMounted) setExternalCategories(data); });
+        };
+        loadExternalNews();
+        newsInterval = setInterval(loadExternalNews, 3600000);
+        if (isMounted) setIsInitialized(true);
     };
 
+    initializeSystem();
+    return () => { isMounted = false; if (newsInterval) clearInterval(newsInterval); };
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    const handleHashChange = () => {
+      let hash = '';
+      try { hash = window.location.hash; } catch { return; }
+      if (hash === '#/admin') {
+         if (user) { setView('admin'); setShowLoginModal(false); } 
+         else { setView('home'); updateHash('/'); setTimeout(() => setShowLoginModal(true), 100); }
+      } else if (hash === '#/login') { setShowLoginModal(true); }
+      else if (hash.startsWith('#/news/')) {
+        const id = hash.split('/').pop();
+        const item = news.find(n => n.id === id);
+        if (item) { setSelectedNews(item); setView('details'); } 
+        else { setView('home'); updateHash('/'); }
+      } else if (hash === '#/jobs') { setView('jobs'); }
+      else { if (view !== 'admin' && view !== 'details' && view !== 'advertiser') setView('home'); }
+    };
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [news]);
-
-  const filteredNews = useMemo(() => {
-    let list = news.filter(n => n.status === 'published');
-    if (selectedCategory !== 'all') list = list.filter(n => n.category === selectedCategory);
-    
-    return [...list].sort((a, b) => {
-      const pA = a.featuredPriority || 0;
-      const pB = b.featuredPriority || 0;
-      if (pB !== pA) return pB - pA;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, [news, selectedCategory]);
+  }, [news, user, view, isInitialized]); 
 
   const handleNewsClick = (item: NewsItem) => {
     setSelectedNews(item);
@@ -252,23 +215,12 @@ const App: React.FC = () => {
 
   const handleAdvertiserClick = (advertiser: Advertiser) => {
     trackAdClick(advertiser.id);
-    
     if (advertiser.redirectType === 'external' && advertiser.externalUrl) {
       window.open(advertiser.externalUrl, '_blank');
     } else {
       setSelectedAdvertiser(advertiser);
       setView('advertiser');
       window.scrollTo(0, 0);
-    }
-  };
-
-  const handleCategorySelect = (id: string) => {
-    if (id === 'jobs_view_trigger') {
-      setView('jobs');
-      updateHash('/jobs');
-      window.scrollTo(0, 0);
-    } else {
-      setSelectedCategory(id);
     }
   };
 
@@ -280,13 +232,15 @@ const App: React.FC = () => {
   };
 
   const handleAdminClick = () => {
-    setView('admin'); 
-    updateHash('/admin'); 
+    if (user) { setView('admin'); updateHash('/admin'); } 
+    else { setShowLoginModal(true); }
   };
 
-  const handleLoginSuccess = (u: User) => {
+  const handleLoginSuccess = (u: User, remember: boolean) => {
     setUser(u);
-    localStorage.setItem('lfnm_user', JSON.stringify(u));
+    if (remember) localStorage.setItem('lfnm_user', JSON.stringify(u));
+    else sessionStorage.setItem('lfnm_user', JSON.stringify(u));
+    setShowLoginModal(false);
     setView('admin');
     updateHash('/admin');
   };
@@ -294,104 +248,124 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('lfnm_user');
+    sessionStorage.removeItem('lfnm_user');
     handleBackToHome();
   };
 
-  // --- LOGIC FOR PRICING MODAL ---
-  const handleOpenPricing = () => setShowPricingModal(true);
-  const handleClosePricing = () => setShowPricingModal(false);
-  const handleSelectPlan = (plan: AdPlan) => {
-     setShowPricingModal(false);
-     // Em um fluxo real, isso levaria para um checkout.
-     // Aqui, simulamos indo para o Admin para "cadastrar" o anunciante, ou poderia abrir um formulário de contato.
-     alert(`Plano ${plan.toUpperCase()} selecionado! Em breve você será redirecionado para o checkout.`);
-     // Opcional: Redirecionar para o admin para 'simular' o cadastro self-service se o usuário estiver logado
-     if(user) {
-         setView('admin');
-         updateHash('/admin');
-     }
+  const handleAddNews = async (n: NewsItem) => {
+      setNews(p => [n, ...p]);
+      if(dataSource === 'database') { try { await createNews(n); } catch(e) {} }
   };
 
-  // --- ADMIN UPDATE CONFIG ---
-  const handleUpdateAdConfig = (newConfig: AdPricingConfig) => {
-      setAdConfig(newConfig);
-      localStorage.setItem('lfnm_ad_config', JSON.stringify(newConfig));
+  const handleUpdateNews = async (n: NewsItem) => {
+      setNews(p => p.map(x => x.id === n.id ? n : x));
+      if(dataSource === 'database') { try { await updateNews(n); } catch(e) {} }
   };
+
+  const handleDeleteNews = async (id: string) => {
+      setNews(p => p.filter(x => x.id !== id));
+      if(dataSource === 'database') { try { await deleteNews(id); } catch(e) {} }
+  };
+  
+  const handleAddUser = async (u: User) => {
+      setUsers(p => [...p, u]);
+      if (dataSource === 'database') { try { await createUser(u); } catch (e) {} }
+  };
+
+  const handleUpdateUser = async (u: User) => {
+      setUsers(p => p.map(x => x.id === u.id ? u : x));
+      if(user && user.id === u.id) {
+          setUser(u);
+          if (localStorage.getItem('lfnm_user')) localStorage.setItem('lfnm_user', JSON.stringify(u));
+          else if (sessionStorage.getItem('lfnm_user')) sessionStorage.setItem('lfnm_user', JSON.stringify(u));
+      }
+      if (dataSource === 'database') { try { await updateUser(u); } catch (e) {} }
+  };
+
+  const handleUpdateAdvertiser = async (a: Advertiser) => {
+      setAdvertisers(prev => {
+         const exists = prev.find(item => item.id === a.id);
+         if(exists) return prev.map(item => item.id === a.id ? a : item);
+         return [...prev, a];
+      });
+      if(dataSource === 'database') { try { await upsertAdvertiser(a); } catch(e) {} }
+  };
+
+  const handleUpdateAdConfig = async (c: AdPricingConfig) => {
+      setAdConfig(c);
+      localStorage.setItem('lfnm_ad_config', JSON.stringify(c));
+      if(dataSource === 'database') { try { await saveSystemSetting('ad_config', c); } catch(e) {} }
+  };
+
+  const handleUpdateSystemSettings = (s: SystemSettings) => {
+      setSystemSettings(s);
+      localStorage.setItem('lfnm_system_settings', JSON.stringify(s));
+      if(s.supabase?.url) initSupabase(s.supabase.url, s.supabase.anonKey);
+  };
+
+  const marqueeNews = Object.values(externalCategories).flat().slice(0, 10);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col w-full overflow-x-hidden">
       {showLoading && <LoadingScreen onFinished={() => setShowLoading(false)} />}
-      <PermissionModal onAccept={() => console.log('Mídias autorizadas')} />
+      <PermissionModal onAccept={() => {}} />
       
+      {showLoginModal && (
+          <Login onLogin={handleLoginSuccess} onClose={() => setShowLoginModal(false)} />
+      )}
+
       {showPricingModal && (
         <PricingModal 
             config={adConfig}
-            onClose={handleClosePricing}
-            onSelectPlan={handleSelectPlan}
+            onClose={() => setShowPricingModal(false)}
+            onSelectPlan={(plan) => {
+                setShowPricingModal(false);
+                if(user) handleAdminClick();
+            }}
         />
       )}
 
-      <div className={`w-full flex flex-col min-h-screen transition-all duration-700 ${showLoading ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
-        {view === 'login' && <Login onLogin={handleLoginSuccess} />}
+      {showProfileModal && user && (
+          <MyAccountModal user={user} onClose={() => setShowProfileModal(false)} onUpdateUser={handleUpdateUser} />
+      )}
 
-        {view !== 'login' && (
-          <Header 
-            onAdminClick={handleAdminClick} 
-            onHomeClick={handleBackToHome}
-            latestNews={news.slice(-6)}
-            brazilNews={brazilNews}
-            user={user}
-            onLogout={handleLogout}
-            onNewsClick={handleNewsClick}
-            isSimplified={view === 'admin' || view === 'jobs'}
-          />
-        )}
+      <div className={`w-full flex flex-col min-h-screen transition-all duration-700 ${showLoading ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+        <Header 
+            onAdminClick={handleAdminClick} onHomeClick={handleBackToHome}
+            latestNews={news.slice(0, 6)} brazilNews={marqueeNews} 
+            user={user} onLogout={handleLogout} onNewsClick={handleNewsClick}
+            isSimplified={view === 'admin' || view === 'jobs'} onOpenProfile={() => setShowProfileModal(true)}
+        />
 
         <div className={`w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] md:mx-auto bg-white md:shadow-2xl md:border-x border-gray-100 relative ${view === 'details' ? 'md:w-full md:max-w-none md:border-none md:shadow-none' : ''}`}>
           <main className="flex-grow w-full">
             {view === 'home' && (
-              <div className="w-full">
-                {/* Removido TopBillboard daqui conforme solicitado */}
-                <CategoryMenu selectedCategory={selectedCategory} onSelectCategory={handleCategorySelect} onAdminClick={handleAdminClick} user={user} />
-                <AdBanner 
-                    advertisers={advertisers} 
-                    onAdvertiserClick={handleAdvertiserClick}
-                    onPlanRequest={handleOpenPricing} 
-                />
-                <FullWidthPromo />
-                <div className="w-full px-4 md:px-12">
-                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 mb-8 md:mb-12 mt-4 md:mt-16 animate-fadeIn">
-                    <h2 className="text-4xl md:text-7xl lg:text-8xl font-[1000] uppercase tracking-tighter text-black leading-none">NOTÍCIAS</h2>
-                    <div className="bg-red-600 px-6 md:px-10 py-2 md:py-4 skew-x-[-15deg] shadow-[0_10px_30px_rgba(220,38,38,0.3)] inline-block w-fit">
-                      <span className="text-white font-black text-2xl md:text-5xl lg:text-6xl italic skew-x-[15deg] tracking-tighter whitespace-nowrap block leading-none">DO MOMENTO</span>
-                    </div>
-                  </div>
-                  <section className="mb-12 md:mb-20 w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-                    {filteredNews.slice(0, 6).map((item) => <NewsCard key={item.id} news={item} featured onClick={handleNewsClick} />)}
-                  </section>
-                </div>
-                <DailyBread />
-              </div>
-            )}
-
-            {view === 'admin' && user && (
-              <AdminPanel 
-                user={user} 
-                newsHistory={news}
-                allUsers={users}
-                advertisers={advertisers}
-                adConfig={adConfig}
-                onAddNews={(n) => setNews(p => [...p, n])} 
-                onUpdateNews={(n) => setNews(p => p.map(x => x.id === n.id ? n : x))}
-                onUpdateUser={(u) => setUsers(p => p.map(x => x.id === u.id ? u : x))}
-                onUpdateAdConfig={handleUpdateAdConfig}
+              <Home 
+                news={news} advertisers={advertisers} user={user}
+                onNewsClick={handleNewsClick} onAdvertiserClick={handleAdvertiserClick}
+                onAdminClick={handleAdminClick} onPricingClick={() => setShowPricingModal(true)}
+                onJobsClick={() => { setView('jobs'); updateHash('/jobs'); }}
+                adConfig={adConfig} externalCategories={externalCategories}
               />
             )}
-            {view === 'details' && selectedNews && <NewsDetails news={selectedNews} onBack={handleBackToHome} />}
+            {view === 'admin' && user && (
+              <Admin 
+                user={user} newsHistory={news} allUsers={users}
+                advertisers={advertisers} adConfig={adConfig} systemSettings={systemSettings}
+                onAddNews={handleAddNews} onUpdateNews={handleUpdateNews} onDeleteNews={handleDeleteNews}
+                onAddUser={handleAddUser} onUpdateUser={handleUpdateUser}
+                onUpdateAdvertiser={handleUpdateAdvertiser} onUpdateAdConfig={handleUpdateAdConfig}
+                onUpdateSystemSettings={handleUpdateSystemSettings} dataSource={dataSource}
+                onNavigateHome={handleBackToHome}
+              />
+            )}
+            {view === 'details' && selectedNews && (
+                <NewsDetail news={selectedNews} onBack={handleBackToHome} advertisers={advertisers} onAdvertiserClick={handleAdvertiserClick} />
+            )}
             {view === 'advertiser' && selectedAdvertiser && <AdvertiserPage advertiser={selectedAdvertiser} onBack={handleBackToHome} />}
-            {view === 'jobs' && <JobsBoard jobs={jobs} onBack={handleBackToHome} />}
+            {view === 'jobs' && <Jobs jobs={jobs} onBack={handleBackToHome} isEnabled={systemSettings.jobsModuleEnabled} />}
           </main>
-          {view !== 'login' && <Footer />}
+          <Footer />
         </div>
       </div>
     </div>

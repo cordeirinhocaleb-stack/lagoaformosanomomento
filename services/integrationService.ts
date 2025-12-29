@@ -1,5 +1,5 @@
 
-import { NewsItem, WebhookPayload, Advertiser } from '../types';
+import { NewsItem, WebhookPayload, SystemSettings } from '../types';
 
 /**
  * --------------------------------------------------------------------------------------
@@ -7,22 +7,15 @@ import { NewsItem, WebhookPayload, Advertiser } from '../types';
  * --------------------------------------------------------------------------------------
  * 
  * Este serviço é o "cérebro" da distribuição Omnichannel.
- * 
- * COMO FUNCIONA PARA O USUÁRIO:
- * 1. O usuário cria a notícia no AdminPanel.
- * 2. O Gemini Service gera automaticamente as legendas para Instagram, Facebook, etc.
- * 3. Ao clicar em PUBLICAR, a função `dispatchSocialWebhook` abaixo é chamada.
- * 
- * COMO FUNCIONA A MÁGICA (NO-CODE):
- * - Esta função envia um JSON (payload) para uma URL externa (Webhook).
- * - Ferramentas como MAKE (antigo Integromat), ZAPIER ou N8N recebem esse JSON.
- * - Lá nessas ferramentas, você configura o fluxo:
- *    Se "post_published" -> Postar Foto no Instagram + Postar Link no Facebook + Enviar no Grupo WhatsApp.
- * 
- * Isso permite escalar infinitamente sem programar cada API de rede social individualmente aqui.
+ * Agora ele busca a URL configurada no painel de Ajustes para fazer o disparo real.
  */
 
 export const dispatchSocialWebhook = async (news: NewsItem) => {
+  // Recupera configurações salvas
+  const settingsStr = localStorage.getItem('lfnm_system_settings');
+  const settings: SystemSettings = settingsStr ? JSON.parse(settingsStr) : {};
+  const targetUrl = settings.socialWebhookUrl;
+
   // [PAYLOAD] O pacote de dados que vai para o Make/Zapier
   const payload: WebhookPayload = {
     event: 'post_published', // Gatilho
@@ -38,21 +31,64 @@ export const dispatchSocialWebhook = async (news: NewsItem) => {
     }
   };
 
-  // [LOG] Para depuração no console do navegador
+  // [LOG] Para depuração
   console.group('🚀 [Webhook Dispatcher] Enviando para Automação Externa...');
-  console.log('Target: (Configure aqui sua URL do Make/Zapier)');
+  console.log('Target URL:', targetUrl || '(Modo Simulação - URL não configurada)');
   console.log('Payload:', JSON.stringify(payload, null, 2));
   console.groupEnd();
 
   // [IMPLEMENTAÇÃO REAL]
-  // Para ativar, descomente a linha abaixo e coloque sua URL do Make/Zapier.
-  // await fetch('https://hook.us1.make.com/SEU_ID_DO_WEBHOOK', { 
-  //   method: 'POST', 
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(payload) 
-  // });
-  
-  return true;
+  if (targetUrl) {
+      try {
+          // Tenta enviar com no-cors primeiro se for URL simples, ou cors normal
+          await fetch(targetUrl, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            mode: 'no-cors' // Muitas vezes necessário para Webhooks simples que não retornam headers CORS
+          });
+          console.log("✅ Webhook disparado com sucesso para a URL configurada.");
+          return true;
+      } catch (error) {
+          console.error("❌ Erro ao disparar Webhook:", error);
+          // Retorna true mesmo com erro para não travar a UI, mas loga o erro
+          return false;
+      }
+  } else {
+      console.warn("⚠️ URL do Webhook não configurada em Ajustes. Operando em modo de simulação.");
+      return true; // Simula sucesso
+  }
+};
+
+/**
+ * Envia um payload de teste para verificar a conexão
+ */
+export const testSocialWebhook = async (targetUrl: string) => {
+  const payload: WebhookPayload = {
+    event: 'post_published',
+    timestamp: new Date().toISOString(),
+    data: {
+      id: 'TEST_ID_123',
+      title: 'Teste de Integração - Lagoa Formosa no Momento',
+      url: 'https://lagoaformosanomomento.com.br',
+      imageUrl: 'https://lh3.googleusercontent.com/d/1C1WhdivmBnt1z23xZGOJw0conC1jtq4i',
+      socialText: 'Este é um teste de verificação do Webhook de automação. Se você recebeu isso, a conexão está funcionando!',
+      author: 'Admin'
+    }
+  };
+
+  try {
+      await fetch(targetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
+      });
+      return true;
+  } catch (error) {
+      console.error("Erro no teste do webhook:", error);
+      return false;
+  }
 };
 
 /**
