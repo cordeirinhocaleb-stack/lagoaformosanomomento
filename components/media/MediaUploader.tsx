@@ -3,7 +3,6 @@ import React, { useState, useRef } from 'react';
 
 interface MediaUploaderProps {
   onMediaSelect: (file: File | null, previewUrl: string, type: 'image' | 'video') => void;
-  onDriveUpload?: (file: File) => void;
 }
 
 const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect }) => {
@@ -16,13 +15,15 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect }) => {
     if (!file) return;
 
     setIsProcessing(true);
-    // Cria um preview temporário apenas para a UI
+    const isVideo = file.type.startsWith('video/');
+    
     const reader = new FileReader();
     reader.onload = (event) => {
-        setPreview(event.target?.result as string);
+        const result = event.target?.result as string;
+        setPreview(result);
         setIsProcessing(false);
-        // Passa o arquivo original para o EditorTab fazer o upload real no Drive
-        onMediaSelect(file, event.target?.result as string, file.type.startsWith('video/') ? 'video' : 'image');
+        // Passa o arquivo bruto para que o EditorTab gerencie o destino (Drive ou YouTube)
+        onMediaSelect(file, result, isVideo ? 'video' : 'image');
     };
     reader.readAsDataURL(file);
   };
@@ -33,37 +34,31 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect }) => {
   };
 
   return (
-    <div className="bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
-      <div className="flex border-b border-gray-100 bg-gray-50">
-        <div className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-center text-blue-600">
-          <i className="fas fa-upload mr-2"></i> Upload via Google Drive
-        </div>
-      </div>
-
-      <div className="p-6">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="p-4">
         {preview ? (
-          <div className="relative w-full h-64 bg-black rounded-xl overflow-hidden shadow-lg group">
-            <img 
-              src={preview} 
-              alt="Preview" 
-              className="w-full h-full object-contain" 
-            />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden group">
+            {preview.includes('video') ? (
+              <video src={preview} className="w-full h-full object-contain" />
+            ) : (
+              <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+            )}
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button 
-                  onClick={(e) => { e.stopPropagation(); clearSelection(); }}
-                  className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-xs shadow-xl hover:bg-black transition-colors"
+                  onClick={clearSelection}
+                  className="bg-red-600 text-white px-4 py-2 rounded-full font-black text-[9px] uppercase tracking-widest shadow-xl"
                 >
-                  <i className="fas fa-trash-alt mr-2"></i> Substituir
+                  Substituir
                 </button>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-blue-600/90 text-white text-[8px] py-1 px-3 font-black uppercase tracking-widest flex items-center gap-2">
-                <i className="fas fa-check-circle"></i> Sincronização de Nuvem Ativa
+            <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-[8px] py-1 px-3 font-black uppercase tracking-widest flex items-center gap-2">
+                <i className="fas fa-cloud-upload-alt text-blue-400"></i> Preparado para Cloud
             </div>
           </div>
         ) : (
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-4 border-dashed border-gray-100 rounded-2xl p-8 text-center hover:bg-blue-50 hover:border-blue-200 transition-all cursor-pointer group"
+            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${isProcessing ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-red-400 hover:bg-red-50'}`}
           >
             <input 
                 type="file" 
@@ -72,11 +67,15 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect }) => {
                 accept="image/*,video/*" 
                 className="hidden" 
             />
-            <div className="w-14 h-14 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                <i className="fas fa-cloud-upload-alt text-xl text-gray-400 group-hover:text-blue-600"></i>
-            </div>
-            <p className="text-xs font-black uppercase text-gray-700 mb-1">Upload Automático</p>
-            <p className="text-[9px] text-gray-400 font-bold uppercase">Qualquer imagem será salva no seu Drive</p>
+            {isProcessing ? (
+              <i className="fas fa-circle-notch fa-spin text-xl text-red-600"></i>
+            ) : (
+              <>
+                <i className="fas fa-cloud-upload-alt text-2xl text-gray-300 mb-2"></i>
+                <p className="text-[10px] font-black uppercase text-gray-500">Clique para selecionar</p>
+                <p className="text-[8px] text-gray-400 font-bold uppercase mt-1">Imagens ou Vídeos</p>
+              </>
+            )}
           </div>
         )}
       </div>

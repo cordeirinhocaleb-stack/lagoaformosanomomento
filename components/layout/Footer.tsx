@@ -2,19 +2,39 @@
 import React from 'react';
 import Logo from '../common/Logo';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  isSimplified?: boolean;
+}
+
+const Footer: React.FC<FooterProps> = ({ isSimplified }) => {
+  if (isSimplified) {
+    return (
+      <footer className="bg-white border-t border-zinc-200 py-6 px-10 w-full relative z-10">
+        <div className="max-w-[1500px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em]">
+            &copy; {new Date().getFullYear()} LAGOA FORMOSA NO MOMENTO • PAINEL ADMINISTRATIVO
+          </p>
+          <a 
+            href="https://webgho.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 grayscale opacity-50 hover:opacity-100 hover:grayscale-0 transition-all"
+          >
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
+              Powered by <span className="text-red-600">Webgho</span>
+            </span>
+          </a>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="bg-black text-white pt-16 pb-32 md:pb-20 border-t-4 border-red-600 w-full relative overflow-hidden">
-      {/* Background Texture */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
       
-      {/* Content Container */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 relative z-10">
-        
-        {/* Main Grid: 1 col Mobile, 2 cols Tablet, 4 cols Desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 lg:gap-12 mb-16 md:mb-24">
-          
-          {/* Coluna 1: Marca (Tablet: Top Left) */}
           <div className="flex flex-col items-start space-y-6">
             <div className="w-40 h-28 md:w-48 md:h-32 -ml-4 overflow-visible relative">
               <Logo className="scale-110 origin-left" />
@@ -31,7 +51,6 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Coluna 2: Contato (Tablet: Top Right) */}
           <div className="md:pl-4 lg:pl-0">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white mb-6 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span> Contato Direto
@@ -61,7 +80,6 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Coluna 3: Editorias (Tablet: Bottom Left) */}
           <div>
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white mb-6 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span> Editorias
@@ -77,7 +95,6 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Coluna 4: Social & Ads (Tablet: Bottom Right) */}
           <div className="flex flex-col justify-between md:pl-4 lg:pl-0 h-full">
             <div>
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white mb-6 flex items-center gap-2">
@@ -103,7 +120,6 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Bar - Wraps nicely on tablet */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
           <p className="text-gray-600 text-[9px] font-bold uppercase tracking-[0.2em] leading-relaxed">
             &copy; {new Date().getFullYear()} Lagoa Formosa No Momento.<br className="md:hidden"/> Todos os direitos reservados.

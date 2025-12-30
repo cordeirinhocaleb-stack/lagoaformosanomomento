@@ -55,16 +55,14 @@ const VerticalNewsColumn: React.FC<VerticalNewsColumnProps> = ({ title, items, t
     const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
     return (
-      <div className="flex flex-col gap-6 min-w-[280px]">
+      <div className="flex flex-col gap-6 w-full">
           <div className={`flex items-center gap-3 border-b-4 ${isGreen ? 'border-green-600' : 'border-blue-600'} pb-3`}>
               <div className={`w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center ${accentColor} shadow-sm border ${borderColor}`}>
                   <i className={`fas ${iconMap[title] || 'fa-newspaper'} text-lg`}></i>
               </div>
-              <div>
-                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-gray-900 leading-none">
-                      {title}
-                  </h3>
-              </div>
+              <h3 className="text-xl font-black uppercase italic tracking-tighter text-gray-900 leading-none">
+                  {title}
+              </h3>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -83,31 +81,21 @@ const VerticalNewsColumn: React.FC<VerticalNewsColumnProps> = ({ title, items, t
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                               onError={(e) => {
                                   e.currentTarget.onerror = null; 
-                                  const safeFallback = CATEGORY_FALLBACKS[title] || TRANSPARENT_PIXEL;
-                                  if (e.currentTarget.src === safeFallback) {
-                                      e.currentTarget.src = TRANSPARENT_PIXEL;
-                                  } else {
-                                      e.currentTarget.src = safeFallback;
-                                  }
+                                  e.currentTarget.src = CATEGORY_FALLBACKS[title] || TRANSPARENT_PIXEL;
                               }}
                           />
-                          <span className={`absolute top-2 left-2 ${badgeBg} ${badgeText} text-[8px] font-black uppercase px-2 py-1 rounded-md tracking-widest z-10`}>
+                          <span className={`absolute top-2 left-2 ${badgeBg} ${badgeText} text-[8px] font-black uppercase px-2 py-1 rounded-md tracking-widest z-10 shadow-sm`}>
                               {item.sourceName}
                           </span>
                       </div>
-                      <div className="flex-1 flex flex-col justify-between">
-                          <h4 className="text-sm font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-black transition-colors mb-2">
+                      <div className="flex-1">
+                          <h4 className="text-sm font-bold text-gray-900 leading-tight line-clamp-3 group-hover:text-red-600 transition-colors">
                               {item.title}
                           </h4>
-                          <div className="flex items-center justify-end">
-                              <i className={`fas fa-external-link-alt text-[10px] text-gray-300 group-hover:${accentColor} transition-colors`}></i>
-                          </div>
                       </div>
                   </a>
               )) : (
-                  [1,2,3].map(i => (
-                      <div key={i} className="h-48 bg-gray-50 rounded-2xl animate-pulse"></div>
-                  ))
+                  [1,2].map(i => <div key={i} className="h-40 bg-gray-100 rounded-2xl animate-pulse"></div>)
               )}
           </div>
       </div>
@@ -115,143 +103,96 @@ const VerticalNewsColumn: React.FC<VerticalNewsColumnProps> = ({ title, items, t
 };
 
 const Home: React.FC<HomeProps & { adConfig?: AdPricingConfig }> = ({ 
-  news, 
-  advertisers, 
-  user, 
-  onNewsClick, 
-  onAdvertiserClick, 
-  onAdminClick, 
-  onPricingClick, 
-  onJobsClick, 
-  adConfig, 
-  externalCategories = {} 
+  news, advertisers, user, onNewsClick, onAdvertiserClick, onAdminClick, onPricingClick, onJobsClick, adConfig, externalCategories = {} 
 }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const filteredNews = useMemo(() => {
     let list = news.filter(n => n.status === 'published' && n.source === 'site');
     if (selectedCategory !== 'all') list = list.filter(n => n.category === selectedCategory);
-    
-    return [...list].sort((a, b) => {
-      const pA = a.featuredPriority || 0;
-      const pB = b.featuredPriority || 0;
-      if (pB !== pA) return pB - pA;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    return [...list].sort((a, b) => (b.featuredPriority || 0) - (a.featuredPriority || 0) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [news, selectedCategory]);
 
-  const breakingNewsItem = useMemo(() => {
-    return news.find(n => n.isBreaking && n.status === 'published');
-  }, [news]);
+  const breakingNewsItem = useMemo(() => news.find(n => n.isBreaking && n.status === 'published'), [news]);
 
   const verticalHighlights = useMemo(() => {
       const cats = ['Polícia', 'Agro', 'Política', 'Esporte'];
-      return cats.map(cat => {
-          return news.find(n => n.category === cat && n.status === 'published' && n.source === 'site');
-      }).filter(Boolean) as NewsItem[];
+      return cats.map(cat => news.find(n => n.category === cat && n.status === 'published' && n.source === 'site')).filter(Boolean) as NewsItem[];
   }, [news]);
-
-  const handleCategorySelect = (id: string) => {
-    if (id === 'jobs_view_trigger') {
-      onJobsClick();
-    } else {
-      setSelectedCategory(id);
-    }
-  };
-
-  const effectiveConfig = adConfig || {
-      plans: [{ id: 'master', name: 'Master', prices: { daily: 0, weekly: 0, monthly: 0, quarterly: 0, semiannual: 0, yearly: 0 }, features: { placements: ['master_carousel'], allowedSocialNetworks: [], canCreateJobs: true, hasInternalPage: true, maxProducts: 0, socialVideoAd: true } }],
-      active: true,
-      promoText: ''
-  };
 
   const displayOrder = ['Política', 'Agronegócio', 'Tecnologia', 'Economia', 'Mundo'];
 
   return (
     <div className="w-full">
-      <CategoryMenu selectedCategory={selectedCategory} onSelectCategory={handleCategorySelect} onAdminClick={onAdminClick} user={user} />
+      <CategoryMenu selectedCategory={selectedCategory} onSelectCategory={id => id === 'jobs_view_trigger' ? onJobsClick() : setSelectedCategory(id)} onAdminClick={onAdminClick} user={user} />
       
-      {/* ALERTA DE PLANTÃO NO TOPO DA HOME */}
       {breakingNewsItem && (
-          <div onClick={() => onNewsClick(breakingNewsItem)} className="bg-red-600 text-white cursor-pointer overflow-hidden relative group">
-              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div onClick={() => onNewsClick(breakingNewsItem)} className="bg-red-600 text-white cursor-pointer overflow-hidden relative z-50">
               <div className="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 animate-pulse">
                       <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <span className="text-[10px] font-[1000] uppercase tracking-widest italic">Plantão Urgente</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest italic">Plantão</span>
                   </div>
-                  <p className="flex-1 text-xs md:text-sm font-black uppercase italic tracking-tight truncate">
-                      {breakingNewsItem.title}
-                  </p>
-                  <span className="text-[9px] font-black uppercase bg-white text-red-600 px-3 py-1 rounded-full hidden sm:block">Acompanhar Agora</span>
+                  <p className="flex-1 text-xs md:text-sm font-black uppercase italic tracking-tight truncate">{breakingNewsItem.title}</p>
                   <i className="fas fa-arrow-right text-xs"></i>
               </div>
           </div>
       )}
 
-      <AdBanner advertisers={advertisers} adConfig={effectiveConfig} onAdvertiserClick={onAdvertiserClick} onPlanRequest={onPricingClick} />
+      <AdBanner advertisers={advertisers} adConfig={adConfig} onAdvertiserClick={onAdvertiserClick} onPlanRequest={onPricingClick} />
       <FullWidthPromo />
       
-      <div className="w-full px-4 md:px-12">
-        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 mb-8 md:mb-12 mt-4 md:mt-16 animate-fadeIn">
-          <h2 className="text-4xl md:text-7xl lg:text-8xl font-[1000] uppercase tracking-tighter text-black leading-none">NOTÍCIAS</h2>
-          <div className="bg-red-600 px-6 md:px-10 py-2 md:py-4 skew-x-[-15deg] shadow-[0_10px_30px_rgba(220,38,38,0.3)] inline-block w-fit">
-            <span className="text-white font-black text-2xl md:text-5xl lg:text-6xl italic skew-x-[15deg] tracking-tighter whitespace-nowrap block leading-none">DO MOMENTO</span>
+      <div className="w-full px-4 md:px-8 lg:px-12">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8 md:mb-16 mt-8 md:mt-24">
+          <h2 className="text-4xl md:text-6xl lg:text-8xl font-[1000] uppercase tracking-tighter text-black leading-none">NOTÍCIAS</h2>
+          <div className="bg-red-600 px-6 py-2 md:py-4 skew-x-[-15deg] shadow-xl w-fit">
+            <span className="text-white font-black text-2xl md:text-4xl lg:text-6xl italic skew-x-[15deg] block leading-none">DO MOMENTO</span>
           </div>
         </div>
         
-        <section className="mb-12 md:mb-20 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr">
+        {/* GRID PRINCIPAL RESPONSIVA */}
+        <section className="mb-20 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Coluna de Notícias: 1 no mobile, 2 no tablet (md), 2 no desktop (lg col-span-8) */}
+          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
              {filteredNews.length > 0 ? (
-                filteredNews.slice(0, 4).map((item) => (
+                filteredNews.slice(0, 6).map((item) => (
                     <NewsCard key={item.id} news={item} featured onClick={onNewsClick} />
                 ))
              ) : (
-                <div className="col-span-full py-20 px-8 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center animate-fadeInUp">
-                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-6 shadow-xl">
-                        <i className="fas fa-satellite-dish text-4xl text-red-600 animate-pulse"></i>
-                    </div>
-                    <h3 className="text-2xl font-black uppercase italic tracking-tighter text-gray-900 mb-2">Conexão Estabelecida</h3>
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs max-w-md leading-relaxed">O banco de dados está online, mas ainda não há publicações cadastradas.</p>
+                <div className="col-span-full py-24 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
+                    <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Aguardando publicações...</p>
                 </div>
              )}
           </div>
 
+          {/* Lateral de Destaques: Ocupa largura total no mobile/tablet, lateral no desktop */}
           <div className="lg:col-span-4 flex flex-col gap-6">
-             <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-2">
-                <h3 className="text-xl font-black uppercase italic tracking-tighter text-black">Giro nas <span className="text-red-600">Editorias</span></h3>
+             <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                <h3 className="text-xl font-black uppercase italic tracking-tighter">Editorias <span className="text-red-600">LFNM</span></h3>
                 <i className="fas fa-layer-group text-gray-300"></i>
              </div>
-             <div className="flex flex-col gap-4">
-                {verticalHighlights.length > 0 ? verticalHighlights.map((item) => (
-                   <div key={`vertical-${item.id}`} onClick={() => onNewsClick(item)} className="group bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl hover:border-red-100 transition-all cursor-pointer flex gap-4 items-center h-28">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+                {verticalHighlights.map((item) => (
+                   <div key={item.id} onClick={() => onNewsClick(item)} className="group bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all cursor-pointer flex gap-4 items-center h-28">
                       <div className="w-24 h-full flex-shrink-0 rounded-xl overflow-hidden relative">
-                         <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                         <img src={item.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                          {item.mediaType === 'video' && <div className="absolute inset-0 flex items-center justify-center bg-black/20"><i className="fas fa-play text-white text-[10px]"></i></div>}
                       </div>
-                      <div className="flex-1 flex flex-col justify-center h-full py-1">
+                      <div className="flex-1 flex flex-col justify-center h-full">
                          <span className="text-[9px] font-black uppercase text-red-600 tracking-widest mb-1">{item.category}</span>
-                         <h4 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2 group-hover:text-red-600 transition-colors">{item.title}</h4>
-                         <span className="text-[8px] font-bold text-gray-400 uppercase mt-auto pt-1">{new Date(item.createdAt).toLocaleDateString()}</span>
+                         <h4 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2 group-hover:text-red-600">{item.title}</h4>
                       </div>
                    </div>
-                )) : (
-                    <div className="py-10 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                        <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest">Sem destaques verticais</p>
-                    </div>
-                )}
-                <button onClick={() => handleCategorySelect('all')} className="w-full py-4 bg-gray-50 text-gray-400 font-bold uppercase text-[10px] tracking-widest rounded-2xl hover:bg-black hover:text-white transition-all mt-2">Ver Todo o Arquivo</button>
+                ))}
              </div>
           </div>
         </section>
 
-        <section className="w-full mb-20 bg-gray-50 rounded-[3rem] p-6 md:p-12 border border-gray-100">
-            <div className="flex items-center gap-4 mb-10">
-                <div className="w-2 h-12 bg-black"></div>
-                <div>
-                    <h3 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-gray-900 leading-none">Giro <span className="text-red-600">Brasil & Mundo</span></h3>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Atualização contínua por editoria</p>
-                </div>
+        {/* GIRO BRASIL & MUNDO: Layout Grid Progressivo */}
+        <section className="w-full mb-24 bg-gray-50 rounded-[3rem] p-6 md:p-10 lg:p-16 border border-gray-100">
+            <div className="flex items-center gap-4 mb-12">
+                <div className="w-2 h-12 bg-black rounded-full"></div>
+                <h3 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter">Giro <span className="text-red-600">Brasil & Mundo</span></h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
                 {displayOrder.map(cat => (

@@ -1,477 +1,289 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { User, NewsItem, PostStatus, SystemSettings } from '../../types';
-import MediaUploader from '../media/MediaUploader';
-import { dispatchSocialWebhook } from '../../services/integrationService';
+import React, { useState, useEffect } from 'react';
+import { User, NewsItem, ContentBlock, SystemSettings, SocialDistribution } from '../../types';
 import { uploadFileToDrive } from '../../services/driveService';
+import { uploadVideoToYouTube } from '../../services/youtubeService';
+import { dispatchSocialWebhook } from '../../services/integrationService';
 import Toast, { ToastType } from '../common/Toast';
 
-const DEFAULT_CATEGORIES = ['Cotidiano', 'Polícia', 'Agro', 'Política', 'Esporte', 'Cultura', 'Saúde'];
-
-const EMOJI_GROUPS = [
-    { name: 'Faces', icons: ['😀', '😂', '😍', '🤔', '😎', '😡', '😱', '🤫', '😴', '🥳'] },
-    { name: 'Ações', icons: ['👍', '👊', '✌️', '👌', '👏', '🙌', '🙏', '🤝', '💪', '✍️'] },
-    { name: 'Mídia', icons: ['🚨', '🔴', '📢', '🗞️', '📰', '📷', '🎥', '🎤', '📍', '🔥'] },
-    { name: 'Temas', icons: ['⚽', '🚜', '🌾', '🌱', '⚖️', '🗳️', '🇧🇷', '🚑', '🚔', '💰'] }
-];
-
-const SITE_COLORS = [
-    { name: 'Preto', hex: '#000000', tailwind: 'bg-black' },
-    { name: 'Vermelho', hex: '#DC2626', tailwind: 'bg-red-600' },
-    { name: 'Azul', hex: '#2563EB', tailwind: 'bg-blue-600' },
-    { name: 'Verde', hex: '#16A34A', tailwind: 'bg-green-600' }
-];
-
-const FONT_FAMILIES = [
-    { name: 'Inter (Moderna)', value: "'Inter', sans-serif" },
-    { name: 'Merriweather (Jornal)', value: "'Merriweather', serif" },
-    { name: 'Montserrat (Título)', value: "'Montserrat', sans-serif" },
-    { name: 'Mono', value: "monospace" }
-];
-
-const FONT_SIZES = [
-    { label: 'P', value: '2' },
-    { label: 'M', value: '3' },
-    { label: 'G', value: '4' },
-    { label: 'XG', value: '5' },
-    { label: 'XXG', value: '6' }
-];
+import EditorSidebar from './editor/EditorSidebar';
+import InspectorSidebar from './InspectorSidebar';
+import TextBlock from './editor/blocks/TextBlock';
+import MediaBlock from './editor/blocks/MediaBlock';
+import GalleryEditorBlock from './GalleryEditorBlock';
+import EngagementEditorBlock from './EngagementEditorBlock';
+import SocialDistributionOverlay from './SocialDistributionOverlay';
+import Logo from '../common/Logo';
 
 interface EditorTabProps {
   user: User;
   initialData: NewsItem | null;
   onSave: (news: NewsItem, isUpdate: boolean) => void;
   onCancel: () => void;
-  newsHistory: NewsItem[];
-  driveConfig: { clientId: string; apiKey: string; appId: string };
   accessToken: string | null;
-  tokenClient: any;
-  setAccessToken: (token: string) => void;
-  systemSettings?: SystemSettings; 
+  systemSettings?: SystemSettings;
 }
 
+const getWidthClass = (width: string) => {
+    switch(width) {
+        case '1/4': return 'w-full md:w-1/4';
+        case '1/2': return 'w-full md:w-1/2';
+        case '3/4': return 'w-full md:w-3/4';
+        default: return 'w-full';
+    }
+};
+
 const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCancel, accessToken, systemSettings }) => {
+  // Estados Básicos
   const [title, setTitle] = useState(initialData?.title || '');
   const [lead, setLead] = useState(initialData?.lead || '');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialData?.category ? initialData.category.split(',').map(s => s.trim()) : [DEFAULT_CATEGORIES[0]]);
-  const [mediaData, setMediaData] = useState({ url: initialData?.imageUrl || '', credits: initialData?.imageCredits || '', type: initialData?.mediaType || 'image' });
-  const [galleryUrls, setGalleryUrls] = useState<string[]>(initialData?.galleryUrls || []);
-  const [content, setContent] = useState(initialData?.content || '');
-  const [isBreaking, setIsBreaking] = useState(initialData?.isBreaking || false);
-  const [autoPostSocial, setAutoPostSocial] = useState(true);
-  const [isCloudUploading, setIsCloudUploading] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [errorFields, setErrorFields] = useState<string[]>([]);
-  const [toast, setToast] = useState<{message: string, type: ToastType} | null>(null);
+  const [category, setCategory] = useState(initialData?.category || 'Cotidiano');
+  const [slug, setSlug] = useState(initialData?.seo?.slug || '');
   
-  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, visible: boolean, isBottomSheet: boolean }>({ x: 0, y: 0, visible: false, isBottomSheet: false });
+  // Estados do Banner Studio
+  const [bannerType, setBannerType] = useState<'image' | 'video'>(initialData?.bannerMediaType || 'image');
+  const [mainImageUrl, setMainImageUrl] = useState(initialData?.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=1200');
+  const [bannerImages, setBannerImages] = useState<string[]>(initialData?.bannerImages || []);
+  const [bannerVideoUrl, setBannerVideoUrl] = useState(initialData?.bannerVideoUrl || '');
+  const [isAnimated, setIsAnimated] = useState(initialData?.isBannerAnimated || false);
 
-  const editorContentRef = useRef<HTMLDivElement>(null);
-  const savedSelectionRef = useRef<Range | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const touchTimerRef = useRef<any>(null);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const isMobile = screenWidth < 768;
+  const isDesktopPro = screenWidth >= 1440;
 
-  const isAdmin = user.role === 'Desenvolvedor' || user.role === 'Editor-Chefe';
-  const omnichannelEnabled = systemSettings?.enableOmnichannel || false;
+  const [showLibrary, setShowLibrary] = useState(!isMobile);
+  const [showInspector, setShowInspector] = useState(isDesktopPro);
+
+  const [socialCaptions, setSocialCaptions] = useState<SocialDistribution[]>(initialData?.socialDistribution || []);
+  const [blocks, setBlocks] = useState<ContentBlock[]>(initialData?.blocks || [
+    { id: 'b1', type: 'paragraph', content: '', settings: { alignment: 'left', style: 'serif', thickness: '18', width: 'full' } }
+  ]);
+
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<'idle' | 'uploading' | 'distributing' | 'success' | 'error'>('idle');
+  const [toast, setToast] = useState<{message: string, type: ToastType} | null>(null);
 
   useEffect(() => {
-    if (editorContentRef.current) editorContentRef.current.innerHTML = content;
-    const hideContextMenu = () => setContextMenu(prev => ({ ...prev, visible: false }));
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    
-    window.addEventListener('click', hideContextMenu);
-    window.addEventListener('resize', handleResize);
-    return () => {
-        window.removeEventListener('click', hideContextMenu);
-        window.removeEventListener('resize', handleResize);
-        if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    const handleResize = () => {
+        setScreenWidth(window.innerWidth);
+        if (window.innerWidth < 768) setShowLibrary(false);
+        if (window.innerWidth < 1440) setShowInspector(false);
+        else { setShowLibrary(true); setShowInspector(true); }
     };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const showToast = (message: string, type: ToastType = 'info') => {
-      setToast({ message, type });
+  const handleAddBlock = (type: ContentBlock['type'], content?: any, settings?: any) => {
+    const id = Math.random().toString(36).substr(2,9);
+    const newBlock: ContentBlock = { 
+        id, type, content: content !== undefined ? content : '', 
+        settings: { alignment: 'left', thickness: '18', width: 'full', ...settings } 
+    };
+    setBlocks([...blocks, newBlock]);
+    setSelectedBlockId(id);
+    if (isMobile) setShowLibrary(false);
+    if (!showInspector) setShowInspector(true);
   };
 
-  const saveSelection = () => {
-    const sel = window.getSelection();
-    if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0);
-        if (editorContentRef.current?.contains(range.commonAncestorContainer)) {
-            savedSelectionRef.current = range.cloneRange();
-        }
-    }
-  };
-
-  const execCmd = (command: string, value: string | undefined = undefined) => {
-    if (editorContentRef.current) editorContentRef.current.focus();
-    const sel = window.getSelection();
-    if (savedSelectionRef.current && sel) {
-      sel.removeAllRanges();
-      sel.addRange(savedSelectionRef.current);
-    }
-    const cmd = command === 'hiliteColor' && !document.queryCommandSupported('hiliteColor') ? 'backColor' : command;
-    document.execCommand(cmd, false, value);
-    if (editorContentRef.current) setContent(editorContentRef.current.innerHTML);
-    saveSelection();
-  };
-
-  const handleDriveImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files || files.length === 0 || !accessToken) {
-          if (!accessToken) showToast("Conecte ao Google Drive primeiro.", "error");
-          return;
-      }
-      setIsCloudUploading(true);
-      try {
-          const uploadPromises = Array.from(files).map((file: any) => uploadFileToDrive(file as File, accessToken));
-          const urls = await Promise.all(uploadPromises);
-          if (urls.length > 1) {
-              let carouselHtml = `<div class="news-carousel-track" contenteditable="false">`;
-              urls.forEach(url => { carouselHtml += `<img src="${url}" class="news-carousel-item" draggable="true" />`; });
-              carouselHtml += `</div><p><br></p>`;
-              execCmd('insertHTML', carouselHtml);
-          } else {
-              const imgHtml = `<img src="${urls[0]}" class="max-w-full rounded-2xl shadow-lg my-6" draggable="true" />`;
-              execCmd('insertHTML', imgHtml);
-          }
-          setContextMenu(prev => ({ ...prev, visible: false }));
-          showToast("Mídia inserida com sucesso!", "success");
-      } catch (err) {
-          showToast("Erro ao enviar para o Drive.", "error");
-      } finally {
-          setIsCloudUploading(false);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-      }
-  };
-
-  const handleGalleryAdd = async (file: File | null) => {
-      if (!file || !accessToken) return;
-      setIsCloudUploading(true);
-      try {
-          const url = await uploadFileToDrive(file, accessToken);
-          setGalleryUrls(prev => [...prev, url]);
-          showToast("Imagem adicionada ao carrossel.", "success");
-      } catch (err) {
-          showToast("Erro ao adicionar imagem.", "error");
-      } finally {
-          setIsCloudUploading(false);
-      }
-  };
-
-  const removeGalleryImage = (url: string) => {
-      setGalleryUrls(prev => prev.filter(u => u !== url));
-  };
-
-  const toggleCategory = (cat: string) => {
-      setSelectedCategories(prev => {
-          if (prev.includes(cat)) return prev.filter(c => c !== cat);
-          if (prev.length < 3) return [...prev, cat];
-          showToast("Limite de 3 categorias atingido.", "warning");
-          return prev;
-      });
-  };
-
-  const handleMainMediaSelect = async (file: File | null) => {
-      if (!file || !accessToken) return showToast("Conecte ao Drive primeiro!", "error");
-      setIsCloudUploading(true);
-      try {
-          const driveUrl = await uploadFileToDrive(file, accessToken);
-          setMediaData({ ...mediaData, url: driveUrl, type: file.type.startsWith('video/') ? 'video' : 'image' });
-          setErrorFields(prev => prev.filter(f => f !== 'imageUrl'));
-          showToast("Capa atualizada!", "success");
-      } catch (err) {
-          showToast("Erro no upload da capa.", "error");
-      } finally {
-          setIsCloudUploading(false);
-      }
-  };
-
-  const openContextMenu = (x: number, y: number, forceFloat = false) => {
-      saveSelection();
-      const useBottomSheet = isMobile && !forceFloat;
-      if (useBottomSheet) {
-          setContextMenu({ x: 0, y: 0, visible: true, isBottomSheet: true });
-      } else {
-          const menuWidth = 320;
-          const menuHeight = 500;
-          const margin = 20;
-          let finalX = x;
-          let finalY = y;
-          if (finalX + menuWidth > window.innerWidth - margin) finalX = window.innerWidth - menuWidth - margin;
-          if (finalY + menuHeight > window.innerHeight - margin) finalY = window.innerHeight - menuHeight - margin;
-          setContextMenu({ x: finalX, y: finalY, visible: true, isBottomSheet: false });
-      }
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-      e.preventDefault();
-      openContextMenu(e.clientX, e.clientY, true);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-      if (e.button === 2) {
-          e.preventDefault();
-          openContextMenu(e.clientX, e.clientY, true);
-      }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-      if (!isMobile) return;
-      const touch = e.touches[0];
-      const { clientX, clientY } = touch;
-      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-      touchTimerRef.current = setTimeout(() => {
-          openContextMenu(clientX, clientY, false);
-      }, 600);
-  };
-
-  const handleTouchEnd = () => { if (touchTimerRef.current) clearTimeout(touchTimerRef.current); };
-
-  const handleGenerateLead = () => {
-    if (!content || content === '<p><br></p>') return showToast("Escreva a notícia primeiro!", "warning");
-    const plainText = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    let autoLead = plainText;
-    if (autoLead.length > 250) {
-        autoLead = autoLead.substring(0, 247) + '...';
-    }
-    setLead(autoLead);
-    showToast("Resumo gerado com sucesso!", "success");
-  };
-
-  const handleSaveClick = async (status: PostStatus) => {
-    if (isCloudUploading) return showToast("Aguarde o upload terminar.", "warning");
-    
-    const missing = [];
-    if (!title.trim()) missing.push('title');
-    if (!mediaData.url) missing.push('imageUrl');
-    
-    if (missing.length > 0) {
-        setErrorFields(missing);
-        showToast("Preencha o Título e escolha uma Capa!", "error");
+  const handleCloudUpload = async (file: File, type: 'image' | 'video') => {
+    if (!accessToken) {
+        setToast({ message: "Faça login com sua conta Google primeiro.", type: 'warning' });
         return;
     }
-
-    let finalStatus = (!isAdmin && status === 'published') ? 'in_review' : status;
     
-    const newsData: NewsItem = {
-      id: initialData?.id || Math.random().toString(36).substr(2, 9),
-      status: finalStatus, title, lead, content, category: selectedCategories.join(', '),
-      authorId: user.id, author: user.name,
-      createdAt: initialData?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
-      imageUrl: mediaData.url, imageCredits: mediaData.credits, mediaType: mediaData.type as any,
-      galleryUrls,
-      city: 'Lagoa Formosa', region: 'Alto Paranaíba', isBreaking, isFeatured: initialData?.isFeatured || false, featuredPriority: 5,
-      seo: { slug: title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''), metaTitle: title, metaDescription: lead, focusKeyword: selectedCategories[0] },
-      source: 'site', views: initialData?.views || 0,
-      socialDistribution: []
-    };
-
-    if (finalStatus === 'published' && autoPostSocial && omnichannelEnabled) {
-        showToast("Disparando para as redes sociais...", "info");
-        await dispatchSocialWebhook(newsData);
+    setIsUploading(true);
+    try {
+        if (type === 'image') {
+            const url = await uploadFileToDrive(file, accessToken);
+            handleAddBlock('image', url, { alignment: 'center', width: 'full', borderRadius: 'xl' });
+            setToast({ message: "Imagem salva no Google Drive.", type: 'success' });
+        } else {
+            const url = await uploadVideoToYouTube(file, accessToken);
+            handleAddBlock('video', url, { alignment: 'center', width: 'full', style: 'clean' });
+            setToast({ message: "Vídeo sincronizado com YouTube.", type: 'success' });
+        }
+    } catch (e: any) {
+        setToast({ message: e.message || "Erro no upload.", type: 'error' });
+    } finally {
+        setIsUploading(false);
     }
-    onSave(newsData, !!initialData);
   };
 
-  const BreakingNewsToggle = () => (
-    <div className={`p-5 md:p-6 rounded-[2rem] border transition-all duration-500 ${isBreaking ? 'bg-red-600 border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.3)] animate-pulse' : 'bg-red-50/50 border-red-100 shadow-inner opacity-60'}`}>
-        <label className="flex items-center justify-between cursor-pointer">
-            <div className="flex flex-col">
-                <span className={`text-[12px] font-black uppercase leading-none ${isBreaking ? 'text-white' : 'text-red-600'}`}>Plantão</span>
-                <span className={`text-[8px] font-bold uppercase mt-1 italic ${isBreaking ? 'text-red-100' : 'text-red-400'}`}>Urgente</span>
-            </div>
-            <input type="checkbox" checked={isBreaking} onChange={e => setIsBreaking(e.target.checked)} className="sr-only peer" />
-            <div className={`w-12 h-7 md:w-14 md:h-8 rounded-full relative transition-all shadow-inner border-2 ${isBreaking ? 'bg-white border-red-400' : 'bg-slate-200 border-transparent'}`}>
-                <div className={`absolute top-[2px] left-[2px] rounded-full h-5 w-5 md:h-6 md:w-6 transition-all shadow-sm ${isBreaking ? 'bg-red-600 translate-x-5 md:translate-x-6' : 'bg-white'}`}></div>
-            </div>
-        </label>
-    </div>
-  );
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>, slotIdx?: number) => {
+    const file = e.target.files?.[0];
+    if (!file || !accessToken) return;
+    
+    setIsUploading(true);
+    try {
+        const url = await uploadFileToDrive(file, accessToken);
+        if (slotIdx !== undefined) {
+            const newImages = [...bannerImages];
+            newImages[slotIdx] = url;
+            setBannerImages(newImages);
+        } else {
+            setMainImageUrl(url);
+        }
+        setToast({ message: "Capa salva no Google Drive.", type: 'success' });
+    } catch (e) {
+        setToast({ message: "Erro ao subir capa.", type: 'error' });
+    } finally { setIsUploading(false); }
+  };
 
-  const MainCoverUpload = () => (
-    <div className={`bg-white rounded-[2rem] md:rounded-[3rem] shadow-xl border p-6 md:p-8 transition-all duration-300 ${errorFields.includes('imageUrl') ? 'border-red-500 bg-red-50 animate-bounce' : 'border-slate-100'}`}>
-        <label className="text-[10px] font-black uppercase text-slate-400 mb-5 block tracking-widest">Capa Principal {errorFields.includes('imageUrl') && <span className="text-red-600 ml-2">Obrigatório</span>}</label>
-        <MediaUploader onMediaSelect={(file) => handleMainMediaSelect(file)} />
-    </div>
-  );
+  const handlePublish = async () => {
+    if (!title || !lead) {
+      setToast({ message: "Título e Resumo são obrigatórios.", type: 'warning' });
+      return;
+    }
+    setPublishStatus('uploading');
+    
+    const newsData: NewsItem = {
+      id: initialData?.id || Math.random().toString(36).substr(2,9),
+      title, lead, category, blocks, status: 'published',
+      author: user.name, authorId: user.id, createdAt: initialData?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(), 
+      imageUrl: mainImageUrl, 
+      bannerMediaType: bannerType,
+      bannerImages: isAnimated ? bannerImages : [],
+      bannerVideoUrl: bannerVideoUrl,
+      isBannerAnimated: isAnimated,
+      imageCredits: 'Redação LFNM', mediaType: 'image', city: 'Lagoa Formosa', region: 'Região',
+      isBreaking: false, isFeatured: false, featuredPriority: 0,
+      seo: { slug: slug || title.toLowerCase().replace(/ /g, '-'), metaTitle: title, metaDescription: lead, focusKeyword: '' },
+      source: 'site', socialDistribution: socialCaptions, content: ''
+    };
 
-  const CarouselGallery = () => (
-    <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-xl border border-slate-100 p-6 md:p-8">
-        <div className="flex justify-between items-center mb-5">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Carrossel de Imagens</label>
-            <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded">Galeria</span>
-        </div>
-        <div className="grid grid-cols-3 gap-3 mb-4">
-            {galleryUrls.map((url, idx) => (
-                <div key={idx} className="aspect-square rounded-xl overflow-hidden relative group border border-slate-100 shadow-sm">
-                    <img src={url} className="w-full h-full object-cover" />
-                    <button onClick={() => removeGalleryImage(url)} className="absolute inset-0 bg-red-600/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i className="fas fa-trash-alt text-xs"></i></button>
-                </div>
-            ))}
-        </div>
-        <MediaUploader onMediaSelect={(file) => handleGalleryAdd(file)} />
-    </div>
-  );
-
-  const LeadArea = () => (
-    <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-6 md:p-8">
-        <div className="flex justify-between items-center mb-5">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Resumo (Lead)</label>
-            <button onClick={handleGenerateLead} className="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest transition-all border border-blue-100 flex items-center gap-1.5">
-                <i className="fas fa-magic"></i> Gerar
-            </button>
-        </div>
-        <textarea value={lead} onChange={e => setLead(e.target.value)} className="w-full h-24 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-medium outline-none focus:border-slate-900 resize-none shadow-inner font-sans" placeholder="O resumo para as redes sociais..." />
-    </div>
-  );
+    try {
+        if (systemSettings?.enableOmnichannel) await dispatchSocialWebhook(newsData);
+        onSave(newsData, !!initialData);
+        setPublishStatus('success');
+    } catch (e) { setPublishStatus('error'); }
+  };
 
   return (
-    <div className="w-full relative min-h-screen flex flex-col bg-slate-50/30" onContextMenu={(e) => e.preventDefault()}>
-      
+    <div className="flex h-full w-full overflow-hidden bg-zinc-100 animate-fadeIn">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <input type="file" ref={fileInputRef} onChange={handleDriveImageUpload} accept="image/*" multiple className="hidden" />
-
-      <div className="sticky top-0 z-[200] bg-white border-b border-slate-200 shadow-xl px-3 py-3 md:px-8 flex flex-col md:flex-row justify-between items-center gap-3 transition-all">
-        <div className="flex items-center justify-between w-full md:w-auto gap-4">
-            <button onClick={onCancel} className="bg-slate-100 hover:bg-red-600 hover:text-white text-slate-600 w-10 h-10 md:w-auto md:px-5 md:py-3 rounded-xl md:rounded-2xl text-[10px] font-black uppercase flex items-center justify-center md:gap-3 shadow-sm transition-all active:scale-95 shrink-0">
-                <i className="fas fa-arrow-left"></i> <span className="hidden md:inline">Sair</span>
-            </button>
-            {isCloudUploading && (
-                <div className="flex items-center gap-2 bg-blue-50 text-blue-600 px-3 py-2 rounded-xl animate-pulse border border-blue-100">
-                    <i className="fas fa-cloud-upload-alt text-xs"></i>
-                    <span className="text-[8px] font-black uppercase tracking-widest hidden xs:inline">Nuvem</span>
-                </div>
-            )}
-            <div className="flex md:hidden items-center gap-2">
-                <button onClick={() => handleSaveClick('draft')} disabled={isCloudUploading} className="w-10 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-50">
-                    <i className="fas fa-save"></i>
-                </button>
-                <button onClick={() => handleSaveClick('published')} disabled={isCloudUploading} className="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center shadow-lg active:scale-90 disabled:opacity-50">
-                    <i className="fas fa-paper-plane text-[10px]"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-3 w-full md:w-auto">
-            <button onClick={() => handleSaveClick('draft')} disabled={isCloudUploading} className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase hover:bg-slate-50 transition-all flex items-center gap-2">
-                <i className="fas fa-save"></i> Salvar
-            </button>
-            <button onClick={() => handleSaveClick('published')} disabled={isCloudUploading} className="bg-black text-white px-10 py-3 rounded-2xl text-[10px] font-black uppercase hover:bg-red-600 shadow-xl flex items-center justify-center gap-3 transition-all group">
-                {isAdmin ? 'Publicar' : 'Revisar'} <i className="fas fa-paper-plane text-[9px] group-hover:translate-x-1 transition-transform"></i>
-            </button>
-        </div>
+      <SocialDistributionOverlay status={publishStatus} distributions={socialCaptions} onClose={() => setPublishStatus('idle')} />
+      
+      {/* SIDEBAR DA BIBLIOTECA */}
+      <div className={`${(isMobile) ? 'fixed inset-y-0 left-0 z-[2000] transform transition-transform duration-500 ' + (showLibrary ? 'translate-x-0' : '-translate-x-full') : 'w-80 border-r border-zinc-200 relative'} bg-white shadow-2xl flex flex-col h-full`}>
+          <EditorSidebar 
+            onAddBlock={handleAddBlock} 
+            onCloudUpload={handleCloudUpload}
+            isUploading={isUploading} 
+          />
+          {isMobile && <button onClick={() => setShowLibrary(false)} className="absolute top-6 -right-14 w-12 h-12 bg-black text-white rounded-r-2xl flex items-center justify-center shadow-2xl"><i className="fas fa-times"></i></button>}
       </div>
 
-      <div className="flex-1 p-3 md:p-10">
-          <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 md:gap-10 items-start">
-            
-            <div className="w-full lg:hidden space-y-6 animate-fadeIn mb-6">
-                <BreakingNewsToggle />
-                <MainCoverUpload />
+      <div className="flex-1 flex flex-col overflow-hidden relative z-[50]" onClick={() => setSelectedBlockId(null)}>
+        <header className="bg-white/95 backdrop-blur-md border-b border-zinc-200 px-6 py-4 flex items-center justify-between sticky top-0 z-[1500] flex-none shadow-sm">
+            <div className="flex items-center gap-5 cursor-pointer group" onClick={() => onCancel()}>
+                <div className="w-10 h-10 flex-none group-hover:scale-110 transition-transform"><Logo /></div>
+                <div className="hidden sm:flex flex-col">
+                    <span className="text-[11px] font-black uppercase text-zinc-900 leading-none">BIBLIOTECA LFNM</span>
+                    <span className="text-[7px] font-bold text-red-600 uppercase tracking-widest mt-1">SISTEMA INTEGRADO OPERACIONAL</span>
+                </div>
             </div>
+            <div className="flex items-center gap-3">
+                <button onClick={(e) => { e.stopPropagation(); onCancel(); }} className="px-6 rounded-2xl text-[10px] font-black uppercase text-zinc-400 hover:bg-zinc-100 transition-all">Sair</button>
+                <button onClick={(e) => { e.stopPropagation(); handlePublish(); }} className="bg-red-600 text-white px-8 py-3.5 rounded-2xl font-black uppercase text-[11px] shadow-xl shadow-red-600/20 hover:bg-black transition-all flex items-center gap-3">
+                    <i className="fas fa-paper-plane text-lg"></i> Publicar
+                </button>
+            </div>
+        </header>
 
-            <div className="w-full lg:flex-1 bg-white rounded-[2.5rem] md:rounded-[3rem] shadow-2xl border border-white p-6 md:p-14 min-h-[80vh] relative overflow-visible">
-                <input 
-                    type="text" 
-                    placeholder="Título da Notícia..." 
-                    value={title} 
-                    onChange={e => { setTitle(e.target.value); setErrorFields(prev => prev.filter(f => f !== 'title')); }} 
-                    className={`w-full text-3xl md:text-7xl font-[1000] uppercase italic placeholder:text-slate-100 outline-none border-none bg-transparent mb-8 leading-[0.95] tracking-tighter transition-colors ${errorFields.includes('title') ? 'text-red-600 animate-pulse' : 'text-slate-900'}`} 
-                />
+        <div className="flex-1 overflow-y-auto p-4 md:p-10 lg:p-16 custom-scrollbar bg-zinc-100">
+            <div className="w-full max-w-[1100px] mx-auto bg-white rounded-[3rem] shadow-2xl border border-zinc-100 min-h-full transition-all flex flex-col overflow-hidden">
                 
-                <div className="sticky top-24 md:top-28 z-[150] bg-white/90 backdrop-blur-md border border-slate-200 rounded-2xl md:rounded-[2rem] p-2 md:p-3 mb-8 shadow-2xl flex flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hide">
-                    <div className="flex items-center bg-slate-50 rounded-xl md:rounded-2xl p-1 shrink-0">
-                        <button onMouseDown={e => e.preventDefault()} onClick={() => execCmd('bold')} className="w-10 h-10 md:w-12 md:h-12 font-black text-slate-700 hover:bg-white rounded-lg transition-all">B</button>
-                        <button onMouseDown={e => e.preventDefault()} onClick={() => execCmd('italic')} className="w-10 h-10 md:w-12 md:h-12 italic text-slate-700 hover:bg-white rounded-lg transition-all">I</button>
+                {/* BANNER STUDIO */}
+                <section className="w-full relative bg-zinc-900 group">
+                    <div className="h-80 md:h-[450px] overflow-hidden">
+                        {bannerType === 'image' ? (
+                            <img src={mainImageUrl} className="w-full h-full object-cover opacity-60 transition-opacity" alt="Capa" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-black">
+                                <i className="fab fa-youtube text-6xl text-red-600 opacity-50"></i>
+                                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm flex items-center justify-center">
+                                    <input 
+                                        type="text" value={bannerVideoUrl} 
+                                        onChange={e => setBannerVideoUrl(e.target.value)} 
+                                        placeholder="Link do YouTube..." 
+                                        className="w-1/2 bg-black/50 border-2 border-white/20 rounded-xl p-4 text-white text-xs font-bold text-center outline-none"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <div className="flex items-center bg-slate-50 rounded-xl md:rounded-2xl p-1 shrink-0 px-2 gap-1 border border-slate-100">
-                        <button onMouseDown={e => e.preventDefault()} onClick={() => fileInputRef.current?.click()} className="w-10 h-10 hover:bg-white rounded-lg text-blue-600 transition-colors"><i className="fas fa-images"></i></button>
-                        <button onMouseDown={e => e.preventDefault()} onClick={() => execCmd('justifyCenter')} className="w-10 h-10 hover:bg-white rounded-lg text-slate-400"><i className="fas fa-align-center"></i></button>
-                    </div>
-                    {isMobile && <span className="text-[8px] font-black text-slate-300 uppercase px-2 shrink-0">Segure p/ ferramentas</span>}
-                </div>
-
-                <div className="relative w-full z-10 mb-10">
-                    <div 
-                        ref={editorContentRef} 
-                        contentEditable 
-                        onInput={() => setContent(editorContentRef.current?.innerHTML || '')}
-                        onMouseUp={saveSelection}
-                        onKeyUp={saveSelection}
-                        onContextMenu={handleContextMenu}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleTouchStart}
-                        onTouchEnd={handleTouchEnd}
-                        className="outline-none prose prose-xl md:prose-2xl max-w-none text-slate-800 leading-relaxed min-h-[400px] selection:bg-red-100 font-sans" 
-                    ></div>
-                </div>
-
-                <div className="w-full lg:hidden space-y-6 mb-10">
-                    <CarouselGallery />
-                    <LeadArea />
-                </div>
-            </div>
-
-            <div className="w-full lg:w-[420px] space-y-6 shrink-0 lg:sticky lg:top-28">
-                <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-6 md:p-8 space-y-6">
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Editorias</label>
-                            <span className="text-[10px] font-black text-red-600">{selectedCategories.length}/3</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-10 left-10 right-10 flex flex-col gap-6 z-20">
+                        <div className="flex bg-black/60 backdrop-blur-md p-1 rounded-xl border border-white/10 self-start">
+                            <button onClick={() => setBannerType('image')} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase ${bannerType === 'image' ? 'bg-white text-black' : 'text-zinc-400'}`}>Imagem Drive</button>
+                            <button onClick={() => setBannerType('video')} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase ${bannerType === 'video' ? 'bg-white text-black' : 'text-zinc-400'}`}>Vídeo YouTube</button>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            {DEFAULT_CATEGORIES.map(cat => (
-                                <button key={cat} onClick={() => toggleCategory(cat)} className={`px-3 py-3 rounded-xl text-[9px] font-black uppercase border transition-all ${selectedCategories.includes(cat) ? 'bg-red-600 text-white border-red-600 shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}>{cat}</button>
-                            ))}
+                        <div className="flex items-center gap-3">
+                            <label className="cursor-pointer bg-red-600 hover:bg-black text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl transition-all flex items-center gap-2">
+                                <i className="fas fa-camera"></i> {isUploading ? 'Cloud Sync...' : 'Trocar Capa'}
+                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleBannerUpload(e)} disabled={isUploading} />
+                            </label>
+                            {bannerType === 'image' && (
+                                <button onClick={() => setIsAnimated(!isAnimated)} className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase transition-all border ${isAnimated ? 'bg-blue-600 text-white border-blue-600' : 'bg-black/50 text-zinc-300 border-white/20'}`}>
+                                    <i className={`fas ${isAnimated ? 'fa-sync fa-spin' : 'fa-play'}`}></i> Slideshow: {isAnimated ? 'Ativo' : 'Inativo'}
+                                </button>
+                            )}
                         </div>
                     </div>
-                    <div className="hidden lg:block">
-                        <BreakingNewsToggle />
+                </section>
+
+                <div className="p-8 md:p-20">
+                    <input 
+                        type="text" value={title} onChange={e => setTitle(e.target.value)} 
+                        placeholder="Escreva a Manchete Principal..." 
+                        className="w-full text-3xl md:text-5xl lg:text-6xl font-[1000] uppercase italic tracking-tighter text-zinc-900 bg-transparent border-none outline-none focus:ring-0 mb-12" 
+                    />
+                    <textarea 
+                        value={lead} onChange={e => setLead(e.target.value)} 
+                        placeholder="Resumo editorial impactante..." 
+                        className="w-full text-lg md:text-xl font-medium text-zinc-500 bg-zinc-50/30 border-l-8 border-red-600 rounded-r-3xl p-8 outline-none min-h-[140px] resize-none mb-14" 
+                    />
+                    <div className="flex flex-wrap -mx-3">
+                        {blocks.map(block => (
+                            <div key={block.id} className={`p-3 transition-all ${getWidthClass(block.settings.width)}`}>
+                                <div onClick={(e) => { e.stopPropagation(); setSelectedBlockId(block.id); }} className={`relative group/block rounded-3xl transition-all duration-500 ${selectedBlockId === block.id ? 'ring-4 ring-blue-500/30 bg-blue-50/10' : 'hover:bg-zinc-50/50'}`}>
+                                    {(() => {
+                                        switch(block.type) {
+                                            case 'paragraph': case 'heading': case 'quote': case 'list':
+                                                return <TextBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => setSelectedBlockId(block.id)} onUpdate={c => setBlocks(blocks.map(b => b.id === block.id ? {...b, content: c} : b))} />;
+                                            case 'image': case 'video':
+                                                return <MediaBlock block={block} isSelected={selectedBlockId === block.id} isUploading={isUploading} onSelect={() => setSelectedBlockId(block.id)} />;
+                                            case 'gallery':
+                                                return <GalleryEditorBlock block={block} accessToken={accessToken} onUpdate={u => setBlocks(blocks.map(b => b.id === u.id ? u : b))} />;
+                                            case 'engagement':
+                                                return <EngagementEditorBlock block={block} onUpdate={u => setBlocks(blocks.map(b => b.id === u.id ? u : b))} />;
+                                            case 'smart_block':
+                                                return <div className="p-4" dangerouslySetInnerHTML={{ __html: block.content }} />;
+                                            case 'separator':
+                                                return <div className="py-12 flex items-center gap-4"><div className="h-px flex-1 bg-zinc-200"></div><Logo className="w-6 h-6 opacity-10"/><div className="h-px flex-1 bg-zinc-200"></div></div>;
+                                            default: return null;
+                                        }
+                                    })()}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-                <div className="hidden lg:block space-y-6">
-                    <MainCoverUpload />
-                    <CarouselGallery />
-                    <LeadArea />
-                </div>
             </div>
-          </div>
+        </div>
       </div>
 
-      {contextMenu.visible && (
-          <div 
-            className={`fixed z-[10000] bg-white/95 backdrop-blur-3xl border border-slate-200 shadow-2xl animate-fadeInUp flex flex-col gap-4 overflow-hidden transition-all ${contextMenu.isBottomSheet ? 'bottom-0 left-0 right-0 rounded-t-[3rem] p-8 pb-12 max-h-[80vh] w-full' : 'rounded-[2rem] p-6 w-[320px] max-h-[90vh]'}`} 
-            style={contextMenu.isBottomSheet ? {} : { top: contextMenu.y, left: contextMenu.x }}
-            onClick={e => e.stopPropagation()}
-          >
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <span className="text-[10px] font-black uppercase text-red-600 italic">Ferramentas</span>
-                  <button onClick={() => setContextMenu(prev => ({...prev, visible: false}))} className="text-slate-400 hover:text-red-600"><i className="fas fa-times"></i></button>
-              </div>
-              
-              <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide">
-                  <button onClick={() => fileInputRef.current?.click()} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"><i className="fas fa-images"></i> Inserir Mídia</button>
-                  <div className="space-y-2">
-                      <span className="text-[8px] font-black uppercase text-slate-400">Estilo</span>
-                      <select onChange={(e) => execCmd('fontName', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black uppercase outline-none">
-                          <option value="">Fonte...</option>
-                          {FONT_FAMILIES.map(f => <option key={f.value} value={f.value}>{f.name}</option>)}
-                      </select>
-                      <div className="flex bg-slate-50 rounded-xl p-1 border border-slate-100">
-                          {FONT_SIZES.map(s => <button key={s.value} onClick={() => execCmd('fontSize', s.value)} className="flex-1 py-2 text-[9px] font-black hover:bg-white rounded-lg transition-all">{s.label}</button>)}
-                      </div>
-                  </div>
-                  <div className="space-y-2">
-                      <span className="text-[8px] font-black uppercase text-slate-400">Destaque</span>
-                      <div className="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                          {SITE_COLORS.map(c => <button key={c.hex} onClick={() => execCmd('foreColor', c.hex)} className={`w-8 h-8 rounded-lg ${c.tailwind} border-2 border-white shadow-sm`} />)}
-                          <button onClick={() => execCmd('hiliteColor', 'transparent')} className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-300"><i className="fas fa-eraser"></i></button>
-                      </div>
-                  </div>
-                  <div className="grid grid-cols-5 gap-1 p-2 bg-slate-50 rounded-xl max-h-[120px] overflow-y-auto scrollbar-hide">
-                      {EMOJI_GROUPS[0].icons.map(emoji => <button key={emoji} onClick={() => execCmd('insertText', emoji)} className="w-8 h-8 hover:bg-white rounded flex items-center justify-center text-sm">{emoji}</button>)}
-                  </div>
-              </div>
+      {showInspector && (
+          <div className="w-96 border-l border-zinc-200 bg-white flex flex-col animate-slideInRight">
+              <InspectorSidebar 
+                block={blocks.find(b => b.id === selectedBlockId) || null} 
+                onUpdate={u => setBlocks(blocks.map(b => b.id === u.id ? u : b))}
+                onClose={() => setShowInspector(false)}
+                newsMetadata={{ slug, setSlug, category, setCategory, title, lead, socialCaptions, setSocialCaptions }}
+              />
           </div>
       )}
     </div>

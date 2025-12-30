@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import LoadingScreen from './components/common/LoadingScreen';
-import PermissionModal from './components/common/PermissionModal';
-import PricingModal from './components/common/PricingModal';
 import MyAccountModal from './components/common/MyAccountModal';
+import PricingModal from './components/common/PricingModal';
 
 // Pages
 import Home from './pages/Home';
@@ -18,8 +17,9 @@ import Jobs from './pages/Jobs';
 import Login from './components/Login'; 
 
 // Services & Types
-import { getExternalNews } from './services/geminiService';
+import { getExternalNews, adaptContentForSocialMedia } from './services/geminiService';
 import { trackAdClick } from './services/adService';
+import { dispatchSocialWebhook } from './services/integrationService';
 import { 
     initSupabase, 
     fetchSiteData, 
@@ -32,7 +32,7 @@ import {
     saveSystemSetting, 
     getSystemSetting
 } from './services/supabaseService';
-import { NewsItem, User, Advertiser, Job, AdPricingConfig, SystemSettings } from './types';
+import { NewsItem, User, Advertiser, Job, AdPricingConfig, SystemSettings, SocialDistribution } from './types';
 
 const INITIAL_AD_CONFIG: AdPricingConfig = {
     plans: [
@@ -52,40 +52,6 @@ const INITIAL_AD_CONFIG: AdPricingConfig = {
                 allowedSocialNetworks: ['instagram', 'facebook', 'whatsapp', 'linkedin', 'tiktok'],
                 hasInternalPage: true
             }
-        },
-        {
-            id: 'premium',
-            name: 'Premium',
-            prices: { daily: 30, weekly: 180, monthly: 700, quarterly: 1800, semiannual: 3200, yearly: 6000 },
-            description: 'Visibilidade constante',
-            cashbackPercent: 5,
-            features: {
-                placements: ['sidebar', 'standard_list'],
-                canCreateJobs: true,
-                maxProducts: 5,
-                socialVideoAd: true,
-                videoLimit: 2,
-                socialFrequency: 'weekly',
-                allowedSocialNetworks: ['instagram', 'facebook', 'tiktok'],
-                hasInternalPage: true
-            }
-        },
-        {
-            id: 'standard',
-            name: 'Standard',
-            prices: { daily: 15, weekly: 90, monthly: 350, quarterly: 900, semiannual: 1600, yearly: 3000 },
-            description: 'Presença garantida',
-            cashbackPercent: 0,
-            features: {
-                placements: ['standard_list'],
-                canCreateJobs: false,
-                maxProducts: 1,
-                socialVideoAd: false,
-                videoLimit: 0,
-                socialFrequency: 'monthly',
-                allowedSocialNetworks: [],
-                hasInternalPage: true
-            }
         }
     ],
     promoText: 'Assine agora e impulsione seu negócio!',
@@ -98,7 +64,18 @@ const DEFAULT_SETTINGS: SystemSettings = {
     supabase: {
         url: 'https://xlqyccbnlqahyxhfswzh.supabase.co',
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhscXljY2JubHFhaHl4aGZzd3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjYwNTMsImV4cCI6MjA4MjU0MjA1M30.5sFnDeMEtXBSrKGjt4vILrQEdsg4MytlftGp67Ieiio'
-    }
+    },
+    socialWebhookUrl: ''
+};
+
+const DEV_USER: User = {
+    id: 'dev_root',
+    name: 'Desenvolvedor Master',
+    email: 'dev@lagoaformosa.com',
+    role: 'Desenvolvedor',
+    status: 'active',
+    avatar: 'https://cdn-icons-png.flaticon.com/512/9131/9131529.png',
+    themePreference: 'light'
 };
 
 const App: React.FC = () => {
@@ -123,7 +100,14 @@ const App: React.FC = () => {
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // FIX: Navegação segura via updateHash com Try/Catch global
+  useEffect(() => {
+    if (user?.themePreference === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [user?.themePreference]);
+
   const updateHash = (hash: string) => {
     const target = hash.startsWith('#') ? hash : `#${hash}`;
     try { 
@@ -131,7 +115,7 @@ const App: React.FC = () => {
         window.location.hash = target; 
       }
     } catch (e) {
-      console.warn("Alteração de Hash bloqueada. O sistema continuará via estado interno.");
+      console.warn("Navegação interna via estado.");
     }
   };
 
@@ -142,7 +126,9 @@ const App: React.FC = () => {
     const initializeSystem = async () => {
         const savedUser = localStorage.getItem('lfnm_user') || sessionStorage.getItem('lfnm_user');
         if (savedUser) {
-            try { setUser(JSON.parse(savedUser)); } catch {}
+            try { setUser(JSON.parse(savedUser)); } catch { setUser(DEV_USER); }
+        } else {
+            setUser(DEV_USER);
         }
 
         const savedSettings = localStorage.getItem('lfnm_system_settings');
@@ -189,11 +175,16 @@ const App: React.FC = () => {
     const handleHashChange = () => {
       let hash = '';
       try { hash = window.location.hash; } catch { return; }
+      
       if (hash === '#/admin') {
-         if (user) { setView('admin'); setShowLoginModal(false); } 
-         else { setView('home'); updateHash('/'); setTimeout(() => setShowLoginModal(true), 100); }
-      } else if (hash === '#/login') { setShowLoginModal(true); }
-      else if (hash.startsWith('#/news/')) {
+         if (user) { 
+           setView('admin'); 
+           setShowLoginModal(false); 
+         } else { 
+           setView('home'); 
+           updateHash('/'); 
+         }
+      } else if (hash.startsWith('#/news/')) {
         const id = hash.split('/').pop();
         const item = news.find(n => n.id === id);
         if (item) { setSelectedNews(item); setView('details'); } 
@@ -205,6 +196,50 @@ const App: React.FC = () => {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [news, user, view, isInitialized]); 
+
+  const triggerOmnichannelPost = async (newsItem: NewsItem) => {
+      if (!systemSettings.enableOmnichannel) return;
+      try {
+          const socialContent = await adaptContentForSocialMedia(newsItem.title, newsItem.lead, newsItem.category);
+          const distributions: SocialDistribution[] = [
+              { platform: 'instagram_feed', status: 'pending', content: socialContent.instagram_feed },
+              { platform: 'facebook', status: 'pending', content: socialContent.facebook },
+              { platform: 'whatsapp', status: 'pending', content: socialContent.whatsapp },
+              { platform: 'linkedin', status: 'pending', content: socialContent.linkedin }
+          ];
+          const updatedNews = { ...newsItem, socialDistribution: distributions };
+          const success = await dispatchSocialWebhook(updatedNews);
+          if (success) {
+              updatedNews.socialDistribution = distributions.map(d => ({ ...d, status: 'posted', postedAt: new Date().toISOString() }));
+          } else {
+              updatedNews.socialDistribution = distributions.map(d => ({ ...d, status: 'failed' }));
+          }
+          setNews(prev => prev.map(n => n.id === newsItem.id ? updatedNews : n));
+          if(dataSource === 'database') await updateNews(updatedNews);
+      } catch (error) {
+          console.error("Erro na distribuição social:", error);
+      }
+  };
+
+  const handleAddNews = async (n: NewsItem) => {
+      setNews(p => [n, ...p]);
+      if(dataSource === 'database') { 
+          try { 
+              await createNews(n); 
+              if (n.status === 'published') triggerOmnichannelPost(n);
+          } catch(e) {} 
+      }
+  };
+
+  const handleUpdateNews = async (n: NewsItem) => {
+      setNews(p => p.map(x => x.id === n.id ? n : x));
+      if(dataSource === 'database') { 
+          try { 
+              await updateNews(n); 
+              if (n.status === 'published') triggerOmnichannelPost(n);
+          } catch(e) {} 
+      }
+  };
 
   const handleNewsClick = (item: NewsItem) => {
     setSelectedNews(item);
@@ -252,16 +287,6 @@ const App: React.FC = () => {
     handleBackToHome();
   };
 
-  const handleAddNews = async (n: NewsItem) => {
-      setNews(p => [n, ...p]);
-      if(dataSource === 'database') { try { await createNews(n); } catch(e) {} }
-  };
-
-  const handleUpdateNews = async (n: NewsItem) => {
-      setNews(p => p.map(x => x.id === n.id ? n : x));
-      if(dataSource === 'database') { try { await updateNews(n); } catch(e) {} }
-  };
-
   const handleDeleteNews = async (id: string) => {
       setNews(p => p.filter(x => x.id !== id));
       if(dataSource === 'database') { try { await deleteNews(id); } catch(e) {} }
@@ -300,15 +325,14 @@ const App: React.FC = () => {
   const handleUpdateSystemSettings = (s: SystemSettings) => {
       setSystemSettings(s);
       localStorage.setItem('lfnm_system_settings', JSON.stringify(s));
-      if(s.supabase?.url) initSupabase(s.supabase.url, s.supabase.anonKey);
+      if(s.supabase?.url && s.supabase?.anonKey) initSupabase(s.supabase.url, s.supabase.anonKey);
   };
 
   const marqueeNews = Object.values(externalCategories).flat().slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col w-full overflow-x-hidden">
+    <div className={`min-h-screen flex flex-col w-full overflow-x-hidden transition-colors duration-500 ${user?.themePreference === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-gray-50 text-gray-900'}`}>
       {showLoading && <LoadingScreen onFinished={() => setShowLoading(false)} />}
-      <PermissionModal onAccept={() => {}} />
       
       {showLoginModal && (
           <Login onLogin={handleLoginSuccess} onClose={() => setShowLoginModal(false)} />
@@ -330,14 +354,17 @@ const App: React.FC = () => {
       )}
 
       <div className={`w-full flex flex-col min-h-screen transition-all duration-700 ${showLoading ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
-        <Header 
-            onAdminClick={handleAdminClick} onHomeClick={handleBackToHome}
-            latestNews={news.slice(0, 6)} brazilNews={marqueeNews} 
-            user={user} onLogout={handleLogout} onNewsClick={handleNewsClick}
-            isSimplified={view === 'admin' || view === 'jobs'} onOpenProfile={() => setShowProfileModal(true)}
-        />
+        {/* HEADER SÓ APARECE SE NÃO FOR ADMIN */}
+        {view !== 'admin' && (
+          <Header 
+              onAdminClick={handleAdminClick} onHomeClick={handleBackToHome}
+              latestNews={news.slice(0, 6)} brazilNews={marqueeNews} 
+              user={user} onLogout={handleLogout} onNewsClick={handleNewsClick}
+              isSimplified={view === 'jobs'} onOpenProfile={() => setShowProfileModal(true)}
+          />
+        )}
 
-        <div className={`w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] md:mx-auto bg-white md:shadow-2xl md:border-x border-gray-100 relative ${view === 'details' ? 'md:w-full md:max-w-none md:border-none md:shadow-none' : ''}`}>
+        <div className={`w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] md:mx-auto relative ${user?.themePreference === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-100 shadow-2xl border-x'} ${view === 'details' ? 'md:w-full md:max-w-none md:border-none md:shadow-none' : ''}`}>
           <main className="flex-grow w-full">
             {view === 'home' && (
               <Home 
@@ -356,7 +383,8 @@ const App: React.FC = () => {
                 onAddUser={handleAddUser} onUpdateUser={handleUpdateUser}
                 onUpdateAdvertiser={handleUpdateAdvertiser} onUpdateAdConfig={handleUpdateAdConfig}
                 onUpdateSystemSettings={handleUpdateSystemSettings} dataSource={dataSource}
-                onNavigateHome={handleBackToHome}
+                onNavigateHome={handleBackToHome} onLogout={handleLogout}
+                onOpenProfile={() => setShowProfileModal(true)}
               />
             )}
             {view === 'details' && selectedNews && (
@@ -365,7 +393,8 @@ const App: React.FC = () => {
             {view === 'advertiser' && selectedAdvertiser && <AdvertiserPage advertiser={selectedAdvertiser} onBack={handleBackToHome} />}
             {view === 'jobs' && <Jobs jobs={jobs} onBack={handleBackToHome} isEnabled={systemSettings.jobsModuleEnabled} />}
           </main>
-          <Footer />
+          
+          {view !== 'admin' && <Footer isSimplified={view === 'jobs'} />}
         </div>
       </div>
     </div>

@@ -1,153 +1,151 @@
 
 export type UserRole = 'Desenvolvedor' | 'Editor-Chefe' | 'Repórter' | 'Jornalista' | 'Estagiário' | 'Anunciante';
 
-export type PostStatus = 'draft' | 'in_review' | 'needs_changes' | 'approved' | 'scheduled' | 'published' | 'archived';
-
-// AdPlan agora é apenas um alias para string (ID do plano), pois os planos são dinâmicos
-export type AdPlan = string;
-
-export type BillingCycle = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
-
-export interface SystemSettings {
-  jobsModuleEnabled: boolean;
-  enableOmnichannel: boolean; // Novo flag para controlar publicação em massa
-  supabase?: {
-    url: string;
-    anonKey: string;
-  };
-  // Deprecated Nhost config kept for compatibility if needed during migration, but should be removed
-  nhost?: {
-    subdomain: string;
-    region: string;
-  };
-  socialWebhookUrl?: string; // URL para disparo omnichannel (Make/Zapier)
-}
-
-export interface AdPlanPrices {
-  daily: number;
-  weekly: number; // Nova opção semanal
-  monthly: number;
-  quarterly: number;
-  semiannual: number;
-  yearly: number;
-}
-
-export interface AdPlanFeatures {
-  placements: ('master_carousel' | 'live_tab' | 'sidebar' | 'standard_list')[]; // Alterado para array de locais
-  canCreateJobs: boolean;
-  maxProducts: number; // 0 = ilimitado
-  socialVideoAd: boolean;
-  videoLimit?: number; // Limite de vídeos por mês
-  socialFrequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly'; // Frequência de postagem
-  allowedSocialNetworks: ('instagram' | 'facebook' | 'whatsapp' | 'linkedin' | 'tiktok')[]; // Adicionado TikTok
-  hasInternalPage: boolean;
-}
-
-export interface AdPlanConfig {
-  id: string;
-  name: string;
-  prices: AdPlanPrices; // Alterado de dailyPrice para objeto de preços
-  features: AdPlanFeatures;
-  description?: string;
-  isPopular?: boolean; 
-  cashbackPercent?: number; // Cashback individual por plano
-}
-
-export interface AdPricingConfig {
-  plans: AdPlanConfig[];
-  promoText: string; // Texto global ainda existe, mas cashback saiu daqui
-  active: boolean;
-}
-
-export interface EditorialComment {
-  id: string;
-  userId: string;
-  userName: string;
-  text: string;
-  timestamp: string;
-  resolved: boolean;
-  resolvedBy?: string;
-}
-
-export interface NewsVersion {
-  id: string;
-  postId: string;
-  versionNumber: number;
-  timestamp: string;
-  authorId: string;
-  authorName: string;
-  changeSummary: string;
-  snapshot: {
-    title: string;
-    lead: string;
-    content: string;
-    category: string;
-    imageUrl: string;
-    imageCredits: string;
-    seo: SEOData;
-  };
-}
+export type UserStatus = 'active' | 'suspended';
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  status: string; 
   avatar?: string;
-  status: 'active' | 'suspended';
-  lastLoginAt?: string;
-  // Extended Profile
+  password?: string;
   bio?: string;
+  themePreference?: 'light' | 'dark';
   socialLinks?: {
     instagram?: string;
     twitter?: string;
     linkedin?: string;
   };
-  permissions?: Record<string, boolean>; // PERMISSÕES REAIS
-  twoFactorEnabled?: boolean;
-  // Advertiser Specifics
+  permissions?: Record<string, boolean>;
   advertiserPlan?: string;
   subscriptionStart?: string;
   subscriptionEnd?: string;
+  twoFactorEnabled?: boolean;
 }
 
-export interface UserSession {
-  id: string;
-  device: string;
-  location: string;
-  lastActive: string;
-  isCurrent: boolean;
+export type PostStatus = 'draft' | 'in_review' | 'needs_changes' | 'approved' | 'scheduled' | 'published' | 'archived';
+
+// OS 10 TIPOS DE ENGAJAMENTO LFNM
+export type EngagementType = 
+  | 'poll'          // 1. Enquete Tradicional
+  | 'battle'        // 2. Batalha A/B
+  | 'quiz'          // 3. Quiz (Certo/Errado)
+  | 'reactions'     // 4. Reações Emojis
+  | 'thermometer'   // 5. Termômetro
+  | 'rating'        // 6. Estrelas
+  | 'counter'       // 7. Like Viral (Coração)
+  | 'visual_vote'   // 8. Votação Galeria
+  | 'prediction'    // 9. Palpite/Bolão
+  | 'impact_ask';   // 10. Sim/Não Gigante
+
+export type GalleryStyle = 'hero_slider' | 'news_mosaic' | 'filmstrip' | 'comparison' | 'masonry' | 'stories_scroll' | 'card_peek';
+
+export type VideoStyle = 'clean' | 'cinema' | 'shorts' | 'news_card' | 'native';
+
+export interface VideoChapter {
+    time: string;
+    label: string;
 }
 
-export interface Invoice {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  status: 'paid' | 'pending' | 'overdue';
+export interface GalleryItem {
+    id: string;
+    url: string;
+    caption?: string;
+    alt?: string;
 }
 
-export interface SEOData {
-  slug: string;
-  metaTitle: string;
-  metaDescription: string;
-  focusKeyword: string;
-  canonicalUrl?: string;
-  ogImage?: string;
-  schemaType?: 'NewsArticle' | 'BlogPosting' | 'Report';
+export interface NewsVersion {
+    id: string;
+    title: string;
+    content: string;
+    updatedAt: string;
+    editorName: string;
 }
 
 export interface SocialDistribution {
-  platform: 'instagram_feed' | 'instagram_stories' | 'facebook' | 'whatsapp' | 'linkedin' | 'twitter';
-  status: 'idle' | 'scheduled' | 'published' | 'failed';
-  content: string;
-  publishedAt?: string;
-  postId?: string;
-  metrics?: {
-    likes: number;
-    shares: number;
-    views: number;
-  };
+    platform: 'instagram_feed' | 'instagram_stories' | 'facebook' | 'whatsapp' | 'linkedin' | 'tiktok' | 'youtube';
+    status: 'pending' | 'posted' | 'failed';
+    content: string;
+    postedAt?: string;
+}
+
+export interface WebhookPayload {
+    event: string;
+    timestamp: string;
+    data: {
+        id: string;
+        title: string;
+        url: string;
+        imageUrl: string;
+        socialText: string;
+        author: string;
+    };
+}
+
+export type AdPlan = string;
+export type BillingCycle = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
+export type PromotionStyle = 'default' | 'sale' | 'flash' | 'bogo';
+
+export interface AdvertiserProduct {
+    id: string;
+    name: string;
+    price?: string;
+    originalPrice?: string;
+    promotionStyle?: PromotionStyle;
+    description?: string;
+    imageUrl?: string;
+}
+
+export interface Coupon {
+    id: string;
+    code: string;
+    discount: string;
+    description: string;
+    active: boolean;
+}
+
+export interface AdPlanConfig {
+    id: string;
+    name: string;
+    prices: Record<BillingCycle, number>;
+    description: string;
+    features: {
+        placements: string[];
+        canCreateJobs: boolean;
+        maxProducts: number;
+        socialVideoAd: boolean;
+        videoLimit?: number;
+        socialFrequency?: 'daily' | 'weekly' | 'biweekly' | 'monthly';
+        allowedSocialNetworks: string[];
+        hasInternalPage: boolean;
+    };
+    cashbackPercent?: number;
+    isPopular?: boolean;
+}
+
+export interface Invoice {
+    id: string;
+    date: string;
+    description: string;
+    amount: number;
+    status: 'paid' | 'pending' | 'overdue';
+}
+
+export interface UserSession {
+    id: string;
+    device: string;
+    location: string;
+    lastActive: string;
+    isCurrent: boolean;
+}
+
+export interface ContentBlock {
+  id: string;
+  type: 'paragraph' | 'heading' | 'image' | 'video' | 'gallery' | 'carousel' | 'quote' | 'separator' | 'cta' | 'ad' | 'related' | 'table' | 'list' | 'smart_block' | 'engagement';
+  content: any; 
+  settings: any;
 }
 
 export interface NewsItem {
@@ -155,114 +153,106 @@ export interface NewsItem {
   status: PostStatus;
   title: string;
   lead: string;
-  content: string;
+  content: string; 
+  blocks?: ContentBlock[]; 
   category: string;
   authorId: string;
   author: string;
-  editorId?: string;
-  editorName?: string;
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
   scheduledAt?: string;
-  imageUrl: string;
+  imageUrl: string; 
+  bannerMediaType: 'image' | 'video'; 
+  bannerImages?: string[]; 
+  bannerVideoUrl?: string;
+  isBannerAnimated?: boolean;
   imageCredits: string;
   mediaType: 'image' | 'video';
   videoUrl?: string;
-  galleryUrls?: string[]; 
+  galleryUrls?: string[];
   city: string;
   region: string;
   isBreaking: boolean;
   isFeatured: boolean;
   featuredPriority: number;
-  seo: SEOData;
+  seo: {
+    slug: string;
+    metaTitle: string;
+    metaDescription: string;
+    focusKeyword: string;
+    canonicalUrl?: string;
+  };
   source: 'site' | 'instagram' | 'press_release' | 'rss_automation';
-  comments?: EditorialComment[];
+  views?: number;
   versions?: NewsVersion[];
   socialDistribution?: SocialDistribution[];
-  views?: number; 
 }
 
-export interface AuditLog {
-  id: string;
-  userId: string;
-  userName: string;
-  action: string;
-  entityId: string;
-  timestamp: string;
-  details: string;
-}
-
-export type PromotionStyle = 'default' | 'sale' | 'bogo' | 'flash' | 'limited';
-
-export interface AdvertiserProduct {
-  id: string;
-  name: string;
-  price?: string;
-  originalPrice?: string; 
-  promotionStyle?: PromotionStyle;
-  description?: string;
-  imageUrl?: string;
-  linkUrl?: string;
-}
-
-export interface Coupon {
-  id: string;
-  code: string; 
-  discount: string; 
-  description: string;
-  active: boolean;
+export interface SiteData {
+    news: NewsItem[];
+    advertisers: Advertiser[];
+    users: User[];
+    jobs: Job[];
 }
 
 export interface Advertiser {
-  id: string;
-  name: string;
-  category: string;
-  plan: AdPlan; 
-  billingCycle: BillingCycle; 
-  logoIcon?: string;
-  logoUrl?: string;
-  bannerUrl?: string;
-  startDate: string;
-  endDate: string;
-  endDateObj?: Date; 
-  isActive: boolean;
-  views: number;
-  clicks: number;
-  redirectType: 'internal' | 'external';
-  externalUrl?: string;
-  coupons?: Coupon[]; 
-  internalPage?: {
-    description: string;
-    whatsapp?: string;
-    instagram?: string;
-    location?: string;
-    products: AdvertiserProduct[];
-  };
+    id: string;
+    name: string;
+    category: string;
+    plan: AdPlan;
+    billingCycle: BillingCycle;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    views: number;
+    clicks: number;
+    logoUrl?: string;
+    logoIcon?: string;
+    bannerUrl?: string;
+    redirectType: 'internal' | 'external';
+    externalUrl?: string;
+    coupons?: Coupon[];
+    internalPage?: {
+        description: string;
+        location?: string;
+        whatsapp?: string;
+        instagram?: string;
+        products: AdvertiserProduct[];
+    };
 }
 
 export interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  type: 'CLT' | 'PJ' | 'Estágio' | 'Temporário';
-  salary?: string;
-  description: string;
-  whatsapp: string; 
-  postedAt: string;
-  isActive: boolean;
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    type: string;
+    salary?: string;
+    description: string;
+    whatsapp: string;
+    postedAt: string;
+    isActive: boolean;
 }
 
-export interface WebhookPayload {
-  event: 'post_published' | 'ad_expired';
-  timestamp: string;
-  data: {
-    id: string;
-    title?: string;
-    url?: string;
-    imageUrl?: string;
-    socialText?: string; 
-    author?: string;
-  };
+export interface AdPricingConfig {
+    plans: AdPlanConfig[];
+    promoText: string;
+    active: boolean;
+}
+
+export interface SystemSettings {
+  jobsModuleEnabled: boolean;
+  enableOmnichannel: boolean;
+  supabase?: { url: string; anonKey: string; };
+  socialWebhookUrl?: string;
+}
+
+export interface AuditLog {
+    userId: string;
+    userName: string;
+    action: string;
+    entityId: string;
+    details: string;
+    timestamp: string;
 }
