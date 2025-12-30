@@ -1,6 +1,6 @@
 
-import React, { useRef, useEffect } from 'react';
-import { ContentBlock } from '../../../types';
+import React, { useRef, useEffect, useState } from 'react';
+import { ContentBlock, EditorialStyle } from '../../../../types';
 
 interface TextBlockProps {
   block: ContentBlock;
@@ -9,106 +9,131 @@ interface TextBlockProps {
   onSelect: () => void;
 }
 
-const FONT_MAP: Record<string, string> = {
-    sans: 'Inter, sans-serif',
-    serif: 'Merriweather, serif',
-    mono: 'JetBrains Mono, monospace',
-    display: 'Inter, sans-serif'
-};
-
-const SIZE_MAP: Record<string, string> = {
-    xs: '12px', sm: '14px', md: '18px', lg: '24px', xl: '32px', '2xl': '48px', '3xl': '64px'
-};
-
 const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSelect }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const settings = block.settings;
-  const isQuote = block.type === 'quote';
-  const isList = block.type === 'list';
-  const isDropCap = settings.style === 'dropcap';
+  const [menuPos, setMenuPos] = useState<{ x: number, y: number } | null>(null);
   
+  const style = block.settings.editorialStyle || 'newspaper_standard';
+  const sets = block.settings;
+
   useEffect(() => {
     if (contentRef.current && contentRef.current.innerHTML !== block.content) {
-      if (isList && (!block.content || block.content === '')) {
-          contentRef.current.innerHTML = '<li>Escreva um item da lista...</li>';
-      } else if (!block.content || block.content === '') {
-          contentRef.current.innerHTML = isDropCap ? 'Era uma vez...' : '';
-      } else {
-          contentRef.current.innerHTML = block.content;
-      }
+      contentRef.current.innerHTML = block.content || '';
     }
-  }, [block.id, isList, block.content, isDropCap]);
+  }, [block.id, block.content]);
 
   const handleInput = () => {
-    if (contentRef.current) {
-      onUpdate(contentRef.current.innerHTML);
+    if (contentRef.current) onUpdate(contentRef.current.innerHTML);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onSelect();
+    setMenuPos({ x: e.clientX, y: e.clientY });
+  };
+
+  useEffect(() => {
+    const close = () => setMenuPos(null);
+    if (menuPos) window.addEventListener('mousedown', close);
+    return () => window.removeEventListener('mousedown', close);
+  }, [menuPos]);
+
+  const applyCommand = (cmd: string, val?: string) => {
+    document.execCommand('styleWithCSS', false, "true");
+    document.execCommand(cmd, false, val);
+    handleInput();
+    setMenuPos(null);
+  };
+
+  // MOTOR DE ESTILOS CAMALEÃO
+  const getStyleClasses = () => {
+    let base = "outline-none p-6 transition-all duration-500 rounded-3xl relative ";
+    
+    switch (style) {
+      case 'newspaper_standard':
+        base += "font-serif text-zinc-800 leading-relaxed text-xl";
+        break;
+      case 'breaking_alert':
+        base += `font-black uppercase tracking-tighter text-white p-10 ${sets.backgroundColor === 'black' ? 'bg-black' : 'bg-red-600'} ${sets.pulseEnabled ? 'animate-pulse' : ''} shadow-2xl`;
+        break;
+      case 'impact_quote':
+        base += "italic font-serif text-3xl text-zinc-700 bg-zinc-50/50 py-12 border-l-[16px] border-red-600";
+        break;
+      case 'footnote':
+        base += "text-sm text-zinc-400 border-t border-zinc-100 pt-6 mt-4 font-medium italic";
+        break;
+      case 'hero_headline':
+        base += `text-5xl md:text-7xl font-[1000] uppercase italic tracking-tighter leading-[0.85] text-zinc-900 ${sets.isUppercase ? 'uppercase' : ''}`;
+        break;
+      case 'checklist_pro':
+        base += "space-y-4 text-lg font-bold text-zinc-700 lfnm-checklist";
+        break;
+      case 'police_siren':
+        base += `font-black p-8 text-2xl tracking-tight border-y-8 border-black ${sets.zebraStripes ? 'bg-[repeating-linear-gradient(45deg,#facc15,#facc15_20px,#000_20px,#000_40px)] text-white' : 'bg-yellow-400 text-black'}`;
+        break;
+      case 'tech_neon':
+        base += "font-mono p-8 bg-zinc-900 border border-white/10 rounded-xl shadow-inner";
+        break;
+      case 'vintage_letter':
+        base += `p-12 font-serif border-2 border-dashed border-zinc-300 shadow-sm italic ${sets.paperTexture ? 'bg-[#fdf6e3]' : 'bg-white'}`;
+        break;
+      case 'executive_summary':
+        base += "bg-blue-50 border-2 border-blue-100 p-10 rounded-[2.5rem] text-blue-900 font-medium";
+        break;
     }
+
+    if (sets.alignment === 'center') base += " text-center";
+    if (sets.alignment === 'right') base += " text-right";
+    return base;
   };
 
-  const getRadius = (r: string) => {
-    switch(r) {
-        case 'md': return '1rem';
-        case 'xl': return '2rem';
-        case '3xl': return '3rem';
-        case 'full': return '9999px';
-        default: return '0px';
+  const getDynamicInlineStyles = (): React.CSSProperties => {
+    const s: React.CSSProperties = {};
+    if (style === 'hero_headline' && sets.shadowDepth) {
+      s.textShadow = `${sets.shadowDepth}px ${sets.shadowDepth}px 0px rgba(0,0,0,0.1)`;
     }
+    if (style === 'tech_neon' && sets.neonColor) {
+      s.color = sets.neonColor;
+      s.textShadow = `0 0 12px ${sets.neonColor}60`;
+    }
+    if (sets.fontSize) s.fontSize = `${sets.fontSize}px`;
+    return s;
   };
-
-  const blockStyle: React.CSSProperties = {
-    fontFamily: FONT_MAP[settings.fontFamily || (isDropCap ? 'serif' : 'sans')],
-    fontSize: settings.fontSize ? SIZE_MAP[settings.fontSize] : `${settings.thickness || (isQuote ? '24' : '18')}px`,
-    textAlign: settings.alignment || 'left',
-    color: settings.textColor || (isQuote ? '#4b5563' : '#1f2937'),
-    padding: settings.padding || (isQuote ? '32px' : '12px'),
-    backgroundColor: settings.backgroundColor || 'transparent',
-    boxShadow: settings.boxShadow || 'none',
-    borderRadius: getRadius(settings.borderRadius),
-    borderWidth: settings.borderWidth || '0px',
-    borderStyle: settings.borderStyle || 'none',
-    borderColor: settings.borderColor || '#e2e8f0',
-    lineHeight: '1.8',
-    fontWeight: block.type === 'heading' || settings.fontFamily === 'display' ? '900' : '500',
-    fontStyle: isQuote || settings.italic ? 'italic' : 'normal',
-    minHeight: '1.5em',
-    transition: 'all 0.3s ease'
-  };
-
-  const Tag = isList ? (settings.listType === 'ordered' ? 'ol' : 'ul') : 'div';
 
   return (
     <div 
-      onClick={(e) => { e.stopPropagation(); onSelect(); }}
-      className={`relative transition-all group/text ${isSelected ? 'ring-2 ring-blue-500 rounded-xl' : ''}`}
-      style={blockStyle}
+      className={`group/text relative transition-all ${isSelected ? 'ring-4 ring-blue-500/20' : ''}`}
+      onContextMenu={handleContextMenu}
     >
-      <Tag 
+      {style === 'executive_summary' && <div className="absolute top-6 left-10 text-[8px] font-black uppercase text-blue-400 tracking-widest">Resumo LFNM</div>}
+      
+      <div
         ref={contentRef}
-        contentEditable 
-        dir="ltr"
+        contentEditable
         onInput={handleInput}
         onFocus={onSelect}
-        style={{ outline: 'none', background: 'transparent' }}
-        data-placeholder={block.type === 'heading' ? 'Manchete do Bloco...' : 'Escreva aqui...'}
-        className={`text-left ltr-text ${block.type === 'heading' ? 'uppercase italic tracking-tighter' : ''} ${isList ? 'list-outside ml-4' : ''} ${isDropCap ? 'dropcap-style' : ''}`} 
+        style={getDynamicInlineStyles()}
+        className={getStyleClasses()}
+        data-placeholder="Clique com botão direito p/ formatar texto."
       />
-      
-      {settings.highlightColor && settings.highlightColor !== 'transparent' && (
-          <div className="absolute inset-0 pointer-events-none opacity-20 -z-10" style={{ backgroundColor: settings.highlightColor }}></div>
+
+      {menuPos && (
+        <div 
+          className="fixed z-[9999] bg-white border border-zinc-200 shadow-2xl rounded-2xl p-2 flex gap-1 animate-fadeInUp"
+          style={{ top: menuPos.y, left: menuPos.x }}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <button onClick={() => applyCommand('bold')} className="w-8 h-8 rounded hover:bg-zinc-100 font-bold">B</button>
+          <button onClick={() => applyCommand('italic')} className="w-8 h-8 rounded hover:bg-zinc-100 italic">I</button>
+          <button onClick={() => applyCommand('hiliteColor', '#fef08a')} className="w-8 h-8 rounded hover:bg-yellow-100 text-yellow-600"><i className="fas fa-highlighter"></i></button>
+          <button onClick={() => applyCommand('foreColor', '#dc2626')} className="w-8 h-8 rounded hover:bg-red-50 text-red-600"><i className="fas fa-font"></i></button>
+        </div>
       )}
 
       <style>{`
-          .dropcap-style::first-letter {
-              float: left;
-              font-size: 4.5em;
-              line-height: 0.8;
-              padding-top: 4px;
-              padding-right: 8px;
-              padding-left: 3px;
-              font-weight: 900;
-              color: #dc2626;
-              font-family: serif;
-          }
+        .lfnm-checklist li { list-style: none; position: relative; padding-left: 2rem; }
+        .lfnm-checklist li::before { content: '✓'; position: absolute; left: 0; color: #16a34a; font-weight: 900; }
+        [contenteditable=true]:empty:before { content: attr(data-placeholder); color: #cbd5e1; font-style: italic; opacity: 0.5; }
       `}</style>
     </div>
   );
