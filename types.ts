@@ -27,22 +27,44 @@ export interface User {
 
 export type PostStatus = 'draft' | 'in_review' | 'needs_changes' | 'approved' | 'scheduled' | 'published' | 'archived';
 
-// OS 10 TIPOS DE ENGAJAMENTO LFNM
 export type EngagementType = 
-  | 'poll'          // 1. Enquete Tradicional
-  | 'battle'        // 2. Batalha A/B
-  | 'quiz'          // 3. Quiz (Certo/Errado)
-  | 'reactions'     // 4. Reações Emojis
-  | 'thermometer'   // 5. Termômetro
-  | 'rating'        // 6. Estrelas
-  | 'counter'       // 7. Like Viral (Coração)
-  | 'visual_vote'   // 8. Votação Galeria
-  | 'prediction'    // 9. Palpite/Bolão
-  | 'impact_ask';   // 10. Sim/Não Gigante
+  | 'poll'          
+  | 'battle'        
+  | 'quiz'          
+  | 'reactions'     
+  | 'thermometer'   
+  | 'rating'        
+  | 'counter'       
+  | 'visual_vote'   
+  | 'prediction'    
+  | 'impact_ask';   
 
-export type GalleryStyle = 'hero_slider' | 'news_mosaic' | 'filmstrip' | 'comparison' | 'masonry' | 'stories_scroll' | 'card_peek';
+// 12 ESTILOS DE GALERIA PRO
+export type GalleryStyle = 
+  | 'hero_slider' 
+  | 'news_mosaic' 
+  | 'masonry' 
+  | 'filmstrip' 
+  | 'comparison' 
+  | 'stories_scroll' 
+  | '3d_cube' 
+  | 'coverflow' 
+  | 'polaroid_stack' 
+  | 'honeycomb' 
+  | 'ken_burns' 
+  | 'magazine_spread'
+  | 'card_peek';
 
-export type VideoStyle = 'clean' | 'cinema' | 'shorts' | 'news_card' | 'native';
+// 6 ESTILOS DE VÍDEO PRO
+export type VideoStyle = 
+  | 'clean' 
+  | 'cinema' 
+  | 'shorts_wrapper' 
+  | 'tv_news' 
+  | 'pip_floating' 
+  | 'retro_tv'
+  | 'native'
+  | 'news_card';
 
 export interface VideoChapter {
     time: string;

@@ -5,30 +5,25 @@ import { EDITOR_WIDGETS } from '../EditorWidgets';
 
 interface EditorSidebarProps {
   onAddBlock: (type: ContentBlock['type'], content?: any, settings?: any) => void;
-  onCloudUpload: (file: File, type: 'image' | 'video') => void;
+  onCloudUpload?: (file: File, type: 'image' | 'video') => void;
   isUploading: boolean;
 }
 
-const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, onCloudUpload, isUploading }) => {
-  const [activeCategory, setActiveCategory] = useState<string | null>('interativo');
+const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, isUploading }) => {
+  const [activeCategory, setActiveCategory] = useState<string | null>('escrita');
 
   const categories = [
-    {
-        id: 'interativo',
-        label: 'Engajamento & Viral (10)',
-        icon: 'fa-bolt-lightning',
-        color: 'bg-amber-500',
+    { 
+        id: 'escrita', 
+        label: 'Escrita Editorial', 
+        icon: 'fa-pen-nib', 
+        color: 'bg-zinc-900',
         items: [
-            { type: 'engagement', icon: 'fa-square-poll-vertical', label: '1. Enquete', settings: { engagementType: 'poll' }, content: { question: 'Sua opinião?', options: [{id: '1', label: 'Sim', votes: 0}, {id: '2', label: 'Não', votes: 0}] } },
-            { type: 'engagement', icon: 'fa-shield-halved', label: '2. Batalha A/B', settings: { engagementType: 'battle' }, content: { question: 'Quem ganha?', optionA: { label: 'Lado A', votes: 0 }, optionB: { label: 'Lado B', votes: 0 } } },
-            { type: 'engagement', icon: 'fa-brain', label: '3. Quiz Teste', settings: { engagementType: 'quiz' }, content: { question: 'Pergunta do Teste', options: [{id: '1', label: 'Certo', isCorrect: true, votes: 0}, {id: '2', label: 'Errado', isCorrect: false, votes: 0}] } },
-            { type: 'engagement', icon: 'fa-face-smile', label: '4. Reações Emojis', settings: { engagementType: 'reactions' }, content: { question: 'Como você avalia?', options: [{emoji: '🔥', count: 0}, {emoji: '👏', count: 0}, {emoji: '😢', count: 0}] } },
-            { type: 'engagement', icon: 'fa-temperature-high', label: '5. Termômetro', settings: { engagementType: 'thermometer' }, content: { question: 'Qual o nível?', totalVotes: 0, totalSum: 0 } },
-            { type: 'engagement', icon: 'fa-star', label: '6. Estrelas', settings: { engagementType: 'rating' }, content: { question: 'Dê sua nota:', totalVotes: 0, totalSum: 0 } },
-            { type: 'engagement', icon: 'fa-heart', label: '7. Apoio Vital', settings: { engagementType: 'counter' }, content: { question: 'Clique no coração!', count: 0 } },
-            { type: 'engagement', icon: 'fa-images', label: '8. Voto Galeria', settings: { engagementType: 'visual_vote' }, content: { question: 'A melhor foto?', votesA: 0, votesB: 0 } },
-            { type: 'engagement', icon: 'fa-trophy', label: '9. Bolão Placar', settings: { engagementType: 'prediction' }, content: { question: 'Palpite do Placar:', teamA: 'Time A', teamB: 'Time B' } },
-            { type: 'engagement', icon: 'fa-circle-exclamation', label: '10. Sim ou Não', settings: { engagementType: 'impact_ask' }, content: { question: 'Você concorda?', labelYes: 'SIM', labelNo: 'NÃO' } }
+            { type: 'paragraph', icon: 'fa-paragraph', label: 'Texto Corrente' },
+            { type: 'heading', icon: 'fa-heading', label: 'Manchete Bloco' },
+            { type: 'quote', icon: 'fa-quote-left', label: 'Citação / Aspas' },
+            { type: 'list', icon: 'fa-list-ul', label: 'Lista de Itens' },
+            { type: 'separator', icon: 'fa-minus', label: 'Divisor Visual' }
         ]
     },
     {
@@ -36,39 +31,46 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, onCloudUpload
         label: 'Mídia Cloud LFNM',
         icon: 'fa-cloud',
         color: 'bg-blue-600',
-        items: [],
         customContent: (
             <div className="space-y-3 p-3">
                 <div className="grid grid-cols-2 gap-2">
-                    <div className="relative group">
-                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => e.target.files?.[0] && onCloudUpload(e.target.files[0], 'image')} disabled={isUploading}/>
-                        <div className="bg-white border border-zinc-200 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-blue-500 transition-all">
-                            <i className="fas fa-camera text-zinc-400 text-sm"></i>
-                            <span className="text-[7px] font-black uppercase text-zinc-400">Drive</span>
-                        </div>
-                    </div>
-                    <div className="relative group">
-                        <input type="file" accept="video/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => e.target.files?.[0] && onCloudUpload(e.target.files[0], 'video')} disabled={isUploading}/>
-                        <div className="bg-white border border-zinc-200 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-red-500 transition-all">
-                            <i className="fas fa-video text-zinc-400 text-sm"></i>
-                            <span className="text-[7px] font-black uppercase text-zinc-400">YouTube</span>
-                        </div>
-                    </div>
+                    <button 
+                        onClick={() => onAddBlock('gallery', { items: [] }, { style: 'hero_slider' })}
+                        className="bg-white border-2 border-zinc-100 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-blue-500 transition-all group"
+                    >
+                        <i className="fab fa-google-drive text-blue-600 text-sm group-hover:scale-110 transition-transform"></i>
+                        <span className="text-[7px] font-black uppercase text-zinc-400">Add Galeria</span>
+                    </button>
+                    <button 
+                        onClick={() => onAddBlock('video', '', { style: 'clean' })}
+                        className="bg-white border-2 border-zinc-100 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-red-500 transition-all group"
+                    >
+                        <i className="fab fa-youtube text-red-600 text-sm group-hover:scale-110 transition-transform"></i>
+                        <span className="text-[7px] font-black uppercase text-zinc-400">Add Vídeo</span>
+                    </button>
+                </div>
+                <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100/50">
+                    <p className="text-[7px] text-blue-800 font-bold uppercase leading-tight text-center">Os arquivos são enviados pelo menu "Inspetor" (Direita) ao clicar no bloco.</p>
                 </div>
             </div>
         )
     },
-    { 
-        id: 'escrita', 
-        label: 'Escrita Editorial', 
-        icon: 'fa-pen-nib', 
-        color: 'bg-zinc-900',
+    {
+        id: 'interativo',
+        label: 'Engajamento & Viral',
+        icon: 'fa-bolt-lightning',
+        color: 'bg-amber-500',
         items: [
-            { type: 'paragraph', icon: 'fa-paragraph', label: 'Texto' },
-            { type: 'heading', icon: 'fa-heading', label: 'Manchete' },
-            { type: 'quote', icon: 'fa-quote-left', label: 'Citação' },
-            { type: 'list', icon: 'fa-list-ul', label: 'Lista' },
-            { type: 'separator', icon: 'fa-minus', label: 'Divisor' }
+            { type: 'engagement', icon: 'fa-square-poll-vertical', label: 'Enquete', settings: { engagementType: 'poll' }, content: { question: 'Sua opinião?', options: [{id: '1', label: 'Sim', votes: 0}, {id: '2', label: 'Não', votes: 0}] } },
+            { type: 'engagement', icon: 'fa-shield-halved', label: 'Batalha A/B', settings: { engagementType: 'battle' }, content: { question: 'Quem ganha?', optionA: { label: 'Lado A', votes: 0 }, optionB: { label: 'Lado B', votes: 0 } } },
+            { type: 'engagement', icon: 'fa-brain', label: 'Quiz Teste', settings: { engagementType: 'quiz' }, content: { question: 'Pergunta do Teste', options: [{id: '1', label: 'Certo', isCorrect: true, votes: 0}, {id: '2', label: 'Errado', isCorrect: false, votes: 0}] } },
+            { type: 'engagement', icon: 'fa-face-smile', label: 'Reações Emojis', settings: { engagementType: 'reactions' }, content: { question: 'Como avalia?', options: [{emoji: '🔥', count: 0}, {emoji: '👏', count: 0}, {emoji: '😢', count: 0}] } },
+            { type: 'engagement', icon: 'fa-temperature-high', label: 'Termômetro', settings: { engagementType: 'thermometer' }, content: { question: 'Qual o nível?', totalVotes: 0, totalSum: 0 } },
+            { type: 'engagement', icon: 'fa-star', label: 'Estrelas', settings: { engagementType: 'rating' }, content: { question: 'Dê sua nota:', totalVotes: 0, totalSum: 0 } },
+            { type: 'engagement', icon: 'fa-heart', label: 'Apoio Vital', settings: { engagementType: 'counter' }, content: { question: 'Clique no coração!', count: 0 } },
+            { type: 'engagement', icon: 'fa-images', label: 'Voto Galeria', settings: { engagementType: 'visual_vote' }, content: { question: 'A melhor foto?', votesA: 0, votesB: 0 } },
+            { type: 'engagement', icon: 'fa-trophy', label: 'Bolão Placar', settings: { engagementType: 'prediction' }, content: { question: 'Palpite do Placar:', teamA: 'Time A', teamB: 'Time B' } },
+            { type: 'engagement', icon: 'fa-circle-exclamation', label: 'Sim ou Não', settings: { engagementType: 'impact_ask' }, content: { question: 'Você concorda?', labelYes: 'SIM', labelNo: 'NÃO' } }
         ]
     },
     {
@@ -118,7 +120,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, onCloudUpload
                                     key={item.label} onClick={() => onAddBlock(item.type as any, item.content, item.settings)} 
                                     className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-zinc-100 hover:border-zinc-900 transition-all gap-2 aspect-square shadow-sm group"
                                 >
-                                    <i className={`fas ${item.icon} text-zinc-300 text-xl group-hover:text-amber-500 transition-colors`}></i>
+                                    <i className={`fas ${item.icon} text-zinc-300 text-xl hover:text-amber-500 transition-colors`}></i>
                                     <span className="text-[7px] font-black uppercase text-zinc-400 text-center leading-tight group-hover:text-zinc-900">{item.label}</span>
                                 </button>
                              ))}
