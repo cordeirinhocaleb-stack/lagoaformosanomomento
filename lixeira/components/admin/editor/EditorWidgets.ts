@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - components/admin/EditorWidgets.ts (root level of admin) is the correct file

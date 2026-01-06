@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - components/layout/CategoryMenu.tsx is the correct file

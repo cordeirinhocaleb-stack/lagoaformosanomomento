@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - services/supabaseService.ts is the correct file

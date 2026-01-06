@@ -1,0 +1,33 @@
+﻿
+LastWriteTime       Path                                          
+-------------       ----                                          
+06/01/2026 14:03:51 database\migrations\009_add_banner_effects.sql
+06/01/2026 14:04:36 services\content\contentService.ts            
+06/01/2026 15:15:16 components\RoleSelectionModal.tsx             
+06/01/2026 15:26:19 vite-env.d.ts                                 
+06/01/2026 15:40:49 database\migrations\015_security_fixes.sql    
+06/01/2026 15:44:20 vite.config.ts.bak                            
+06/01/2026 15:52:14 scripts\update-version.js.bak                 
+06/01/2026 15:53:00 components\common\ChangelogModal.tsx          
+06/01/2026 16:01:47 components\layout\Footer.tsx                  
+06/01/2026 16:04:14 services\users\userService.ts                 
+06/01/2026 16:07:37 components\Login.tsx                          
+06/01/2026 16:34:14 pages\ConstructionPage_BACKUP.tsx             
+06/01/2026 16:35:23 pages\ConstructionPage.tsx                    
+06/01/2026 17:08:32 App.tsx                                       
+06/01/2026 17:27:39 config\systemDefaults.ts                      
+06/01/2026 17:31:40 index.html                                    
+06/01/2026 17:31:45 VERSION.md.bak                                
+06/01/2026 17:34:34 services\geminiService.ts                     
+06/01/2026 17:34:36 package.json.bak                              
+06/01/2026 17:54:12 scripts\update-version.js                     
+06/01/2026 17:54:20 vite.config.ts                                
+06/01/2026 17:59:15 package.json                                  
+06/01/2026 17:59:15 VERSION.md                                    
+06/01/2026 17:59:15 config\changelog.json                         
+06/01/2026 17:59:30 metadata.json                                 
+06/01/2026 18:10:00 modified_files.txt                            
+06/01/2026 18:13:49 modified_since_14h.txt                        
+
+
+

@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - components/layout/Footer.tsx is the correct file

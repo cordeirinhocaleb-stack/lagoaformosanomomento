@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - components/common/Logo.tsx is the correct file

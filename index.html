@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lagoa Formosa no Momento - Welix Duarte</title>
+
+    <!-- Preconnect para otimizar handshake com servidores de fonte e CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Fontes otimizadas com display=swap e subset=latin -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:wght@400;700&family=Caveat:wght@400;700&display=swap&subset=latin"
+        rel="stylesheet">
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            /* Previne que o sticky header cubra o conteúdo no scroll manual */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #f4f4f7;
+            -webkit-overflow-scrolling: touch;
+            /* Scroll suave no iOS */
+        }
+
+        #root {
+            direction: ltr !important;
+            text-align: left !important;
+            unicode-bidi: isolate !important;
+        }
+
+        * {
+            direction: inherit;
+            text-align: inherit;
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+        .serif {
+            font-family: 'Merriweather', serif;
+        }
+
+        .handwritten {
+            font-family: 'Caveat', cursive;
+        }
+
+        /* OTIMIZAÇÃO DE PERFORMANCE PARA MOBILE */
+        .content-lazy {
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 500px;
+        }
+
+        /* ANIMAÇÃO QUASE CAINDO (PENDULAR) */
+        @keyframes almost-fall {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            15% {
+                transform: rotate(-22deg);
+            }
+
+            30% {
+                transform: rotate(18deg);
+            }
+
+            45% {
+                transform: rotate(-12deg);
+            }
+
+            60% {
+                transform: rotate(8deg);
+            }
+
+            75% {
+                transform: rotate(-4deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        .animate-almost-fall {
+            display: inline-block;
+            transform-origin: bottom center !important;
+            animation: almost-fall 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        /* ANIMAÇÃO FEIXE DE LUZ POLICIAL (GIROFLEX) */
+        @keyframes police-sweep {
+            0% {
+                transform: translateX(-150%) skewX(-25deg);
+            }
+
+            50% {
+                transform: translateX(150%) skewX(-25deg);
+            }
+
+            100% {
+                transform: translateX(-150%) skewX(-25deg);
+            }
+        }
+
+        button:not(.ticker-btn),
+        .hover-police-flash {
+            position: relative !important;
+            overflow: hidden !important;
+            isolation: isolate;
+        }
+
+        button:not(.ticker-btn)::after,
+        .hover-police-flash::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit !important;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(220, 38, 38, 0.4) 20%,
+                    rgba(255, 255, 255, 0.7) 50%,
+                    rgba(37, 99, 235, 0.4) 80%,
+                    transparent 100%);
+            transform: translateX(-150%) skewX(-25deg);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .rounded-full::after,
+        button.rounded-full::after {
+            border-radius: 9999px !important;
+        }
+
+        button:not(.ticker-btn):hover::after,
+        button:not(.ticker-btn):active::after,
+        .hover-police-flash:hover::after,
+        .hover-police-flash:active::after {
+            opacity: 1;
+            animation: police-sweep 1.2s infinite linear;
+        }
+
+        [contenteditable="true"],
+        input,
+        textarea {
+            direction: ltr !important;
+            text-align: left !important;
+            unicode-bidi: isolate !important;
+            caret-color: #dc2626 !important;
+            outline: none !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slideInRight {
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes coin-spin {
+            0% {
+                transform: rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .animate-coin {
+            animation: coin-spin 1.5s linear infinite;
+            transform-style: preserve-3d;
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "@vimeo/player": "https://esm.sh/@vimeo/player@^2.30.1",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "path": "https://esm.sh/path@^0.12.7",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "url": "https://esm.sh/url@^0.11.4"
+  }
+}
+</script>
+
+</head>
+
+<body class="bg-[#f4f4f7] text-gray-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

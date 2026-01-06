@@ -1,0 +1,1173 @@
+[
+  {
+    "version": "1.212",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Sistema",
+        "description": "Restauração do protocolo de versionamento decimal (+0.001)"
+      }
+    ]
+  },
+  {
+    "version": "1.211",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix",
+        "description": "Fix: Removida prop onCheckEmail problemática"
+      }
+    ]
+  },
+  {
+    "version": "1.210",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Debug",
+        "description": "Debug: Verificações de tipo explícitas e minificação desativada"
+      }
+    ]
+  },
+  {
+    "version": "1.209",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Sistema",
+        "description": "Teste do sistema de versionamento automatizado"
+      }
+    ]
+  },
+  {
+    "version": "1.208",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Manutenção",
+        "description": "Atualização de versão solicitada para limpeza de cache e validação de deploy."
+      }
+    ]
+  },
+  {
+    "version": "1.207",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Melhoria (Debug)",
+        "description": "Exibição detalhada de erros na tela de login/cadastro para facilitar diagnóstico. Adição de logs de console para rastreamento de fluxo."
+      }
+    ]
+  },
+  {
+    "version": "1.206",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Melhoria (Resiliência)",
+        "description": "Adicionado timeout e logs de erro detalhados na verificação de email durante o cadastro. Isso previne que a interface \"congele\" caso a validação demore demais."
+      }
+    ]
+  },
+  {
+    "version": "1.205",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (UI)",
+        "description": "Correção de classes de animação CSS no `RoleSelectionModal` que impediam a exibição do formulário de cadastro após clicar em \"Criar Conta\"."
+      }
+    ]
+  },
+  {
+    "version": "1.204",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (Audit Log)",
+        "description": "Correção crítica na ordem dos argumentos do log de auditoria que causava erro 400 (Bad Request) ao salvar notícias, impedindo o fluxo de salvamento completo."
+      }
+    ]
+  },
+  {
+    "version": "1.203",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (DB Persistence)",
+        "description": "Mapeamento do campo `banner_effects` corrigido no serviço de conteúdo para garantir que os efeitos sejam salvos no banco de dados."
+      },
+      {
+        "category": "improvement",
+        "title": "Migration",
+        "description": "Arquivo `009_add_banner_effects` criado para adicionar a coluna necessária."
+      },
+      {
+        "category": "fix",
+        "title": "Bugfix (Editor)",
+        "description": "Correção crítica na Galeria de Imagens que exibia thumbnails com efeitos duplicados. Agora o preview é independente para cada slot."
+      }
+    ]
+  },
+  {
+    "version": "1.201",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Feature (Banner)",
+        "description": "Implementação de efeitos individuais por imagem no banner (brilho, contraste, etc.). Interface refatorada com seleção de imagem e painel dedicado."
+      },
+      {
+        "category": "improvement",
+        "title": "Persistence (Editor)",
+        "description": "Migração inteligente de dados de efeitos para compatibilidade com versões anteriores."
+      },
+      {
+        "category": "improvement",
+        "title": "Refactor",
+        "description": "Modularização completa do `EditorBannerNew.tsx` em subcomponentes independentes."
+      }
+    ]
+  },
+  {
+    "version": "1.200",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Feature (Editor)",
+        "description": "Preview em tempo real dos efeitos visuais (brilho, contraste, etc.) aplicados às imagens do banner."
+      },
+      {
+        "category": "improvement",
+        "title": "UX (YouTube)",
+        "description": "Adicionado aviso de desenvolvimento informando que upload para YouTube ainda não está integrado."
+      },
+      {
+        "category": "fix",
+        "title": "Bugfix (Editor)",
+        "description": "Corrigido erro de sintaxe na tag `<img>` do preview de imagens."
+      }
+    ]
+  },
+  {
+    "version": "1.199",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "UI/UX (Editor)",
+        "description": "Fusão das abas \"Galeria\" e \"Efeitos\". Controles de efeitos agora ficam dentro do painel de imagens para ajuste em tempo real."
+      },
+      {
+        "category": "improvement",
+        "title": "Visual Fix (YouTube)",
+        "description": "Correção de cor do texto (branco no branco) nos inputs de metadados do YouTube."
+      },
+      {
+        "category": "improvement",
+        "title": "UX (Editor)",
+        "description": "Reforço na exclusividade visual entre modos \"Galeria\" e \"Cinema\" (Vídeo)."
+      }
+    ]
+  },
+  {
+    "version": "1.198",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Feature (NewsManager)",
+        "description": "Adicionados filtros \"Postagens do Site\", \"Brasil\" e \"Mundo\" com lógica de fallback para fontes."
+      },
+      {
+        "category": "improvement",
+        "title": "Visual Refactor (ArticleHero)",
+        "description": "Refinamento dos gradientes (mais suaves) e layouts Grid/Mosaic (bordas e espaçamento)."
+      },
+      {
+        "category": "improvement",
+        "title": "Feature (Editor)",
+        "description": "Nova aba \"Efeitos\" no editor de banner com controles de Brilho, Contraste, Saturação, Blur, Sépia e Opacidade."
+      },
+      {
+        "category": "fix",
+        "title": "Bugfix (Carousel)",
+        "description": "Correção da lógica de slideshow para respeitar `bannerImageLayout`, resolvendo bug que travava o carrossel."
+      }
+    ]
+  },
+  {
+    "version": "1.197",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Versioning",
+        "description": "Sincronização global da versão com timestamp no rodapé."
+      },
+      {
+        "category": "improvement",
+        "title": "UI Consistency",
+        "description": "Atualização do rodapé da Home e da página de construção."
+      }
+    ]
+  },
+  {
+    "version": "1.196",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (Auth)",
+        "description": "Correção da função de logout no Painel Admin. Implementado `await sb.auth.signOut()` antes do reload para garantir limpeza da sessão no servidor."
+      },
+      {
+        "category": "improvement",
+        "title": "Consistency",
+        "description": "Sincronização da versão v1.196 em todos os locais (App.tsx, package.json, ConstructionPage, VERSION.md)."
+      }
+    ]
+  },
+  {
+    "version": "1.195",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (DB Mapping)",
+        "description": "Correção do mapeamento camelCase -> snake_case para evitar erros de coluna inexistente (`bannerYoutubeMetadata`) no PostgREST."
+      },
+      {
+        "category": "improvement",
+        "title": "Consistency",
+        "description": "Padronização do mapeamento de dados para `news`, `users`, `advertisers` e `social_posts`."
+      }
+    ]
+  },
+  {
+    "version": "1.194",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Versioning",
+        "description": "Sincronização global da versão v1.194 com timestamp específico."
+      },
+      {
+        "category": "improvement",
+        "title": "RLS Maintenance",
+        "description": "Validação final das políticas de segurança em todos os blocos."
+      }
+    ]
+  },
+  {
+    "version": "1.193",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "RLS Full Coverage",
+        "description": "Adicionadas políticas para tabelas de anúncios (`ad_plans`, `ad_prices`, etc.) e interações (`engagement_interactions`)."
+      },
+      {
+        "category": "improvement",
+        "title": "Performance",
+        "description": "Otimização de chamadas `check_user_role` em blocos dinâmicos."
+      },
+      {
+        "category": "fix",
+        "title": "Bugfix",
+        "description": "Correção de caracteres inválidos e sintaxe de escape SQL."
+      }
+    ]
+  },
+  {
+    "version": "1.192",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (DB)",
+        "description": "Correção definitiva de todos os erros de sintaxe RLS (`error_reports` e outras tabelas)."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Script `008_rls_redundancy_fix.sql` agora segue estritamente o padrão individual por ação exigido pelo Postgres."
+      }
+    ]
+  },
+  {
+    "version": "1.191",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Bugfix (DB)",
+        "description": "Correção do erro de sintaxe `42601` no script de RLS. O Postgres não permite múltiplas ações em um único `CREATE POLICY`."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Script `008_rls_redundancy_fix.sql` refatorado para compatibilidade total."
+      }
+    ]
+  },
+  {
+    "version": "1.190",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "RLS Optimization",
+        "description": "Resolução definitiva dos avisos de performance do Supabase (Avisos 0003 e 0006)."
+      },
+      {
+        "category": "improvement",
+        "title": "Consolidation",
+        "description": "Redução de sobreposição de políticas RLS em todas as tabelas (News, Ads, Jobs, Support)."
+      },
+      {
+        "category": "fix",
+        "title": "Security",
+        "description": "Otimização dos planos de execução do Postgres para verificação de papéis (Subconsultas SELECT)."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Novo script de migração `008_rls_redundancy_fix.sql`."
+      }
+    ]
+  },
+  {
+    "version": "1.189",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Performance",
+        "description": "Otimização massiva de políticas RLS. Implementado o padrão `(SELECT auth.uid())` para evitar reavaliação por linha (Supabase Advisor 0003)."
+      },
+      {
+        "category": "improvement",
+        "title": "Consolidation",
+        "description": "Eliminação de políticas duplicadas e unificação das tabelas de auditoria (`audit_logs` -> `audit_log`)."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Novo script de migração `007_rls_performance_optimized.sql`."
+      }
+    ]
+  },
+  {
+    "version": "1.188",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Security Audit",
+        "description": "Recomendação de ativação do recurso \"Leaked Password Protection\" no Supabase Auth."
+      },
+      {
+        "category": "improvement",
+        "title": "Documentation",
+        "description": "Adicionados passos manuais para configuração de segurança no painel do Supabase."
+      }
+    ]
+  },
+  {
+    "version": "1.187",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Security",
+        "description": "Endurecimento de segurança nas funções do banco de dados. Aplicado `SET search_path = public` em todas as funções reportadas pelo Supabase Advisor para mitigar vulnerabilidades de injeção."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Criação do script de migração `006_fix_search_path_security.sql`."
+      }
+    ]
+  },
+  {
+    "version": "1.186",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Dashboard",
+        "description": "Substituídos placeholders estáticos da \"Atividade Recente\" por dados reais sincronizados do banco de dados (Audit Log)."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Implementada integração ponta-a-ponta de auditoria de sistema (Service -> App -> Dashboard)."
+      }
+    ]
+  },
+  {
+    "version": "1.185",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Fix (Migration)",
+        "description": "Implementação de SQL Dinâmico (`EXECUTE`) no script de performance. Resolve o erro de compilação em bancos onde colunas específicas não existem, garantindo execução silenciosa e sem erros."
+      },
+      {
+        "category": "improvement",
+        "title": "Cleanup",
+        "description": "Exclusão de arquivos residuais de migração."
+      }
+    ]
+  },
+  {
+    "version": "1.184",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Fix (Migration)",
+        "description": "Refatorado script `005_performance_indexes.sql` com blocos de validação de coluna. Resolve o erro `column \"created_at\" does not exist` em bancos que utilizam o padrão camelCase (`\"createdAt\"`)."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Padronização de segurança em scripts SQL para evitar quebras em ambientes heterogêneos."
+      }
+    ]
+  },
+  {
+    "version": "1.183",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Performance",
+        "description": "Implementação de índices avançados nas tabelas `news`, `jobs` e `audit_log`. Resolvidos gargalos de ordenação por data (`createdAt`/`created_at`) identificados em relatórios de consulta lenta, reduzindo drasticamente o tempo de resposta da Home e do Admin."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Criação do script de migração `005_performance_indexes.sql`."
+      }
+    ]
+  },
+  {
+    "version": "1.182",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Security & Performance",
+        "description": "Consolidação de políticas RLS na tabela `users`. Removidas 4 políticas redundantes (`own_profile_update`, `admin_users_manage`, etc.) para resolver avisos de performance do Supabase Advisor redundantes para o papel `dashboard_user`."
+      },
+      {
+        "category": "improvement",
+        "title": "Database",
+        "description": "Criação do script de migração `004_consolidate_users_rls.sql` para padronização de acessos administrativos."
+      }
+    ]
+  },
+  {
+    "version": "1.181",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Fix (Admin)",
+        "description": "Restaurado trigger de sincronização de dados após login (`SIGNED_IN`), resolvendo \"notícias não aparecem no admin\"."
+      },
+      {
+        "category": "improvement",
+        "title": "Fix (Admin)",
+        "description": "Adicionada proteção contra nulos e falhas de data no `NewsManager` (evita crash com notícias RSS)."
+      },
+      {
+        "category": "improvement",
+        "title": "Fix (Admin)",
+        "description": "Integração correta do módulo de Vagas (Jobs) no Dashboard administrativo."
+      },
+      {
+        "category": "improvement",
+        "title": "Feature (Header)",
+        "description": "Refinado filtro regional no Plantão (faixa vermelha) para exibir exclusivamente \"Lagoa Formosa e região\"."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Ajuste no mapeamento de `source` para identificar corretamente notícias externas vs internas."
+      }
+    ]
+  },
+  {
+    "version": "1.180",
+    "date": "06/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Fix",
+        "description": "Resolução de erro UUID (`22P02`) na importação de notícias RSS via `crypto.randomUUID()`."
+      },
+      {
+        "category": "improvement",
+        "title": "Fix",
+        "description": "Fallback robusto para credenciais do Supabase no `useAppInitialization` (evita 401 por cache corrompido)."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Implementação de fallback automático para nomes de colunas (`created_at` vs `createdAt`) na busca de notícias."
+      },
+      {
+        "category": "improvement",
+        "title": "Protocolo",
+        "description": "Sincronização de versão 1.180 em `App.tsx`, `package.json` e `VERSION.md`."
+      }
+    ]
+  },
+  {
+    "version": "1.179",
+    "date": "05/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Fix",
+        "description": "Correção crítica no fluxo de carregamento de dados (separação de dados públicos vs privados)."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Ajuste no handler global de erros para não forçar logout em falhas de sessão (invalid_grant)."
+      },
+      {
+        "category": "fix",
+        "title": "Security",
+        "description": "Usuários sem permissão recebem array vazio em vez de crashar o app."
+      }
+    ]
+  },
+  {
+    "version": "1.178",
+    "date": "05/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Fix",
+        "description": "Remoção de logout agressivo em caso de erro de conexão API."
+      },
+      {
+        "category": "improvement",
+        "title": "Fix",
+        "description": "Remoção de fallback para dados mock (evita confusão em staging)."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Melhoria no tratamento de erro na inicialização (Empty State)."
+      }
+    ]
+  },
+  {
+    "version": "1.177",
+    "date": "05/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Segurança",
+        "description": "Relaxamento de validações estritas de CPF/CNPJ (User Request)."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Implementação de persistência de sessão ao recarregar a página (F5) para Supabase."
+      },
+      {
+        "category": "improvement",
+        "title": "Core",
+        "description": "Melhoria no gerenciamento de logout para limpar corretamente o storage local e de sessão."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix & Staging (Session Persistence & Mapping)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Corrigido problema de perda de conexão Supabase ao dar refresh (F5) através da remoção de watchdog timer mal posicionado e remoção de logouts agressivos no carregamento. Implementado mapeamento rigoroso `authorId` ↔ `author_id` e colunas snake_case para o sistema de notícias, resolvendo erro de \"column author_id not found\". Deploy configurado para o ambiente de staging (.dev)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Segurança (Sistema de Validação Completo)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Implementação completa de sistema de segurança com validação de entrada, sanitização anti-XSS/SQLi, máscaras de input, field-level permissions e audit log. Criados: `validators.ts` (validação de CPF/CNPJ com algoritmo verificador, email, telefone, CEP, data), `sanitizationService.ts` (sanitização e máscaras parciais), `masks.ts` (formatação automática), componente `MaskedInput` (validação em tempo real com feedback visual), hook `useFieldPermissions` (controle granular por role), migrations SQL para `field_permissions` e `audit_log` com triggers automáticos. Textos descritivos limitados a 250 caracteres. Previne SQL Injection, XSS e garante integridade de dados."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (Editor - Banner Media)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Implementado sistema de upload transacional completo para o banner. Imagens e vídeos agora são armazenados localmente via IndexedDB com previews instantâneos (Blob URLs) que persistem após refresh. O upload real para Cloudinary ou YouTube ocorre apenas no momento de salvar/publicar. Sincronização automática de metadados do YouTube integrada ao fluxo de persistência."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Auth & Deploy)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Corrigido problema de login travado no loading e adicionado timeout de 10s para conexões lentas com Supabase. Deploy realizado com sucesso para o servidor de staging (dev.webgho.com)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Core - Authentication & Data Loading)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Corrigido bug crítico de autenticação que causava loop infinito ao detectar sessão expirada. Removido `window.location.reload()` do `contentService.ts` para permitir fallback gracioso para dados mock quando offline/não autenticado."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Core - Data Loading)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Corrigido bug crítico que impedia o carregamento de notícias após refresh (F5). Removido loop infinito de reload causado pela verificação de versão no `useAppInitialization`."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Fix (Editor - Video Block)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção do bloco de vídeo: removido texto \"IMG / VÍDEO\" desnecessário (agora mostra apenas o label customizado) e corrigido botão \"Trocar Origem\" que não estava funcionando."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Editor)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção crítica do preview de imagens do banner. Removida atualização prematura de estado em `onUploadStart` e garantido que `localPreviews` seja atualizado antes do array de imagens em `onUploadComplete`."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (Editor)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Reestruturação do sistema de Upload. Arquivos agora são enviados apenas ao salvar/publicar. Correção do modal do YouTube (tela cheia). Implementada limpeza automática de arquivos ao excluir notícias. Adicionado botão \"Salvar Rascunho\"."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Fix (Editor)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção na visualização do banner do editor durante upload de imagens locais. A imagem de fundo agora carrega corretamente imediatamente após a seleção."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "UI/UX (Editor)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Redesign da barra de ferramentas do editor: novos ícones coloridos por categoria e aumento no contraste dos textos para melhor legibilidade."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (Gallery)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Adicionados controles avançados para cada estilo de galeria (Colunas, Velocidade, Setas) e opções globais de redimensionamento de imagem (Proporção/Ajuste)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (UI)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Atualização do Modal de Configuração do YouTube para usar portal (fixado no topo da tela), resolvendo problema de corte visual."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (Gallery)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Implementação completa do preview real na Galeria (imagens locais) e correção da troca de layouts com conteúdo carregado."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Fix (TypeScript)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção de tipagem no bloco de Galeria (GalleryEditorBlock)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Critical)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção crítica no `EditorCanvas` que impedia o funcionamento do bloco de Vídeo (botões de origem e upload não respondiam)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Gallery)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Implementação da lógica de upload no bloco de Galeria (botão \"Upload Fotos\" agora funcional e local-first)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (Editor)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Adicionada funcionalidade de Duplicar Bloco (ícone de cópia), botões de edição rápida no bloco e controle de espessura/altura para Divisores."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Visual)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção de bug onde o texto ficava invisível (branco no branco) ao digitar no editor."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Layout)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção do \"menu duplicado\" no editor (Barra de Propriedades renderizando fora do container)."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Funcionalidade)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção no upload de Galerias (permissão de token) e ajuste no layout do Editor para permitir Divisores Verticais flexíveis entre blocos."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (UX/UI)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção dos botões de acesso rápido na Dashboard e ajuste no toggle da barra de propriedades do editor de notícias."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Layout)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Ajuste de quebra de linha (wrap) na barra de ferramentas de Anunciantes para evitar cortes em telas intermediárias com Sidebar aberta."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (Layout)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção de vazamento horizontal (overflow) no layout principal, que cortava o conteúdo à direita quando a sidebar estava aberta em algumas resoluções."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Feature (Local-First)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Implementação de fluxo de upload \"Local-First\"."
+      },
+      {
+        "category": "improvement",
+        "title": "Offline-First",
+        "description": "Imagens de Anunciantes e Configurações agora são salvas localmente antes do upload."
+      },
+      {
+        "category": "improvement",
+        "title": "Sincronização",
+        "description": "Upload para nuvem ocorre apenas ao salvar o formulário."
+      },
+      {
+        "category": "improvement",
+        "title": "UX",
+        "description": "Indicadores visuais de \"Sincronizando...\" durante o salvamento."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Hotfix (UI)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção no comportamento da Sidebar e Editor."
+      },
+      {
+        "category": "improvement",
+        "title": "AdminLayout",
+        "description": "Corrigido bug onde a Sidebar poderia travar aberta ou fechada ao redimensionar a tela (ou abrir teclado virtual)."
+      },
+      {
+        "category": "improvement",
+        "title": "Editor de Texto",
+        "description": "Ajustada lógica de redimensionamento para evitar que as barras laterais do editor reabram sozinhas em tablets/celulares ao focar no texto."
+      },
+      {
+        "category": "improvement",
+        "title": "Data",
+        "description": "05/01/2026"
+      },
+      {
+        "category": "improvement",
+        "title": "Categoria",
+        "description": "Melhoria (UI/UX)"
+      },
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Implementação de Responsividade Total no Painel Admin."
+      },
+      {
+        "category": "improvement",
+        "title": "Sidebar Mobile",
+        "description": "Novo menu lateral \"Overlay\" (sobreposto) para telas pequenas."
+      },
+      {
+        "category": "improvement",
+        "title": "Dashboard",
+        "description": "Grids adaptáveis para Mobile (1 coluna) e Desktop (4 colunas)."
+      },
+      {
+        "category": "improvement",
+        "title": "Notícias",
+        "description": "Nova visualização em \"Cards\" para mobile, substituindo a tabela."
+      },
+      {
+        "category": "improvement",
+        "title": "Geral",
+        "description": "Ajustes finos em todos os formulários e listagens para evitar quebra de layout em celulares."
+      }
+    ]
+  },
+  {
+    "version": "1.149",
+    "date": "05/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "Descrição",
+        "description": "Correção de crash (loop infinito de renderização) na aba de Configurações, causado por reinicialização de objeto de configuração a cada ciclo de render."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Corrigido \"Crash Loop\" causado por query inválida no serviço de configurações (`TypeError: select is not a function`). Histórico de alterações temporariamente desativado."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Removida interceptação de console que causava loop de renderização infinita."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Desativado log de auditoria de configurações (tabela `settings_audit` inexistente)."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Corrigido erro \"Minified React error #310\" (Violation of Rules of Hooks) no painel de erros."
+      },
+      {
+        "category": "improvement",
+        "title": "FEAT",
+        "description": "Relatório de Erros agora aparece automaticamente para usuários comuns em caso de erro crítico."
+      },
+      {
+        "category": "improvement",
+        "title": "FEAT",
+        "description": "Botão \"Enviar para Debug\" integrado ao painel de erros."
+      },
+      {
+        "category": "improvement",
+        "title": "RESTRIÇÃO",
+        "description": "Relatório de Erros agora visível apenas para cargo 'Desenvolvedor' (quando sem erros)."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Melhoria no controle de acesso ao painel de debug."
+      },
+      {
+        "category": "improvement",
+        "title": "FEAT",
+        "description": "Implementada opçao 'Lembrar-me' no Login."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Refatoração de persistência de sessão (LocalStorage vs SessionStorage)."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Correção de conflito 'Multiple GoTrueClient instances' no Supabase."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Adicionado indicador visual de \"Copiado!\" no gerenciador de mídias."
+      },
+      {
+        "category": "improvement",
+        "title": "CHORE",
+        "description": "Refatoração de componentes de UI administrativa."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Correção crítica nas permissões de acesso ao storage do Supabase para uploads."
+      },
+      {
+        "category": "improvement",
+        "title": "FEAT",
+        "description": "Botão \"Copiar Link\" adicionado ao gerenciador de mídias."
+      },
+      {
+        "category": "improvement",
+        "title": "FEAT",
+        "description": "Sistema unificado de upload de vídeos (YouTube/Vimeo/Nativo)."
+      },
+      {
+        "category": "improvement",
+        "title": "FEAT",
+        "description": "Integração com YouTube Data API para metadados de vídeos."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Ajuste de cores e contraste no tema escuro."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Alinhamento de cards na grade de notícias mobile."
+      },
+      {
+        "category": "improvement",
+        "title": "PERF",
+        "description": "Lazy loading implementado na galeria de imagens."
+      },
+      {
+        "category": "improvement",
+        "title": "FIX",
+        "description": "Redução do bundle size inicial."
+      }
+    ]
+  }
+]

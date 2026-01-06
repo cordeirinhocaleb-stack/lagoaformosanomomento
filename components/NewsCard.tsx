@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - components/news/NewsCard.tsx is the correct file

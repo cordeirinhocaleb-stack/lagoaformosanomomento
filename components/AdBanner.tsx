@@ -1,0 +1,1 @@
+// MOVED TO LIXEIRA - components/ads/AdBanner.tsx is the correct file
