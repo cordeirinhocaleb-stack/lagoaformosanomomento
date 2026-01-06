@@ -407,19 +407,6 @@ const App: React.FC = () => {
                         <PromoPopupHost popupSet={adConfig.popupSet} currentContext={currentContext} mode="live" />
                         <ActivityToastHost />
 
-                        <AuthModalsContainer
-                            modals={modals}
-                            user={user}
-                            users={users}
-                            systemSettings={systemSettings}
-                            setUser={setUser}
-                            setUsers={setUsers}
-                            setView={(v) => setView(v as any)}
-                            updateHash={updateHash}
-                            handleBackToHome={() => setView('home')}
-                            triggerErrorModal={triggerErrorModal}
-                        />
-
                         {isInitialized && systemSettings.maintenanceMode && process.env.NODE_ENV !== 'development' && (!user || user.role === 'Leitor') ? (
                             <ConstructionPage
                                 user={user}
@@ -508,6 +495,21 @@ const App: React.FC = () => {
                                 )}
                             </div>
                         )}
+
+                        {/* Moved AuthModalsContainer to end for Z-Index Stacking */}
+                        <AuthModalsContainer
+                            modals={modals}
+                            user={user}
+                            users={users}
+                            systemSettings={systemSettings}
+                            setUser={setUser}
+                            setUsers={setUsers}
+                            setView={(v) => setView(v as any)}
+                            updateHash={updateHash}
+                            handleBackToHome={() => setView('home')}
+                            triggerErrorModal={triggerErrorModal}
+                        />
+
                     </>
                 )}
                 <ErrorReportPanel user={user} />

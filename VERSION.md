@@ -5,6 +5,10 @@
 > Este controle de versão é gerenciado automaticamente pela IA Antigravity.
 > Mantenha este arquivo sincronizado com o `package.json` e `App.tsx`.
 
+## 1.215 - 06/01/2026 18:55 (Ref: 060120261855)
+- **UI Fix:** Aumentado z-index do Modal de Login para `z-[10000]`, corrigindo bloqueio visual pela Camada de Construção (`z-9999`).
+- **Stacking:** Movimentado `AuthModalsContainer` para camada superior no DOM tree.
+
 ## 1.214 - 06/01/2026 18:50 (Ref: 060120261850)
 - **Bug Fix (Critico):** Corrigido bug onde o botão "Área Restrita" não abria o modal de login.
 - **Refactor App:** Removida duplicação de estado de modais (`showLoginModal`) no `App.tsx`, centralizando a fonte da verdade no hook `useModals`.

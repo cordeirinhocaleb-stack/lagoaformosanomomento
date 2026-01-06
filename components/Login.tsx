@@ -546,12 +546,12 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
     };
 
     return (
-        <div className="fixed inset-0 z-[3000] bg-black/40 backdrop-blur-md overflow-y-auto custom-scrollbar animate-fadeIn">
+        <div className="fixed inset-0 z-[10000] bg-black/40 backdrop-blur-md overflow-y-auto custom-scrollbar animate-fadeIn">
             <div className="fixed inset-0" onClick={onClose}></div>
             <div className="min-h-full w-full flex items-center justify-center p-4 relative pointer-events-none">
                 <button
                     onClick={onClose}
-                    className="fixed top-4 right-4 md:top-6 md:right-6 text-white hover:text-red-500 transition-colors flex items-center gap-2 z-[3010] cursor-pointer bg-black/30 md:bg-black/20 px-3 py-1.5 md:px-4 md:py-2 rounded-full backdrop-blur-lg border border-white/10 shadow-lg group pointer-events-auto"
+                    className="fixed top-4 right-4 md:top-6 md:right-6 text-white hover:text-red-500 transition-colors flex items-center gap-2 z-[10010] cursor-pointer bg-black/30 md:bg-black/20 px-3 py-1.5 md:px-4 md:py-2 rounded-full backdrop-blur-lg border border-white/10 shadow-lg group pointer-events-auto"
                 >
                     <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Sair</span>
                     <i className="fas fa-times text-base md:text-lg group-hover:rotate-90 transition-transform duration-300"></i>
