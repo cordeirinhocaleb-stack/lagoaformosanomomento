@@ -80,27 +80,27 @@ const App: React.FC = () => {
     const [adConfig, setAdConfig] = useState<AdPricingConfig>(INITIAL_AD_CONFIG);
     const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
 
-    // Modais e UI
-    const [showChangelog, setShowChangelog] = useState(false);
-    const [showErrorModal, setShowErrorModal] = useState(false);
-    const [errorDetails, setErrorDetails] = useState<{ message: string; stack?: string } | null>(null);
+    // Modais e UI (Gerenciados pelo hook useModals agora, estados locais duplicados REMOVIDOS)
     const [errorModal, setErrorModal] = useState<{ open: boolean; error: any; context: string; severity: 'info' | 'warning' | 'critical' }>({ open: false, error: null, context: '', severity: 'critical' });
     const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
-    const [pendingGoogleUser, setPendingGoogleUser] = useState<any>(null);
-    const [showRoleSelector, setShowRoleSelector] = useState(false);
-    const [accessDeniedConfig, setAccessDeniedConfig] = useState({ title: '', message: '' });
-    const [showAccessDenied, setShowAccessDenied] = useState(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
-    const [showPricingModal, setShowPricingModal] = useState(false);
-    const [pendingManualEmail, setPendingManualEmail] = useState('');
 
-    // Estados de Modais Faltantes
-    const [showLoginModal, setShowLoginModal] = useState(false);
-    const [showProfileModal, setShowProfileModal] = useState(false);
-
-    // Hooks de Modularização
+    // Hooks de Modularização (Fonte da Verdade)
     const modals = useModals();
+
+    // Desestruturação segura para uso direto no JSX
+    const {
+        showLoginModal, setShowLoginModal,
+        showProfileModal, setShowProfileModal,
+        showRoleSelector, setShowRoleSelector,
+        showAccessDenied, setShowAccessDenied,
+        showSuccessModal, setShowSuccessModal,
+        showPricingModal, setShowPricingModal,
+        showChangelog, setShowChangelog,
+        pendingGoogleUser, setPendingGoogleUser,
+        pendingManualEmail, setPendingManualEmail,
+        accessDeniedConfig, setAccessDeniedConfig,
+        successMessage, setSuccessMessage
+    } = modals;
 
     // Callbacks de Inicialização
     const handleDataLoaded = useCallback(async (response: any) => {
@@ -136,7 +136,7 @@ const App: React.FC = () => {
             const timer = setTimeout(() => setShowChangelog(true), 3000);
             return () => clearTimeout(timer);
         }
-    }, [CURRENT_VERSION]);
+    }, [CURRENT_VERSION, setShowChangelog]);
 
     const handleCloseChangelog = () => {
         setShowChangelog(false);
@@ -392,7 +392,7 @@ const App: React.FC = () => {
                                 onClose={() => setShowPricingModal(false)}
                                 onSelectPlan={(planId) => {
                                     setShowPricingModal(false);
-                                    if (!user) modals.setShowLoginModal(true);
+                                    if (!user) setShowLoginModal(true);
                                     else if (user.role !== 'Leitor') { setView('admin'); updateHash('/admin'); }
                                 }}
                                 onUpdateUser={async (u) => {
@@ -408,20 +408,7 @@ const App: React.FC = () => {
                         <ActivityToastHost />
 
                         <AuthModalsContainer
-                            modals={{
-                                ...modals,
-                                // Override setters to sync with local state if needed, or prefer using 'modals' state
-                                // For now, we pass the local states that we restored to keep it working
-                                showLoginModal, setShowLoginModal,
-                                showRoleSelector, setShowRoleSelector,
-                                showSuccessModal, setShowSuccessModal,
-                                showAccessDenied, setShowAccessDenied,
-                                pendingGoogleUser, setPendingGoogleUser,
-                                pendingManualEmail, setPendingManualEmail,
-                                successMessage: typeof successMessage === 'string' ? successMessage : successMessage.message,
-                                setSuccessMessage: (msg: string) => setSuccessMessage({ title: 'SUCESSO', message: msg }),
-                                accessDeniedConfig, setAccessDeniedConfig
-                            } as any}
+                            modals={modals}
                             user={user}
                             users={users}
                             systemSettings={systemSettings}
@@ -431,7 +418,6 @@ const App: React.FC = () => {
                             updateHash={updateHash}
                             handleBackToHome={() => setView('home')}
                             triggerErrorModal={triggerErrorModal}
-                            onCheckEmail={checkEmailExists}
                         />
 
                         {isInitialized && systemSettings.maintenanceMode && process.env.NODE_ENV !== 'development' && (!user || user.role === 'Leitor') ? (
