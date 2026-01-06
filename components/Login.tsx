@@ -449,15 +449,46 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
 
                     } else {
                         // Perfil não encontrado - criar perfil básico como fallback
-                        console.warn('[Login] Perfil não encontrado no banco, criando perfil básico...');
-                        DebugLogger.log('[Login] ⚠️ Perfil não encontrado. Usando fallback básico.');
+                        console.warn('[Login] Perfil não encontrado no banco, criando perfil básico (Self-Healing)...');
+                        DebugLogger.log('[Login] ⚠️ Perfil não encontrado. Iniciando Self-Healing.');
+
                         const basicProfile: User = {
                             id: data.user.id,
                             name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Usuário',
                             email: data.user.email!,
-                            role: 'Desenvolvedor',
+                            role: 'Leitor', // Default seguro
                             status: 'active'
                         };
+
+                        try {
+                            // SELF-HEALING: Tenta criar o registro no banco
+                            // Importação dinâmica circular evitada? createUser já deve estar disponível ou importada
+                            // NOTE: createUser is not imported in original snippet, need to ensure import
+                            // Assuming createUser is available via supabaseService import at top
+                            // Vamos ajustar a importação no próximo passo, mas aqui injetamos a chamada
+                            // Como createUser não está importado no arquivo original (veja linha 5-12),
+                            // faremos o insert direto via supabase aqui para garantir, ou adicionaremos import depois.
+                            // Melhor: Insert direto para evitar refatoração massiva de imports agora.
+                            const { error: createError } = await supabase.from('users').insert({
+                                id: basicProfile.id,
+                                name: basicProfile.name,
+                                email: basicProfile.email,
+                                role: basicProfile.role,
+                                status: 'active',
+                                created_at: new Date().toISOString()
+                            });
+
+                            if (createError) throw createError;
+                            DebugLogger.log('[Login] ✅ Self-Healing concluído: Perfil criado.');
+
+                        } catch (healingError: any) {
+                            console.error('[Login] Falha no Self-Healing:', healingError);
+                            DebugLogger.log('[Login] 🔴 Falha no Self-Healing:', healingError.message);
+                            // Continua com login local mesmo falhando, para não travar o usuário
+                        }
+
+                        // Faz login com o perfil básico de qualquer forma
+
 
                         // Faz login com o perfil básico de qualquer forma
                         onLogin(basicProfile, rememberMe);

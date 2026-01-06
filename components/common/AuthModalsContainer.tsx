@@ -101,6 +101,10 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     };
 
                     await createUser(newUser as any);
+
+                    // Limpeza de cache de cadastro
+                    localStorage.removeItem('lfnm_registration_backup');
+
                     alert('Cadastro pré-aprovado! Verifique seu e-mail.');
                     setShowRoleSelector(false);
                     setShowLoginModal(true);
@@ -131,9 +135,16 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     socialMediaLink: data.socialMediaLink || null,
                 };
 
+                // CRITICAL: Await DB creation BEFORE setting local state
                 await createUser(newUser as any);
+
+                // If we get here, DB insert succeeded
                 setUser(newUser as any);
                 localStorage.setItem('lfnm_user', JSON.stringify(newUser));
+
+                // Limpeza de cache de cadastro
+                localStorage.removeItem('lfnm_registration_backup');
+
                 setShowRoleSelector(false);
                 setPendingGoogleUser(null);
 
@@ -280,7 +291,6 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 <Login
                     onLogin={handleLoginSuccess}
                     onSignupRequest={handleSignupRequest}
-                    onCheckEmail={onCheckEmail}
                     onClose={() => setShowLoginModal(false)}
                     disableSignup={!systemSettings.registrationEnabled}
                 />

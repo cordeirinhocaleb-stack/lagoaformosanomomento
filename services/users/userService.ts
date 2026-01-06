@@ -15,39 +15,58 @@ import { logAction } from '../admin/auditService';
 // BETTER: Create auditService.ts first?
 // Let's implement User logic.
 
+// --- SECURITY UTILS ---
+
+/**
+ * Sanitiza inputs de texto para prevenir XSS básico e injecao
+ * Remove tags HTML e limita tamanho
+ */
+const sanitizeInput = (input: string | null | undefined, maxLength: number = 500): string | null => {
+    if (!input) return null;
+    let clean = input.toString()
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/script/gi, "")
+        .replace(/on\w+=/gi, "")
+        .trim();
+
+    if (clean.length > maxLength) clean = clean.substring(0, maxLength);
+    return clean || null;
+};
+
 const mapUserToDb = (user: User): any => ({
     id: user.id,
-    name: user.name,
-    email: user.email,
+    name: sanitizeInput(user.name, 100),
+    email: user.email, // Email should be validated elsewhere, not sanitized aggressively here
     role: user.role,
     status: user.status || 'active',
-    avatar: user.avatar, // SQL: avatar
-    bio: user.bio,
-    birthdate: user.birthDate, // SQL: birthdate
-    zipcode: user.zipCode, // SQL: zipcode
-    city: user.city,
-    state: user.state,
-    phone: user.phone,
-    document: user.document,
-    profession: user.profession,
-    education: user.education,
-    skills: user.skills,
-    "professionalBio": user.professionalBio, // SQL: "professionalBio"
+    avatar: user.avatar, // URLs preserved
+    bio: sanitizeInput(user.bio, 1000),
+    birthdate: user.birthDate,
+    zipcode: sanitizeInput(user.zipCode, 20),
+    city: sanitizeInput(user.city, 100),
+    state: sanitizeInput(user.state, 50),
+    phone: sanitizeInput(user.phone, 30),
+    document: sanitizeInput(user.document, 30),
+    profession: sanitizeInput(user.profession, 100),
+    education: sanitizeInput(user.education, 100),
+    skills: user.skills ? user.skills.map(s => sanitizeInput(s, 50)).filter(Boolean) : [],
+    "professionalBio": sanitizeInput(user.professionalBio, 2000),
     availability: user.availability,
-    "companyName": user.companyName, // SQL: "companyName"
-    "businessType": user.businessType, // SQL: "businessType"
-    "whatsappVisible": user.whatsappVisible, // SQL: "whatsappVisible"
-    "themePreference": user.themePreference, // SQL: "themePreference"
-    "socialLinks": user.socialLinks, // SQL: "socialLinks"
+    "companyName": sanitizeInput(user.companyName, 150),
+    "businessType": sanitizeInput(user.businessType, 100),
+    "whatsappVisible": user.whatsappVisible,
+    "themePreference": user.themePreference,
+    "socialLinks": user.socialLinks, // Object/JSON, preserved
     permissions: user.permissions,
-    advertiser_plan: user.advertiserPlan, // Unsure, keeping legacy for now, might be unused in SQL?
-    "activePlans": user.activePlans, // SQL: "activePlans"
-    "subscriptionStart": user.subscriptionStart, // SQL: "subscriptionStart"
-    "subscriptionEnd": user.subscriptionEnd, // SQL: "subscriptionEnd"
-    two_factor_enabled: user.twoFactorEnabled, // Not in SQL dump? Keeping safely.
-    "usageCredits": user.usageCredits, // SQL: "usageCredits"
-    "siteCredits": user.siteCredits, // SQL: "siteCredits"
-    custom_limits: user.customLimits // Not in SQL dump
+    advertiser_plan: user.advertiserPlan,
+    "activePlans": user.activePlans,
+    "subscriptionStart": user.subscriptionStart,
+    "subscriptionEnd": user.subscriptionEnd,
+    two_factor_enabled: user.twoFactorEnabled,
+    "usageCredits": user.usageCredits,
+    "siteCredits": user.siteCredits,
+    custom_limits: user.customLimits
 });
 
 export const createUser = async (user: User) => {

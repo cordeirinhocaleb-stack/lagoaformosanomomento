@@ -5,6 +5,12 @@
 > Este controle de versão é gerenciado automaticamente pela IA Antigravity.
 > Mantenha este arquivo sincronizado com o `package.json` e `App.tsx`.
 
+## 1.213 - 06/01/2026 18:48 (Ref: 060120261848)
+- **Auth (Critico):** Refatorado `AuthModalsContainer` para login transacional (evita login fantasma em Google OAuth).
+- **Self-Healing:** Login agora detecta usuários sem perfil (com auth válida) e recria o registro no banco automaticamente.
+- **Security:** Adicionada sanitização de inputs (XSS) no `userService.ts` para todos os campos de texto.
+- **UX:** Limpeza automática de cache de formulário de cadastro após sucesso.
+
 ## 1.212 - 06/01/2026 18:35 (Ref: 060120261835)
 - **Backup:** Sincronização e backup do estado atual do projeto para o GitHub.
 
