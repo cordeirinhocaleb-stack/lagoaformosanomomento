@@ -5,6 +5,10 @@
 > Este controle de versão é gerenciado automaticamente pela IA Antigravity.
 > Mantenha este arquivo sincronizado com o `package.json` e `App.tsx`.
 
+## 1.216 - 06/01/2026 19:00 (Ref: 060120261900)
+- **Architecture:** Centralizada a definição de versão em `src/version.ts`. `App.tsx` e `ConstructionPage.tsx` agora consomem deste arquivo.
+- **Fix Deploy:** Re-deploy com correção de Login Z-Index (v1.215 incluída).
+
 ## 1.215 - 06/01/2026 18:55 (Ref: 060120261855)
 - **UI Fix:** Aumentado z-index do Modal de Login para `z-[10000]`, corrigindo bloqueio visual pela Camada de Construção (`z-9999`).
 - **Stacking:** Movimentado `AuthModalsContainer` para camada superior no DOM tree.

@@ -65,8 +65,9 @@ const App: React.FC = () => {
     // Deep Linking State for Admin
     const [adminNewsToEdit, setAdminNewsToEdit] = useState<NewsItem | null>(null);
 
-    // Versão atual do sistema (Sincronizada via Vite/package.json)
-    const CURRENT_VERSION = import.meta.env.PACKAGE_VERSION || 'DEV';
+    // Versão atual do sistema (Centralizada)
+    import { APP_VERSION } from './src/version';
+    const CURRENT_VERSION = APP_VERSION;
 
     // Estados de Dados (Restaurados)
     const [news, setNews] = useState<NewsItem[]>([]);

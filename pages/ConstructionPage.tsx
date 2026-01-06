@@ -17,8 +17,9 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
     const bannerImageUrl = "https://lh3.googleusercontent.com/d/1C1WhdivmBnt1z23xZGOJw0conC1jtq4i";
     const presenterVideoUrl = "https://vimeo.com/1149429293";
 
-    // Get current version from Vite env
-    const CURRENT_VERSION = import.meta.env.PACKAGE_VERSION || 'DEV';
+    // Get current version from centralized config
+    import { APP_VERSION } from '../src/version';
+    const CURRENT_VERSION = APP_VERSION;
 
     // Refs for Lantern Effect
     const containerRef = useRef<HTMLDivElement>(null);

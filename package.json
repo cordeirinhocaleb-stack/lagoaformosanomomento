@@ -1,7 +1,7 @@
 {
   "name": "lagoa-formosa-no-momento-alpha-1.099-060120260930",
   "private": true,
-  "version": "1.215",
+  "version": "1.216",
   "type": "module",
   "scripts": {
     "dev": "vite",
