@@ -65,6 +65,9 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
         const sb = getSupabase();
         if (!sb) return;
 
+        let createdUserId: string | null = null;
+        let createdUserEmail: string | null = null;
+
         try {
             // CADASTRO MANUAL (Email/Senha)
             if (!pendingGoogleUser) {
@@ -77,6 +80,9 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 if (authError) throw authError;
 
                 if (authData.user) {
+                    createdUserId = authData.user.id;
+                    createdUserEmail = pendingManualEmail;
+
                     const newUser = {
                         id: authData.user.id,
                         name: data.username,
@@ -100,18 +106,33 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                         socialMediaLink: data.socialMediaLink || null,
                     };
 
-                    await createUser(newUser as any);
+                    try {
+                        await createUser(newUser as any);
+                    } catch (dbError) {
+                        // Se falhar o insert no banco (RLS por falta de sessão ativa), ignoramos.
+                        // O Self-Healing no Login cuidará disso quando o usuário confirmar o email e logar.
+                        console.warn('⚠️ Cadastro Auth OK, mas Perfil falhou (provável RLS/EmailCheck):', dbError);
+                        if (!authData.session) {
+                            console.log('ℹ️ Sem sessão ativa. Fluxo de verificação de email assumido.');
+                        } else {
+                            // Se tinha sessão e falhou, rethrow para cair no fallback
+                            throw dbError;
+                        }
+                    }
 
                     // Limpeza de cache de cadastro
                     localStorage.removeItem('lfnm_registration_backup');
 
-                    alert('Cadastro pré-aprovado! Verifique seu e-mail.');
+                    alert('Cadastro realizado! Por favor, verifique seu e-mail para ativar a conta.');
                     setShowRoleSelector(false);
                     setShowLoginModal(true);
                 }
             }
             // CADASTRO SOCIAL (Google)
             else {
+                createdUserId = pendingGoogleUser.id;
+                createdUserEmail = pendingGoogleUser.email || null;
+
                 const newUser = {
                     id: pendingGoogleUser.id,
                     name: data.username,
@@ -158,20 +179,24 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
             console.warn('⚠️ Falha ao salvar dados completos. Tentando salvamento básico...', e);
 
             try {
+                // Tenta recuperar ID do escopo anterior ou da sessão
+                const fallbackId = createdUserId || (await sb.auth.getUser()).data.user?.id;
+                const fallbackEmail = createdUserEmail || pendingGoogleUser?.email || pendingManualEmail;
+
+                if (!fallbackId || !fallbackEmail) {
+                    // Se ainda não temos ID (signup falhou totalmente), é um erro real de auth, não de perfil db
+                    // Repassamos o erro original
+                    throw e;
+                }
+
                 const basicUser = {
-                    id: pendingGoogleUser
-                        ? pendingGoogleUser.id
-                        : (await sb.auth.getUser()).data.user?.id,
+                    id: fallbackId,
                     name: data.username,
-                    email: pendingGoogleUser ? pendingGoogleUser.email : pendingManualEmail,
+                    email: fallbackEmail,
                     role,
                     status: 'active',
-                    phone: data.phone, // Alguns campos básicos podem já existir
+                    phone: data.phone,
                 };
-
-                if (!basicUser.id || !basicUser.email) {
-                    throw new Error('ID ou Email não identificados para fallback.');
-                }
 
                 await createUser(basicUser as any);
 
@@ -184,29 +209,21 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     setShowSuccessModal(true);
                     setShowRoleSelector(false);
                 } else {
-                    setUser(basicUser as any);
-                    localStorage.setItem('lfnm_user', JSON.stringify(basicUser));
-                    setSuccessMessage(successMsg);
-                    setShowSuccessModal(true);
+                    // Manual Fallback Success
+                    alert('Cadastro básico salvo. Verifique seu email.');
                     setShowRoleSelector(false);
-                    setPendingGoogleUser(null);
-
-                    if (role !== 'Leitor') {
-                        setView('admin');
-                        updateHash('/admin');
-                    }
+                    setShowLoginModal(true);
                 }
             } catch (retryError: any) {
                 console.error('❌ Falha crítica no cadastro:', retryError);
                 triggerErrorModal(
                     retryError,
                     'Cadastro de Usuário - Falha Crítica RLS/Schema',
-                    'critical' // Explicitly mark as critical
+                    'critical'
                 );
                 alert(
-                    'Erro crítico ao finalizar cadastro: ' +
-                    (retryError.message || e.message) +
-                    '. Um relatório foi gerado.'
+                    'Erro ao processar cadastro: ' +
+                    (retryError.message || e.message)
                 );
             }
         }
