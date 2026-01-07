@@ -68,46 +68,76 @@ export const uploadVideoToYouTube = async (
 const createYouTubeUploadJob = async (
     file: File,
     metadata: YouTubeVideoMetadata,
+    accessToken: string,
     onProgress?: (progress: YouTubeUploadProgress) => void
 ): Promise<YouTubeUploadResult> => {
 
-    // TODO: Implementar integração com Edge Function
-    // Por enquanto, retorna placeholder
-
-    console.log('📤 Criando job de upload YouTube:', {
-        fileName: file.name,
-        fileSize: file.size,
-        metadata
+    // 1. Initiate Resumable Upload Session
+    const initResponse = await fetch('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'X-Upload-Content-Length': file.size.toString(),
+            'X-Upload-Content-Type': file.type
+        },
+        body: JSON.stringify({
+            snippet: {
+                title: metadata.title,
+                description: metadata.description,
+                tags: metadata.tags,
+                categoryId: metadata.categoryId || '22' // 22 = People & Blogs
+            },
+            status: {
+                privacyStatus: metadata.privacy,
+                selfDeclaredMadeForKids: metadata.madeForKids
+            }
+        })
     });
 
-    // Simular upload (REMOVER em produção)
+    if (!initResponse.ok) {
+        throw new Error(`Falha ao iniciar upload: ${initResponse.statusText}`);
+    }
+
+    const uploadUrl = initResponse.headers.get('Location');
+    if (!uploadUrl) throw new Error('Não foi possível obter URL de upload do YouTube');
+
+    // 2. Perform Binary Upload (XHR for Progress)
     return new Promise((resolve, reject) => {
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 10;
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', uploadUrl, true);
+        xhr.setRequestHeader('Content-Type', file.type);
 
-            if (onProgress) {
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable && onProgress) {
+                const percentage = Math.round((e.loaded / e.total) * 100);
                 onProgress({
-                    loaded: progress,
-                    total: 100,
-                    percentage: progress,
-                    stage: progress < 80 ? 'uploading' : 'processing'
+                    loaded: e.loaded,
+                    total: e.total,
+                    percentage: percentage,
+                    stage: percentage < 100 ? 'uploading' : 'processing'
                 });
             }
+        };
 
-            if (progress >= 100) {
-                clearInterval(interval);
-
-                // Placeholder result
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const response = JSON.parse(xhr.responseText);
                 resolve({
-                    videoId: `yt_${Date.now()}`,
-                    status: 'processing',
-                    url: 'https://youtube.com/watch?v=placeholder',
-                    embedUrl: 'https://youtube.com/embed/placeholder',
-                    thumbnailUrl: 'https://i.ytimg.com/vi/placeholder/maxresdefault.jpg'
+                    videoId: response.id,
+                    status: 'ready', // YouTube returns ready state generally after processing
+                    url: `https://youtu.be/${response.id}`,
+                    embedUrl: `https://www.youtube.com/embed/${response.id}`,
+                    thumbnailUrl: response.snippet?.thumbnails?.high?.url || ''
                 });
+            } else {
+                reject(new Error(`Erro no upload: ${xhr.status} ${xhr.responseText}`));
             }
-        }, 500);
+        };
+
+        xhr.onerror = () => reject(new Error('Erro de rede durante upload para o YouTube'));
+
+        xhr.send(file);
     });
 };
 

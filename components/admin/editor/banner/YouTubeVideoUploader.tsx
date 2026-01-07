@@ -8,7 +8,8 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { validateVideo, formatDuration, formatFileSize, requiresSmartPlayback } from '../../../../utils/videoValidator';
 import { storeLocalFile } from '../../../../services/storage/localStorageService';
-import { YouTubeVideoMetadata } from '../../../../services/upload/youtubeVideoService';
+import { YouTubeVideoMetadata, uploadVideoToYouTube } from '../../../../services/upload/youtubeVideoService';
+import { useGoogleLogin } from '@react-oauth/google';
 
 interface YouTubeVideoUploaderProps {
     onUploadComplete: (localId: string, metadata: YouTubeVideoMetadata) => void;
@@ -28,6 +29,7 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
     const [validationInfo, setValidationInfo] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
 
     // Metadata form state
     const [metadata, setMetadata] = useState<YouTubeVideoMetadata>({
@@ -36,6 +38,17 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
         tags: [],
         privacy: 'unlisted',
         madeForKids: false
+    });
+
+    const login = useGoogleLogin({
+        onSuccess: (tokenResponse) => {
+            console.log('Google Auth Success:', tokenResponse);
+            setAccessToken(tokenResponse.access_token);
+        },
+        onError: () => {
+            setError('Falha na autenticação com Google. Verifique se o Client ID está configurado.');
+        },
+        scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly'
     });
 
     const handleFileSelect = useCallback(async (file: File) => {
@@ -64,18 +77,31 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
             return;
         }
 
+        if (!accessToken) {
+            setError('É necessário conectar sua conta Google primeiro.');
+            login();
+            return;
+        }
+
         setIsUploading(true);
         setError(null);
         setUploadStage('uploading');
         setUploadProgress(0);
 
         try {
-            // Transactional: Store file locally first
+            // 1. Store file locally (Backup/Preview)
             const localId = await storeLocalFile(selectedFile);
-            setUploadProgress(100);
 
-            // Return local ID and metadata to parent
-            // The actual YouTube upload will happen on Save/Publish via SyncService
+            // 2. Upload to YouTube API
+            await uploadVideoToYouTube(selectedFile, metadata, accessToken, (progress) => {
+                setUploadStage(progress.stage);
+                setUploadProgress(progress.percentage);
+            });
+
+            // 3. Complete (Return Local ID + Metadata)
+            // Note: We return localId so the Editor can show the local preview immediately 
+            // while YouTube processes the video in the background.
+            // The metadata now contains that it was sent to YouTube.
             onUploadComplete(localId, metadata);
 
             // Reset form
@@ -90,13 +116,13 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
             });
             setUploadProgress(0);
         } catch (err: any) {
-            const errorMsg = err.message || 'Erro ao preparar vídeo para YouTube';
+            const errorMsg = err.message || 'Erro ao enviar vídeo para YouTube';
             setError(errorMsg);
             if (onUploadError) onUploadError(errorMsg);
         } finally {
             setIsUploading(false);
         }
-    }, [selectedFile, metadata, onUploadComplete, onUploadError]);
+    }, [selectedFile, metadata, accessToken, onUploadComplete, onUploadError, login]);
 
     const handleCancel = useCallback(() => {
         setSelectedFile(null);
@@ -113,20 +139,50 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
         setMetadata(prev => ({ ...prev, tags }));
     }, []);
 
+    // Configuration Check
+    const isConfigured = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    if (!isConfigured) {
+        return (
+            <div className="bg-red-50 border-2 border-red-400 rounded-xl p-6 text-center">
+                <i className="fas fa-exclamation-circle text-red-600 text-3xl mb-3"></i>
+                <h4 className="font-bold text-red-900 mb-2">Configuração Pendente</h4>
+                <p className="text-sm text-red-800 mb-4">
+                    O <strong>VITE_GOOGLE_CLIENT_ID</strong> não foi configurado no arquivo .env.
+                </p>
+                <div className="bg-white p-3 rounded border border-red-200 text-left text-xs text-gray-600 font-mono">
+                    VITE_GOOGLE_CLIENT_ID=seu_client_id_aqui
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4">
 
-            {/* Development Warning */}
-            <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-4 flex items-start gap-3">
-                <i className="fas fa-exclamation-triangle text-yellow-600 text-xl mt-0.5"></i>
-                <div className="flex-1">
-                    <h4 className="font-bold text-yellow-900 mb-1">⚠️ Funcionalidade em Desenvolvimento</h4>
-                    <p className="text-sm text-yellow-800 leading-relaxed">
-                        O upload para YouTube ainda não está integrado. O vídeo será armazenado localmente para preview,
-                        mas <strong>não será enviado ao YouTube</strong>. A integração OAuth e API está planejada para uma próxima versão.
-                    </p>
+            {/* Auth Section */}
+            {!accessToken && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <h4 className="font-bold text-blue-900 text-sm">Conta YouTube</h4>
+                        <p className="text-xs text-blue-700">Conecte para fazer uploads</p>
+                    </div>
+                    <button
+                        onClick={() => login()}
+                        className="bg-white hover:bg-gray-50 text-gray-700 font-bold py-2 px-4 rounded-lg border border-gray-300 shadow-sm flex items-center gap-2 text-xs transition-all"
+                    >
+                        <i className="fab fa-google text-red-500"></i>
+                        Conectar Conta
+                    </button>
                 </div>
-            </div>
+            )}
+
+            {accessToken && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <p className="text-xs font-bold text-green-800">Conectado e pronto para envio</p>
+                </div>
+            )}
 
             {/* File Input */}
             {!selectedFile && !isUploading && (
@@ -148,7 +204,7 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
                             Clique para selecionar vídeo
                         </p>
                         <p className="text-xs text-gray-500">
-                            Máximo: 1GB (sem limite de duração)
+                            Máximo: 1GB (Upload direto)
                         </p>
                     </label>
                 </div>
@@ -285,11 +341,14 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
                     <button
                         onClick={handleUpload}
                         disabled={!metadata.title.trim() || isUploading}
-                        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+                        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors shadow-lg"
                     >
                         <i className="fab fa-youtube mr-2"></i>
-                        Confirmar Vídeo e Salvar Localmente
+                        {accessToken ? 'Enviar para o YouTube' : 'Conectar Conta para Enviar'}
                     </button>
+                    {!accessToken && (
+                        <p className="text-xs text-center text-gray-500 mt-2">Você precisa conectar sua conta Google primeiro.</p>
+                    )}
                 </div>
             )}
 
@@ -299,7 +358,7 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-red-900">
                             {uploadStage === 'validating' && 'Validando vídeo...'}
-                            {uploadStage === 'uploading' && 'Fazendo upload...'}
+                            {uploadStage === 'uploading' && 'Fazendo upload para YouTube...'}
                             {uploadStage === 'processing' && 'Processando no YouTube...'}
                         </span>
                         <span className="text-sm font-bold text-red-600">
@@ -316,7 +375,7 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
                         <i className="fas fa-spinner fa-spin mr-2"></i>
                         {uploadStage === 'processing'
                             ? 'O YouTube está processando seu vídeo. Isso pode levar alguns minutos...'
-                            : 'Aguarde enquanto o vídeo é enviado...'}
+                            : 'Mantenha esta janela aberta.'}
                     </p>
                 </div>
             )}

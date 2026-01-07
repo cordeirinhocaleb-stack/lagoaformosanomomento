@@ -49,6 +49,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
         });
     }, [news, searchTerm, filterCategory]);
 
+    const [editorKey, setEditorKey] = useState(0);
+
     const handleEdit = (item: NewsItem) => {
         setSelectedNews(item);
         setView('editor');
@@ -56,6 +58,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
 
     const handleCreate = () => {
         setSelectedNews(null);
+        setEditorKey(prev => prev + 1);
         setView('editor');
     };
 
@@ -65,8 +68,9 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
         } else {
             onAddNews(savedNews);
         }
-        setView('list');
-        setSelectedNews(null);
+        // Don't close editor automatically. Let the EditorTab/User decide via the Success Modal.
+        // setView('list');
+        // setSelectedNews(null);
     };
 
     const handleDelete = (id: string) => {
@@ -79,9 +83,11 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
         return (
             <div className="h-[calc(100vh-100px)] -m-8 relative">
                 <EditorTab
+                    key={selectedNews?.id || `new_${editorKey}`}
                     user={user}
                     initialData={selectedNews}
                     onSave={handleSave}
+                    onCreateNew={handleCreate}
                     onCancel={() => { setView('list'); setSelectedNews(null); }}
                     accessToken={null} // Handle tokens if needed
                     systemSettings={systemSettings}
@@ -111,8 +117,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                         <button
                             onClick={() => setFilterCategory('Postagens do Site')}
                             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Postagens do Site'
-                                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                                    : 'bg-black/40 text-gray-400 border border-white/10 hover:border-red-600/50'
+                                ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                                : 'bg-black/40 text-gray-400 border border-white/10 hover:border-red-600/50'
                                 }`}
                         >
                             <i className="fas fa-home mr-1.5"></i>
@@ -121,8 +127,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                         <button
                             onClick={() => setFilterCategory('Brasil')}
                             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Brasil'
-                                    ? 'bg-green-600 text-white shadow-lg shadow-green-600/30'
-                                    : 'bg-black/40 text-gray-400 border border-white/10 hover:border-green-600/50'
+                                ? 'bg-green-600 text-white shadow-lg shadow-green-600/30'
+                                : 'bg-black/40 text-gray-400 border border-white/10 hover:border-green-600/50'
                                 }`}
                         >
                             <i className="fas fa-flag mr-1.5"></i>
@@ -131,8 +137,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                         <button
                             onClick={() => setFilterCategory('Mundo')}
                             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Mundo'
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                                    : 'bg-black/40 text-gray-400 border border-white/10 hover:border-blue-600/50'
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                                : 'bg-black/40 text-gray-400 border border-white/10 hover:border-blue-600/50'
                                 }`}
                         >
                             <i className="fas fa-globe mr-1.5"></i>

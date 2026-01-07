@@ -1,9 +1,18 @@
 # Histórico de Versões
 
-> Este controle de versão é gerenciado automaticamente pela IA Antigravity.
-> Mantenha este arquivo sincronizado com o `package.json` (Versão Pública) e `src/version.ts` (Build Number).
+> **Política de Versionamento:**
+> - **Versão Pública (SemVer):** Atualizada apenas em lançamentos (agrupamento de correções/features).
+> - **Build Number:** Incrementado a cada edição interna (controle de desenvolvimento).
+>
+> Mantenha este arquivo sincronizado com `src/version.ts`.
 
-## 0.1.4 (Build 220) - 06/01/2026 22:10
+
+## 0.0.0 (Build 221) - 06/01/2026 22:40
+- **Refactor (Global Law):** Modularização massiva de `App.tsx`, `Login.tsx`, e componentes do Editor (>400 linhas).
+- **Bug Fix:** Adicionada persistência de Efeitos do Banner (DB Schema Migration 004).
+
+## 0.0.0 (Build 220) - 06/01/2026 22:20
+- **Baseline Reset:** Versão pública definida como `0.0.0` para ciclo de desenvolvimento alpha.
 - **UX:** Adicionada opção "Lembrar minha senha" (Persistência) diretamente no formulário de login manual.
 - **System:** Suporte a restauração de sessão simplificada (`SessionStorage`) para evitar logouts ao recarregar a aba.
 

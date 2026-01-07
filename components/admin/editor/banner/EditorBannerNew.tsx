@@ -25,6 +25,9 @@ import {
     ImageGallery
 } from './components';
 
+// Custom Hooks
+import { useImageUploadQueue } from '../hooks/useImageUploadQueue';
+
 interface EditorBannerProps {
     user: User;
 
@@ -102,13 +105,25 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
 
     const [showYouTubeModal, setShowYouTubeModal] = useState(false);
     const [showEffectsPanel, setShowEffectsPanel] = useState(false);
-    const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const [uploadQueue, setUploadQueue] = useState<Array<{ file: File; index: number }>>([]);
-    const [isProcessingQueue, setIsProcessingQueue] = useState(false);
+
+    // Extracted Hook for Image Queue
+    const {
+        uploadingIndex, uploadProgress, uploadQueue,
+        handleImageUpload, handleRemoveImage, handleReorderImages
+    } = useImageUploadQueue({
+        bannerImages,
+        setBannerImages,
+        onImageUpload,
+        setToast
+    });
+
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
+    // Sync hook toast to local toast
+    // The hook signature I created expects setToast. 
+    // I need to update the hook usage above to pass this component's setToast.
+    // Actually, I can pass the real setToast to the hook.
 
     const resolveMedia = useCallback((url: string | undefined): string => {
         if (!url) return '';
@@ -142,136 +157,7 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
         };
     }, [bannerEffects]);
 
-    // ========================================
-    // IMAGE MANAGEMENT WITH SEQUENTIAL QUEUE
-    // ========================================
-
-    // Process upload queue sequentially (one at a time)
-    const processUploadQueue = useCallback(async () => {
-        if (isProcessingQueue || uploadQueue.length === 0) return;
-
-        setIsProcessingQueue(true);
-        const { file, index } = uploadQueue[0];
-
-        try {
-            // Se está substituindo uma imagem existente, deleta a antiga do Cloudinary
-            if (bannerImages[index] && bannerImages[index].includes('cloudinary.com')) {
-                try {
-                    await deleteFromCloudinary(bannerImages[index], 'image');
-                    setToast({
-                        message: 'Imagem antiga removida do Cloudinary',
-                        type: 'info'
-                    });
-                } catch (error) {
-                    console.warn('⚠️ Falha ao registrar deleção do Cloudinary:', error);
-                }
-            }
-
-            setUploadingIndex(index);
-            setUploadProgress(0);
-
-            console.log('📸 Uploading image to slot', index, ':', file.name);
-
-            const uploadStartTime = Date.now();
-
-            // Create preview URL immediately
-            const previewUrl = URL.createObjectURL(file);
-
-            // Update array with preview first
-            setBannerImages((prev: string[]) => {
-                const newImages = [...prev];
-                newImages[index] = previewUrl;
-                return newImages;
-            });
-
-            setUploadProgress(30);
-
-            // Then upload to server (returns local ID for now)
-            const localId = await onImageUpload!(file);
-
-            setUploadProgress(80);
-
-            // Update with local ID (will be replaced with real URL on save/publish)
-            setBannerImages((prev: string[]) => {
-                const finalImages = [...prev];
-                finalImages[index] = localId;
-                return finalImages;
-            });
-
-            // Enforce minimum 5-second upload time for better UX
-            const uploadDuration = Date.now() - uploadStartTime;
-            const minUploadTime = 5000; // 5 seconds
-            const remainingTime = Math.max(0, minUploadTime - uploadDuration);
-
-            if (remainingTime > 0) {
-                console.log(`⏳ Aguardando ${(remainingTime / 1000).toFixed(1)}s para completar upload...`);
-                await new Promise(resolve => setTimeout(resolve, remainingTime));
-            }
-
-            setUploadProgress(100);
-            console.log('✅ Image stored locally:', localId);
-
-            setTimeout(() => {
-                setUploadingIndex(null);
-                setUploadProgress(0);
-            }, 500);
-        } catch (error) {
-            console.error('❌ Erro ao fazer upload da imagem:', error);
-            setUploadingIndex(null);
-            setUploadProgress(0);
-        } finally {
-            // Remove from queue and process next
-            setUploadQueue(prev => prev.slice(1));
-            setIsProcessingQueue(false);
-        }
-    }, [isProcessingQueue, uploadQueue, bannerImages, onImageUpload, setBannerImages]);
-
-    // Trigger queue processing when queue has items
-    React.useEffect(() => {
-        if (uploadQueue.length > 0 && !isProcessingQueue) {
-            processUploadQueue();
-        }
-    }, [uploadQueue, isProcessingQueue, processUploadQueue]);
-
-    const handleImageUpload = useCallback((file: File, index: number) => {
-        if (!onImageUpload) {
-            console.warn('⚠️ onImageUpload callback not provided');
-            return;
-        }
-
-        // Add to queue for sequential processing
-        setUploadQueue(prev => [...prev, { file, index }]);
-        console.log(`📋 Adicionado à fila de upload: ${file.name} (posição ${index + 1}/${uploadQueue.length + 1})`);
-    }, [onImageUpload, uploadQueue.length]);
-
-    const handleRemoveImage = useCallback(async (index: number) => {
-        const imageUrl = bannerImages[index];
-
-        // Deleta do Cloudinary se for uma URL do Cloudinary
-        if (imageUrl && imageUrl.includes('cloudinary.com')) {
-            try {
-                await deleteFromCloudinary(imageUrl, 'image');
-                setToast({
-                    message: 'Imagem removida do Cloudinary',
-                    type: 'success'
-                });
-            } catch (error) {
-                console.warn('⚠️ Falha ao registrar deleção do Cloudinary:', error);
-                // Não bloqueia a remoção da UI
-            }
-        }
-
-        const newImages = bannerImages.filter((_, i) => i !== index);
-        setBannerImages(newImages);
-    }, [bannerImages, setBannerImages]);
-
-    const handleReorderImages = useCallback((fromIndex: number, toIndex: number) => {
-        const newImages = [...bannerImages];
-        const [removed] = newImages.splice(fromIndex, 1);
-        newImages.splice(toIndex, 0, removed);
-        setBannerImages(newImages);
-    }, [bannerImages, setBannerImages]);
-
+    // IMAGE MANAGEMENT Logic moved to useImageUploadQueue hook
     const canAddMoreImages = bannerImages.length < 5;
 
     // ========================================

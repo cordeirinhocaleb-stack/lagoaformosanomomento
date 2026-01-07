@@ -38,7 +38,7 @@ export const uploadVideoToCloudinary = async (
     // 2. Preparar FormData
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'lfnm_videos'); // Preset configurado no Cloudinary
+    formData.append('upload_preset', getUploadPreset());
     formData.append('resource_type', 'video');
     formData.append('folder', 'banner_videos');
 
@@ -104,8 +104,11 @@ export const deleteVideoFromCloudinary = async (publicId: string): Promise<void>
  * Obtém Cloud Name do Cloudinary das configurações
  */
 const getCloudinaryCloudName = (): string => {
-    // Buscar das configurações do sistema ou variável de ambiente
-    return process.env.VITE_CLOUDINARY_CLOUD_NAME || 'your-cloud-name';
+    return import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '';
+};
+
+const getUploadPreset = (): string => {
+    return import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '';
 };
 
 /**
