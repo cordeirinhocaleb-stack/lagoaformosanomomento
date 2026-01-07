@@ -448,7 +448,7 @@ const App: React.FC = () => {
                                 ) : (
                                     <div className="w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] md:mx-auto relative bg-white border-gray-100 shadow-2xl border-x">
                                         <span className="absolute bottom-2 right-2 text-[10px] font-bold text-gray-500 bg-white/50 px-2 py-1 rounded-full border border-gray-200 backdrop-blur-sm z-10">
-                                            v{CURRENT_VERSION}
+                                            V. {CURRENT_VERSION}
                                         </span>
                                         <main className="flex-grow w-full">
                                             {view === 'home' && (

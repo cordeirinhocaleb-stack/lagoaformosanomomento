@@ -280,9 +280,8 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
                 </div>
             </div>
 
-            {/* Version Indicator */}
             <div className="absolute bottom-8 right-8 z-50 pointer-events-none">
-                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">LFNM v{CURRENT_VERSION}</span>
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">LFNM V. {CURRENT_VERSION}</span>
             </div>
 
             {/* Light Leaks (Global Overlay for Lantern Feel) */}
