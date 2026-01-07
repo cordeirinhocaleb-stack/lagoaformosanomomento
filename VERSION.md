@@ -3,6 +3,9 @@
 > Este controle de versão é gerenciado automaticamente pela IA Antigravity.
 > Mantenha este arquivo sincronizado com o `package.json` (Versão Pública) e `src/version.ts` (Build Number).
 
+## 0.1.1 (Build 217) - 06/01/2026 21:50
+- **UI Fix:** Corrigido problema de sobreposição (Z-Index) no Wizard de Cadastro (`RoleSelectionModal` e `SuccessModal` agora abrem acima da tela de construção).
+
 ## 0.1.0 (Build 216) - 06/01/2026 19:05
 - **Estratégia de Versionamento:** Adotado modelo `Versão Pública` (0.1.0) + `Build Number` (216).
 - **Correção Visual:** Ajuste na formatação da versão no rodapé ("V." ao invés de "v").

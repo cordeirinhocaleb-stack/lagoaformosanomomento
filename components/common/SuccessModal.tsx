@@ -50,7 +50,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
     if (!show) return null;
 
     return createPortal(
-        <div className={`fixed inset-0 z-[6000] flex items-center justify-center p-4 transition-all duration-300 ${animating ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`fixed inset-0 z-[10040] flex items-center justify-center p-4 transition-all duration-300 ${animating ? 'opacity-100' : 'opacity-0'}`}>
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300"

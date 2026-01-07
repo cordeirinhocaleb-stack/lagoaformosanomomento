@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { APP_VERSION } from '../src/version';
 import VideoPresenter from '../components/media/ChromaKeyVideo';
 import Login from '../components/Login';
 import { User } from '../types';
@@ -18,7 +19,6 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
     const presenterVideoUrl = "https://vimeo.com/1149429293";
 
     // Get current version from centralized config
-    import { APP_VERSION } from '../src/version';
     const CURRENT_VERSION = APP_VERSION;
 
     // Refs for Lantern Effect

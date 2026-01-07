@@ -178,7 +178,7 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
     }, [isSocialLogin]);
 
     return (
-        <div className="fixed inset-0 z-[5000] bg-[#050505]/95 backdrop-blur-xl flex items-center justify-center p-4 animate-fadeIn overflow-y-auto custom-scrollbar">
+        <div className="fixed inset-0 z-[10020] bg-[#050505]/95 backdrop-blur-xl flex items-center justify-center p-4 animate-fadeIn overflow-y-auto custom-scrollbar">
             {/* Background Logo Effect */}
             <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] transform scale-[3]">
                 <Logo />
@@ -187,7 +187,7 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
             {/* Exit Button */}
             <button
                 onClick={onCancel}
-                className="fixed top-6 right-6 z-[5010] w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all hover:scale-110 shadow-lg"
+                className="fixed top-6 right-6 z-[10030] w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all hover:scale-110 shadow-lg"
                 title="Sair"
             >
                 <i className="fas fa-times text-sm"></i>

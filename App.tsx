@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { APP_VERSION } from './src/version';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import LoadingScreen from './components/common/LoadingScreen';
@@ -66,7 +67,6 @@ const App: React.FC = () => {
     const [adminNewsToEdit, setAdminNewsToEdit] = useState<NewsItem | null>(null);
 
     // Versão atual do sistema (Centralizada)
-    import { APP_VERSION } from './src/version';
     const CURRENT_VERSION = APP_VERSION;
 
     // Estados de Dados (Restaurados)
