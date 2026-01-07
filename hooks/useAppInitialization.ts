@@ -109,7 +109,7 @@ export const useAppInitialization = ({
 
             try {
                 // 1. Restaurar User do LocalStorage (Otimista)
-                const cachedUserStr = localStorage.getItem('lfnm_user');
+                const cachedUserStr = localStorage.getItem('lfnm_user') || sessionStorage.getItem('lfnm_user');
                 if (cachedUserStr) {
                     try {
                         const u = JSON.parse(cachedUserStr);

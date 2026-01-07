@@ -3,6 +3,10 @@
 > Este controle de versão é gerenciado automaticamente pela IA Antigravity.
 > Mantenha este arquivo sincronizado com o `package.json` (Versão Pública) e `src/version.ts` (Build Number).
 
+## 0.1.4 (Build 220) - 06/01/2026 22:10
+- **UX:** Adicionada opção "Lembrar minha senha" (Persistência) diretamente no formulário de login manual.
+- **System:** Suporte a restauração de sessão simplificada (`SessionStorage`) para evitar logouts ao recarregar a aba.
+
 ## 0.1.3 (Build 219) - 06/01/2026 22:05
 - **UX/UI:** Substituído alerta nativo do navegador por `SuccessModal` no fluxo de cadastro manual.
 - **Feature:** Mensagem explícita instruindo o usuário a verificar o e-mail para ativação da conta.

@@ -572,17 +572,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
                             </button>
 
 
-                            <label className="flex items-center justify-center gap-3 mt-4 mb-2 cursor-pointer group px-4 py-2.5 rounded-xl bg-gray-50 hover:bg-red-50 transition-all border border-gray-200 hover:border-red-200">
-                                <input
-                                    type="checkbox"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="w-5 h-5 rounded-md border-2 border-gray-300 text-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-0 cursor-pointer transition-all"
-                                />
-                                <span className="text-[10px] md:text-[11px] font-black text-gray-600 uppercase tracking-wider group-hover:text-red-600 transition-colors">
-                                    🔒 Lembrar-me neste dispositivo
-                                </span>
-                            </label>
+                            {/* Checkbox moved to form */}
 
 
                             <div className="relative flex py-4 md:py-5 items-center">
@@ -616,6 +606,21 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
                         )}
 
                         <div className="pt-2">
+                            {/* Remember Me Checkbox */}
+                            {mode === 'login' && !lockoutExpiry && (
+                                <label className="flex items-center gap-3 mb-4 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                        className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                                    />
+                                    <span className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wider group-hover:text-red-600 transition-colors">
+                                        Lembrar minha senha
+                                    </span>
+                                </label>
+                            )}
+
                             {lockoutExpiry ? (
                                 <div className="w-full bg-red-600 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-[1000] uppercase text-xs md:text-sm tracking-[0.2em] flex flex-col items-center justify-center shadow-inner animate-pulse">
                                     <span>Acesso Bloqueado</span>
