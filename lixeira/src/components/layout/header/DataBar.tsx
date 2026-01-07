@@ -18,7 +18,7 @@ const DataBar: React.FC<DataBarProps> = ({ weatherForecast, dollar, user, onAdmi
 
   // Duplicamos os itens para permitir o scroll infinito sem "voltar"
   const duplicatedForecast = useMemo(() => {
-    if (weatherForecast.length === 0) return [];
+    if (weatherForecast.length === 0) {return [];}
     return [...weatherForecast, ...weatherForecast];
   }, [weatherForecast]);
 
@@ -55,7 +55,7 @@ const DataBar: React.FC<DataBarProps> = ({ weatherForecast, dollar, user, onAdmi
   // Auto-scroll Lógica Infinita (Seamless)
   useEffect(() => {
     const container = weatherScrollRef.current;
-    if (!container || weatherForecast.length === 0 || !canScroll) return;
+    if (!container || weatherForecast.length === 0 || !canScroll) {return;}
 
     let interval: any;
     if (!isPaused && !manualInteraction) {

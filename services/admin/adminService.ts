@@ -7,7 +7,7 @@ import { logAction } from './auditService';
 
 export const adminPurchaseForUser = async (adminId: string, userId: string, itemType: 'plan' | 'boost', itemId: string, cost: number, itemName: string, boostDetails?: any) => {
     const supabase = getSupabase();
-    if (!supabase) return { success: false, message: "Erro de conexão" };
+    if (!supabase) {return { success: false, message: "Erro de conexão" };}
 
     try {
         // 1. Get current user
@@ -17,7 +17,7 @@ export const adminPurchaseForUser = async (adminId: string, userId: string, item
             .eq('id', userId)
             .single();
 
-        if (userError || !user) throw new Error("Usuário não encontrado");
+        if (userError || !user) {throw new Error("Usuário não encontrado");}
 
         const currentCredits = user.siteCredits || 0;
 
@@ -74,7 +74,7 @@ export const adminPurchaseForUser = async (adminId: string, userId: string, item
             .update(updates)
             .eq('id', userId);
 
-        if (updateError) throw updateError;
+        if (updateError) {throw updateError;}
 
         await logAction(adminId, "Admin", "admin_pos_sale", userId, `Vendeu ${itemName} para usuário por C$ ${cost}`);
 
@@ -90,7 +90,7 @@ export const adminPurchaseForUser = async (adminId: string, userId: string, item
 
 export const sendErrorReport = async (error: any, context?: string, user?: User | null) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const report: any = {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
@@ -106,14 +106,14 @@ export const sendErrorReport = async (error: any, context?: string, user?: User 
 
 export const getErrorReports = async (): Promise<ErrorReport[]> => {
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {return [];}
     const { data } = await supabase.from('error_reports').select('*').order('createdAt', { ascending: false });
     return data || [];
 };
 
 export const resolveErrorReport = async (id: string) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     await supabase.from('error_reports').update({ status: 'resolved' }).eq('id', id);
 };
 
@@ -121,7 +121,7 @@ export const resolveErrorReport = async (id: string) => {
 
 export const createSupportTicket = async (userId: string, category: string, subject: string, message: string) => {
     const supabase = getSupabase();
-    if (!supabase) return { success: false, message: "Erro de conexão" };
+    if (!supabase) {return { success: false, message: "Erro de conexão" };}
 
     try {
         const { data: ticket, error: ticketError } = await supabase
@@ -130,7 +130,7 @@ export const createSupportTicket = async (userId: string, category: string, subj
             .select()
             .single();
 
-        if (ticketError) throw ticketError;
+        if (ticketError) {throw ticketError;}
 
         const { error: msgError } = await supabase
             .from('support_messages')
@@ -141,7 +141,7 @@ export const createSupportTicket = async (userId: string, category: string, subj
                 is_admin: false
             });
 
-        if (msgError) throw msgError;
+        if (msgError) {throw msgError;}
         return { success: true, ticket };
     } catch (e: any) {
         console.error("Error creating ticket:", e);
@@ -151,7 +151,7 @@ export const createSupportTicket = async (userId: string, category: string, subj
 
 export const getUserTickets = async (userId: string): Promise<SupportTicket[]> => {
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {return [];}
     const { data } = await supabase
         .from('support_tickets')
         .select('*')
@@ -162,7 +162,7 @@ export const getUserTickets = async (userId: string): Promise<SupportTicket[]> =
 
 export const getAllTickets = async (): Promise<SupportTicket[]> => {
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {return [];}
     const { data, error } = await supabase
         .from('support_tickets')
         .select('*, user:users(name, email, avatar)')
@@ -177,7 +177,7 @@ export const getAllTickets = async (): Promise<SupportTicket[]> => {
 
 export const getTicketMessages = async (ticketId: string): Promise<SupportMessage[]> => {
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {return [];}
     const { data } = await supabase
         .from('support_messages')
         .select('*')
@@ -188,11 +188,11 @@ export const getTicketMessages = async (ticketId: string): Promise<SupportMessag
 
 export const addTicketMessage = async (ticketId: string, senderId: string, message: string, isAdmin: boolean) => {
     const supabase = getSupabase();
-    if (!supabase) return { success: false };
+    if (!supabase) {return { success: false };}
     const { error } = await supabase
         .from('support_messages')
         .insert({ ticket_id: ticketId, sender_id: senderId, message, is_admin: isAdmin });
-    if (error) return { success: false, message: error.message };
+    if (error) {return { success: false, message: error.message };}
     await supabase
         .from('support_tickets')
         .update({ updated_at: new Date().toISOString(), status: isAdmin ? 'in_progress' : 'open' })
@@ -202,13 +202,13 @@ export const addTicketMessage = async (ticketId: string, senderId: string, messa
 
 export const updateTicketStatus = async (ticketId: string, status: 'open' | 'in_progress' | 'resolved') => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     await supabase.from('support_tickets').update({ status }).eq('id', ticketId);
 };
 
 export const getOpenTicketsCount = async (): Promise<number> => {
     const supabase = getSupabase();
-    if (!supabase) return 0;
+    if (!supabase) {return 0;}
     const { count } = await supabase
         .from('support_tickets')
         .select('*', { count: 'exact', head: true })
@@ -218,16 +218,16 @@ export const getOpenTicketsCount = async (): Promise<number> => {
 
 export const getPendingTicketsUsers = async (): Promise<{ userId: string, userName: string, avatar: string, count: number }[]> => {
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {return [];}
     const { data, error } = await supabase
         .from('support_tickets')
         .select('user_id, users(name, avatar, email)')
         .in('status', ['open', 'in_progress']);
 
-    if (error || !data) return [];
+    if (error || !data) {return [];}
     const userMap = new Map<string, { userId: string, userName: string, avatar: string, count: number }>();
     data.forEach((t: any) => {
-        if (!t.users) return;
+        if (!t.users) {return;}
         const uid = t.user_id;
         if (userMap.has(uid)) {
             userMap.get(uid)!.count++;

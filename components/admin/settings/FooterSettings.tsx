@@ -4,18 +4,20 @@ import { SystemSettings } from '../../../types';
 interface FooterSettingsProps {
     settings: SystemSettings;
     onUpdateFooter: (field: string, value: string) => void;
+
     onUpdateSocial: (network: string, value: string) => void;
+    darkMode?: boolean;
 }
 
-const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFooter, onUpdateSocial }) => {
+const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFooter, onUpdateSocial, darkMode = false }) => {
     return (
-        <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden">
+        <div className={`p-6 md:p-8 rounded-[2rem] border shadow-sm relative overflow-hidden transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
             <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-600 text-2xl border border-red-100">
                     <i className="fas fa-address-card"></i>
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-gray-900 uppercase italic">Identidade & Rodapé</h2>
+                    <h2 className={`text-xl font-black uppercase italic ${darkMode ? 'text-white' : 'text-gray-900'}`}>Identidade & Rodapé</h2>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Contatos oficiais e Redes Sociais</p>
                 </div>
             </div>
@@ -28,7 +30,7 @@ const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFoote
                         value={settings.footer?.email || ''}
                         onChange={(e) => onUpdateFooter('email', e.target.value)}
                         placeholder="pauta@lfnm.com.br"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-700 outline-none focus:border-red-500"
+                        className={`w-full border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-red-500 ${darkMode ? 'bg-black/30 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-700'}`}
                     />
                 </div>
                 <div>
@@ -38,7 +40,7 @@ const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFoote
                         value={settings.footer?.phone || ''}
                         onChange={(e) => onUpdateFooter('phone', e.target.value)}
                         placeholder="(34) 99999-0000"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-700 outline-none focus:border-red-500"
+                        className={`w-full border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-red-500 ${darkMode ? 'bg-black/30 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-700'}`}
                     />
                 </div>
             </div>
@@ -60,7 +62,7 @@ const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFoote
                                 type="text"
                                 value={settings.footer?.socialLinks?.[network.key as keyof typeof settings.footer.socialLinks] || ''}
                                 onChange={(e) => onUpdateSocial(network.key, e.target.value)}
-                                className={`w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-gray-700 outline-none ${network.focus}`}
+                                className={`w-full border rounded-xl pl-10 pr-4 py-3 text-sm font-bold outline-none ${network.focus} ${darkMode ? 'bg-black/30 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-700'}`}
                             />
                         </div>
                     </div>
@@ -68,9 +70,9 @@ const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFoote
             </div>
 
             {/* Status Preview */}
-            <div className="mt-8 pt-6 border-t border-gray-100">
+            <div className={`mt-8 pt-6 border-t ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
                 <h4 className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-4">Informações Públicas Ativas</h4>
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div className={`p-4 rounded-xl border ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
                     <h5 className="text-[9px] font-bold uppercase text-gray-500 mb-3 flex items-center gap-2">
                         <i className="fas fa-share-alt"></i> Redes Conectadas
                     </h5>
@@ -79,7 +81,7 @@ const FooterSettings: React.FC<FooterSettingsProps> = ({ settings, onUpdateFoote
                             <span className="text-gray-400 italic">Nenhuma rede conectada</span>
                         )}
                         {Object.entries(settings.footer?.socialLinks || {}).filter(([_, v]) => v).map(([key]) => (
-                            <span key={key} className="px-2 py-1 bg-white border border-gray-200 rounded-md font-bold text-gray-700 uppercase">{key}</span>
+                            <span key={key} className={`px-2 py-1 border rounded-md font-bold uppercase ${darkMode ? 'bg-white/10 border-white/5 text-gray-300' : 'bg-white border-gray-200 text-gray-700'}`}>{key}</span>
                         ))}
                     </div>
                 </div>

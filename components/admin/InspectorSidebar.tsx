@@ -12,14 +12,15 @@ interface InspectorSidebarProps {
     onClose: () => void;
     accessToken: string | null;
     newsMetadata: any;
+    darkMode?: boolean;
 }
 
-const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, onDelete, onClose }) => {
+const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, onDelete, onClose, darkMode = false }) => {
 
     // Helper to identify widget ID
     const widgetId = useMemo(() => {
-        if (!block || block.type !== 'smart_block') return null;
-        if (block.settings.widgetId) return block.settings.widgetId;
+        if (!block || block.type !== 'smart_block') { return null; }
+        if (block.settings.widgetId) { return block.settings.widgetId; }
 
         // Infer from content
         const widgetDef = EDITOR_WIDGETS.find(w => block.content.includes(`data-key`)); // Simplified check
@@ -27,18 +28,18 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
     }, [block]);
 
     const availableStyles = useMemo(() => {
-        if (!widgetId) return [];
+        if (!widgetId) { return []; }
         return getWidgetStyles(widgetId);
     }, [widgetId]);
 
     const engagementStyles = useMemo(() => {
-        if (!block || block.type !== 'engagement') return [];
+        if (!block || block.type !== 'engagement') { return []; }
         // Extract type from settings or content
         return getEngagementStyles(block.settings.engagementType || 'poll');
     }, [block]);
 
     const engagementColors = useMemo(() => {
-        if (!block) return [];
+        if (!block) { return []; }
         if (block.type === 'engagement') {
             return getEngagementColors(block.settings.engagementType || 'poll');
         }
@@ -50,7 +51,7 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
 
     if (!block) {
         return (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 p-4 border-l bg-white">
+            <div className={`h-full flex flex-col items-center justify-center space-y-4 p-4 border-l ${darkMode ? 'bg-[#0F0F0F] border-white/5 text-zinc-500' : 'bg-white border-gray-100 text-gray-400'}`}>
                 <i className="fas fa-mouse-pointer text-4xl"></i>
                 <p>Selecione um bloco para editar</p>
             </div>
@@ -67,15 +68,15 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
         });
     };
 
-    if (!block) return null;
+    if (!block) { return null; }
 
     return (
-        <div className="h-full w-full bg-white border-l border-gray-100 shadow-xl flex flex-col animate-fadeIn">
+        <div className={`h-full w-full border-l shadow-xl flex flex-col animate-fadeIn ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
             {/* HEADER */}
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                <span className="text-xs font-black uppercase tracking-widest text-gray-400">Propriedades</span>
+            <div className={`p-4 border-b flex items-center justify-between ${darkMode ? 'border-white/5 bg-[#1a1a1a]/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                <span className={`text-xs font-black uppercase tracking-widest ${darkMode ? 'text-zinc-500' : 'text-gray-400'}`}>Propriedades</span>
                 <div className="flex gap-2">
-                    <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 transition-colors">
+                    <button onClick={onClose} className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${darkMode ? 'hover:bg-white/10 text-zinc-500' : 'hover:bg-gray-200 text-gray-400'}`}>
                         <i className="fas fa-times text-xs"></i>
                     </button>
                 </div>
@@ -90,7 +91,7 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                     {/* WIDGET VARIANT SELECTOR */}
                     {block.type === 'smart_block' && widgetId && (
                         <div className="space-y-2 animate-fadeIn">
-                            <label className="text-xs font-bold text-zinc-700 flex items-center gap-2">
+                            <label className={`text-xs font-bold flex items-center gap-2 ${darkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>
                                 <i className="fas fa-paint-brush text-blue-500"></i> Variante Visual
                             </label>
                             <div className="grid grid-cols-2 gap-2">
@@ -100,7 +101,7 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                         <button
                                             key={style.id}
                                             onClick={() => handleChange('editorialVariant', style.id)}
-                                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 ${isActive ? 'bg-red-50 border-red-500 text-red-600 shadow-sm' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200 hover:bg-zinc-50'}`}
+                                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 ${isActive ? 'bg-red-50 border-red-500 text-red-600 shadow-sm' : (darkMode ? 'bg-[#1a1a1a] border-white/5 text-zinc-500 hover:border-zinc-700 hover:bg-[#252525]' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200 hover:bg-zinc-50')}`}
                                             title={style.label}
                                         >
                                             <i className={`fas ${style.icon} text-lg`}></i>
@@ -116,10 +117,10 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                     {block.type === 'engagement' && (
                         <div className="space-y-2 animate-fadeIn">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs font-bold text-zinc-700 flex items-center gap-2">
+                                <label className={`text-xs font-bold flex items-center gap-2 ${darkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>
                                     <i className="fas fa-palette text-red-500"></i> Estilo Visual
                                 </label>
-                                <span className="text-[9px] font-mono text-zinc-300 uppercase">{block.settings.engagementType || 'poll'}</span>
+                                <span className={`text-[9px] font-mono uppercase ${darkMode ? 'text-zinc-500' : 'text-zinc-300'}`}>{block.settings.engagementType || 'poll'}</span>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
@@ -129,19 +130,19 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                         <button
                                             key={style.id}
                                             onClick={() => handleChange('engagementStyle', style.id)}
-                                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 relative overflow-hidden group ${isActive ? 'bg-red-50 border-red-500 text-red-600 shadow-sm' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200 hover:bg-zinc-50'}`}
+                                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 relative overflow-hidden group ${isActive ? 'bg-red-50 border-red-500 text-red-600 shadow-sm' : (darkMode ? 'bg-[#1a1a1a] border-white/5 text-zinc-500 hover:border-zinc-700 hover:bg-[#252525]' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200 hover:bg-zinc-50')}`}
                                             title={style.description}
                                         >
                                             {/* Icon / Preview */}
                                             <div className="z-10 flex flex-col items-center gap-1">
-                                                <i className={`fas ${style.icon} text-lg ${isActive ? 'text-red-500' : 'text-zinc-300 group-hover:text-zinc-500'}`}></i>
+                                                <i className={`fas ${style.icon} text-lg ${isActive ? 'text-red-500' : (darkMode ? 'text-zinc-600 group-hover:text-zinc-400' : 'text-zinc-300 group-hover:text-zinc-500')}`}></i>
                                                 <span className="text-[9px] font-black uppercase tracking-wider">{style.label}</span>
                                             </div>
                                         </button>
                                     );
                                 })}
                             </div>
-                            <p className="text-[10px] text-zinc-400 text-center italic">
+                            <p className={`text-[10px] text-center italic ${darkMode ? 'text-zinc-600' : 'text-zinc-400'}`}>
                                 {engagementStyles.find(s => s.id === (block.settings.engagementStyle || 'default'))?.description}
                             </p>
                         </div>
@@ -149,8 +150,8 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
 
                     {/* COLOR THEME SELECTOR */}
                     {(block.type === 'engagement' || block.type === 'smart_block') && engagementColors.length > 0 && (
-                        <div className="space-y-2 animate-fadeIn pt-2 border-t border-zinc-100">
-                            <label className="text-xs font-bold text-zinc-700 flex items-center gap-2">
+                        <div className={`space-y-2 animate-fadeIn pt-2 border-t ${darkMode ? 'border-white/5' : 'border-zinc-100'}`}>
+                            <label className={`text-xs font-bold flex items-center gap-2 ${darkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>
                                 <i className="fas fa-swatchbook text-purple-500"></i> Tema de Cores
                             </label>
 
@@ -169,21 +170,21 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                     );
                                 })}
                             </div>
-                            <p className="text-[10px] text-zinc-400 text-center italic">
+                            <p className={`text-[10px] text-center italic ${darkMode ? 'text-zinc-600' : 'text-zinc-400'}`}>
                                 {engagementColors.find(c => c.id === (block.settings.engagementColor || engagementColors[0].id))?.label}
                             </p>
                         </div>
                     )}
                     {/* SEPARATOR SETTINGS */}
                     {block.type === 'separator' && (
-                        <div className="space-y-4 animate-fadeIn border-t border-zinc-100 pt-4">
-                            <label className="text-xs font-bold text-zinc-700 flex items-center gap-2">
+                        <div className={`space-y-4 animate-fadeIn border-t pt-4 ${darkMode ? 'border-white/5' : 'border-zinc-100'}`}>
+                            <label className={`text-xs font-bold flex items-center gap-2 ${darkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>
                                 <i className="fas fa-ruler-combined text-zinc-500"></i> Dimensões da Linha
                             </label>
 
                             {/* Thickness */}
                             <div>
-                                <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
+                                <div className={`flex justify-between text-[10px] mb-1 ${darkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>
                                     <span>Espessura</span>
                                     <span>{block.settings.thickness || 1}px</span>
                                 </div>
@@ -193,14 +194,14 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                     max="20"
                                     value={block.settings.thickness || 1}
                                     onChange={(e) => handleChange('thickness', parseInt(e.target.value))}
-                                    className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
+                                    className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${darkMode ? 'bg-zinc-700' : 'bg-zinc-200'}`}
                                 />
                             </div>
 
                             {/* Height (Vertical Only) */}
                             {block.settings.orientation === 'vertical' && (
                                 <div>
-                                    <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
+                                    <div className={`flex justify-between text-[10px] mb-1 ${darkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>
                                         <span>Altura Vertical</span>
                                         <span>{block.settings.height || 60}px</span>
                                     </div>
@@ -211,14 +212,14 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                         step="10"
                                         value={block.settings.height || 60}
                                         onChange={(e) => handleChange('height', parseInt(e.target.value))}
-                                        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer"
+                                        className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${darkMode ? 'bg-zinc-700' : 'bg-zinc-200'}`}
                                     />
                                 </div>
                             )}
 
                             {/* Color Picker Simple */}
                             <div>
-                                <label className="text-[10px] font-bold text-zinc-400 block mb-2">Cor da Linha</label>
+                                <label className={`text-[10px] font-bold block mb-2 ${darkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Cor da Linha</label>
                                 <div className="flex gap-2 flex-wrap">
                                     {['#e2e8f0', '#94a3b8', '#475569', '#000000', '#ef4444', '#3b82f6'].map(c => (
                                         <button
@@ -234,8 +235,8 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                     )}
 
                     <div>
-                        <label className="text-xs font-bold text-zinc-700 block mb-1">Largura</label>
-                        <div className="flex gap-1 bg-zinc-100 p-1 rounded-lg">
+                        <label className={`text-xs font-bold block mb-1 ${darkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>Largura</label>
+                        <div className={`flex gap-1 p-1 rounded-lg ${darkMode ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
                             {[
                                 { value: '1/4', icon: 'fa-compress-arrows-alt', label: '25%' },
                                 { value: '1/3', icon: 'fa-compress', label: '33%' },
@@ -250,7 +251,7 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                     <button
                                         key={opt.value}
                                         onClick={() => handleChange('width', val)}
-                                        className={`flex-1 h-8 rounded text-[10px] font-bold transition-all flex items-center justify-center ${isActive ? 'bg-white shadow text-black' : 'text-zinc-400 hover:text-zinc-600'}`}
+                                        className={`flex-1 h-8 rounded text-[10px] font-bold transition-all flex items-center justify-center ${isActive ? (darkMode ? 'bg-[#333] shadow text-white' : 'bg-white shadow text-black') : (darkMode ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600')}`}
                                         title={opt.label}
                                     >
                                         <i className={`fas ${opt.icon}`}></i>
@@ -261,8 +262,8 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                     </div>
 
                     <div>
-                        <label className="text-xs font-bold text-zinc-700 block mb-1">Espaçamento Vertical</label>
-                        <div className="flex gap-1 bg-zinc-100 p-1 rounded-lg">
+                        <label className={`text-xs font-bold block mb-1 ${darkMode ? 'text-zinc-300' : 'text-zinc-700'}`}>Espaçamento Vertical</label>
+                        <div className={`flex gap-1 p-1 rounded-lg ${darkMode ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
                             {[
                                 { value: 'py-0', icon: 'fa-compress', label: 'Nenhum' },
                                 { value: 'py-2', icon: 'fa-compress-alt', label: 'Pequeno' },
@@ -276,7 +277,7 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                                     <button
                                         key={opt.value}
                                         onClick={() => handleChange('paddingY', opt.value)}
-                                        className={`flex-1 h-8 rounded text-[10px] font-bold transition-all flex items-center justify-center ${isActive ? 'bg-white shadow text-black' : 'text-zinc-400 hover:text-zinc-600'}`}
+                                        className={`flex-1 h-8 rounded text-[10px] font-bold transition-all flex items-center justify-center ${isActive ? (darkMode ? 'bg-[#333] shadow text-white' : 'bg-white shadow text-black') : (darkMode ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600')}`}
                                         title={opt.label}
                                     >
                                         <i className={`fas ${opt.icon}`}></i>
@@ -288,10 +289,10 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
                 </div>
 
                 {/* AÇÕES DE BLOCO */}
-                <div className="pt-6 border-t border-zinc-100">
+                <div className={`pt-6 border-t ${darkMode ? 'border-white/5' : 'border-zinc-100'}`}>
                     <button
                         onClick={() => onDelete(block.id)}
-                        className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold text-xs uppercase hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                        className={`w-full py-3 rounded-xl font-bold text-xs uppercase transition-colors flex items-center justify-center gap-2 ${darkMode ? 'bg-red-900/20 text-red-400 hover:bg-red-900/40' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
                     >
                         <i className="fas fa-trash-alt"></i> Excluir Bloco
                     </button>

@@ -46,7 +46,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
         return () => {
             // Se onUploadStart foi passado, o pai assume a responsabilidade (ou o risco) do blob
             // para permitir transição suave de UI onde o Uploader desmonta.
-            if (onUploadStart) return;
+            if (onUploadStart) {return;}
 
             if (previewUrl && previewUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(previewUrl);
@@ -74,7 +74,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
             setPreviewUrl(objectUrl);
 
             // Notificar pai sobre inicio do upload com preview
-            if (onUploadStart) onUploadStart(objectUrl);
+            if (onUploadStart) {onUploadStart(objectUrl);}
 
             // 3. Reset mode se for nova seleção
             if (mediaType === 'image') {
@@ -122,7 +122,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
             const filePath = `uploads / ${user.id}/${fileName}`;
 
             const supabase = getSupabase();
-            if (!supabase) throw new Error("Erro de conexão com Cloud Interno (Supabase).");
+            if (!supabase) {throw new Error("Erro de conexão com Cloud Interno (Supabase).");}
 
             const { data, error } = await supabase.storage
                 .from('site-media') // Bucket Ideal
@@ -131,7 +131,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
                     upsert: false
                 });
 
-            if (error) throw error;
+            if (error) {throw error;}
 
             // Obter URL Pública
             const { data: { publicUrl } } = supabase.storage.from('site-media').getPublicUrl(filePath);
@@ -147,7 +147,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
 
     const handleYouTubeFlow = async () => {
         // Validação Limite 1GB
-        if (!selectedFile) return;
+        if (!selectedFile) {return;}
         if (selectedFile.size > 1024 * 1024 * 1024) {
             handleError("O arquivo excede o limite de 1GB para YouTube.");
             return;
@@ -158,7 +158,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
     };
 
     const submitYouTubeUpload = async () => {
-        if (!selectedFile || !youTubeMetadata) return;
+        if (!selectedFile || !youTubeMetadata) {return;}
 
         setIsUploading(true);
         try {
@@ -199,7 +199,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
         setSelectedFile(null);
         setPreviewUrl(null);
         setCurrentUploadMode(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) {fileInputRef.current.value = '';}
     };
 
     return (

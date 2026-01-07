@@ -4,25 +4,26 @@ import { SystemSettings } from '../../../types';
 interface FeatureSettingsProps {
     settings: SystemSettings;
     onToggle: (key: keyof SystemSettings, label: string) => Promise<void>;
+    darkMode?: boolean;
 }
 
-const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle }) => {
+const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle, darkMode = false }) => {
     return (
-        <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+        <div className={`p-6 md:p-8 rounded-[2rem] border shadow-sm transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
             <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-2xl border border-blue-100">
                     <i className="fas fa-cog"></i>
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-gray-900 uppercase italic">Funcionalidades</h2>
+                    <h2 className={`text-xl font-black uppercase italic ${darkMode ? 'text-white' : 'text-gray-900'}`}>Funcionalidades</h2>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Configurações de recursos do sistema</p>
                 </div>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-6">
+            <div className={`rounded-xl p-6 ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                 <div className="flex items-center justify-between">
                     <div>
-                        <h3 className="text-sm font-bold text-gray-800 mb-1">Compartilhamento Social (Omnichannel)</h3>
+                        <h3 className={`text-sm font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Compartilhamento Social (Omnichannel)</h3>
                         <p className="text-xs text-gray-500">
                             Habilita botões de compartilhamento em redes sociais ao publicar notícias.
                             <br />
@@ -43,7 +44,7 @@ const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle })
                         `} />
                     </button>
                 </div>
-                <div className="mt-4 text-xs text-gray-600 bg-white rounded-lg p-3">
+                <div className={`mt-4 text-xs rounded-lg p-3 ${darkMode ? 'bg-white/5 text-gray-400' : 'bg-white text-gray-600'}`}>
                     <strong>Status:</strong> {settings.enableOmnichannel ? '✅ Ativado' : '❌ Desativado'}
                     {!settings.enableOmnichannel && (
                         <div className="mt-2 text-gray-500">
@@ -53,11 +54,11 @@ const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle })
                 </div>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-6 mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`rounded-xl p-6 mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                 {/* Maintenance Mode */}
-                <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                <div className={`flex items-center justify-between p-4 rounded-lg border shadow-sm ${darkMode ? 'bg-[#151515] border-white/5' : 'bg-white border-gray-100'}`}>
                     <div>
-                        <h3 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
+                        <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                             <i className="fas fa-hard-hat text-yellow-500"></i> Modo Construção
                         </h3>
                         <p className="text-xs text-gray-500">
@@ -80,9 +81,9 @@ const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle })
                 </div>
 
                 {/* Registration */}
-                <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                <div className={`flex items-center justify-between p-4 rounded-lg border shadow-sm ${darkMode ? 'bg-[#151515] border-white/5' : 'bg-white border-gray-100'}`}>
                     <div>
-                        <h3 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
+                        <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                             <i className="fas fa-user-plus text-blue-500"></i> Registro de Contas
                         </h3>
                         <p className="text-xs text-gray-500">
@@ -105,9 +106,9 @@ const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle })
                 </div>
 
                 {/* Purchasing */}
-                <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm md:col-span-2">
+                <div className={`flex items-center justify-between p-4 rounded-lg border shadow-sm md:col-span-2 ${darkMode ? 'bg-[#151515] border-white/5' : 'bg-white border-gray-100'}`}>
                     <div>
-                        <h3 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
+                        <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                             <i className="fas fa-shopping-cart text-green-600"></i> Sistema de Compras
                         </h3>
                         <p className="text-xs text-gray-500">

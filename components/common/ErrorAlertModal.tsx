@@ -22,11 +22,11 @@ const ErrorAlertModal: React.FC<ErrorAlertModalProps> = ({ error, context, sever
   };
 
   const errorMessage = useMemo(() => {
-    if (error instanceof Error) return error.message;
+    if (error instanceof Error) {return error.message;}
     if (typeof error === 'object' && error !== null) {
       // Tenta extrair mensagem de erro de objetos comuns (Supabase, Axios, etc)
       const msg = (error as any).message || (error as any).error_description || (error as any).details;
-      if (msg) return String(msg);
+      if (msg) {return String(msg);}
       try {
         return JSON.stringify(error);
       } catch {

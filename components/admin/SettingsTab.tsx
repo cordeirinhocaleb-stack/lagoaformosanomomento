@@ -18,6 +18,7 @@ interface SettingsTabProps {
     gisInited?: boolean;
     currentUser: any;
     onUpdateSettings: (settings: SystemSettings) => void;
+    darkMode?: boolean;
 }
 
 const DEFAULT_DRIVE_CONFIG = { clientId: '', apiKey: '', appId: '' };
@@ -30,7 +31,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
     onExportSchema,
     gapiInited,
     gisInited,
-    onUpdateSettings
+    onUpdateSettings,
+    darkMode = false
 }) => {
     const [config, setConfig] = useState(driveConfig);
     const [settings, setSettings] = useState<SystemSettings>(systemSettings);
@@ -45,7 +47,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
     const [auditHistory, setAuditHistory] = useState<SettingsAuditItem[]>([]);
 
     useEffect(() => {
-        if (driveConfig) setConfig(driveConfig);
+        if (driveConfig) { setConfig(driveConfig); }
         setSettings(systemSettings);
         loadHistory();
     }, [driveConfig, systemSettings]);
@@ -78,7 +80,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
 
     const testCloudinary = async (type: 'images' | 'videos') => {
         const config = type === 'images' ? settings.cloudinary?.images : settings.cloudinary?.videos;
-        if (!config?.cloudName || !config?.uploadPreset) return alert("Cloud Name e Upload Preset são obrigatórios.");
+        if (!config?.cloudName || !config?.uploadPreset) { return alert("Cloud Name e Upload Preset são obrigatórios."); }
 
         type === 'images' ? setCloudinaryImgStatus('checking') : setCloudinaryVidStatus('checking');
         const result = await testCloudinaryConnection(config.cloudName, config.uploadPreset);
@@ -96,7 +98,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
         setNotification(null);
         try {
             const result = await saveSystemSettings(settings, 'admin');
-            if (!result.success) throw new Error(result.message);
+            if (!result.success) { throw new Error(result.message); }
 
             await onSave(config, settings);
             onUpdateSettings(settings); // Propagate up
@@ -174,13 +176,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
 
             <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter">CONFIGURAÇÕES DO <span className="text-red-600">SISTEMA</span></h1>
+                    <h1 className={`text-3xl md:text-4xl font-black uppercase italic tracking-tighter ${darkMode ? 'text-white' : 'text-gray-900'}`}>CONFIGURAÇÕES DO <span className="text-red-600">SISTEMA</span></h1>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gerenciamento de Integrações e APIs</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className={`bg-black text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-green-600 transition-all shadow-lg flex items-center gap-2 ${isSaving ? 'opacity-70 cursor-wait' : ''}`}
+                    className={`${darkMode ? 'bg-white text-black hover:bg-green-400' : 'bg-black text-white hover:bg-green-600'} px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg flex items-center gap-2 ${isSaving ? 'opacity-70 cursor-wait' : ''}`}
                 >
                     {isSaving ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-save"></i>}
                     {isSaving ? 'Salvando...' : 'Salvar Alterações'}
@@ -188,12 +190,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             </header>
 
             <div className="grid grid-cols-1 gap-8">
-                <FeatureSettings settings={settings} onToggle={handleToggle} />
+                <FeatureSettings settings={settings} onToggle={handleToggle} darkMode={darkMode} />
 
                 <FooterSettings
                     settings={settings}
                     onUpdateFooter={handleFooterUpdate}
                     onUpdateSocial={handleSocialUpdate}
+                    darkMode={darkMode}
                 />
 
                 <IntegrationSettings
@@ -204,6 +207,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
                     cloudinaryImgStatus={cloudinaryImgStatus}
                     cloudinaryVidStatus={cloudinaryVidStatus}
                     connectionStatus={connectionStatus}
+                    darkMode={darkMode}
                 />
             </div>
         </div>

@@ -7,14 +7,16 @@ interface PlansPanelProps {
   config: AdPricingConfig;
   onChange: (newConfig: AdPricingConfig) => void;
   currentUser: User;
+  darkMode?: boolean;
 }
 
-const PlansPanel: React.FC<PlansPanelProps> = ({ config, onChange, currentUser }) => {
+const PlansPanel: React.FC<PlansPanelProps> = ({ config, onChange, currentUser, darkMode = false }) => {
   return (
-    <PlansEditor 
-        plans={config.plans} 
-        onChange={(newPlans) => onChange({ ...config, plans: newPlans })}
-        currentUser={currentUser}
+    <PlansEditor
+      plans={config.plans}
+      onChange={(newPlans) => onChange({ ...config, plans: newPlans })}
+      currentUser={currentUser}
+      darkMode={darkMode}
     />
   );
 };

@@ -1,16 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { User, SupportTicket, SupportMessage } from '../../types';
+import { User, SupportTicket, SupportMessage } from '../../../types';
 import { getAllTickets, getTicketMessages, addTicketMessage, updateTicketStatus } from '../../../services/supabaseService';
 
 interface TicketsModalProps {
     currentUser: User;
     onClose: () => void;
     onOpenProfile: (user: User) => void;
+    darkMode?: boolean;
 }
 
-const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpenProfile }) => {
+const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpenProfile, darkMode = false }) => {
     const [tickets, setTickets] = useState<SupportTicket[]>([]);
     const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
     const [messages, setMessages] = useState<SupportMessage[]>([]);
@@ -45,8 +46,8 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
         const data = await getAllTickets();
         // Sort by status (open/in_progress first) logic
         const sorted = data.sort((a, b) => {
-            if (a.status !== 'resolved' && b.status === 'resolved') return -1;
-            if (a.status === 'resolved' && b.status !== 'resolved') return 1;
+            if (a.status !== 'resolved' && b.status === 'resolved') { return -1; }
+            if (a.status === 'resolved' && b.status !== 'resolved') { return 1; }
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
         setTickets(sorted);
@@ -60,7 +61,7 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
 
     const handleSendMessage = async (e?: React.FormEvent) => {
         e?.preventDefault();
-        if (!newMessage.trim() || !selectedTicket) return;
+        if (!newMessage.trim() || !selectedTicket) { return; }
 
         setSending(true);
         try {
@@ -82,7 +83,7 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
     };
 
     const updateStatus = async (status: 'open' | 'in_progress' | 'resolved') => {
-        if (!selectedTicket) return;
+        if (!selectedTicket) { return; }
         const success = await updateTicketStatus(selectedTicket.id, status);
         if (success) {
             setSelectedTicket({ ...selectedTicket, status });
@@ -92,14 +93,14 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
 
     return createPortal(
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fadeIn">
-            <div className="bg-white w-full max-w-5xl h-[80vh] rounded-3xl shadow-2xl flex overflow-hidden">
+            <div className={`w-full max-w-5xl h-[80vh] rounded-3xl shadow-2xl flex overflow-hidden ${darkMode ? 'bg-zinc-900 ring-1 ring-white/10' : 'bg-white'}`}>
 
                 {/* LISTA DE TICKETS (SIDEBAR) */}
-                <div className="w-1/3 border-r border-gray-100 bg-gray-50 flex flex-col">
-                    <div className="p-6 border-b border-gray-200 bg-white">
+                <div className={`w-1/3 border-r flex flex-col ${darkMode ? 'border-white/5 bg-zinc-900/50' : 'border-gray-100 bg-gray-50'}`}>
+                    <div className={`p-6 border-b ${darkMode ? 'border-white/5 bg-zinc-900' : 'border-gray-200 bg-white'}`}>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-black uppercase italic tracking-tighter">Chamados</h2>
-                            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors">
+                            <h2 className={`text-xl font-black uppercase italic tracking-tighter ${darkMode ? 'text-white' : 'text-gray-900'}`}>Chamados</h2>
+                            <button onClick={onClose} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${darkMode ? 'bg-white/10 hover:bg-red-500/20 hover:text-red-500 text-white' : 'bg-gray-100 hover:bg-red-100 hover:text-red-600'}`}>
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
@@ -108,7 +109,7 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                             <input
                                 type="text"
                                 placeholder="Filtrar tickets..."
-                                className="w-full bg-gray-100 border-none rounded-xl pl-9 pr-4 py-2 text-xs font-bold focus:ring-2 ring-red-500/20"
+                                className={`w-full border-none rounded-xl pl-9 pr-4 py-2 text-xs font-bold focus:ring-2 ring-red-500/20 ${darkMode ? 'bg-white/5 text-white placeholder-gray-500' : 'bg-gray-100 text-gray-900'}`}
                             />
                         </div>
                     </div>
@@ -129,7 +130,10 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                                 <div
                                     key={ticket.id}
                                     onClick={() => setSelectedTicket(ticket)}
-                                    className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${selectedTicket?.id === ticket.id ? 'bg-white border-red-500 shadow-md transform scale-[1.02]' : 'bg-white border-gray-200 opacity-70 hover:opacity-100'}`}
+                                    className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${selectedTicket?.id === ticket.id
+                                        ? `border-red-500 shadow-md transform scale-[1.02] ${darkMode ? 'bg-white/5' : 'bg-white'}`
+                                        : `${darkMode ? 'bg-white/5 border-white/5 opacity-70 hover:opacity-100' : 'bg-white border-gray-200 opacity-70 hover:opacity-100'}`
+                                        }`}
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${ticket.status === 'open' ? 'bg-red-100 text-red-600' : ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
@@ -137,10 +141,10 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                                         </span>
                                         <span className="text-[9px] font-bold text-gray-400">{new Date(ticket.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    <h4 className="text-sm font-bold text-gray-900 mb-1 line-clamp-1">{ticket.subject}</h4>
+                                    <h4 className={`text-sm font-bold mb-1 line-clamp-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{ticket.subject}</h4>
                                     <div className="flex items-center gap-2">
                                         <div
-                                            className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 ring-blue-500 transition-all"
+                                            className={`w-5 h-5 rounded-full flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 ring-blue-500 transition-all ${darkMode ? 'bg-white/10' : 'bg-gray-200'}`}
                                             onClick={(e) => { e.stopPropagation(); ticket.user && onOpenProfile(ticket.user); }}
                                             title="Ver Perfil"
                                         >
@@ -155,21 +159,21 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                 </div>
 
                 {/* CONTEÚDO DO CHAT (MAIN) */}
-                <div className="flex-1 flex flex-col bg-[#f0f2f5] relative">
+                <div className={`flex-1 flex flex-col relative ${darkMode ? 'bg-zinc-950' : 'bg-[#f0f2f5]'}`}>
                     {selectedTicket ? (
                         <>
                             {/* Header do Chat */}
-                            <div className="p-4 bg-white border-b border-gray-200 flex items-center justify-between shadow-sm z-10">
+                            <div className={`p-4 border-b flex items-center justify-between shadow-sm z-10 ${darkMode ? 'bg-zinc-900 border-white/5' : 'bg-white border-gray-200'}`}>
                                 <div className="flex items-center gap-4">
                                     <div
-                                        className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg shadow-inner cursor-pointer hover:ring-2 ring-blue-500 transition-all"
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-inner cursor-pointer hover:ring-2 ring-blue-500 transition-all ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
                                         onClick={() => selectedTicket.user && onOpenProfile(selectedTicket.user)}
                                         title="Ver Perfil Completo"
                                     >
                                         {selectedTicket.user?.avatar ? <img src={selectedTicket.user.avatar} className="w-full h-full object-cover rounded-full" /> : <i className="fas fa-user text-gray-400"></i>}
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-gray-900 text-sm">{selectedTicket.subject}</h3>
+                                        <h3 className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>{selectedTicket.subject}</h3>
                                         <p className="text-xs text-gray-500 flex items-center gap-2">
                                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
                                             {selectedTicket.user?.name} &bull; {selectedTicket.category}
@@ -196,13 +200,16 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                             </div>
 
                             {/* Área de Mensagens */}
-                            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-[url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png')]">
+                            <div className={`flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar ${darkMode ? 'bg-zinc-950' : "bg-[url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png')]"}`}>
                                 {messages.map((msg, idx) => {
                                     const isMe = msg.is_admin; // Assumindo que o usuário atual é admin neste contexto
                                     return (
                                         <div key={msg.id || idx} className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}>
                                             <div className={`max-w-[70%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                                <div className={`p-4 rounded-2xl shadow-sm text-sm ${isMe ? 'bg-white text-gray-800 rounded-tr-none border border-gray-100' : 'bg-blue-600 text-white rounded-tl-none'}`}>
+                                                <div className={`p-4 rounded-2xl shadow-sm text-sm ${isMe
+                                                    ? `${darkMode ? 'bg-white/10 text-white border-white/5' : 'bg-white text-gray-800 border-gray-100'} rounded-tr-none border`
+                                                    : 'bg-blue-600 text-white rounded-tl-none'
+                                                    }`}>
                                                     {msg.message}
                                                 </div>
                                                 <span className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-wider">
@@ -216,14 +223,14 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                             </div>
 
                             {/* Input de Mensagem */}
-                            <div className="p-4 bg-white border-t border-gray-200">
+                            <div className={`p-4 border-t ${darkMode ? 'bg-zinc-900 border-white/5' : 'bg-white border-gray-200'}`}>
                                 <form onSubmit={handleSendMessage} className="flex gap-4 items-end">
-                                    <div className="flex-1 bg-gray-100 rounded-2xl p-2 focus-within:ring-2 ring-blue-100 transition-all border border-gray-100">
+                                    <div className={`flex-1 rounded-2xl p-2 focus-within:ring-2 ring-blue-100 transition-all border ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-100 border-gray-100'}`}>
                                         <textarea
                                             value={newMessage}
                                             onChange={(e) => setNewMessage(e.target.value)}
                                             placeholder="Escreva uma resposta..."
-                                            className="w-full bg-transparent border-none resize-none px-4 py-2 text-sm focus:ring-0 max-h-32 text-gray-700"
+                                            className={`w-full bg-transparent border-none resize-none px-4 py-2 text-sm focus:ring-0 max-h-32 ${darkMode ? 'text-white placeholder-gray-500' : 'text-gray-700'}`}
                                             rows={1}
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -245,7 +252,7 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
                         </>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-gray-300">
-                            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                            <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
                                 <i className="fas fa-comments text-4xl text-gray-300"></i>
                             </div>
                             <p className="text-sm font-bold uppercase tracking-widest">Selecione um chamado para iniciar</p>

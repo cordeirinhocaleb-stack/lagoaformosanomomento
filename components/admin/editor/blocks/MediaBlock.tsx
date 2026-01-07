@@ -57,11 +57,11 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     const videoId = isYouTube ? content.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1] : null;
 
     const getEmbedUrl = () => {
-        if (!videoId) return null;
+        if (!videoId) {return null;}
         let url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
-        if (isMuted) url += '&mute=1';
-        if (isAutoplay) url += '&autoplay=1';
-        if (isLoop) url += `&loop=1&playlist=${videoId}`;
+        if (isMuted) {url += '&mute=1';}
+        if (isAutoplay) {url += '&autoplay=1';}
+        if (isLoop) {url += `&loop=1&playlist=${videoId}`;}
         return url;
     };
     const embedUrl = getEmbedUrl();
@@ -73,7 +73,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     };
 
     const handleMediaSelect = async (file: File | null, previewUrl: string, type: 'image' | 'video') => {
-        if (!onUpdate) return;
+        if (!onUpdate) {return;}
         setUploadError(null);
 
         if (file) {
@@ -134,7 +134,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
         });
         window.dispatchEvent(event);
 
-        if (onUpdate) onUpdate(block.content, { ...block.settings }, { youtubeMeta: metadata });
+        if (onUpdate) {onUpdate(block.content, { ...block.settings }, { youtubeMeta: metadata });}
         setShowYouTubeWizard(false);
     };
 
@@ -152,7 +152,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     };
 
     const handleSettingChange = (key: string, value: any) => {
-        if (onUpdate) onUpdate(block.content, { ...block.settings, [key]: value });
+        if (onUpdate) {onUpdate(block.content, { ...block.settings, [key]: value });}
     };
 
     const handleEffectChange = (key: string, value: number) => {
@@ -165,7 +165,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     };
 
     const getContainerStyles = () => {
-        if (!isVideo) return {};
+        if (!isVideo) {return {};}
         switch (style) {
             case 'cinema': return { backgroundColor: '#000', padding: '40px 0', width: '100%' };
             case 'shorts': return { width: '300px', margin: '0 auto', aspectRatio: '9/16' };

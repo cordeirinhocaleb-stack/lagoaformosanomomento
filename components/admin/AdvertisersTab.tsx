@@ -9,11 +9,26 @@ interface AdvertisersTabProps {
   onUpdateAdvertiser: (advertiser: Advertiser) => void;
   onUpdateAdConfig: (config: AdPricingConfig) => void;
   userPermissions: User;
+  darkMode?: boolean;
 }
 
-const AdvertisersTab: React.FC<AdvertisersTabProps> = (props) => {
+const AdvertisersTab: React.FC<AdvertisersTabProps> = ({
+  advertisers,
+  adConfig,
+  onUpdateAdvertiser,
+  onUpdateAdConfig,
+  userPermissions,
+  darkMode = false
+}) => {
   return (
-    <AdvertisersManager {...props} />
+    <AdvertisersManager
+      advertisers={advertisers}
+      adConfig={adConfig}
+      onUpdateAdvertiser={onUpdateAdvertiser}
+      onUpdateAdConfig={onUpdateAdConfig}
+      userPermissions={userPermissions}
+      darkMode={darkMode}
+    />
   );
 };
 

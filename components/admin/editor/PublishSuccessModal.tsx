@@ -41,7 +41,7 @@ const PublishSuccessModal: React.FC<PublishSuccessModalProps> = ({
         };
     }, [mode, isUpdate, authorName]);
 
-    if (!isOpen || status === 'idle') return null;
+    if (!isOpen || status === 'idle') {return null;}
 
     return (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[#0a0a0a]/95 backdrop-blur-3xl animate-fadeIn">

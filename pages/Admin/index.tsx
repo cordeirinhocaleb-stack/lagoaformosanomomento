@@ -39,6 +39,9 @@ const Admin: React.FC<AdminPanelProps> = ({
   onLogout, onNavigateHome, initialNewsToEdit
 }) => {
   const [currentView, setCurrentView] = useState('dashboard');
+  const [newsFilter, setNewsFilter] = useState<string | undefined>(undefined);
+
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Deep Link Handling
   React.useEffect(() => {
@@ -47,15 +50,30 @@ const Admin: React.FC<AdminPanelProps> = ({
     }
   }, [initialNewsToEdit]);
 
+  const handleNavigation = (view: string, filter?: string) => {
+    if (view === 'home') {
+      if (onNavigateHome) { onNavigateHome(); }
+    } else {
+      if (view === 'news' && filter) {
+        setNewsFilter(filter);
+      } else {
+        setNewsFilter(undefined);
+      }
+      setCurrentView(view);
+    }
+  };
+
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <DashboardView
+        currentUser={user}
         users={allUsers}
         news={newsHistory}
         advertisers={advertisers}
         jobs={jobs}
         auditLogs={auditLogs}
-        onNavigate={setCurrentView}
+        onNavigate={handleNavigation}
+        darkMode={isDarkMode}
       />;
 
       case 'news': return (
@@ -67,60 +85,57 @@ const Admin: React.FC<AdminPanelProps> = ({
           onDeleteNews={onDeleteNews}
           systemSettings={systemSettings}
           initialNewsToEdit={initialNewsToEdit}
+          initialFilter={newsFilter}
+          darkMode={isDarkMode}
         />
       );
 
       case 'users': return (
-        <div className="bg-white rounded-2xl p-6 min-h-[500px]">
+        <div className={`${isDarkMode ? 'bg-[#0F0F0F]' : 'bg-white'} rounded-2xl p-4 md:p-6 min-h-[500px]`}>
           <UsersTab
             allUsers={allUsers}
             newsHistory={newsHistory}
             onUpdateUser={onUpdateUser}
             onAddUser={onAddUser}
             currentUser={user}
+            darkMode={isDarkMode}
           />
         </div>
       );
 
       case 'jobs': return (
-        <div className="bg-white rounded-2xl p-6 min-h-[500px]">
-          <JobsBoard isAdmin={true} onUpdateUser={onUpdateUser} currentUser={user} />
+        <div className={`${isDarkMode ? 'bg-[#0F0F0F]' : 'bg-white'} rounded-2xl p-4 md:p-6 min-h-[500px]`}>
+          <JobsBoard isAdmin={true} onUpdateUser={onUpdateUser} currentUser={user} darkMode={isDarkMode} />
         </div>
       );
 
       case 'advertisers': return (
-        <div className="bg-white rounded-2xl p-6 min-h-[500px]">
+        <div className={`${isDarkMode ? 'bg-[#0F0F0F]' : 'bg-white'} rounded-2xl p-4 md:p-6 min-h-[500px]`}>
           <AdvertisersTab
             advertisers={advertisers}
             adConfig={adConfig}
             onUpdateAdvertiser={onUpdateAdvertiser}
             onUpdateAdConfig={onUpdateAdConfig}
             userPermissions={user}
+            darkMode={isDarkMode}
           />
         </div>
       );
 
       case 'settings': return (
-        <div className="bg-white rounded-2xl p-6 min-h-[500px]">
+        <div className={`${isDarkMode ? 'bg-[#0F0F0F]' : 'bg-white'} rounded-2xl p-6 min-h-[500px]`}>
           <SettingsTab
             systemSettings={systemSettings}
             onUpdateSettings={onUpdateSystemSettings}
             currentUser={user}
             // Optional props to satisfy interface if needed
             onSave={() => { }}
+            darkMode={isDarkMode}
           />
         </div>
       );
 
-      default: return <DashboardView users={allUsers} news={newsHistory} advertisers={advertisers} jobs={jobs} auditLogs={auditLogs} onNavigate={setCurrentView} />;
-    }
-  };
-
-  const handleNavigation = (view: string) => {
-    if (view === 'home') {
-      if (onNavigateHome) onNavigateHome();
-    } else {
-      setCurrentView(view);
+      default: return <DashboardView currentUser={user} users={allUsers} news={newsHistory} advertisers={advertisers} jobs={jobs} auditLogs={auditLogs} onNavigate={handleNavigation} />;
     }
   };
 
@@ -128,8 +143,10 @@ const Admin: React.FC<AdminPanelProps> = ({
     <AdminLayout
       user={user}
       currentView={currentView}
-      onNavigate={handleNavigation}
+      onNavigate={(view) => handleNavigation(view)}
       onLogout={onLogout || (() => { })}
+      darkMode={isDarkMode}
+      onToggleTheme={() => setIsDarkMode(!isDarkMode)}
     >
       {renderView()}
     </AdminLayout>

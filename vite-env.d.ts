@@ -2,6 +2,9 @@
 
 interface ImportMetaEnv {
     readonly PACKAGE_VERSION: string;
+    readonly VITE_GOOGLE_CLIENT_ID: string;
+    readonly VITE_CLOUDINARY_CLOUD_NAME: string;
+    readonly VITE_CLOUDINARY_UPLOAD_PRESET: string;
 }
 
 interface ImportMeta {

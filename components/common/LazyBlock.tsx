@@ -33,7 +33,7 @@ const LazyBlock: React.FC<LazyBlockProps> = ({ children, threshold = 0.01, minHe
     }
 
     return () => {
-      if (elementRef.current) observer.unobserve(elementRef.current);
+      if (elementRef.current) {observer.unobserve(elementRef.current);}
     };
   }, [threshold]);
 

@@ -13,6 +13,7 @@ interface AdvertisersManagerProps {
   onUpdateAdvertiser: (advertiser: Advertiser) => void;
   onUpdateAdConfig: (config: AdPricingConfig) => void;
   userPermissions: User;
+  darkMode?: boolean;
 }
 
 type ViewMode = 'list' | 'editor' | 'config';
@@ -22,7 +23,8 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
   adConfig,
   onUpdateAdvertiser,
   onUpdateAdConfig,
-  userPermissions
+  userPermissions,
+  darkMode = false
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedAdvertiser, setSelectedAdvertiser] = useState<Advertiser | null>(null);
@@ -51,13 +53,13 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
   const handleSaveAdvertiser = (advertiser: Advertiser) => {
     // 1. Envia update para o pai (App.tsx)
     onUpdateAdvertiser(advertiser);
-    
+
     // 2. Atualiza o estado local para refletir as mudanças imediatamente na UI do editor
     setSelectedAdvertiser(advertiser);
-    
+
     // 3. Feedback visual
     alert("Anunciante salvo com sucesso!");
-    
+
     // NOTA: Não chamamos handleBackToList() para manter o usuário na tela de edição.
   };
 
@@ -70,30 +72,33 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
   // Renderização Condicional
   return (
     <div className="w-full max-w-7xl mx-auto pb-20">
-      
+
       {viewMode === 'list' && (
-        <AdvertisersListView 
+        <AdvertisersListView
           advertisers={advertisers}
           onEdit={handleEdit}
           onCreate={handleCreate}
           onConfigClick={handleConfig}
+          darkMode={darkMode}
         />
       )}
 
       {viewMode === 'editor' && (
-        <AdvertiserEditor 
+        <AdvertiserEditor
           advertiser={selectedAdvertiser}
           onSave={handleSaveAdvertiser}
           onCancel={handleBackToList}
+          darkMode={darkMode}
         />
       )}
 
       {viewMode === 'config' && (
-        <AdvertisersConfigView 
+        <AdvertisersConfigView
           config={adConfig}
           onSave={handleSaveConfig}
           onCancel={handleBackToList}
           currentUser={userPermissions}
+          darkMode={darkMode}
         />
       )}
 

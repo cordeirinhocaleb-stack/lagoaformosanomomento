@@ -56,7 +56,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight }
       : (currentBanner?.image ? [currentBanner.image] : []);
 
   useEffect(() => {
-    if (slidesToRender.length <= 1) return;
+    if (slidesToRender.length <= 1) {return;}
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slidesToRender.length);
       setBackgroundIndex(0);
@@ -76,7 +76,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight }
   // SMART VIDEO SNIPPETS LOGIC
   useEffect(() => {
       const video = videoRef.current;
-      if (!video || currentBanner?.type !== 'video' || !currentBanner.videoUrl) return;
+      if (!video || currentBanner?.type !== 'video' || !currentBanner.videoUrl) {return;}
 
       // Garantia de mudo forçado
       video.muted = true;
@@ -88,7 +88,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight }
               if (video.currentTime % 50 >= 10) {
                   const nextTime = Math.min(video.duration - 0.5, video.currentTime + 40);
                   video.currentTime = nextTime;
-                  if (video.currentTime >= video.duration - 0.5) video.currentTime = 0;
+                  if (video.currentTime >= video.duration - 0.5) {video.currentTime = 0;}
               }
           }
       };
@@ -97,7 +97,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight }
       return () => video.removeEventListener('timeupdate', handleSnippetTimeUpdate);
   }, [currentBanner?.type, currentBanner?.videoUrl, currentSlide]);
 
-  if (!currentBanner) return null;
+  if (!currentBanner) {return null;}
 
   const buttonConfig = currentBanner.buttonConfig || {
       label: currentBanner.buttonText || 'Saiba Mais',
@@ -118,33 +118,33 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight }
 
   const getButtonClasses = () => {
       let classes = 'transition-all flex items-center gap-3 uppercase font-black tracking-widest shadow-lg ';
-      if (buttonConfig.size === 'sm') classes += 'px-4 py-2 text-[9px] ';
-      else if (buttonConfig.size === 'md') classes += 'px-6 py-3 text-[10px] ';
-      else if (buttonConfig.size === 'lg') classes += 'px-8 py-4 text-xs ';
-      else classes += 'px-10 py-5 text-sm '; 
+      if (buttonConfig.size === 'sm') {classes += 'px-4 py-2 text-[9px] ';}
+      else if (buttonConfig.size === 'md') {classes += 'px-6 py-3 text-[10px] ';}
+      else if (buttonConfig.size === 'lg') {classes += 'px-8 py-4 text-xs ';}
+      else {classes += 'px-10 py-5 text-sm ';} 
 
-      if (buttonConfig.rounded === 'none') classes += 'rounded-none ';
-      else if (buttonConfig.rounded === 'md') classes += 'rounded-xl ';
-      else classes += 'rounded-full ';
+      if (buttonConfig.rounded === 'none') {classes += 'rounded-none ';}
+      else if (buttonConfig.rounded === 'md') {classes += 'rounded-xl ';}
+      else {classes += 'rounded-full ';}
 
-      if (buttonConfig.style === 'solid') classes += 'bg-red-600 text-white hover:bg-white hover:text-red-600 border border-red-600 ';
-      else if (buttonConfig.style === 'outline') classes += 'bg-transparent text-white border-2 border-white hover:bg-white hover:text-black ';
-      else classes += 'bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white hover:text-black '; 
+      if (buttonConfig.style === 'solid') {classes += 'bg-red-600 text-white hover:bg-white hover:text-red-600 border border-red-600 ';}
+      else if (buttonConfig.style === 'outline') {classes += 'bg-transparent text-white border-2 border-white hover:bg-white hover:text-black ';}
+      else {classes += 'bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white hover:text-black ';} 
 
-      if (buttonConfig.effect === 'pulse') classes += 'animate-pulse ';
-      if (buttonConfig.effect === 'bounce') classes += 'animate-bounce ';
-      if (buttonConfig.rounded === 'none') classes += 'skew-x-[-10deg] ';
+      if (buttonConfig.effect === 'pulse') {classes += 'animate-pulse ';}
+      if (buttonConfig.effect === 'bounce') {classes += 'animate-bounce ';}
+      if (buttonConfig.rounded === 'none') {classes += 'skew-x-[-10deg] ';}
       return classes;
   };
 
   const getTitleClasses = () => {
       let classes = 'font-black uppercase italic tracking-tighter leading-[0.9] mb-4 animate-fadeInUp ';
-      if (textConfig.titleSize === 'md') classes += 'text-xl md:text-3xl ';
-      else if (textConfig.titleSize === 'lg') classes += 'text-2xl md:text-4xl ';
-      else if (textConfig.titleSize === 'xl') classes += 'text-2xl md:text-5xl ';
-      else classes += 'text-4xl md:text-7xl '; 
-      if (textConfig.titleShadow === 'strong') classes += 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] ';
-      else if (textConfig.titleShadow === 'soft') classes += 'drop-shadow-md ';
+      if (textConfig.titleSize === 'md') {classes += 'text-xl md:text-3xl ';}
+      else if (textConfig.titleSize === 'lg') {classes += 'text-2xl md:text-4xl ';}
+      else if (textConfig.titleSize === 'xl') {classes += 'text-2xl md:text-5xl ';}
+      else {classes += 'text-4xl md:text-7xl ';} 
+      if (textConfig.titleShadow === 'strong') {classes += 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] ';}
+      else if (textConfig.titleShadow === 'soft') {classes += 'drop-shadow-md ';}
       return classes;
   };
 
@@ -168,7 +168,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight }
               </p>
           )}
           <div className={`flex flex-wrap gap-4 animate-fadeInUp delay-200 ${currentBanner.align === 'center' ? 'justify-center' : currentBanner.align === 'right' ? 'justify-end' : ''}`}>
-            <a href={buttonConfig.link} target="_blank" rel="noopener noreferrer" className={`${getButtonClasses()} group/btn`} onClick={(e) => { if(buttonConfig.link === '#') e.preventDefault(); }}>
+            <a href={buttonConfig.link} target="_blank" rel="noopener noreferrer" className={`${getButtonClasses()} group/btn`} onClick={(e) => { if(buttonConfig.link === '#') {e.preventDefault();} }}>
               <span className={buttonConfig.rounded === 'none' ? 'skew-x-[10deg]' : ''}>
                   {buttonConfig.link.includes('instagram') && <i className="fab fa-instagram text-sm mr-2"></i>}
                   {buttonConfig.link.includes('whatsapp') && <i className="fab fa-whatsapp text-sm mr-2"></i>}

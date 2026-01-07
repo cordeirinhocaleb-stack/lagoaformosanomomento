@@ -46,14 +46,14 @@ const PromoPopupCarousel: React.FC<PromoPopupCarouselProps> = ({
     }, [selectedId, activeItems, mode]);
 
     const nextSlide = useCallback(() => {
-        if (count <= 1 || isAnimating) return;
+        if (count <= 1 || isAnimating) {return;}
         setIsAnimating(true);
         setCurrentIndex((prev) => (prev + 1) % count);
         setTimeout(() => setIsAnimating(false), 500);
     }, [count, isAnimating]);
 
     const prevSlide = useCallback(() => {
-        if (count <= 1 || isAnimating) return;
+        if (count <= 1 || isAnimating) {return;}
         setIsAnimating(true);
         setCurrentIndex((prev) => (prev - 1 + count) % count);
         setTimeout(() => setIsAnimating(false), 500);
@@ -71,17 +71,17 @@ const PromoPopupCarousel: React.FC<PromoPopupCarouselProps> = ({
     };
 
     const onTouchEnd = () => {
-        if (!touchStartX.current || !touchEndX.current) return;
+        if (!touchStartX.current || !touchEndX.current) {return;}
         
         const distance = touchStartX.current - touchEndX.current;
         const isLeftSwipe = distance > minSwipeDistance;
         const isRightSwipe = distance < -minSwipeDistance;
 
-        if (isLeftSwipe) nextSlide();
-        if (isRightSwipe) prevSlide();
+        if (isLeftSwipe) {nextSlide();}
+        if (isRightSwipe) {prevSlide();}
     };
 
-    if (count === 0) return null;
+    if (count === 0) {return null;}
 
     return (
         <div 

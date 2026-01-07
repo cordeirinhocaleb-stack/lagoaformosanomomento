@@ -36,7 +36,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
     const lastTapRef = useRef<number>(0);
 
     const executeNavigation = () => {
-        if (onClick) onClick(news);
+        if (onClick) {onClick(news);}
     };
 
     const handleContainerClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -46,7 +46,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         // Lógica de Double Tap (2x Rápido = Abre a Notícia)
         if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
             // Se estava expandido, recolhe visualmente antes de navegar para evitar glitches
-            if (isMobileActive) setMobileActive(false);
+            if (isMobileActive) {setMobileActive(false);}
             executeNavigation();
             lastTapRef.current = 0; // Reset
         } else {
@@ -83,7 +83,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         setIsHovering(false);
         // No desktop, o mouse leave desativa. No mobile não.
         if (window.matchMedia('(min-width: 1024px)').matches) {
-            if (isMobileActive) setMobileActive(false);
+            if (isMobileActive) {setMobileActive(false);}
         }
     };
 
@@ -121,9 +121,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
     // Speed Control
     const updateSpeed = (percentage: number) => {
         let level = 1;
-        if (percentage > 0.75) level = 4;
-        else if (percentage > 0.50) level = 3;
-        else if (percentage > 0.25) level = 2;
+        if (percentage > 0.75) {level = 4;}
+        else if (percentage > 0.50) {level = 3;}
+        else if (percentage > 0.25) {level = 2;}
 
         setSpeedLevel(level);
         scrollSpeedRef.current = level * 0.5;
@@ -197,10 +197,10 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                     <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-emerald-500/10 via-yellow-500/10 to-red-600/20 pointer-events-none"></div>
                     {[1, 2, 3, 4].map((level) => {
                         let activeColorClass = "";
-                        if (level === 1) activeColorClass = "bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]";
-                        else if (level === 2) activeColorClass = "bg-yellow-500 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.8)]";
-                        else if (level === 3) activeColorClass = "bg-orange-500 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.8)]";
-                        else activeColorClass = "bg-red-600 border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.8)]";
+                        if (level === 1) {activeColorClass = "bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]";}
+                        else if (level === 2) {activeColorClass = "bg-yellow-500 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.8)]";}
+                        else if (level === 3) {activeColorClass = "bg-orange-500 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.8)]";}
+                        else {activeColorClass = "bg-red-600 border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.8)]";}
 
                         return (
                             <div key={level} className={`flex-1 w-full rounded-full flex items-center justify-center transition-all duration-200 relative z-10 border ${speedLevel === level ? `${activeColorClass} text-white scale-110 font-black` : 'bg-transparent border-transparent text-zinc-600 font-bold hover:text-white hover:bg-white/10'}`}>
@@ -219,7 +219,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         // We explicitly return undefined to allow Tailwind's 'grayscale' class to work if it relies on the style attribute being empty,
         // OR we can explicitly enforce grayscale here.
         // However, since 'style' overrides 'class', if we return a filter here, the 'grayscale' class might be ignored.
-        if (isHovering || isMobileActive) return {};
+        if (isHovering || isMobileActive) {return {};}
 
         let effects = news.bannerEffects as any;
 
@@ -232,7 +232,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
             effects = news.bannerVideoSettings.effects;
         }
 
-        if (!effects) return {};
+        if (!effects) {return {};}
 
         return {
             filter: `

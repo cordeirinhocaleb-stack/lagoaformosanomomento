@@ -60,7 +60,7 @@ export const ImageUploadBlock: React.FC<ImageUploadBlockProps> = ({ data, onUpda
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (!file) {return;}
 
         // Preview imediato
         const objectUrl = URL.createObjectURL(file);

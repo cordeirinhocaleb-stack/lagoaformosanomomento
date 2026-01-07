@@ -25,7 +25,7 @@ const EffectsPanel: React.FC<EffectsPanelProps> = ({
     bannerEffects,
     onEffectsChange
 }) => {
-    if (!isOpen) return null;
+    if (!isOpen) {return null;}
 
     const handleChange = (key: keyof BannerEffects, value: number) => {
         onEffectsChange({ ...bannerEffects, [key]: value });

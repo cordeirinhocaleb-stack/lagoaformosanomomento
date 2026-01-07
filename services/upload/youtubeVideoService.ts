@@ -14,6 +14,8 @@ export interface YouTubeVideoMetadata {
     privacy: 'public' | 'unlisted' | 'private';
     categoryId?: string;
     madeForKids?: boolean;
+    videoId?: string;
+    uploadedAt?: string;
 }
 
 export interface YouTubeUploadResult {
@@ -43,6 +45,7 @@ export interface YouTubeUploadProgress {
 export const uploadVideoToYouTube = async (
     file: File,
     metadata: YouTubeVideoMetadata,
+    accessToken: string,
     onProgress?: (progress: YouTubeUploadProgress) => void
 ): Promise<YouTubeUploadResult> => {
 
@@ -56,7 +59,7 @@ export const uploadVideoToYouTube = async (
 
     // 2. Criar job de upload no backend
     // O upload real acontece via Edge Function para segurança
-    const uploadJob = await createYouTubeUploadJob(file, metadata, onProgress);
+    const uploadJob = await createYouTubeUploadJob(file, metadata, accessToken, onProgress);
 
     return uploadJob;
 };
@@ -100,7 +103,7 @@ const createYouTubeUploadJob = async (
     }
 
     const uploadUrl = initResponse.headers.get('Location');
-    if (!uploadUrl) throw new Error('Não foi possível obter URL de upload do YouTube');
+    if (!uploadUrl) { throw new Error('Não foi possível obter URL de upload do YouTube'); }
 
     // 2. Perform Binary Upload (XHR for Progress)
     return new Promise((resolve, reject) => {

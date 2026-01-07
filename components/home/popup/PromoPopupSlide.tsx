@@ -65,8 +65,8 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
             default: desktopClasses = 'md:w-full md:max-w-md md:h-auto'; break;
         }
 
-        if (isMobilePreview && isStandardPopup) return 'w-full h-full rounded-none'; 
-        if (isStandardPopup) return `w-full h-full rounded-none ${desktopClasses}`;
+        if (isMobilePreview && isStandardPopup) {return 'w-full h-full rounded-none';} 
+        if (isStandardPopup) {return `w-full h-full rounded-none ${desktopClasses}`;}
         return desktopClasses.replace('md:', ''); 
     };
 
@@ -74,10 +74,10 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
 
     // 3. Estilos de Superfície
     let surfaceClass = 'bg-white';
-    if (themeConfig.surfaceStyle === 'glass') surfaceClass = 'bg-white/80 backdrop-blur-xl border border-white/20';
-    if (themeConfig.surfaceStyle === 'outline') surfaceClass = 'bg-transparent border-4';
-    if (themeConfig.surfaceStyle === 'flat') surfaceClass = 'bg-white border-0 shadow-none';
-    if (themeConfig.surfaceStyle === 'solid') surfaceClass = 'bg-white border border-gray-100';
+    if (themeConfig.surfaceStyle === 'glass') {surfaceClass = 'bg-white/80 backdrop-blur-xl border border-white/20';}
+    if (themeConfig.surfaceStyle === 'outline') {surfaceClass = 'bg-transparent border-4';}
+    if (themeConfig.surfaceStyle === 'flat') {surfaceClass = 'bg-white border-0 shadow-none';}
+    if (themeConfig.surfaceStyle === 'solid') {surfaceClass = 'bg-white border border-gray-100';}
 
     const surfaceStyleObj = themeConfig.surfaceStyle === 'outline' ? { borderColor: colors.bg } : { backgroundColor: colors.bg };
 
@@ -91,7 +91,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
         }[themeConfig.borderRadius];
 
         if (item.popupSizePreset && ['xs', 'sm', 'md', 'lg', 'xl', '2xl'].includes(item.popupSizePreset)) {
-            if (isMobilePreview) return 'rounded-none';
+            if (isMobilePreview) {return 'rounded-none';}
             return `rounded-none md:${baseRadius}`;
         }
         return baseRadius;
@@ -107,21 +107,21 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
 
     // 6. Accent Renderer
     const renderAccent = () => {
-        if (themeConfig.headerAccent === 'none') return null;
-        if (themeConfig.headerAccent === 'top_bar') return <div className="absolute top-0 left-0 right-0 h-2 z-20" style={{ backgroundColor: colors.btnBg }}></div>;
-        if (themeConfig.headerAccent === 'left_bar') return <div className="absolute top-0 bottom-0 left-0 w-2 z-20" style={{ backgroundColor: colors.btnBg }}></div>;
-        if (themeConfig.headerAccent === 'badge') return (
+        if (themeConfig.headerAccent === 'none') {return null;}
+        if (themeConfig.headerAccent === 'top_bar') {return <div className="absolute top-0 left-0 right-0 h-2 z-20" style={{ backgroundColor: colors.btnBg }}></div>;}
+        if (themeConfig.headerAccent === 'left_bar') {return <div className="absolute top-0 bottom-0 left-0 w-2 z-20" style={{ backgroundColor: colors.btnBg }}></div>;}
+        if (themeConfig.headerAccent === 'badge') {return (
             <div className="absolute top-4 left-4 z-20 bg-red-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg" style={{ backgroundColor: colors.btnBg, color: colors.btnText }}>
                 Destaque
             </div>
-        );
+        );}
         return null;
     };
 
     // 7. Imagens Seguras
     const imageList = useMemo(() => {
         let rawList: string[] = [];
-        if (item.media.images && item.media.images.length > 0) rawList = item.media.images;
+        if (item.media.images && item.media.images.length > 0) {rawList = item.media.images;}
         return rawList.filter(url => isSafeUrl(url));
     }, [item.media]);
 

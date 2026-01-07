@@ -28,7 +28,7 @@ export const useAppInitialization = ({
     const [isLoading, setIsLoading] = useState(true);
 
     // Helper de carregamento de dados
-    const loadRemoteData = async () => {
+    const loadRemoteData = async (): Promise<SystemSettings | null> => {
         try {
             console.log("🔄 Sincronizando dados do Supabase...");
 
@@ -43,6 +43,8 @@ export const useAppInitialization = ({
                 timeoutPromise
             ]) as any; // Cast para evitar erro de tipo implícito
 
+            let finalSettings: SystemSettings | null = null;
+
             if (response) {
                 console.log(`✅ Dados recebidos do Supabase (fonte: ${response.source})`);
                 onDataLoaded(response);
@@ -51,42 +53,30 @@ export const useAppInitialization = ({
                 if (response.source === 'database') {
                     try {
                         const remoteSettings = await loadSystemSettings();
-                        if (remoteSettings) onSettingsLoaded(remoteSettings);
+                        if (remoteSettings) {
+                            onSettingsLoaded(remoteSettings);
+                            finalSettings = remoteSettings;
+                        }
                     } catch (settingsError) {
                         console.warn("⚠️ Erro ao carregar configurações remotas:", settingsError);
                     }
                 }
             } else {
                 console.warn("⚠️ Supabase retornou null - dados podem estar vazios.");
-                // NÃO carregar mock data aqui para evitar confusão em staging
                 onDataLoaded({
                     source: 'empty',
                     data: { news: [], advertisers: [], users: [], jobs: [] }
                 });
             }
+            return finalSettings;
         } catch (e: any) {
             console.error("❌ Erro ao carregar dados do Supabase:", e.message);
 
-            // CORREÇÃO: Não forçar logout agressivo em caso de erro de conexão/API
-            // Apenas loga o erro e define dados vazios para a UI não quebrar
-
-            // Detecção de Sessão Inválida (apenas warning agora)
-            const isAuthError = e.message?.includes('JWT') ||
-                e.message?.includes('token') ||
-                e.code === 'PGRST301' ||
-                e.status === 401 ||
-                e.status === 403;
-
-            if (isAuthError) {
-                console.warn("🔒 Acesso restrito ou sessão inválida. O usuário pode precisar relogar.");
-                // Não faz reload, apenas deixa o fluxo seguir (usuário verá estado deslogado ou erro de acesso)
-            }
-
-            // Fallback para dados vazios em vez de mock
             onDataLoaded({
                 source: 'error',
                 data: { news: [], advertisers: [], users: [], jobs: [] }
             });
+            return null;
         }
     };
 
@@ -141,8 +131,14 @@ export const useAppInitialization = ({
                         };
                     }
                 } catch (e) {
-                    console.warn("⚠️ Erro ao carregar configurações locais:", e);
                     localSettings = DEFAULT_SETTINGS;
+                }
+
+                // [FIX] Force update credentials if they don't match DEFAULT (to fix stale cache issues)
+                if (DEFAULT_SETTINGS.supabase?.anonKey && localSettings.supabase?.anonKey !== DEFAULT_SETTINGS.supabase.anonKey) {
+                    console.log("🔄 Atualizando credenciais do Supabase (Cache Stale detected)...");
+                    localSettings.supabase = { ...localSettings.supabase, ...DEFAULT_SETTINGS.supabase };
+                    localStorage.setItem('lfnm_system_settings', JSON.stringify(localSettings));
                 }
 
                 console.log(`🔑 Usando Supabase: ${localSettings.supabase?.url}`);
@@ -175,32 +171,49 @@ export const useAppInitialization = ({
                     const sbClient = initSupabase(sbUrl, sbKey);
                     if (sbClient) {
                         // Helper para restaurar perfil do usuário do banco
-                        const restoreUserProfile = async (userId: string) => {
+                        const restoreUserProfile = async (authUser: any) => {
                             try {
                                 const { data: profile } = await sbClient
                                     .from('users')
                                     .select('*')
-                                    .eq('id', userId)
-                                    .single();
+                                    .eq('id', authUser.id)
+                                    .maybeSingle();
 
-                                if (profile) {
-                                    DebugLogger.log(`[AUTH] ✅ Perfil recuperado: ${profile.name}`);
+                                // Verificação de Perfil Completo:
+                                // Um perfil é considerado completo se:
+                                // 1. Existe no banco
+                                // 2. Tem role definida (qualquer role válida)
+                                // 3. OU tem algum campo adicional preenchido (phone, document, city, etc)
+                                // Isso evita re-abrir o cadastro para usuários que já completaram
+                                const hasBasicInfo = profile && profile.role && profile.name;
+                                const hasAdditionalInfo = profile && (profile.phone || profile.document || profile.city || profile.state);
+                                const isProfileComplete = hasBasicInfo && (hasAdditionalInfo || profile.role !== 'Leitor');
+
+                                if (isProfileComplete) {
+                                    DebugLogger.log(`[AUTH] ✅ Perfil completo recuperado: ${profile.name}`);
+                                    onUserRestored(profile);
+                                    localStorage.setItem('lfnm_user', JSON.stringify(profile));
+                                } else if (profile && profile.role) {
+                                    // Perfil existe e tem role, mas sem dados adicionais
+                                    // Isso pode ser um Leitor que ainda não preencheu tudo
+                                    // Aceitar mesmo assim (não forçar recadastro)
+                                    DebugLogger.log(`[AUTH] ✅ Perfil básico aceito: ${profile.name} (${profile.role})`);
                                     onUserRestored(profile);
                                     localStorage.setItem('lfnm_user', JSON.stringify(profile));
                                 } else {
-                                    DebugLogger.log(`[AUTH] ⚠️ Perfil não encontrado para ID: ${userId}`);
+                                    DebugLogger.log(`[AUTH] ⚠️ Perfil incompleto ou inexistente (Novo Usuário): ${authUser.id}`);
+                                    onAuthChallenge(authUser);
                                 }
                             } catch (e) {
                                 console.warn("⚠️ Erro ao restaurar perfil via Auth Listener:", e);
                             }
                         };
 
-                        // ==== Listener de Autenticação Simplificado ====
                         sbClient.auth.onAuthStateChange((event, session) => {
                             DebugLogger.log(`[AUTH] 🔄 Evento: ${event}`, { session: !!session });
 
                             if (event === 'SIGNED_IN' && session?.user) {
-                                restoreUserProfile(session.user.id);
+                                restoreUserProfile(session.user);
                                 loadRemoteData();
                             } else if (event === 'SIGNED_OUT') {
                                 onUserRestored(null as any);
@@ -215,7 +228,7 @@ export const useAppInitialization = ({
                             if (session?.user) {
                                 DebugLogger.log(`[AUTH] 🔄 Sessão ativa detectada: ${session.user.email}`);
                                 // Forçamos a restauração do perfil para garantir sincronia após login social/redirect
-                                restoreUserProfile(session.user.id);
+                                restoreUserProfile(session.user);
                                 loadRemoteData();
                             }
                         });
@@ -224,22 +237,36 @@ export const useAppInitialization = ({
                     console.warn("⚠️ Erro ao inicializar Supabase:", supabaseError);
                 }
 
-                // 4. CRÍTICO: Marca como inicializado IMEDIATAMENTE (2 segundos)
-                // Isso permite que a interface apareça rapidamente
-                setTimeout(() => {
-                    if (isMounted) {
+                // 4. CRÍTICO: Marca como inicializado
+                // No desenvolvimento, inicializamos após 2s para agilidade (usando mock/cache)
+                // Na produção, aguardamos o loadRemoteData para garantir que o Maintenance Mode seja lido antes da UI aparecer.
+                const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+
+                if (isLocal) {
+                    setTimeout(() => {
+                        if (isMounted) {
+                            setIsInitialized(true);
+                            setIsLoading(false);
+                            console.log("✅ Aplicação inicializada (Modo Local - Otimista).");
+                        }
+                    }, 2000);
+                }
+
+                // 5. Carregar Dados Remotos em BACKGROUND (ou bloqueante na Prod)
+                console.log("🔍 [INIT DEBUG] Iniciando loadRemoteData...");
+                loadRemoteData().then((settings) => {
+                    console.log("🔍 [INIT DEBUG] loadRemoteData finalizado. Configurações recebidas:", settings?.maintenanceMode);
+                    if (!isLocal && isMounted) {
                         setIsInitialized(true);
                         setIsLoading(false);
-                        console.log("✅ Aplicação inicializada (interface pronta).");
+                        console.log("✅ Aplicação inicializada (PROD - Dados Sincronizados).");
                     }
-                }, 2000); // Apenas 2 segundos de loading screen
-
-                // 5. Carregar Dados Remotos em BACKGROUND (não bloqueia a UI)
-                // Isso acontece em paralelo com a exibição da interface
-                loadRemoteData().then(() => {
-                    console.log("✅ Dados carregados em background.");
                 }).catch((err) => {
                     console.warn("⚠️ Erro ao carregar dados em background:", err);
+                    if (!isLocal && isMounted) {
+                        setIsInitialized(true);
+                        setIsLoading(false);
+                    }
                 });
 
             } catch (initError) {
@@ -261,7 +288,7 @@ export const useAppInitialization = ({
 
         return () => {
             isMounted = false;
-            if (newsInterval) clearInterval(newsInterval);
+            if (newsInterval) { clearInterval(newsInterval); }
         };
     }, []);
 

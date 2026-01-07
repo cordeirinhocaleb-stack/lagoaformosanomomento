@@ -27,7 +27,7 @@ const EngagementRenderer: React.FC<EngagementRendererProps> = ({ block, newsId }
   }, [block.id, newsId]);
 
   const handleVote = async (optionId: string) => {
-    if (hasVoted || !newsId) return;
+    if (hasVoted || !newsId) {return;}
     setHasVoted(true);
     setSelectedId(optionId);
     localStorage.setItem(`lfnm_voted_${newsId}_${block.id}`, optionId);
@@ -35,7 +35,7 @@ const EngagementRenderer: React.FC<EngagementRendererProps> = ({ block, newsId }
     const updated = await recordEngagementVote(newsId, block.id, optionId, type);
     if (updated) {
         const newBlock = updated.blocks.find((b: any) => b.id === block.id);
-        if (newBlock) setLocalData(newBlock);
+        if (newBlock) {setLocalData(newBlock);}
     }
   };
 

@@ -61,7 +61,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
     // Lógica de Permissão Staff - Desenvolvedor e Editor-Chefe têm acesso total
     const canManage = useMemo(() => {
-        if (!user) return false;
+        if (!user) {return false;}
         const isHighStaff = ['Desenvolvedor', 'Editor-Chefe'].includes(user.role);
         const isAuthor = user.id === news.authorId;
         const isEditorialStaff = ['Repórter', 'Jornalista'].includes(user.role);

@@ -27,13 +27,14 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
         if (savedData) {
             try {
                 const { pendingEmail, pendingIdentifier, pendingPassword, pendingMode } = JSON.parse(savedData);
-                if (pendingEmail) setEmail(pendingEmail);
-                if (pendingIdentifier) setLoginIdentifier(pendingIdentifier);
-                if (pendingPassword) setPassword(pendingPassword);
-                if (pendingMode) auth.setMode(pendingMode);
+                if (pendingEmail) { setEmail(pendingEmail); }
+                if (pendingIdentifier) { setLoginIdentifier(pendingIdentifier); }
+                if (pendingPassword) { setPassword(pendingPassword); }
+                if (pendingMode) { auth.setMode(pendingMode); }
             } catch (e) { }
         }
-    }, [auth]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Roda apenas NA MONTAGEM para restaurar restaurar estado
 
     useEffect(() => {
         sessionStorage.setItem('lfnm_login_temp', JSON.stringify({ pendingEmail: email, pendingIdentifier: loginIdentifier, pendingPassword: password, pendingMode: auth.mode }));
@@ -48,9 +49,9 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
 
     const onFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (auth.mode === 'login') auth.handleLoginSubmit(loginIdentifier, password);
-        else if (auth.mode === 'signup') auth.handleSignupSubmit(email);
-        else if (auth.mode === 'recovery') auth.handleRecoveryRequest(email);
+        if (auth.mode === 'login') { auth.handleLoginSubmit(loginIdentifier, password); }
+        else if (auth.mode === 'signup') { auth.handleSignupSubmit(email); }
+        else if (auth.mode === 'recovery') { auth.handleRecoveryRequest(email); }
     };
 
     return (
@@ -71,7 +72,21 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
                     </div>
 
                     {auth.mode !== 'recovery' && (
-                        <div className="px-6 md:px-8 pt-4 md:pt-6 pb-2">
+                        <div className="px-6 md:px-8 pt-4 md:pt-6 pb-2 space-y-3">
+                            {/* Dev Quick Login (Restrito a Local/Dev) */}
+                            {(window.location.hostname === 'localhost' || window.location.hostname.includes('.dev.')) && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setLoginIdentifier('gustavocarcara.2@gmail.com');
+                                        setPassword('65898562');
+                                    }}
+                                    className="w-full bg-amber-50 border-2 border-amber-200 text-amber-700 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-100 hover:border-amber-300 transition-all flex items-center justify-center gap-3"
+                                >
+                                    <i className="fas fa-bolt text-amber-500"></i> Acesso Rápido (Dev)
+                                </button>
+                            )}
+
                             <button type="button" onClick={auth.handleGoogleLogin} disabled={!!security.lockoutExpiry} className="w-full bg-white border-2 border-gray-100 text-gray-700 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-gray-50 hover:border-gray-300 hover:text-black transition-all shadow-sm flex items-center justify-center gap-3 disabled:opacity-50">
                                 <i className="fab fa-google text-lg md:text-xl text-red-600"></i> Entrar com Google
                             </button>

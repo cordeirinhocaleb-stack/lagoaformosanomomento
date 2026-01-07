@@ -31,10 +31,10 @@ export const isValidCPF = (cpf: string): boolean => {
     const cleanCPF = cpf.replace(/\D/g, '');
 
     // Verifica tamanho
-    if (cleanCPF.length !== 11) return false;
+    if (cleanCPF.length !== 11) {return false;}
 
     // Verifica sequências inválidas (111.111.111-11, etc)
-    if (/^(\d)\1{10}$/.test(cleanCPF)) return false;
+    if (/^(\d)\1{10}$/.test(cleanCPF)) {return false;}
 
     // Validação do primeiro dígito
     let sum = 0;
@@ -42,9 +42,9 @@ export const isValidCPF = (cpf: string): boolean => {
         sum += parseInt(cleanCPF.charAt(i)) * (10 - i);
     }
     let digit1 = 11 - (sum % 11);
-    if (digit1 >= 10) digit1 = 0;
+    if (digit1 >= 10) {digit1 = 0;}
 
-    if (parseInt(cleanCPF.charAt(9)) !== digit1) return false;
+    if (parseInt(cleanCPF.charAt(9)) !== digit1) {return false;}
 
     // Validação do segundo dígito
     sum = 0;
@@ -52,7 +52,7 @@ export const isValidCPF = (cpf: string): boolean => {
         sum += parseInt(cleanCPF.charAt(i)) * (11 - i);
     }
     let digit2 = 11 - (sum % 11);
-    if (digit2 >= 10) digit2 = 0;
+    if (digit2 >= 10) {digit2 = 0;}
 
     return parseInt(cleanCPF.charAt(10)) === digit2;
 };
@@ -63,8 +63,8 @@ export const isValidCPF = (cpf: string): boolean => {
 export const isValidCNPJ = (cnpj: string): boolean => {
     const cleanCNPJ = cnpj.replace(/\D/g, '');
 
-    if (cleanCNPJ.length !== 14) return false;
-    if (/^(\d)\1{13}$/.test(cleanCNPJ)) return false;
+    if (cleanCNPJ.length !== 14) {return false;}
+    if (/^(\d)\1{13}$/.test(cleanCNPJ)) {return false;}
 
     // Validação primeiro dígito
     const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
@@ -74,7 +74,7 @@ export const isValidCNPJ = (cnpj: string): boolean => {
     }
     let digit1 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
 
-    if (parseInt(cleanCNPJ.charAt(12)) !== digit1) return false;
+    if (parseInt(cleanCNPJ.charAt(12)) !== digit1) {return false;}
 
     // Validação segundo dígito
     const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
@@ -123,14 +123,14 @@ export const isValidDate = (dateStr: string): boolean => {
     const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     const match = dateStr.match(dateRegex);
 
-    if (!match) return false;
+    if (!match) {return false;}
 
     const day = parseInt(match[1]);
     const month = parseInt(match[2]);
     const year = parseInt(match[3]);
 
-    if (month < 1 || month > 12) return false;
-    if (day < 1 || day > 31) return false;
+    if (month < 1 || month > 12) {return false;}
+    if (day < 1 || day > 31) {return false;}
 
     // Validação de dias por mês
     const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -183,7 +183,7 @@ export const isSafeText = (text: string): boolean => {
  * Valida idade mínima (útil para data de nascimento)
  */
 export const isMinimumAge = (dateStr: string, minAge: number = 18): boolean => {
-    if (!isValidDate(dateStr)) return false;
+    if (!isValidDate(dateStr)) {return false;}
 
     const [day, month, year] = dateStr.split('/').map(Number);
     const birthDate = new Date(year, month - 1, day);

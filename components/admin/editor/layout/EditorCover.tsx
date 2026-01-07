@@ -43,13 +43,13 @@ const EditorCover: React.FC<EditorCoverProps> = ({
 }) => {
     
     const handleTypeChange = (type: 'image' | 'video') => {
-        if (type === bannerType) return;
+        if (type === bannerType) {return;}
         setBannerType(type);
     };
 
     // Wrapper para garantir que vídeo force o tipo para 'video'
     const handleInternalMediaSelect = (file: File | null, preview: string, type: 'image' | 'video', slotIdx?: number) => {
-        if (!file) return;
+        if (!file) {return;}
         if (type === 'video') {
             setBannerType('video');
             onMediaSelect(file, preview, 'video'); 

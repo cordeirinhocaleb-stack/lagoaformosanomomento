@@ -8,9 +8,11 @@ interface AdminLayoutProps {
     currentView: string;
     onNavigate: (view: string) => void;
     onLogout: () => void;
+    darkMode: boolean;
+    onToggleTheme: () => void;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, onNavigate, onLogout }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, onNavigate, onLogout, darkMode, onToggleTheme }) => {
     // Inicializa fechado em mobile (window.innerWidth < 768) e aberto em desktop
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -23,8 +25,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
             // Se mudou para desktop e estava fechado, abre.
             // Se mudou para mobile, fecha sempre para garantir.
             setIsSidebarOpen(prev => {
-                if (!mobile && !prev) return true; // Desktop auto-open
-                if (mobile && prev) return false; // Mobile auto-close
+                if (!mobile && !prev) { return true; } // Desktop auto-open
+                if (mobile && prev) { return false; } // Mobile auto-close
                 return prev;
             });
         };
@@ -45,7 +47,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white flex font-['Inter'] selection:bg-red-900 selection:text-white overflow-hidden">
+        <div className={`min-h-screen flex font-['Inter'] selection:bg-red-900 selection:text-white overflow-hidden transition-colors duration-300 ${darkMode ? 'bg-[#050505] text-white' : 'bg-gray-100 text-gray-900'}`}>
             {/* Mobile Backdrop */}
             {isMobile && isSidebarOpen && (
                 <div
@@ -56,7 +58,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
 
             {/* Sidebar */}
             <aside
-                className={`fixed inset-y-0 left-0 z-50 bg-black/90 backdrop-blur-xl border-r border-white/5 transition-all duration-300 flex flex-col 
+                className={`fixed inset-y-0 left-0 z-50 backdrop-blur-xl border-r transition-all duration-300 flex flex-col 
+                ${darkMode ? 'bg-black/90 border-white/5' : 'bg-white/90 border-gray-200'}
                 ${isMobile
                         ? (isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64')
                         : (isSidebarOpen ? 'w-64 translate-x-0' : 'w-20 translate-x-0')
@@ -76,10 +79,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                         return (
                             <button
                                 key={item.id}
-                                onClick={() => { onNavigate(item.id); if (isMobile) setIsSidebarOpen(false); }}
+                                onClick={() => { onNavigate(item.id); if (isMobile) { setIsSidebarOpen(false); } }}
                                 className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden ${isActive
                                     ? 'bg-gradient-to-r from-red-600/20 to-transparent text-white'
-                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    : (darkMode ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900')
                                     }`}
                                 title={!isSidebarOpen && !isMobile ? item.label : ''}
                             >
@@ -100,7 +103,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                 </nav>
 
                 {/* Footer User Profile */}
-                <div className="p-4 border-t border-white/5 bg-black/40">
+                <div className={`p-4 border-t transition-colors ${darkMode ? 'bg-black/40 border-white/5' : 'bg-gray-50/50 border-gray-200'}`}>
                     <div className={`flex items-center gap-3 ${!isSidebarOpen && 'justify-center'}`}>
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-black p-[1px] shrink-0">
                             <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
@@ -114,7 +117,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
 
                         {isSidebarOpen && (
                             <div className="flex-1 min-w-0 animate-fadeIn">
-                                <p className="text-sm font-bold text-white truncate">{user?.name || 'Admin'}</p>
+                                <p className={`text-sm font-bold truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user?.name || 'Admin'}</p>
                                 <p className="text-xs text-red-500 uppercase tracking-wider font-black truncate">{user?.role}</p>
                             </div>
                         )}
@@ -137,7 +140,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                 ${isMobile ? 'ml-0' : (isSidebarOpen ? 'ml-64' : 'ml-20')}
             `}>
                 {/* Top Header */}
-                <header className="h-20 sticky top-0 z-30 bg-[#050505]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-8">
+                <header className={`h-20 sticky top-0 z-30 backdrop-blur-md border-b flex items-center justify-between px-4 md:px-8 transition-colors duration-300 ${darkMode ? 'bg-[#050505]/80 border-white/5' : 'bg-white/80 border-gray-200'}`}>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={toggleSidebar}
@@ -151,6 +154,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <button
+                            onClick={onToggleTheme}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${darkMode ? 'bg-white/5 text-yellow-400 hover:bg-white/10' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                            title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+                        >
+                            <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
+                        </button>
                         <button
                             onClick={() => onNavigate('home')}
                             className="px-3 py-2 md:px-4 rounded-lg bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white transition-all text-[10px] md:text-xs font-bold uppercase tracking-wider border border-red-600/20 hover:border-red-600 flex items-center gap-2"

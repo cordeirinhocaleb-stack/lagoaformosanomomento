@@ -21,12 +21,12 @@ const VisualBanner: React.FC<VisualBannerProps> = ({ onHomeClick, currentTime, s
   // Lógica de Animação do Background (Mouse Move)
   useEffect(() => {
     if (isHovering) {
-        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        if (animationRef.current) {cancelAnimationFrame(animationRef.current);}
         return;
     }
     let startTimestamp = performance.now();
     const animate = (time: number) => {
-        if (!bannerRef.current) return;
+        if (!bannerRef.current) {return;}
         const elapsed = time - startTimestamp;
         const width = bannerRef.current.offsetWidth;
         const height = bannerRef.current.offsetHeight;
@@ -41,7 +41,7 @@ const VisualBanner: React.FC<VisualBannerProps> = ({ onHomeClick, currentTime, s
         animationRef.current = requestAnimationFrame(animate);
     };
     animationRef.current = requestAnimationFrame(animate);
-    return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
+    return () => { if (animationRef.current) {cancelAnimationFrame(animationRef.current);} };
   }, [isHovering]);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ const VisualBanner: React.FC<VisualBannerProps> = ({ onHomeClick, currentTime, s
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isHovering) setIsHovering(true);
+    if (!isHovering) {setIsHovering(true);}
     if (bannerRef.current) {
         const rect = bannerRef.current.getBoundingClientRect();
         bannerRef.current.style.setProperty('--x', `${e.clientX - rect.left}px`);

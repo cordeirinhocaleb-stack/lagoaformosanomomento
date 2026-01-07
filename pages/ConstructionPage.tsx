@@ -66,12 +66,12 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
     // --- LANTERN EFFECT LOGIC (From VisualBanner) ---
     useEffect(() => {
         if (isHovering) {
-            if (animationRef.current) cancelAnimationFrame(animationRef.current);
+            if (animationRef.current) {cancelAnimationFrame(animationRef.current);}
             return;
         }
         let startTimestamp = performance.now();
         const animate = (time: number) => {
-            if (!containerRef.current) return;
+            if (!containerRef.current) {return;}
             const elapsed = time - startTimestamp;
             const width = containerRef.current.offsetWidth;
             const height = containerRef.current.offsetHeight;
@@ -89,11 +89,11 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
             animationRef.current = requestAnimationFrame(animate);
         };
         animationRef.current = requestAnimationFrame(animate);
-        return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
+        return () => { if (animationRef.current) {cancelAnimationFrame(animationRef.current);} };
     }, [isHovering]);
 
     const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isHovering) setIsHovering(true);
+        if (!isHovering) {setIsHovering(true);}
         if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             containerRef.current.style.setProperty('--x', `${e.clientX - rect.left}px`);

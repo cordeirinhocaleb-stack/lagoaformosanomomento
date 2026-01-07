@@ -38,8 +38,8 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
           if (activityFilter === 'all') {
               const isASite = a.source === 'site' || !a.source;
               const isBSite = b.source === 'site' || !b.source;
-              if (isASite && !isBSite) return -1;
-              if (!isASite && isBSite) return 1;
+              if (isASite && !isBSite) {return -1;}
+              if (!isASite && isBSite) {return 1;}
           }
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }).slice(0, 40);

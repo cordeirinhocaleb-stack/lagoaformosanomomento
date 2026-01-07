@@ -20,7 +20,7 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ isVisible = true }) => {
         return unsubscribe;
     }, []);
 
-    if (!isVisible) return null;
+    if (!isVisible) {return null;}
 
     if (!isExpanded) {
         return (

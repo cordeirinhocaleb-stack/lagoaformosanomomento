@@ -42,7 +42,7 @@ const PermissionModal: React.FC<PermissionModalProps> = ({ onAccept }) => {
     }
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {return null;}
 
   return (
     <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6 bg-white/90 backdrop-blur-md animate-fadeIn">

@@ -45,29 +45,33 @@ const MODULES = [
     }
 ];
 
-const UpcomingModulesPanel: React.FC = () => {
-  return (
-    <div className="space-y-8 animate-fadeIn">
-        <div className="bg-gradient-to-r from-gray-900 to-black rounded-[2.5rem] p-8 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20"></div>
-            <div className="relative z-10">
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Expansão do Ecossistema</h3>
-                <p className="text-sm font-medium text-gray-300 max-w-2xl">
-                    O Portal Lagoa Formosa No Momento está em constante evolução. Confira abaixo os módulos que estão sendo preparados pela nossa equipe de engenharia para aumentar o valor dos planos comerciais.
-                </p>
+interface UpcomingModulesPanelProps {
+    darkMode?: boolean;
+}
+
+const UpcomingModulesPanel: React.FC<UpcomingModulesPanelProps> = ({ darkMode = false }) => {
+    return (
+        <div className="space-y-8 animate-fadeIn">
+            <div className="bg-gradient-to-r from-gray-900 to-black rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20"></div>
+                <div className="relative z-10">
+                    <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Expansão do Ecossistema</h3>
+                    <p className="text-sm font-medium text-gray-300 max-w-2xl">
+                        O Portal Lagoa Formosa No Momento está em constante evolução. Confira abaixo os módulos que estão sendo preparados pela nossa equipe de engenharia para aumentar o valor dos planos comerciais.
+                    </p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {MODULES.map(module => (
+                    <UpcomingModuleCard
+                        key={module.id}
+                        {...module}
+                    />
+                ))}
             </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MODULES.map(module => (
-                <UpcomingModuleCard 
-                    key={module.id}
-                    {...module}
-                />
-            ))}
-        </div>
-    </div>
-  );
+    );
 };
 
 export default UpcomingModulesPanel;

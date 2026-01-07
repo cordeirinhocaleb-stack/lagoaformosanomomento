@@ -32,7 +32,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
-    if(window.innerWidth < 1024) return; // Mobile usa menu inferior
+    if(window.innerWidth < 1024) {return;} // Mobile usa menu inferior
     e.preventDefault();
     e.stopPropagation();
     onSelect();
@@ -49,7 +49,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
 
   const insertLink = () => {
       const url = prompt("Digite a URL para o link:", "https://");
-      if(url) execCommand('createLink', url);
+      if(url) {execCommand('createLink', url);}
   };
 
   // Handler unificado para ações do menu
@@ -80,7 +80,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
             break;
         case 'delete':
             if(confirm("Deseja limpar o conteúdo deste bloco?")) {
-                if(contentRef.current) contentRef.current.innerHTML = "";
+                if(contentRef.current) {contentRef.current.innerHTML = "";}
                 handleInput();
             }
             break;
@@ -125,7 +125,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
         onClick={(e) => { 
           e.stopPropagation(); 
           onSelect();
-          setTimeout(() => { if (contentRef.current) contentRef.current.focus(); }, 50);
+          setTimeout(() => { if (contentRef.current) {contentRef.current.focus();} }, 50);
         }} 
         className={`relative group/text cursor-text py-4 px-2 transition-all duration-200 min-h-[3rem] ${isSelected ? '' : 'hover:bg-zinc-50/50 rounded-xl'}`} 
         role="article" 

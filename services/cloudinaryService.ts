@@ -10,6 +10,7 @@ import {
   getCurrentUserNameSafe
 } from './activityNotifications';
 import { loadCloudinarySettings } from './settingsService';
+import { getSupabase } from './core/supabaseClient';
 
 // Credenciais de Fallback (Apenas para evitar crash, mas geralmente falham para uploads reais se não configuradas)
 const DEFAULT_CLOUD_NAME = 'demo';
@@ -27,7 +28,7 @@ export const uploadToCloudinary = async (
   let settings: SystemSettings | null = null;
   if (!cloudinaryConfig) {
     const savedSettings = localStorage.getItem('lfnm_system_settings');
-    try { if (savedSettings) settings = JSON.parse(savedSettings); } catch (e) { }
+    try { if (savedSettings) { settings = JSON.parse(savedSettings); } } catch (e) { }
   }
 
   const isVideo = file.type.startsWith('video/');
@@ -167,7 +168,7 @@ export const uploadToCloudinary = async (
 };
 
 export const testCloudinaryConnection = async (cloudName: string, uploadPreset: string): Promise<{ success: boolean; message: string }> => {
-  if (!cloudName || !uploadPreset) return { success: false, message: "Dados incompletos." };
+  if (!cloudName || !uploadPreset) { return { success: false, message: "Dados incompletos." }; }
 
   // Tenta upload de uma imagem minúscula (pixel transparente)
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -176,7 +177,7 @@ export const testCloudinaryConnection = async (cloudName: string, uploadPreset: 
   try {
     const bin = atob(base64Gif);
     const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    for (let i = 0; i < bin.length; i++) { bytes[i] = bin.charCodeAt(i); }
 
     const formData = new FormData();
     formData.append('file', new Blob([bytes], { type: 'image/gif' }), 'test_connection.gif');
@@ -204,7 +205,7 @@ export const testCloudinaryConnection = async (cloudName: string, uploadPreset: 
  * Retorna: folder/file
  */
 export const extractPublicIdFromUrl = (url: string): string | null => {
-  if (!url || !url.includes('cloudinary.com')) return null;
+  if (!url || !url.includes('cloudinary.com')) { return null; }
 
   try {
     // Pattern: /upload/[version]/[public_id].[extension]
@@ -241,28 +242,49 @@ export const deleteFromCloudinary = async (
     publicId = extracted;
   }
 
-  // TODO: Implementar via Edge Function no Supabase
-  // Por enquanto, apenas registra a solicitação
-  console.log(`🗑️ [CLOUDINARY DELETE] ${resourceType.toUpperCase()}: ${publicId}`);
-  console.log('   ⚠️ Deleção não implementada - requer Edge Function com API Secret');
-  console.log('   📝 Para limpar manualmente: https://cloudinary.com/console/media_library');
-
-  // Armazena em localStorage para rastreamento
+  // Implementação real via Edge Function no Supabase
   try {
-    const pendingDeletions = JSON.parse(localStorage.getItem('cloudinary_pending_deletions') || '[]');
-    pendingDeletions.push({
-      publicId,
-      resourceType,
-      timestamp: new Date().toISOString(),
-      url: publicIdOrUrl
-    });
-    localStorage.setItem('cloudinary_pending_deletions', JSON.stringify(pendingDeletions));
-  } catch (e) {
-    console.warn('Failed to store pending deletion:', e);
-  }
+    const supabase = getSupabase();
+    if (!supabase) { throw new Error('Supabase client not initialized'); }
 
-  return {
-    success: true,
-    message: 'Deleção registrada (aguardando implementação de backend)'
-  };
+    console.log(`🗑️ [CLOUDINARY DELETE] Invocando Edge Function para: ${publicId}`);
+
+    const { data, error } = await supabase.functions.invoke('cloudinary-delete', {
+      body: {
+        public_id: publicId,
+        resource_type: resourceType
+      }
+    });
+
+    if (error) { throw error; }
+
+    console.log('✅ Deleção concluída:', data);
+
+    return {
+      success: true,
+      message: 'Imagem removida com sucesso do Cloudinary'
+    };
+  } catch (e: any) {
+    console.error('❌ Falha ao deletar do Cloudinary:', e);
+
+    // Fallback: Armazena em localStorage para rastreamento se falhar
+    try {
+      const pendingDeletions = JSON.parse(localStorage.getItem('cloudinary_pending_deletions') || '[]');
+      pendingDeletions.push({
+        publicId,
+        resourceType,
+        timestamp: new Date().toISOString(),
+        url: publicIdOrUrl,
+        error: e.message
+      });
+      localStorage.setItem('cloudinary_pending_deletions', JSON.stringify(pendingDeletions));
+    } catch (storageErr) {
+      console.warn('Failed to store pending deletion:', storageErr);
+    }
+
+    return {
+      success: false,
+      message: `Falha na deleção: ${e.message || 'Erro desconhecido'}`
+    };
+  }
 };

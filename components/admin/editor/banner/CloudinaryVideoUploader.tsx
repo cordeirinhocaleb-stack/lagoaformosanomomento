@@ -32,7 +32,7 @@ export const CloudinaryVideoUploader: React.FC<CloudinaryVideoUploaderProps> = (
 
     const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (!file) {return;}
 
         setIsValidating(true);
         setError('');

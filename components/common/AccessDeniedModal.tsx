@@ -26,7 +26,7 @@ const AccessDeniedModal: React.FC<AccessDeniedModalProps> = ({
         return () => { document.body.style.overflow = ''; };
     }, [visible]);
 
-    if (!visible) return null;
+    if (!visible) {return null;}
 
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 animate-fadeIn">

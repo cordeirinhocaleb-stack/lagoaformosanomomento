@@ -77,7 +77,7 @@ const EditorBanner: React.FC<EditorBannerProps> = ({
             newImages.splice(index, 1);
         }
         setBannerImages(newImages);
-        if (index === 0 && newImages[0]) setMainImageUrl(newImages[0]);
+        if (index === 0 && newImages[0]) {setMainImageUrl(newImages[0]);}
     };
 
     const handleConfigChange = (key: string, value: any) => {
@@ -101,9 +101,9 @@ const EditorBanner: React.FC<EditorBannerProps> = ({
             const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
             if (videoId) {
                 let embed = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
-                if (bannerVideoConfig.muted) embed += '&mute=1';
-                if (bannerVideoConfig.autoplay) embed += '&autoplay=1';
-                if (bannerVideoConfig.loop) embed += `&loop=1&playlist=${videoId}`;
+                if (bannerVideoConfig.muted) {embed += '&mute=1';}
+                if (bannerVideoConfig.autoplay) {embed += '&autoplay=1';}
+                if (bannerVideoConfig.loop) {embed += `&loop=1&playlist=${videoId}`;}
                 return embed;
             }
         }
@@ -304,7 +304,7 @@ const EditorBanner: React.FC<EditorBannerProps> = ({
                                         onUploadComplete={(urls) => {
                                             const newImages = [...bannerImages];
                                             newImages[slot] = urls[0];
-                                            if (slot === 0) setMainImageUrl(urls[0]);
+                                            if (slot === 0) {setMainImageUrl(urls[0]);}
                                             setBannerImages(newImages);
                                             setToast({ message: "Imagem carregada", type: 'success' });
                                         }}

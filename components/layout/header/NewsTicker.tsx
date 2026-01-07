@@ -23,8 +23,8 @@ const NewsTicker: React.FC<NewsTickerProps> = ({ latestNews, brazilNews, onNewsC
   // Check overflow
   useEffect(() => {
     const check = () => {
-      if (localScrollRef.current) setLocalCanScroll(localScrollRef.current.scrollWidth > localScrollRef.current.clientWidth);
-      if (worldScrollRef.current) setWorldCanScroll(worldScrollRef.current.scrollWidth > worldScrollRef.current.clientWidth);
+      if (localScrollRef.current) {setLocalCanScroll(localScrollRef.current.scrollWidth > localScrollRef.current.clientWidth);}
+      if (worldScrollRef.current) {setWorldCanScroll(worldScrollRef.current.scrollWidth > worldScrollRef.current.clientWidth);}
     };
     check();
     window.addEventListener('resize', check);
@@ -35,7 +35,7 @@ const NewsTicker: React.FC<NewsTickerProps> = ({ latestNews, brazilNews, onNewsC
   const useTickerAutoScroll = (ref: React.RefObject<HTMLDivElement>, isPaused: boolean, manualBlock: boolean, canMove: boolean, speed: number = 1) => {
     useEffect(() => {
       const container = ref.current;
-      if (!container || !canMove) return;
+      if (!container || !canMove) {return;}
 
       let interval: any;
       if (!isPaused && !manualBlock) {

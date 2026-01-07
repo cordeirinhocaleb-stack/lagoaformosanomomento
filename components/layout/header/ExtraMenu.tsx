@@ -35,7 +35,7 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
 
     useEffect(() => {
         const container = scrollRef.current;
-        if (!container || !canScroll) return;
+        if (!container || !canScroll) {return;}
         
         let interval: any;
         if (!isPaused) {

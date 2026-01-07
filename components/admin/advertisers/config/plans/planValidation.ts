@@ -2,8 +2,8 @@
 import { AdPlanConfig } from '../../../../../types';
 
 export const validatePlan = (plan: AdPlanConfig, existingPlans: AdPlanConfig[]): string | null => {
-    if (!plan.name.trim()) return "O nome do plano é obrigatório.";
-    if (!plan.id.trim()) return "O ID do plano é obrigatório.";
+    if (!plan.name.trim()) {return "O nome do plano é obrigatório.";}
+    if (!plan.id.trim()) {return "O ID do plano é obrigatório.";}
     
     // Validação básica de ID duplicado (para criação)
     // Nota: Em uma edição, o ID não muda, então isso é seguro.

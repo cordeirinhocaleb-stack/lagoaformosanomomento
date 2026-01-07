@@ -33,8 +33,8 @@ const PromoPopupView: React.FC<PromoPopupViewProps> = ({ config, mode, onClose, 
   // Carrossel Automático (SAFE ONLY)
   const imageList = useMemo(() => {
       let rawList: string[] = [];
-      if (config.images && config.images.length > 0) rawList = config.images;
-      else if (config.mediaUrl && config.mediaType === 'image') rawList = [config.mediaUrl];
+      if (config.images && config.images.length > 0) {rawList = config.images;}
+      else if (config.mediaUrl && config.mediaType === 'image') {rawList = [config.mediaUrl];}
       
       // Filtra apenas URLs seguras
       return rawList.filter(url => isSafeUrl(url));
@@ -46,37 +46,37 @@ const PromoPopupView: React.FC<PromoPopupViewProps> = ({ config, mode, onClose, 
 
   if (mode === 'live') {
       wrapperClasses = 'fixed inset-0 z-[9999]';
-      if (position === 'center') positionClasses = 'items-center justify-center';
-      else if (position === 'top-center') positionClasses = 'items-start justify-center pt-20';
-      else if (position === 'bottom-center') positionClasses = 'items-end justify-center pb-8';
-      else if (position === 'bottom-right') positionClasses = 'items-end justify-end pb-8 pr-4 md:pr-8';
-      else if (position === 'bottom-left') positionClasses = 'items-end justify-start pb-8 pl-4 md:pl-8';
-      else if (position === 'top-left') positionClasses = 'items-start justify-start pt-20 pl-4 md:pl-8';
-      else if (position === 'top-right') positionClasses = 'items-start justify-end pt-20 pr-4 md:pr-8';
-      else if (position === 'center-left') positionClasses = 'items-center justify-start pl-4 md:pl-8';
-      else if (position === 'center-right') positionClasses = 'items-center justify-end pr-4 md:pr-8';
+      if (position === 'center') {positionClasses = 'items-center justify-center';}
+      else if (position === 'top-center') {positionClasses = 'items-start justify-center pt-20';}
+      else if (position === 'bottom-center') {positionClasses = 'items-end justify-center pb-8';}
+      else if (position === 'bottom-right') {positionClasses = 'items-end justify-end pb-8 pr-4 md:pr-8';}
+      else if (position === 'bottom-left') {positionClasses = 'items-end justify-start pb-8 pl-4 md:pl-8';}
+      else if (position === 'top-left') {positionClasses = 'items-start justify-start pt-20 pl-4 md:pl-8';}
+      else if (position === 'top-right') {positionClasses = 'items-start justify-end pt-20 pr-4 md:pr-8';}
+      else if (position === 'center-left') {positionClasses = 'items-center justify-start pl-4 md:pl-8';}
+      else if (position === 'center-right') {positionClasses = 'items-center justify-end pr-4 md:pr-8';}
   } else {
       // Preview Mode: Centralizado no container pai
       wrapperClasses = 'absolute inset-0 z-10';
       positionClasses = 'items-center justify-center';
       
       // Simulação de posição relativa no preview
-      if (position.includes('top')) positionClasses = 'items-start justify-center pt-4';
-      if (position.includes('bottom')) positionClasses = 'items-end justify-center pb-4';
+      if (position.includes('top')) {positionClasses = 'items-start justify-center pt-4';}
+      if (position.includes('bottom')) {positionClasses = 'items-end justify-center pb-4';}
   }
 
   // Classes de Overlay
   let overlayClasses = 'bg-black/80 backdrop-blur-sm';
-  if (overlay === 'transparent') overlayClasses = 'bg-transparent pointer-events-none';
-  if (overlay === 'blur') overlayClasses = 'bg-white/30 backdrop-blur-xl';
+  if (overlay === 'transparent') {overlayClasses = 'bg-transparent pointer-events-none';}
+  if (overlay === 'blur') {overlayClasses = 'bg-white/30 backdrop-blur-xl';}
 
   // Classes de Animação
   let animationClass = mode === 'live' ? 'animate-zoomIn' : '';
   if (mode === 'live') {
-      if (animation === 'fade') animationClass = 'animate-fadeIn';
-      if (animation === 'slide-up') animationClass = 'animate-slideUp';
-      if (animation === 'slide-in-right') animationClass = 'animate-slideInRight';
-      if (animation === 'slide-in-left') animationClass = 'animate-slideInLeft';
+      if (animation === 'fade') {animationClass = 'animate-fadeIn';}
+      if (animation === 'slide-up') {animationClass = 'animate-slideUp';}
+      if (animation === 'slide-in-right') {animationClass = 'animate-slideInRight';}
+      if (animation === 'slide-in-left') {animationClass = 'animate-slideInLeft';}
   }
 
   // Mapeamento de Tamanhos
@@ -99,12 +99,12 @@ const PromoPopupView: React.FC<PromoPopupViewProps> = ({ config, mode, onClose, 
 
   const isSplit = theme.layout === 'split';
   let containerSizeClasses = getSizeClass(size);
-  if (isSplit && !containerSizeClasses.includes('max-w') && size !== 'fullscreen') containerSizeClasses += ' max-w-4xl grid md:grid-cols-2';
+  if (isSplit && !containerSizeClasses.includes('max-w') && size !== 'fullscreen') {containerSizeClasses += ' max-w-4xl grid md:grid-cols-2';}
   
   if (mode === 'preview') {
-      if (size === 'banner_top' || size === 'banner_bottom') containerSizeClasses = 'w-full max-w-sm';
-      if (size === 'sidebar_left' || size === 'sidebar_right') containerSizeClasses = 'w-64';
-      if (size === 'fullscreen') containerSizeClasses = 'w-full h-full';
+      if (size === 'banner_top' || size === 'banner_bottom') {containerSizeClasses = 'w-full max-w-sm';}
+      if (size === 'sidebar_left' || size === 'sidebar_right') {containerSizeClasses = 'w-64';}
+      if (size === 'fullscreen') {containerSizeClasses = 'w-full h-full';}
   }
 
   // Renderização de Mídia OTIMIZADA com MEDIA THEMES e VIDEO FRAMES e FILTERS

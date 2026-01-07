@@ -164,10 +164,10 @@ export const fetchSiteData = async (): Promise<{ source: 'database' | 'mock'; da
             supabase.from('jobs').select('*')
         ]);
 
-        if (adsRes.error) logger.log(`⚠️ Erro Anúncios: ${adsRes.error.message}`);
-        else logger.log(`✅ Anúncios: ${adsRes.data?.length}`);
+        if (adsRes.error) {logger.log(`⚠️ Erro Anúncios: ${adsRes.error.message}`);}
+        else {logger.log(`✅ Anúncios: ${adsRes.data?.length}`);}
 
-        if (jobsRes.error) logger.log(`⚠️ Erro Vagas: ${jobsRes.error.message}`);
+        if (jobsRes.error) {logger.log(`⚠️ Erro Vagas: ${jobsRes.error.message}`);}
 
         // 3. Fetch Users (Protegido - Pode falhar)
         let users: any[] = [];
@@ -224,7 +224,7 @@ export const fetchSiteData = async (): Promise<{ source: 'database' | 'mock'; da
 
 export const createNews = async (news: NewsItem) => {
     const supabase = getSupabase();
-    if (!supabase) throw new Error("Supabase client not initialized");
+    if (!supabase) {throw new Error("Supabase client not initialized");}
 
     // Ensure ID is undefined so Postgres generates UUID if not provided, or respect provided ID
     const payload = mapNewsToDb(news);
@@ -243,7 +243,7 @@ export const createNews = async (news: NewsItem) => {
 
 export const updateNews = async (news: NewsItem) => {
     const supabase = getSupabase();
-    if (!supabase) throw new Error("Supabase client not initialized");
+    if (!supabase) {throw new Error("Supabase client not initialized");}
 
     const payload = mapNewsToDb(news);
 
@@ -260,40 +260,40 @@ export const updateNews = async (news: NewsItem) => {
 
 export const deleteNews = async (id: string) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const { error } = await supabase.from('news').delete().eq('id', id);
-    if (error) throw error;
+    if (error) {throw error;}
 };
 
 export const upsertAdvertiser = async (advertiser: Advertiser) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const payload = mapAdvertiserToDb(advertiser);
     const { error } = await supabase.from('advertisers').upsert(payload);
-    if (error) throw error;
+    if (error) {throw error;}
 };
 
 export const saveSystemSetting = async (key: string, value: any) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const { error } = await supabase.from('system_settings').upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-    if (error) throw error;
+    if (error) {throw error;}
 };
 
 export const getSystemSetting = async (key: string) => {
     const supabase = getSupabase();
-    if (!supabase) return null;
+    if (!supabase) {return null;}
     const { data, error } = await supabase.from('system_settings').select('value').eq('key', key).maybeSingle();
-    if (error) return null;
+    if (error) {return null;}
     return data?.value || null;
 };
 
 export const fetchDailyBreadWithLookahead = async (): Promise<{ today: DailyBreadData | null; upcoming: DailyBreadData[] }> => {
     const supabase = getSupabase();
-    if (!supabase) return { today: null, upcoming: [] };
+    if (!supabase) {return { today: null, upcoming: [] };}
     const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase.from('daily_bread').select('*').gte('date', today).order('date', { ascending: true }).limit(5);
-    if (error || !data) return { today: null, upcoming: [] };
+    if (error || !data) {return { today: null, upcoming: [] };}
     const todayBread = data.find(d => d.date === today) || data[0];
     const upcoming = data.filter(d => d.date !== todayBread?.date);
     return { today: todayBread, upcoming };
@@ -301,10 +301,10 @@ export const fetchDailyBreadWithLookahead = async (): Promise<{ today: DailyBrea
 
 export const recordEngagementVote = async (newsId: string, blockId: string, optionId: string, type: string) => {
     const supabase = getSupabase();
-    if (!supabase) return null;
+    if (!supabase) {return null;}
     // Logica simplificada: busca a notícia, atualiza o bloco e salva de volta
     const { data: news } = await supabase.from('news').select('*').eq('id', newsId).single();
-    if (!news) return null;
+    if (!news) {return null;}
     const mappedNews = mapNewsFromDb(news);
     const updatedBlocks = (mappedNews.blocks || []).map(block => {
         if (block.id === blockId) {
@@ -315,11 +315,11 @@ export const recordEngagementVote = async (newsId: string, blockId: string, opti
                 );
             } else if (['battle', 'visual_vote', 'impact_ask'].includes(type)) {
                 if (optionId === 'A' || optionId === 'YES') {
-                    if (content.optionA) content.optionA.votes = (content.optionA.votes || 0) + 1;
-                    else content.votesA = (content.votesA || 0) + 1;
+                    if (content.optionA) {content.optionA.votes = (content.optionA.votes || 0) + 1;}
+                    else {content.votesA = (content.votesA || 0) + 1;}
                 } else {
-                    if (content.optionB) content.optionB.votes = (content.optionB.votes || 0) + 1;
-                    else content.votesB = (content.votesB || 0) + 1;
+                    if (content.optionB) {content.optionB.votes = (content.optionB.votes || 0) + 1;}
+                    else {content.votesB = (content.votesB || 0) + 1;}
                 }
             } else if (type === 'counter') {
                 content.count = (content.count || 0) + 1;
@@ -329,16 +329,16 @@ export const recordEngagementVote = async (newsId: string, blockId: string, opti
         return block;
     });
     const { error } = await supabase.from('news').update({ blocks: updatedBlocks }).eq('id', newsId);
-    if (error) return null;
+    if (error) {return null;}
     return { ...mappedNews, blocks: updatedBlocks };
 };
 
 export const saveSocialPost = async (post: SocialPost) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const payload = mapSocialPostToDb(post);
     const { error } = await supabase.from('social_posts').insert(payload);
-    if (error) throw error;
+    if (error) {throw error;}
 };
 
 export const getDatabaseSchemaSQL = async () => {

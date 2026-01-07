@@ -14,7 +14,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect, label, acc
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {return;}
 
     setIsProcessing(true);
     const isVideo = file.type.startsWith('video/');
@@ -29,10 +29,10 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect, label, acc
   };
 
   const clearSelection = () => {
-    if (preview) URL.revokeObjectURL(preview);
+    if (preview) {URL.revokeObjectURL(preview);}
     setPreview(null);
     onMediaSelect(null, '', 'image');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) {fileInputRef.current.value = '';}
   };
 
   return (

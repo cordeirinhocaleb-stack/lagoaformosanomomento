@@ -29,12 +29,12 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
   const [tab, setTab] = React.useState<'style' | 'seo'>('style');
 
   const updateSets = (newSets: any) => {
-    if (!block) return;
+    if (!block) {return;}
     onUpdate({ ...block, settings: { ...block.settings, ...newSets } });
   };
 
   const updateContent = (newContent: any) => {
-    if (!block) return;
+    if (!block) {return;}
     onUpdate({ ...block, content: typeof block.content === 'object' ? { ...block.content, ...newContent } : newContent });
   };
 

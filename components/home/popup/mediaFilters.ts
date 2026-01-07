@@ -57,8 +57,8 @@ export const MEDIA_FILTERS: FilterDefinition[] = [
 ];
 
 export const getMediaFilterCss = (filter?: PopupMediaFilter, variant?: PopupMediaFilterVariant): string => {
-    if (!filter || filter === 'none') return '';
+    if (!filter || filter === 'none') {return '';}
     const def = MEDIA_FILTERS.find(f => f.id === filter);
-    if (!def) return '';
+    if (!def) {return '';}
     return def.classes[variant || 'soft'];
 };

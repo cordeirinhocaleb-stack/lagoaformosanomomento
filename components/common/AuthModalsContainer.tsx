@@ -63,62 +63,57 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
      */
     const handleRoleSelect = async (role: string, data: any) => {
         const sb = getSupabase();
-        if (!sb) return;
+        if (!sb) { return; }
 
         let createdUserId: string | null = null;
         let createdUserEmail: string | null = null;
 
         try {
             // CADASTRO MANUAL (Email/Senha)
+            // CADASTRO MANUAL (Email/Senha)
             if (!pendingGoogleUser) {
+                // Preparar metadata para o trigger criar o perfil completo
+                const newUserMetadata = {
+                    name: data.username,
+                    role,
+                    phone: data.phone || null,
+                    city: data.city || null,
+                    state: data.state || null,
+                    zipCode: data.zipCode || null,
+                    street: data.street || null,
+                    number: data.number || null,
+                    birthDate: data.birthDate || null,
+                    document: data.document || null,
+                    profession: data.profession || null,
+                    education: data.education || null,
+                    availability: data.availability || null,
+                    companyName: data.companyName || null,
+                    businessType: data.businessType || null,
+                    hasSocialMedia: data.hasSocialMedia || false,
+                    socialMediaLink: data.socialMediaLink || null,
+                    businessTypeCustom: data.businessType === 'Outros' ? data.customBusinessType : null
+                };
+
                 const { data: authData, error: authError } = await sb.auth.signUp({
                     email: pendingManualEmail!,
                     password: data.password,
-                    options: { data: { full_name: data.username } },
+                    options: {
+                        data: newUserMetadata // Trigger 'handle_new_auth_user' vai pegar isso e criar o user na tabela public.users
+                    }
                 });
 
-                if (authError) throw authError;
+                if (authError) { throw authError; }
 
                 if (authData.user) {
                     createdUserId = authData.user.id;
                     createdUserEmail = pendingManualEmail;
 
-                    const newUser = {
-                        id: authData.user.id,
-                        name: data.username,
-                        email: pendingManualEmail!,
-                        role,
-                        status: 'active',
-                        phone: data.phone || null,
-                        city: data.city || null,
-                        state: data.state || null,
-                        zipCode: data.zipCode || null,
-                        street: data.street || null,
-                        number: data.number || null,
-                        birthDate: data.birthDate || null,
-                        document: data.document || null,
-                        profession: data.profession || null,
-                        education: data.education || null,
-                        availability: data.availability || null,
-                        companyName: data.companyName || null,
-                        businessType: data.businessType || null,
-                        hasSocialMedia: data.hasSocialMedia || false,
-                        socialMediaLink: data.socialMediaLink || null,
-                    };
+                    // NOTA DE SEGURANÇA: Não chamamos createUser() aqui porque o Trigger do Banco já faz isso.
+                    // Tentar criar manualmente causaria erro de Chave Duplicada (500/409).
+                    // Se o trigger falhar, o usuário será criado no Auth mas sem perfil público (inconsistência),
+                    // porém o App tem lógica de "Perfil Incompleto" para lidar com isso no próximo login.
 
-                    try {
-                        await createUser(newUser as any);
-                    } catch (dbError) {
-                        // Se falhar o insert no banco (RLS por falta de sessão ativa), ignoramos.
-                        // O Self-Healing no Login cuidará disso quando o usuário confirmar o email e logar.
-                        console.warn('⚠️ Cadastro Auth OK, mas Perfil falhou (provável RLS/EmailCheck):', dbError);
-                        if (!authData.session) {
-                            console.log('ℹ️ Sem sessão ativa. Fluxo de verificação de email assumido.');
-                        } else {
-                            // Se tinha sessão e falhou, rethrow para cair no fallback
-                            throw dbError;
-                        }
-                    }
+                    console.log('✅ Auth Signup realizado. Trigger de banco deve criar perfil em breve.');
 
                     // Limpeza de cache de cadastro
                     localStorage.removeItem('lfnm_registration_backup');
@@ -126,7 +121,6 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     setSuccessMessage('Cadastro realizado com sucesso! Enviamos um link de confirmação para o seu e-mail. Por favor, verifique sua caixa de entrada (e spam) para ativar sua conta.');
                     setShowRoleSelector(false);
                     setShowSuccessModal(true);
-                    // Login modal will be opened by SuccessModal onClose if needed
                 }
             }
             // CADASTRO SOCIAL (Google)
@@ -134,12 +128,9 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 createdUserId = pendingGoogleUser.id;
                 createdUserEmail = pendingGoogleUser.email || null;
 
-                const newUser = {
-                    id: pendingGoogleUser.id,
+                const updatedFields = {
                     name: data.username,
-                    email: pendingGoogleUser.email,
                     role,
-                    status: 'active',
                     phone: data.phone || null,
                     city: data.city || null,
                     state: data.state || null,
@@ -157,12 +148,27 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     socialMediaLink: data.socialMediaLink || null,
                 };
 
-                // CRITICAL: Await DB creation BEFORE setting local state
-                await createUser(newUser as any);
+                // ATUALIZAR perfil criado pelo trigger (não inserir de novo)
+                const { error: updateError } = await sb
+                    .from('users')
+                    .update(updatedFields)
+                    .eq('id', pendingGoogleUser.id);
 
-                // If we get here, DB insert succeeded
-                setUser(newUser as any);
-                localStorage.setItem('lfnm_user', JSON.stringify(newUser));
+                if (updateError) throw updateError;
+
+                // Montar objeto completo do usuário para o estado local
+                const fullUser = {
+                    id: pendingGoogleUser.id,
+                    email: pendingGoogleUser.email,
+                    status: 'active',
+                    ...updatedFields
+                };
+
+                setUser(fullUser as any);
+                localStorage.setItem('lfnm_user', JSON.stringify(fullUser));
+
+                // Atualizar lista de usuários
+                setUsers(prev => [...prev, fullUser as any]);
 
                 // Limpeza de cache de cadastro
                 localStorage.removeItem('lfnm_registration_backup');
@@ -170,10 +176,16 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 setShowRoleSelector(false);
                 setPendingGoogleUser(null);
 
-                if (role !== 'Leitor') {
-                    setView('admin');
-                    updateHash('/admin');
-                }
+                // RECARREGAR página para forçar re-inicialização com usuário logado
+                // Isso garante que o Supabase Auth Session + Local Storage estejam sincronizados
+                setTimeout(() => {
+                    if (role !== 'Leitor') {
+                        window.location.hash = '/admin';
+                    } else {
+                        window.location.hash = '/';
+                    }
+                    window.location.reload();
+                }, 500);
             }
         } catch (e: any) {
             // FALLBACK DE RESILIÊNCIA
@@ -199,7 +211,13 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     phone: data.phone,
                 };
 
-                await createUser(basicUser as any);
+                // Para Google: UPDATE (trigger já criou)
+                // Para Manual: INSERT (signUp não cria perfil automaticamente)
+                if (pendingGoogleUser) {
+                    await sb.from('users').update(basicUser).eq('id', fallbackId);
+                } else {
+                    await createUser(basicUser as any);
+                }
 
                 const successMsg =
                     'Cadastro realizado! Alguns dados complementares foram salvos localmente e serão sincronizados em breve.';

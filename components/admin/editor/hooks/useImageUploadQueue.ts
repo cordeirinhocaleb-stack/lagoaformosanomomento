@@ -16,7 +16,7 @@ export const useImageUploadQueue = ({ bannerImages, setBannerImages, onImageUplo
 
     // Process upload queue sequentially
     const processUploadQueue = useCallback(async () => {
-        if (isProcessingQueue || uploadQueue.length === 0 || !onImageUpload) return;
+        if (isProcessingQueue || uploadQueue.length === 0 || !onImageUpload) {return;}
 
         setIsProcessingQueue(true);
         const { file, index } = uploadQueue[0];

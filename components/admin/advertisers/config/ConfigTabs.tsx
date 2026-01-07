@@ -6,9 +6,10 @@ export type ConfigTabId = 'overview' | 'popup' | 'banners' | 'plans' | 'placemen
 interface ConfigTabsProps {
   activeTab: ConfigTabId;
   onChange: (tab: ConfigTabId) => void;
+  darkMode?: boolean;
 }
 
-const ConfigTabs: React.FC<ConfigTabsProps> = ({ activeTab, onChange }) => {
+const ConfigTabs: React.FC<ConfigTabsProps> = ({ activeTab, onChange, darkMode = false }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -47,22 +48,22 @@ const ConfigTabs: React.FC<ConfigTabsProps> = ({ activeTab, onChange }) => {
   };
 
   return (
-    <div className="relative mb-6 group/tabs bg-white p-2 rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex items-center">
-      
+    <div className={`relative mb-6 group/tabs p-2 rounded-3xl border shadow-sm overflow-hidden flex items-center transition-colors ${darkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'}`}>
+
       {/* Container Esquerdo da Seta (Estilo Clima) */}
       {canScrollLeft && (
-          <div className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-r from-white via-white/90 to-transparent flex items-center justify-start pl-2 pointer-events-none">
-              <button 
-                onClick={() => scrollManual('left')} 
-                className="pointer-events-auto w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center text-red-600 shadow-lg active:scale-90 transition-all hover:bg-red-600 hover:text-white"
-              >
-                  <i className="fas fa-chevron-left text-[10px]"></i>
-              </button>
-          </div>
+        <div className={`absolute left-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-r flex items-center justify-start pl-2 pointer-events-none ${darkMode ? 'from-black via-black/90 to-transparent' : 'from-white via-white/90 to-transparent'}`}>
+          <button
+            onClick={() => scrollManual('left')}
+            className={`pointer-events-auto w-8 h-8 border rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all ${darkMode ? 'bg-zinc-800 border-white/10 text-white hover:bg-red-600' : 'bg-white border-gray-200 text-red-600 hover:bg-red-600 hover:text-white'}`}
+          >
+            <i className="fas fa-chevron-left text-[10px]"></i>
+          </button>
+        </div>
       )}
 
       {/* Área de Scroll de Abas */}
-      <div 
+      <div
         ref={scrollRef}
         onScroll={checkScroll}
         className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide py-1 px-4 mask-fade-sides"
@@ -71,11 +72,10 @@ const ConfigTabs: React.FC<ConfigTabsProps> = ({ activeTab, onChange }) => {
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`px-6 py-3.5 rounded-2xl flex items-center gap-3 transition-all whitespace-nowrap border-2 shrink-0 ${
-              activeTab === tab.id
-                ? 'bg-black border-black text-white shadow-lg scale-105 z-10'
-                : 'bg-white border-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-600'
-            }`}
+            className={`px-6 py-3.5 rounded-2xl flex items-center gap-3 transition-all whitespace-nowrap border-2 shrink-0 ${activeTab === tab.id
+              ? (darkMode ? 'bg-white border-white text-black shadow-lg scale-105 z-10' : 'bg-black border-black text-white shadow-lg scale-105 z-10')
+              : (darkMode ? 'bg-transparent border-transparent text-gray-400 hover:bg-white/5 hover:text-white' : 'bg-white border-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-600')
+              }`}
           >
             <i className={`fas ${tab.icon} text-sm ${activeTab === tab.id ? 'text-red-500' : ''}`}></i>
             <span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
@@ -85,14 +85,14 @@ const ConfigTabs: React.FC<ConfigTabsProps> = ({ activeTab, onChange }) => {
 
       {/* Container Direito da Seta (Estilo Clima) */}
       {canScrollRight && (
-          <div className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-l from-white via-white/90 to-transparent flex items-center justify-end pr-2 pointer-events-none">
-              <button 
-                onClick={() => scrollManual('right')} 
-                className="pointer-events-auto w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center text-red-600 shadow-lg active:scale-90 transition-all hover:bg-red-600 hover:text-white"
-              >
-                  <i className="fas fa-chevron-right text-[10px]"></i>
-              </button>
-          </div>
+        <div className={`absolute right-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-l flex items-center justify-end pr-2 pointer-events-none ${darkMode ? 'from-black via-black/90 to-transparent' : 'from-white via-white/90 to-transparent'}`}>
+          <button
+            onClick={() => scrollManual('right')}
+            className={`pointer-events-auto w-8 h-8 border rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all ${darkMode ? 'bg-zinc-800 border-white/10 text-white hover:bg-red-600' : 'bg-white border-gray-200 text-red-600 hover:bg-red-600 hover:text-white'}`}
+          >
+            <i className="fas fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
       )}
 
       <style>{`

@@ -12,16 +12,25 @@ import { YouTubeVideoMetadata, uploadVideoToYouTube } from '../../../../services
 import { useGoogleLogin } from '@react-oauth/google';
 
 interface YouTubeVideoUploaderProps {
-    onUploadComplete: (localId: string, metadata: YouTubeVideoMetadata) => void;
+    onUploadComplete: (youtubeUrl: string, metadata: YouTubeVideoMetadata, videoId: string) => void;
     onUploadError?: (error: string) => void;
     onSmartPlaybackRequired?: (duration: number) => void;
 }
 
-export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
+/**
+ * YouTube Video Uploader Component (BASE)
+ * Contém os hooks e a lógica principal.
+ * Separado para evitar crash de hooks quando o ClientID está ausente.
+ */
+const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
     onUploadComplete,
     onUploadError,
     onSmartPlaybackRequired
 }) => {
+    // RENDER DEBUG
+    const gClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    console.log('📹 [YOUTUBE RENDER DEBUG] Componente BASE montado. Client ID:', gClientId ? `${gClientId.substring(0, 10)}...` : 'Vazio');
+
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -40,12 +49,19 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
         madeForKids: false
     });
 
+    // useGoogleLogin is the hook that crashes if GoogleOAuthProvider is misconfigured
     const login = useGoogleLogin({
         onSuccess: (tokenResponse) => {
-            console.log('Google Auth Success:', tokenResponse);
+            console.log('🚀 [YOUTUBE DEBUG] Google Auth Success:', tokenResponse);
+            if (!tokenResponse.access_token) {
+                console.error('❌ [YOUTUBE DEBUG] Access token is empty in response');
+                setError('Token de acesso não recebido do Google.');
+                return;
+            }
             setAccessToken(tokenResponse.access_token);
         },
-        onError: () => {
+        onError: (errorResponse) => {
+            console.error('❌ [YOUTUBE DEBUG] Google Auth Error:', errorResponse);
             setError('Falha na autenticação com Google. Verifique se o Client ID está configurado.');
         },
         scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly'
@@ -89,20 +105,33 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
         setUploadProgress(0);
 
         try {
+            console.log('📦 [YOUTUBE DEBUG] Inciando upload do arquivo:', selectedFile.name, 'Tamanho:', selectedFile.size);
+
             // 1. Store file locally (Backup/Preview)
+            console.log('📦 [YOUTUBE DEBUG] Armazenando arquivo localmente...');
             const localId = await storeLocalFile(selectedFile);
+            console.log('📦 [YOUTUBE DEBUG] Arquivo ID Local:', localId);
 
             // 2. Upload to YouTube API
-            await uploadVideoToYouTube(selectedFile, metadata, accessToken, (progress) => {
+            console.log('🚀 [YOUTUBE DEBUG] Iniciando upload para YouTube API...');
+            const uploadResult = await uploadVideoToYouTube(selectedFile, metadata, accessToken!, (progress) => {
                 setUploadStage(progress.stage);
                 setUploadProgress(progress.percentage);
             });
+            console.log('✅ [YOUTUBE DEBUG] Upload concluído:', uploadResult);
 
-            // 3. Complete (Return Local ID + Metadata)
-            // Note: We return localId so the Editor can show the local preview immediately 
-            // while YouTube processes the video in the background.
-            // The metadata now contains that it was sent to YouTube.
-            onUploadComplete(localId, metadata);
+            // 3. Complete (Return YouTube URL + Metadata + Video ID)
+            // Note: We return the real YouTube URL now so the Editor doesn't try to re-upload it.
+            if (typeof onUploadComplete !== 'function') {
+                console.error('❌ [YOUTUBE DEBUG] onUploadComplete is not a function!', onUploadComplete);
+                throw new Error('Erro interno: onUploadComplete não é uma função');
+            }
+
+            onUploadComplete(uploadResult.url, {
+                ...metadata,
+                videoId: uploadResult.videoId,
+                uploadedAt: new Date().toISOString()
+            }, uploadResult.videoId);
 
             // Reset form
             setSelectedFile(null);
@@ -116,9 +145,10 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
             });
             setUploadProgress(0);
         } catch (err: any) {
+            console.error('❌ [YOUTUBE DEBUG] Falha catastrófica no upload:', err);
             const errorMsg = err.message || 'Erro ao enviar vídeo para YouTube';
             setError(errorMsg);
-            if (onUploadError) onUploadError(errorMsg);
+            if (onUploadError) { onUploadError(errorMsg); }
         } finally {
             setIsUploading(false);
         }
@@ -139,26 +169,8 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
         setMetadata(prev => ({ ...prev, tags }));
     }, []);
 
-    // Configuration Check
-    const isConfigured = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-    if (!isConfigured) {
-        return (
-            <div className="bg-red-50 border-2 border-red-400 rounded-xl p-6 text-center">
-                <i className="fas fa-exclamation-circle text-red-600 text-3xl mb-3"></i>
-                <h4 className="font-bold text-red-900 mb-2">Configuração Pendente</h4>
-                <p className="text-sm text-red-800 mb-4">
-                    O <strong>VITE_GOOGLE_CLIENT_ID</strong> não foi configurado no arquivo .env.
-                </p>
-                <div className="bg-white p-3 rounded border border-red-200 text-left text-xs text-gray-600 font-mono">
-                    VITE_GOOGLE_CLIENT_ID=seu_client_id_aqui
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 text-black">
 
             {/* Auth Section */}
             {!accessToken && (
@@ -193,7 +205,7 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
                         accept="video/*"
                         onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) handleFileSelect(file);
+                            if (file) { handleFileSelect(file); }
                         }}
                         className="hidden"
                         id="youtube-video-input"
@@ -316,7 +328,7 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
                     </div>
 
                     {/* Made for Kids */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 text-black">
                         <input
                             type="checkbox"
                             id="made-for-kids"
@@ -382,6 +394,37 @@ export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = ({
 
         </div>
     );
+};
+
+/**
+ * YouTube Video Uploader Wrapper
+ * Realiza as verificações de configuração ANTES de montar o componente BASE.
+ * Isso evita crash de hooks (como useGoogleLogin) se o Provider não tiver um ClientID válido.
+ */
+export const YouTubeVideoUploader: React.FC<YouTubeVideoUploaderProps> = (props) => {
+    // Check for Client ID
+    const gClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const isConfigured = !!gClientId && typeof gClientId === 'string' && gClientId.trim() !== '';
+
+    // RENDER WRAPPER DEBUG
+    console.log('📹 [YOUTUBE WRAPPER DEBUG] Configurado:', isConfigured, 'Client ID:', gClientId ? `${gClientId.substring(0, 10)}...` : 'Vazio');
+
+    if (!isConfigured) {
+        return (
+            <div className="bg-red-50 border-2 border-red-400 rounded-xl p-6 text-center text-black">
+                <i className="fas fa-exclamation-circle text-red-600 text-3xl mb-3"></i>
+                <h4 className="font-bold text-red-900 mb-2">Configuração Pendente</h4>
+                <p className="text-sm text-red-800 mb-4">
+                    O <strong>VITE_GOOGLE_CLIENT_ID</strong> não foi configurado no arquivo .env.
+                </p>
+                <div className="bg-white p-3 rounded border border-red-200 text-left text-xs text-gray-600 font-mono">
+                    VITE_GOOGLE_CLIENT_ID=seu_client_id_aqui
+                </div>
+            </div>
+        );
+    }
+
+    return <YouTubeVideoUploaderBase {...props} />;
 };
 
 export default YouTubeVideoUploader;

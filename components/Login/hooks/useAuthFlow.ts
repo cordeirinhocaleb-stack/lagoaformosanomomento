@@ -38,7 +38,7 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
             font-family: Inter, sans-serif; animation: slideInRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             backdrop-filter: blur(10px); max-width: 420px; min-width: 320px;
         `;
-        if (window.innerWidth < 640) welcomeToast.style.cssText += `top: 16px; right: 16px; left: 16px; max-width: none; min-width: auto; padding: 20px 24px;`;
+        if (window.innerWidth < 640) { welcomeToast.style.cssText += `top: 16px; right: 16px; left: 16px; max-width: none; min-width: auto; padding: 20px 24px;`; }
 
         welcomeToast.innerHTML = `
             <div style="display: flex; align-items: center; gap: 20px;">
@@ -56,57 +56,56 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
     };
 
     const handleGoogleLogin = async () => {
-        if (security.lockoutExpiry) return;
+        if (security.lockoutExpiry) { return; }
         const supabase = getSupabase();
-        if (!supabase) return setErrorMessage("Serviço indisponível.");
+        if (!supabase) { return setErrorMessage("Serviço indisponível."); }
         setLoading(true);
         try {
-            // @ts-ignore
-            if (supabase.auth && typeof supabase.auth.setPersistence === 'function') {
-                // @ts-ignore
-                await supabase.auth.setPersistence(rememberMe ? localStorage : sessionStorage);
-            }
+            // SIMPLIFICAÇÃO MÁXIMA: Deixar o Supabase gerenciar o redirect automaticamente
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: window.location.origin, queryParams: rememberMe ? {} : { prompt: 'select_account' } }
+                options: {
+                    skipBrowserRedirect: false,
+                    queryParams: { prompt: 'select_account' }
+                }
             });
-            if (error) setErrorMessage(error.message);
+            if (error) { setErrorMessage(error.message); }
         } catch (e: any) { setErrorMessage(e.message); }
         finally { setLoading(false); }
     };
 
     const handleRecoveryRequest = async (email: string) => {
         const targetEmail = email.trim().toLowerCase();
-        if (!targetEmail.includes('@')) return setErrorMessage("E-mail inválido.");
+        if (!targetEmail.includes('@')) { return setErrorMessage("E-mail inválido."); }
         setLoading(true); setErrorMessage(null); setSuccessMessage(null);
         try {
             const res = await requestPasswordRecovery(targetEmail);
             if (res.success) {
                 setSuccessMessage(res.message);
-                setTimeout(() => { if (isMounted.current) setMode('login'); }, 6000);
-            } else setErrorMessage(res.message);
+                setTimeout(() => { if (isMounted.current) { setMode('login'); } }, 6000);
+            } else { setErrorMessage(res.message); }
         } catch (err: any) { setErrorMessage("Falha na comunicação com o servidor."); }
         finally { setLoading(false); }
     };
 
     const handleResendConfirmation = async (identifier: string) => {
         const supabase = getSupabase();
-        if (!supabase) return;
+        if (!supabase) { return; }
         let targetEmail = identifier.trim();
         if (!targetEmail.includes('@')) {
             const found = await getEmailByUsername(targetEmail);
-            if (found) targetEmail = found;
+            if (found) { targetEmail = found; }
             else { setErrorMessage("E-mail não identificado."); return; }
         }
         try {
             const { error } = await supabase.auth.resend({ type: 'signup', email: targetEmail });
-            if (error) throw error;
+            if (error) { throw error; }
             setSuccessMessage(`LINK ENVIADO!`);
         } catch (err) { setErrorMessage("Falha ao reenviar."); }
     };
 
     const handleLoginSubmit = async (identifier: string, password: string) => {
-        if (loading || security.lockoutExpiry) return;
+        if (loading || security.lockoutExpiry) { return; }
         const cleanIdentifier = identifier.trim();
         const cleanPassword = password.trim();
         setLoading(true); setErrorMessage(null); setSuccessMessage(null);
@@ -134,29 +133,28 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
                     security.saveSecurityState(new Date(Date.now() + dbLock.secondsRemaining * 1000).toISOString(), 5);
                     throw new Error(`Acesso bloqueado por segurança.`);
                 }
-            } catch (e: any) { if (e.message.includes('Acesso bloqueado')) throw e; }
+            } catch (e: any) { if (e.message.includes('Acesso bloqueado')) { throw e; } }
 
             const { data, error }: any = await supabase.auth.signInWithPassword({ email: finalEmail, password: cleanPassword });
             if (error) {
                 const sec = await registerAuthFailure(finalEmail);
                 security.saveSecurityState(sec.lockoutUntil, sec.attempts);
                 if (error.message.includes('Email not confirmed')) { setErrorMessage("CONTA NÃO ATIVADA!"); setShowResendButton(true); }
-                else if (sec.lockoutUntil) throw new Error(`Tentativas excedidas. Bloqueado.`);
-                else throw new Error(`Senha ou usuário incorretos.`);
+                else if (sec.lockoutUntil) { throw new Error(`Tentativas excedidas. Bloqueado.`); }
+                else { throw new Error(`Senha ou usuário incorretos.`); }
             } else if (data.user) {
                 localStorage.removeItem('lfnm_login_security');
                 await resetAuthSecurity(finalEmail);
                 const { data: profile } = await supabase.from('users').select('*').eq('id', data.user.id).maybeSingle();
 
-                let userProfile = profile;
-                if (!userProfile) {
-                    // Self Healing
-                    userProfile = { id: data.user.id, name: data.user.user_metadata?.full_name || 'Usuário', email: data.user.email!, role: 'Leitor', status: 'active' };
-                    await supabase.from('users').insert({ ...userProfile, created_at: new Date().toISOString() });
+                // Trigger automático agora cria o usuário, apenas verificamos se existe
+                if (profile) {
+                    onLogin(profile, rememberMe);
+                    setTimeout(() => { showWelcomeMessage(profile.name); sessionStorage.removeItem('lfnm_login_temp'); onClose(); }, 300);
+                } else {
+                    // Se ainda assim não encontrou (muito raro), mostra erro
+                    throw new Error('Erro ao carregar perfil. Tente novamente.');
                 }
-
-                onLogin(userProfile, rememberMe);
-                setTimeout(() => { showWelcomeMessage(userProfile.name); sessionStorage.removeItem('lfnm_login_temp'); onClose(); }, 300);
             }
         } catch (error: any) {
             setErrorMessage(error.message || "Erro na autenticação.");
@@ -168,10 +166,10 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
 
     const handleSignupSubmit = async (email: string) => {
         const cleanEmail = email.trim().toLowerCase();
-        if (!cleanEmail.includes('@')) return setErrorMessage("E-mail inválido.");
+        if (!cleanEmail.includes('@')) { return setErrorMessage("E-mail inválido."); }
         setLoading(true); setErrorMessage(null);
         try {
-            if (loading) await new Promise(r => setTimeout(r, 600));
+            if (loading) { await new Promise(r => setTimeout(r, 600)); }
             const existing = await getEmailByUsername(cleanEmail);
             if (existing) { setErrorMessage("E-MAIL JÁ CADASTRADO!"); setLoading(false); return; }
             onSignupRequest(cleanEmail);

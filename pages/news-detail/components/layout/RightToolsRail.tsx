@@ -29,12 +29,12 @@ const RightToolsRail: React.FC<RightToolsRailProps> = ({
 
     // Filtra Parceiros Master Ativos
     const masterPartners = useMemo(() => {
-        if (!adConfig) return [];
+        if (!adConfig) {return [];}
         const now = new Date();
         return advertisers.filter(ad => {
-            if (!ad.isActive) return false;
-            if (new Date(ad.endDate) < now) return false;
-            if (new Date(ad.startDate) > now) return false;
+            if (!ad.isActive) {return false;}
+            if (new Date(ad.endDate) < now) {return false;}
+            if (new Date(ad.startDate) > now) {return false;}
             
             const plan = adConfig.plans.find(p => p.id === ad.plan);
             return plan && plan.features.placements && plan.features.placements.includes('master_carousel');

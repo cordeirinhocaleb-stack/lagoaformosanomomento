@@ -18,7 +18,7 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
 
     useEffect(() => {
         const container = scrollRef.current;
-        if (!container || activePartners.length === 0) return;
+        if (!container || activePartners.length === 0) {return;}
 
         let interval: any;
         if (!isPaused) {
@@ -33,7 +33,7 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
         return () => clearInterval(interval);
     }, [isPaused, activePartners.length]);
 
-    if (activePartners.length === 0) return null;
+    if (activePartners.length === 0) {return null;}
 
     return (
         <div 

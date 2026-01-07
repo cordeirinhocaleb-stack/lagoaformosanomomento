@@ -7,7 +7,7 @@ interface SpecialEffectsRendererProps {
 }
 
 export const SpecialEffectsRenderer: React.FC<SpecialEffectsRendererProps> = ({ config }) => {
-    if (!config.enabled || config.type === 'none') return null;
+    if (!config.enabled || config.type === 'none') {return null;}
 
     const { type, intensity, opacity, direction = 'top_bottom', color } = config;
 

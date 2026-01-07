@@ -28,10 +28,10 @@ export interface VideoMetadata {
 // 1. INICIAR FLUXO OAUTH (Retorna URL para o usuário autorizar)
 export const startYouTubeAuth = async (): Promise<string> => {
     const supabase = getSupabase();
-    if (!supabase) throw new Error("Supabase client not initialized");
+    if (!supabase) {throw new Error("Supabase client not initialized");}
 
     const { data, error } = await supabase.functions.invoke('youtube-auth-start');
-    if (error) throw error;
+    if (error) {throw error;}
 
     return data.url;
 };
@@ -44,7 +44,7 @@ export const queueYouTubeUpload = async (
     newsId: string
 ): Promise<{ jobId: string, status: string }> => {
     const supabase = getSupabase();
-    if (!supabase) throw new Error("Supabase client not initialized");
+    if (!supabase) {throw new Error("Supabase client not initialized");}
 
     // Upload do arquivo físico para um bucket temporário do Supabase Storage
     // Isso é necessário porque Edge Functions não recebem grandes arquivos via JSON body facilmente
@@ -54,7 +54,7 @@ export const queueYouTubeUpload = async (
         .from('raw_videos')
         .upload(tempPath, file);
 
-    if (uploadError) throw new Error(`Falha no upload temporário: ${uploadError.message}`);
+    if (uploadError) {throw new Error(`Falha no upload temporário: ${uploadError.message}`);}
 
     // Invoca a função para processar
     const { data, error } = await supabase.functions.invoke('youtube-upload-manager', {
@@ -66,14 +66,14 @@ export const queueYouTubeUpload = async (
         }
     });
 
-    if (error) throw error;
+    if (error) {throw error;}
     return data;
 };
 
 // 3. REMOVER VÍDEO (Cria job de remoção)
 export const queueYouTubeDelete = async (videoId: string): Promise<any> => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
 
     // Invoca função para remover
     const { data, error } = await supabase.functions.invoke('youtube-upload-manager', {
@@ -83,7 +83,7 @@ export const queueYouTubeDelete = async (videoId: string): Promise<any> => {
         }
     });
 
-    if (error) console.error("Falha ao agendar remoção do YouTube:", error);
+    if (error) {console.error("Falha ao agendar remoção do YouTube:", error);}
     return data;
 };
 

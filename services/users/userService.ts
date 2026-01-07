@@ -22,7 +22,7 @@ import { logAction } from '../admin/auditService';
  * Remove tags HTML e limita tamanho
  */
 const sanitizeInput = (input: string | null | undefined, maxLength: number = 500): string | null => {
-    if (!input) return null;
+    if (!input) {return null;}
     let clean = input.toString()
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -30,7 +30,7 @@ const sanitizeInput = (input: string | null | undefined, maxLength: number = 500
         .replace(/on\w+=/gi, "")
         .trim();
 
-    if (clean.length > maxLength) clean = clean.substring(0, maxLength);
+    if (clean.length > maxLength) {clean = clean.substring(0, maxLength);}
     return clean || null;
 };
 
@@ -71,36 +71,36 @@ const mapUserToDb = (user: User): any => ({
 
 export const createUser = async (user: User) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const payload = mapUserToDb(user);
     const { error } = await supabase.from('users').insert(payload);
-    if (error) throw error;
+    if (error) {throw error;}
 };
 
 export const updateUser = async (user: User) => {
     const supabase = getSupabase();
-    if (!supabase) return;
+    if (!supabase) {return;}
     const payload = mapUserToDb(user);
     const { error } = await supabase.from('users').update(payload).eq('id', user.id);
-    if (error) throw error;
+    if (error) {throw error;}
 };
 
 export const getEmailByUsername = async (username: string): Promise<string | null> => {
     const supabase = getSupabase();
-    if (!supabase) return null;
+    if (!supabase) {return null;}
     const { data, error } = await supabase
         .from('users')
         .select('email')
         .or(`name.eq.${username},email.eq.${username}`)
         .maybeSingle();
 
-    if (error) return null;
+    if (error) {return null;}
     return data?.email || null;
 };
 
 export const checkEmailExists = async (email: string): Promise<boolean> => {
     const supabase = getSupabase();
-    if (!supabase) return false;
+    if (!supabase) {return false;}
     const { data, error } = await supabase
         .from('users')
         .select('id')
@@ -131,17 +131,17 @@ export const checkAuthLockout = async (email: string) => {
 
 export const requestPasswordRecovery = async (email: string) => {
     const supabase = getSupabase();
-    if (!supabase) return { success: false, message: "Erro de servidor" };
+    if (!supabase) {return { success: false, message: "Erro de servidor" };}
     const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) return { success: false, message: error.message };
+    if (error) {return { success: false, message: error.message };}
     return { success: true, message: "Link enviado!" };
 };
 
 export const resendActivationEmail = async (email: string) => {
     const supabase = getSupabase();
-    if (!supabase) return { success: false, message: "Erro de servidor" };
+    if (!supabase) {return { success: false, message: "Erro de servidor" };}
     const { error } = await supabase.auth.resend({ type: 'signup', email });
-    if (error) return { success: false, message: error.message };
+    if (error) {return { success: false, message: error.message };}
     return { success: true, message: "E-mail reenviado!" };
 };
 
@@ -236,7 +236,7 @@ export const userPurchaseItem = async (
     details?: any
 ) => {
     const supabase = getSupabase();
-    if (!supabase) return { success: false, message: "Erro de conexão" };
+    if (!supabase) {return { success: false, message: "Erro de conexão" };}
 
     try {
         // 1. VALIDAÇÃO DE ENTRADA

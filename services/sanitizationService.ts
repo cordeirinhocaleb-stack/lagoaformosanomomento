@@ -9,7 +9,7 @@
  * Remove tags HTML e scripts de texto
  */
 export const sanitizeText = (text: string): string => {
-    if (!text) return '';
+    if (!text) {return '';}
 
     // Remove tags HTML
     let clean = text.replace(/<[^>]*>/g, '');
@@ -33,7 +33,7 @@ export const sanitizeText = (text: string): string => {
  * Extrai apenas dígitos de uma string
  */
 export const sanitizeNumber = (value: string): string => {
-    if (!value) return '';
+    if (!value) {return '';}
     return value.replace(/\D/g, '');
 };
 
@@ -41,7 +41,7 @@ export const sanitizeNumber = (value: string): string => {
  * Extrai apenas letras e espaços
  */
 export const sanitizeAlpha = (value: string): string => {
-    if (!value) return '';
+    if (!value) {return '';}
     return value.replace(/[^A-Za-zÀ-ÿ\s]/g, '').trim();
 };
 
@@ -49,7 +49,7 @@ export const sanitizeAlpha = (value: string): string => {
  * Limita comprimento de texto
  */
 export const limitText = (text: string, maxLength: number = 250): string => {
-    if (!text) return '';
+    if (!text) {return '';}
     return text.slice(0, maxLength);
 };
 
@@ -89,7 +89,7 @@ export const sanitizeCEP = (cep: string): string => {
  * Normaliza email (lowercase, trim)
  */
 export const sanitizeEmail = (email: string): string => {
-    if (!email) return '';
+    if (!email) {return '';}
     return email.toLowerCase().trim().replace(/\s/g, '');
 };
 
@@ -108,7 +108,7 @@ export const escapeHTML = (text: string): string => {
  * Remove palavras-chave SQL perigosas
  */
 export const preventSQLInjection = (text: string): string => {
-    if (!text) return '';
+    if (!text) {return '';}
 
     const dangerous = [
         'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE',
@@ -128,7 +128,7 @@ export const preventSQLInjection = (text: string): string => {
  * Valida e sanitiza URL
  */
 export const sanitizeURL = (url: string): string => {
-    if (!url) return '';
+    if (!url) {return '';}
 
     try {
         const urlObj = new URL(url);
@@ -157,7 +157,7 @@ export const sanitizeURL = (url: string): string => {
  */
 export const maskCPF = (cpf: string): string => {
     const clean = sanitizeCPF(cpf);
-    if (clean.length !== 11) return cpf;
+    if (clean.length !== 11) {return cpf;}
 
     return `***.${clean.substr(3, 3)}.***-${clean.substr(9, 2)}`;
 };
@@ -168,7 +168,7 @@ export const maskCPF = (cpf: string): string => {
  */
 export const maskCNPJ = (cnpj: string): string => {
     const clean = sanitizeCNPJ(cnpj);
-    if (clean.length !== 14) return cnpj;
+    if (clean.length !== 14) {return cnpj;}
 
     return `**.${clean.substr(2, 3)}.***/${clean.substr(8, 4)}-${clean.substr(12, 2)}`;
 };
@@ -179,9 +179,9 @@ export const maskCNPJ = (cnpj: string): string => {
  */
 export const maskEmail = (email: string): string => {
     const [user, domain] = email.split('@');
-    if (!user || !domain) return email;
+    if (!user || !domain) {return email;}
 
-    if (user.length <= 2) return `*@${domain}`;
+    if (user.length <= 2) {return `*@${domain}`;}
 
     return `${user[0]}***${user[user.length - 1]}@${domain}`;
 };
@@ -192,7 +192,7 @@ export const maskEmail = (email: string): string => {
  */
 export const maskPhone = (phone: string): string => {
     const clean = sanitizePhone(phone);
-    if (clean.length < 10) return phone;
+    if (clean.length < 10) {return phone;}
 
     const last4 = clean.slice(-4);
     return `(**) ****-${last4}`;

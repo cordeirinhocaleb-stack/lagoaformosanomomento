@@ -48,8 +48,8 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
     const [videoStart, setVideoStart] = useState<number>(initialData?.videoStart || 0);
     const [videoEnd, setVideoEnd] = useState<number>(initialData?.videoEnd || 0);
     const [blocks, setBlocks] = useState<ContentBlock[]>(() => {
-        if (initialData?.blocks && initialData.blocks.length > 0) return initialData.blocks;
-        if (initialData?.content) return [{ id: 'legacy_content', type: 'smart_block', content: initialData.content, settings: { width: 'full' } }];
+        if (initialData?.blocks && initialData.blocks.length > 0) {return initialData.blocks;}
+        if (initialData?.content) {return [{ id: 'legacy_content', type: 'smart_block', content: initialData.content, settings: { width: 'full' } }];}
         return [{ id: 'b1', type: 'paragraph', content: '', settings: { alignment: 'left', style: 'serif', thickness: '18', width: 'full' } }];
     });
     const [socialCaptions, setSocialCaptions] = useState<SocialDistribution[]>(initialData?.socialDistribution || []);
@@ -100,11 +100,11 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
     }, [isLeftSidebarOpen, isRightSidebarOpen, showLibraryMobile, showInspectorMobile, showMobileFormatting, selectedBlockId, isMobile, onSidebarToggle]);
 
     const handleScroll = useCallback(() => {
-        if (!scrollContainerRef.current) return;
+        if (!scrollContainerRef.current) {return;}
         const currentScrollY = scrollContainerRef.current.scrollTop;
         if (currentScrollY > 50) {
-            if (currentScrollY > lastScrollY.current) { if (isHeaderVisible) setIsHeaderVisible(false); }
-            else { if (!isHeaderVisible) setIsHeaderVisible(true); }
+            if (currentScrollY > lastScrollY.current) { if (isHeaderVisible) {setIsHeaderVisible(false);} }
+            else { if (!isHeaderVisible) {setIsHeaderVisible(true);} }
         } else {
             setIsHeaderVisible(true);
         }
@@ -120,8 +120,8 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
         };
         setBlocks(prev => [...prev, newBlock]);
         setSelectedBlockId(id);
-        if (isMobile) setShowLibraryMobile(false);
-        else setIsRightSidebarOpen(true);
+        if (isMobile) {setShowLibraryMobile(false);}
+        else {setIsRightSidebarOpen(true);}
     };
 
     const handleDeleteBlock = useCallback((id: string) => {
@@ -144,12 +144,12 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
 
         // Render HTML content for legacy support
         const simpleContent = blocks.map(b => {
-            if (b.type === 'paragraph') return `<p>${b.content}</p>`;
-            if (b.type === 'heading') return `<h2>${b.content}</h2>`;
-            if (b.type === 'image') return `<img src="${b.content}" alt="Imagem" style="width:100%;" />`;
-            if (b.type === 'quote') return `<blockquote>${b.content}</blockquote>`;
-            if (b.type === 'list') return b.content;
-            if (b.type === 'smart_block') return b.content;
+            if (b.type === 'paragraph') {return `<p>${b.content}</p>`;}
+            if (b.type === 'heading') {return `<h2>${b.content}</h2>`;}
+            if (b.type === 'image') {return `<img src="${b.content}" alt="Imagem" style="width:100%;" />`;}
+            if (b.type === 'quote') {return `<blockquote>${b.content}</blockquote>`;}
+            if (b.type === 'list') {return b.content;}
+            if (b.type === 'smart_block') {return b.content;}
             return '';
         }).join('');
 
@@ -256,7 +256,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
                             lead={lead} setLead={setLead}
                             isPublished={isPublished}
                             uploadingSlot={uploadingSlot}
-                            handleBlockSelect={(id) => { setSelectedBlockId(id); if (isMobile) { setShowLibraryMobile(false); setShowInspectorMobile(true); } else setIsRightSidebarOpen(true); }}
+                            handleBlockSelect={(id) => { setSelectedBlockId(id); if (isMobile) { setShowLibraryMobile(false); setShowInspectorMobile(true); } else {setIsRightSidebarOpen(true);} }}
                             handleDeleteBlock={handleDeleteBlock}
                             handleUpdateBlock={handleUpdateBlock}
                             setShowInspectorMobile={setShowInspectorMobile}
@@ -275,7 +275,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
                     onCancel={onCancel}
                     onAddClick={() => { setShowLibraryMobile(!showLibraryMobile); setShowMobileFormatting(false); setShowInspectorMobile(false); }}
                     onPublish={() => handlePublish(isPublished)}
-                    onInspectorToggle={() => { if (selectedBlockId) { setShowInspectorMobile(!showInspectorMobile); setShowMobileFormatting(false); } else setToast({ message: "Selecione um bloco primeiro", type: 'info' }); }}
+                    onInspectorToggle={() => { if (selectedBlockId) { setShowInspectorMobile(!showInspectorMobile); setShowMobileFormatting(false); } else {setToast({ message: "Selecione um bloco primeiro", type: 'info' });} }}
                     onFormattingToggle={() => { setShowMobileFormatting(!showMobileFormatting); setShowInspectorMobile(false); setShowLibraryMobile(false); }}
                     isFormattingOpen={showMobileFormatting}
                     isInspectorOpen={showInspectorMobile}

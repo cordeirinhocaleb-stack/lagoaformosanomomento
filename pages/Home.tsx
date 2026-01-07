@@ -75,7 +75,7 @@ const Home: React.FC<HomeProps> = ({
         if (shouldScrollToGrid && newsGridRef.current) {
             const timer = setTimeout(() => {
                 newsGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                if (onScrollConsumed) onScrollConsumed();
+                if (onScrollConsumed) { onScrollConsumed(); }
             }, 150);
             return () => clearTimeout(timer);
         }
@@ -89,9 +89,9 @@ const Home: React.FC<HomeProps> = ({
             if (Array.isArray(items)) {
                 items.forEach((item: any, idx: number) => {
                     let normalizedCategory = catKey;
-                    if (catKey === 'Agronegócio') normalizedCategory = 'Agro';
-                    if (catKey === 'Cultura' || catKey === 'Pop & Arte') normalizedCategory = 'Cultura';
-                    if (catKey === 'Cotidiano') normalizedCategory = 'Cotidiano';
+                    if (catKey === 'Agronegócio') { normalizedCategory = 'Agro'; }
+                    if (catKey === 'Cultura' || catKey === 'Pop & Arte') { normalizedCategory = 'Cultura'; }
+                    if (catKey === 'Cotidiano') { normalizedCategory = 'Cotidiano'; }
 
                     // Gera ID determinístico para evitar re-renderizações e warnings
                     // Se o título estiver vazio, usa um fallback para evitar null
@@ -170,7 +170,7 @@ const Home: React.FC<HomeProps> = ({
 
         if (selectedCategory !== 'all') {
             list = list.filter(n => {
-                if (selectedCategory === 'Agro' && (n.category === 'Agro' || n.category === 'Agronegócio')) return true;
+                if (selectedCategory === 'Agro' && (n.category === 'Agro' || n.category === 'Agronegócio')) { return true; }
                 return n.category === selectedCategory;
             });
         }
@@ -208,7 +208,7 @@ const Home: React.FC<HomeProps> = ({
     }, [filteredNews, currentPage, itemsPerPage]);
 
     const handlePageChange = (page: number) => {
-        if (page < 1 || page > totalPages) return;
+        if (page < 1 || page > totalPages) { return; }
         setCurrentPage(page);
         // Rola suavemente para o topo da lista de notícias
         if (newsGridRef.current) {

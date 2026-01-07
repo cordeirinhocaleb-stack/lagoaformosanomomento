@@ -31,7 +31,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
     // Fechar menu de contexto ao clicar fora
     useEffect(() => {
         const handleClickOutside = () => {
-            if (contextMenu) setContextMenu(null);
+            if (contextMenu) {setContextMenu(null);}
         };
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
@@ -77,7 +77,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
             if (items[i].type.indexOf('image') !== -1) {
                 e.preventDefault();
                 const file = items[i].getAsFile();
-                if (file) handleImageUpload(file);
+                if (file) {handleImageUpload(file);}
                 return;
             }
         }
@@ -114,7 +114,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
 
     const insertLink = () => {
         const url = prompt("Digite a URL para o link:", "https://");
-        if (url) execCommand('createLink', url);
+        if (url) {execCommand('createLink', url);}
     };
 
     // Handler unificado para ações do menu
@@ -149,7 +149,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
                 break;
             case 'delete':
                 if (confirm("Deseja limpar o conteúdo deste bloco?")) {
-                    if (contentRef.current) contentRef.current.innerHTML = "";
+                    if (contentRef.current) {contentRef.current.innerHTML = "";}
                     handleInput();
                 }
                 break;
@@ -199,7 +199,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
             onClick={(e) => {
                 e.stopPropagation();
                 onSelect();
-                setTimeout(() => { if (contentRef.current) contentRef.current.focus(); }, 50);
+                setTimeout(() => { if (contentRef.current) {contentRef.current.focus();} }, 50);
             }}
             className={`relative group/text cursor-text py-4 px-2 transition-all duration-200 min-h-[3rem] text-zinc-900 ${isSelected ? '' : 'hover:bg-zinc-50/50 rounded-xl'}`}
             role="article"

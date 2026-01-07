@@ -12,7 +12,7 @@ const GalleryRenderer: React.FC<GalleryRendererProps> = ({ block }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [comparisonValue, setComparisonValue] = useState(50);
 
-    if (items.length === 0) return null;
+    if (items.length === 0) {return null;}
 
     // --- RENDERERS POR ESTILO ---
 

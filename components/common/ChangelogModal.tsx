@@ -58,7 +58,7 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
         fix: { label: 'Ajuste', color: 'bg-zinc-500', icon: <Info className="w-3 h-3" /> }
     };
 
-    if (!isOpen && !isVisible) return null;
+    if (!isOpen && !isVisible) {return null;}
 
     return (
         <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -100,7 +100,7 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
                         {/* Status Sections */}
                         {(['feature', 'improvement', 'fix'] as const).map(catKey => {
                             const catItems = updates.filter(u => u.category === catKey);
-                            if (catItems.length === 0) return null;
+                            if (catItems.length === 0) {return null;}
 
                             return (
                                 <div key={catKey} className="space-y-3">

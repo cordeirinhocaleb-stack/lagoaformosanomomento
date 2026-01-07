@@ -39,7 +39,7 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     // Generate segments when video metadata is loaded
     useEffect(() => {
         const video = videoRef.current;
-        if (!video) return;
+        if (!video) {return;}
 
         const handleLoadedMetadata = () => {
             const duration = video.duration;
@@ -73,10 +73,10 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     // Handle segment playback
     useEffect(() => {
         const video = videoRef.current;
-        if (!video || !smartPlayback || segments.length === 0 || !isReady) return;
+        if (!video || !smartPlayback || segments.length === 0 || !isReady) {return;}
 
         const currentSegment = segments[currentSegmentIndex];
-        if (!currentSegment) return;
+        if (!currentSegment) {return;}
 
         // Jump to segment start
         video.currentTime = currentSegment.start;

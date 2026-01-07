@@ -47,7 +47,7 @@ export const getExternalNews = async () => {
                 const grouped: Record<string, any[]> = {};
 
                 dbNews.forEach((row: any) => {
-                    if (!grouped[row.category]) grouped[row.category] = [];
+                    if (!grouped[row.category]) { grouped[row.category] = []; }
                     grouped[row.category].push({
                         title: row.title,
                         sourceName: row.author || 'RSS',
@@ -87,7 +87,7 @@ export const getExternalNews = async () => {
                 const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
                 const data = await res.json();
 
-                if (data.status !== 'ok' || !data.items) throw new Error("Feed vazio");
+                if (data.status !== 'ok' || !data.items) { throw new Error("Feed vazio"); }
 
                 const items = data.items.slice(0, 5).map((item: any) => {
                     let img = item.enclosure?.link || item.thumbnail;
@@ -95,10 +95,10 @@ export const getExternalNews = async () => {
                     // Extração de imagem via Regex simples (sem IA)
                     if (!img && item.description) {
                         const imgMatch = item.description.match(/<img[^>]+src="([^">]+)"/);
-                        if (imgMatch) img = imgMatch[1];
+                        if (imgMatch) { img = imgMatch[1]; }
                     }
 
-                    if (!img) img = CATEGORY_IMAGES[feed.key];
+                    if (!img) { img = CATEGORY_IMAGES[feed.key]; }
 
                     // Limpeza de texto básica
                     let cleanDescription = "";
@@ -107,7 +107,7 @@ export const getExternalNews = async () => {
                         tempDiv.innerHTML = item.description;
                         cleanDescription = tempDiv.textContent || tempDiv.innerText || "";
                         cleanDescription = cleanDescription.replace(/\s+/g, ' ').trim();
-                        if (cleanDescription.length > 200) cleanDescription = cleanDescription.substring(0, 200) + "...";
+                        if (cleanDescription.length > 200) { cleanDescription = cleanDescription.substring(0, 200) + "..."; }
                     }
 
                     return {
@@ -130,7 +130,7 @@ export const getExternalNews = async () => {
         const results = await Promise.race([Promise.all(promises), timeoutPromise]) as any[];
 
         const finalData = results.reduce((acc, curr) => {
-            if (curr && curr.key) acc[curr.key] = curr.items;
+            if (curr && curr.key) { acc[curr.key] = curr.items; }
             return acc;
         }, {} as Record<string, any[]>);
 
@@ -180,8 +180,41 @@ export const getExternalNews = async () => {
                     const saveRSS = async () => {
                         try {
                             const { error } = await (supabase.from('news').insert(newsToInsert) as any);
-                            if (error) console.warn("⚠️ Falha ao salvar cache RSS (provável RLS):", error);
-                            else console.log("✅ Cache RSS atualizado com sucesso.");
+                            if (error) { console.warn("⚠️ Falha ao salvar cache RSS (provável RLS):", error); }
+                            else {
+                                console.log("✅ Cache RSS atualizado com sucesso.");
+
+                                // [ROTATION] Cleanup old news (Limit 100)
+                                // Only keep the newest 100 items from 'rss_automation'
+                                try {
+                                    // 1. Get IDs of the newest 100 items
+                                    const { data: keepData } = await supabase
+                                        .from('news')
+                                        .select('id')
+                                        .eq('source', 'rss_automation')
+                                        .order('created_at', { ascending: false })
+                                        .limit(100);
+
+                                    if (keepData && keepData.length === 100) {
+                                        const oldestAllowedId = keepData[99].id; // The 100th item
+                                        const { data: keepDateData } = await supabase.from('news').select('created_at').eq('id', oldestAllowedId).single();
+
+                                        if (keepDateData) {
+                                            // Delete anything OLDER than the 100th item
+                                            const { error: deleteError } = await supabase
+                                                .from('news')
+                                                .delete()
+                                                .eq('source', 'rss_automation')
+                                                .lt('created_at', keepDateData.created_at);
+
+                                            if (deleteError) { console.warn("⚠️ Falha na rotação de notícias (Cleanup):", deleteError); }
+                                            else { console.log("🧹 Rotação concluída: Notícias antigas removidas."); }
+                                        }
+                                    }
+                                } catch (cleanupError) {
+                                    console.warn("⚠️ Erro na rotina de limpeza:", cleanupError);
+                                }
+                            }
                         } catch (err: any) {
                             console.error("❌ Erro crítico ao salvar RSS:", err);
                         }
@@ -208,14 +241,14 @@ const getMoonPhaseForDate = (date: Date) => {
     const diffDays = (date.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24);
     const cyclePos = diffDays % synodic;
 
-    if (cyclePos < 1.84) return "Lua Nova";
-    if (cyclePos < 5.53) return "Lua Crescente";
-    if (cyclePos < 9.22) return "Quarto Crescente";
-    if (cyclePos < 12.91) return "Crescente Gibosa";
-    if (cyclePos < 16.61) return "Lua Cheia";
-    if (cyclePos < 20.30) return "Minguante Gibosa";
-    if (cyclePos < 23.99) return "Quarto Minguante";
-    if (cyclePos < 27.68) return "Lua Minguante";
+    if (cyclePos < 1.84) { return "Lua Nova"; }
+    if (cyclePos < 5.53) { return "Lua Crescente"; }
+    if (cyclePos < 9.22) { return "Quarto Crescente"; }
+    if (cyclePos < 12.91) { return "Crescente Gibosa"; }
+    if (cyclePos < 16.61) { return "Lua Cheia"; }
+    if (cyclePos < 20.30) { return "Minguante Gibosa"; }
+    if (cyclePos < 23.99) { return "Quarto Minguante"; }
+    if (cyclePos < 27.68) { return "Lua Minguante"; }
     return "Lua Nova";
 };
 
@@ -249,7 +282,7 @@ export const getCurrentWeather = async () => {
         });
     }
 
-    if (moonChangeInfo) forecast[0].upcomingMoonChange = moonChangeInfo;
+    if (moonChangeInfo) { forecast[0].upcomingMoonChange = moonChangeInfo; }
     return forecast;
 };
 

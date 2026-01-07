@@ -34,14 +34,14 @@ export const renderCurrentText = (variant: string, perStyle: any, baseStyles: Re
     } else if (variant === 'footnote') {
         const fn = perStyle.footnote || { prefix: 'none', opacity: 0.7, sizePx: 13, italic: true };
         variantStyles = { ...fluidStyles, fontSize: `${fn.sizePx}px`, opacity: fn.opacity, borderTop: fn.showTopBorder ? '1px solid #e5e7eb' : 'none', paddingTop: '16px', marginTop: '24px', fontStyle: fn.italic ? 'italic' : 'normal', color: '#6b7280' };
-        if (fn.prefix !== 'none') variantPre = <span className="font-black uppercase text-[10px] mr-2 text-zinc-900 not-italic">{fn.prefix}:</span>;
+        if (fn.prefix !== 'none') {variantPre = <span className="font-black uppercase text-[10px] mr-2 text-zinc-900 not-italic">{fn.prefix}:</span>;}
     } else if (variant === 'tech_neon') {
         const tn = perStyle.tech_neon || { neonColor: '#00f2ff', glow: 1, panel: 'none', mono: true };
         const nColor = tn.neonColor || '#00f2ff';
         let shadow = 'none';
-        if (tn.glow === 1) shadow = `0 0 10px ${nColor}`;
-        else if (tn.glow === 2) shadow = `0 0 10px ${nColor}, 0 0 20px ${nColor}`;
-        else if (tn.glow === 3) shadow = `0 0 10px ${nColor}, 0 0 20px ${nColor}, 0 0 40px ${nColor}`;
+        if (tn.glow === 1) {shadow = `0 0 10px ${nColor}`;}
+        else if (tn.glow === 2) {shadow = `0 0 10px ${nColor}, 0 0 20px ${nColor}`;}
+        else if (tn.glow === 3) {shadow = `0 0 10px ${nColor}, 0 0 20px ${nColor}, 0 0 40px ${nColor}`;}
         variantStyles = { ...fluidStyles, color: nColor, fontFamily: tn.mono ? FONT_MAP.mono : 'inherit', textShadow: shadow, backgroundColor: tn.panel === 'dark' ? 'rgba(10, 10, 10, 0.95)' : 'transparent', padding: tn.panel === 'dark' ? '24px' : '0px', borderRadius: '16px', border: tn.panel === 'dark' ? `1px solid ${nColor}33` : 'none', letterSpacing: '0.05em' };
     }
 

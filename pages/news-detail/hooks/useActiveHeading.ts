@@ -17,7 +17,7 @@ export const useActiveHeading = (headingIds: string[]) => {
 
         headingIds.forEach((id) => {
             const el = document.getElementById(id);
-            if (el) observer.observe(el);
+            if (el) {observer.observe(el);}
         });
 
         return () => observer.disconnect();

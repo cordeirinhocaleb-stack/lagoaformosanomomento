@@ -8,7 +8,7 @@ interface BreakingNewsBarProps {
 }
 
 const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({ item, onClick }) => {
-  if (!item) return null;
+  if (!item) {return null;}
 
   return (
     <div 

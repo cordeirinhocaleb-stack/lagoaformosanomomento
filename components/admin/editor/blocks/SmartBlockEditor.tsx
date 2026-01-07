@@ -57,14 +57,14 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // HELPER: Prepare HTML for Editor (Inject contentEditable)
     const prepareHtmlForEditing = useCallback((html: string) => {
-        if (!html) return '';
+        if (!html) {return '';}
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
         // Find all editable keys and make them editable + styled
         const editableElements = doc.querySelectorAll('[data-key]');
 
-        if (editableElements.length === 0) return html; // Return original if no keys found
+        if (editableElements.length === 0) {return html;} // Return original if no keys found
 
         editableElements.forEach(el => {
             el.setAttribute('contenteditable', 'true');
@@ -81,7 +81,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // INITIALIZATION & SYNC
     useEffect(() => {
-        if (isEditingRef.current) return;
+        if (isEditingRef.current) {return;}
 
         let baseHtml = block.content;
         // Fallback to template if content is empty/corrupt
@@ -107,7 +107,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // SYNC BACK TO PARENT
     const syncContent = () => {
-        if (!containerRef.current || !widgetDef) return;
+        if (!containerRef.current || !widgetDef) {return;}
 
         // Clone the container to clean up attributes before saving
         const clone = containerRef.current.cloneNode(true) as HTMLElement;
@@ -118,7 +118,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
         // Clean up: Remove contentEditable and preview classes
         clone.querySelectorAll('[data-key]').forEach((el) => {
             const key = el.getAttribute('data-key');
-            if (key) newData[key] = el.innerHTML;
+            if (key) {newData[key] = el.innerHTML;}
 
             el.removeAttribute('contenteditable');
             // We should strip the specific classes we added? 
@@ -192,7 +192,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
     }, []);
 
 
-    if (!widgetDef) return <div className="p-4 text-red-500 text-xs">Widget perdido. Recrie o bloco.</div>;
+    if (!widgetDef) {return <div className="p-4 text-red-500 text-xs">Widget perdido. Recrie o bloco.</div>;}
 
     return (
         <div className={`w-full relative group/editor transition-all duration-300 p-4 rounded-xl ${activeTheme.classes.wrapper}`}>
@@ -224,7 +224,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
                     onFormat={handleFormat}
                     onInsertLink={() => {
                         const url = prompt('Link URL:', 'https://');
-                        if (url) handleFormat('createLink', url);
+                        if (url) {handleFormat('createLink', url);}
                     }}
                 />
             )}

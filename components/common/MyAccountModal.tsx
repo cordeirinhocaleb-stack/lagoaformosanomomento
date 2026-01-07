@@ -13,6 +13,7 @@ interface MyAccountModalProps {
 }
 
 import { userPurchaseItem } from '../../services/users/userService';
+import { uploadToCloudinary } from '../../services/cloudinaryService';
 
 interface MarketItem {
   id: string;
@@ -64,7 +65,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
   const calculateTotal = () => cartItems.reduce((acc, item) => acc + item.cost, 0);
 
   const handlePurchase = async () => {
-    if (cartItems.length === 0) return;
+    if (cartItems.length === 0) { return; }
     const total = calculateTotal();
     const balance = user.siteCredits || 0;
 
@@ -73,7 +74,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
       return;
     }
 
-    if (!confirm(`Confirmar compra de ${cartItems.length} itens?\nTotal: ${total} Moedas`)) return;
+    if (!confirm(`Confirmar compra de ${cartItems.length} itens?\nTotal: ${total} Moedas`)) { return; }
 
     setIsLoading(true);
     try {
@@ -226,6 +227,8 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
   const [activeTab, setActiveTab] = useState<'profile' | 'professional' | 'security' | 'billing' | 'notifications'>('profile');
   const [formData, setFormData] = useState({ ...user });
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -238,6 +241,24 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
   const handleSaveProfile = () => {
     onUpdateUser(formData);
     alert('Perfil atualizado com sucesso!');
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      const url = await uploadToCloudinary(file, 'avatars', 'perfil_usuario');
+      const updatedUser = { ...formData, avatar: url };
+      setFormData(updatedUser);
+      onUpdateUser(updatedUser);
+    } catch (err: any) {
+      alert('Erro ao carregar avatar: ' + err.message);
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const TabButton = ({ id, label, icon }: { id: typeof activeTab, label: string, icon: string }) => (
@@ -272,8 +293,32 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
 
         <div className="w-full md:w-80 bg-white border-r border-gray-100 flex flex-col">
           <div className="p-10 flex flex-col items-center border-b border-gray-100 bg-gray-50/50">
-            <div className="w-24 h-24 rounded-full bg-gray-200 mb-4 overflow-hidden border-4 border-white shadow-lg">
-              {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white text-2xl font-black">{user.name.charAt(0)}</div>}
+            <div
+              className="w-24 h-24 rounded-full bg-gray-200 mb-4 overflow-hidden border-4 border-white shadow-lg relative group cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isUploadingAvatar && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+                  <i className="fas fa-spinner fa-spin text-white"></i>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                <i className="fas fa-camera text-white text-xl"></i>
+              </div>
+              {formData.avatar ? (
+                <img src={formData.avatar} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white text-2xl font-black">
+                  {user.name.charAt(0)}
+                </div>
+              )}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+                className="hidden"
+                accept="image/*"
+              />
             </div>
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight text-center">{user.name}</h2>
             <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mt-2">{user.role}</span>

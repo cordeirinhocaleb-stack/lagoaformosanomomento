@@ -5,7 +5,7 @@
  */
 
 export const uploadFileToDrive = async (file: File, accessToken: string) => {
-  if (!accessToken) throw new Error("Acesso ao Google não autorizado.");
+  if (!accessToken) {throw new Error("Acesso ao Google não autorizado.");}
 
   // 1. Metadados do Arquivo
   const metadata = {

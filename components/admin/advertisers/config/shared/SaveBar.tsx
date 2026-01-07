@@ -8,7 +8,7 @@ interface SaveBarProps {
 }
 
 const SaveBar: React.FC<SaveBarProps> = ({ isVisible, onSave, onDiscard }) => {
-  if (!isVisible) return null;
+  if (!isVisible) {return null;}
 
   return (
     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[2000] animate-slideUp w-[90%] max-w-xl">

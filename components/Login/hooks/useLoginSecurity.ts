@@ -24,7 +24,7 @@ export const useLoginSecurity = () => {
                     setLockoutExpiry(expiry);
                     setSecondsRemaining(Math.ceil((expiry - now) / 1000));
                 }
-                if (attempts) setAttemptsMade(attempts);
+                if (attempts) {setAttemptsMade(attempts);}
             } catch (e) {
                 localStorage.removeItem('lfnm_login_security');
             }
@@ -33,7 +33,7 @@ export const useLoginSecurity = () => {
 
     // Timer
     useEffect(() => {
-        if (!secondsRemaining) return;
+        if (!secondsRemaining) {return;}
         const timer = setInterval(() => {
             setSecondsRemaining(prev => {
                 if (prev <= 1) {
@@ -64,7 +64,7 @@ export const useLoginSecurity = () => {
         }
 
         setAttemptsMade(attempts);
-        if (attempts > 0) triggerShake();
+        if (attempts > 0) {triggerShake();}
     }, [triggerShake]);
 
     const formatTime = (seconds: number) => {

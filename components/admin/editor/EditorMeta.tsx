@@ -54,7 +54,7 @@ export const EditorMeta: React.FC<EditorMetaProps> = ({
                     value={lead}
                     onChange={e => {
                         const val = e.target.value;
-                        if (val.length <= 250) setLead(val);
+                        if (val.length <= 250) {setLead(val);}
                     }}
                     placeholder="Resumo da reportagem (Lead)..."
                     maxLength={250}

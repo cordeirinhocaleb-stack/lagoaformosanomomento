@@ -9,9 +9,9 @@
 export const formatCPF = (value: string): string => {
     const numbers = value.replace(/\D/g, '').slice(0, 11);
 
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
-    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+    if (numbers.length <= 3) {return numbers;}
+    if (numbers.length <= 6) {return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;}
+    if (numbers.length <= 9) {return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;}
 
     return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9)}`;
 };
@@ -22,10 +22,10 @@ export const formatCPF = (value: string): string => {
 export const formatCNPJ = (value: string): string => {
     const numbers = value.replace(/\D/g, '').slice(0, 14);
 
-    if (numbers.length <= 2) return numbers;
-    if (numbers.length <= 5) return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
-    if (numbers.length <= 8) return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5)}`;
-    if (numbers.length <= 12) return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5, 8)}/${numbers.slice(8)}`;
+    if (numbers.length <= 2) {return numbers;}
+    if (numbers.length <= 5) {return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;}
+    if (numbers.length <= 8) {return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5)}`;}
+    if (numbers.length <= 12) {return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5, 8)}/${numbers.slice(8)}`;}
 
     return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5, 8)}/${numbers.slice(8, 12)}-${numbers.slice(12)}`;
 };
@@ -36,8 +36,8 @@ export const formatCNPJ = (value: string): string => {
 export const formatPhone = (value: string): string => {
     const numbers = value.replace(/\D/g, '').slice(0, 11);
 
-    if (numbers.length <= 2) return numbers;
-    if (numbers.length <= 6) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 2) {return numbers;}
+    if (numbers.length <= 6) {return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;}
 
     // Celular (11 dígitos)
     if (numbers.length === 11) {
@@ -58,7 +58,7 @@ export const formatPhone = (value: string): string => {
 export const formatCEP = (value: string): string => {
     const numbers = value.replace(/\D/g, '').slice(0, 8);
 
-    if (numbers.length <= 5) return numbers;
+    if (numbers.length <= 5) {return numbers;}
     return `${numbers.slice(0, 5)}-${numbers.slice(5)}`;
 };
 
@@ -68,8 +68,8 @@ export const formatCEP = (value: string): string => {
 export const formatDate = (value: string): string => {
     const numbers = value.replace(/\D/g, '').slice(0, 8);
 
-    if (numbers.length <= 2) return numbers;
-    if (numbers.length <= 4) return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+    if (numbers.length <= 2) {return numbers;}
+    if (numbers.length <= 4) {return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;}
     return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4)}`;
 };
 
@@ -79,7 +79,7 @@ export const formatDate = (value: string): string => {
 export const formatCurrency = (value: string): string => {
     const numbers = value.replace(/\D/g, '');
 
-    if (!numbers) return '';
+    if (!numbers) {return '';}
 
     const amount = parseInt(numbers) / 100;
     return amount.toLocaleString('pt-BR', {
@@ -94,7 +94,7 @@ export const formatCurrency = (value: string): string => {
 export const formatPercentage = (value: string): string => {
     const numbers = value.replace(/\D/g, '').slice(0, 4);
 
-    if (!numbers) return '';
+    if (!numbers) {return '';}
 
     const num = parseInt(numbers) / 100;
     return `${num.toFixed(2).replace('.', ',')}%`;
@@ -122,13 +122,13 @@ export const unformatPercentage = (value: string): number => {
 export const detectMaskType = (value: string): string => {
     const numbers = value.replace(/\D/g, '');
 
-    if (numbers.length === 11 && value.includes('-')) return 'cpf';
-    if (numbers.length === 14 && value.includes('/')) return 'cnpj';
-    if (numbers.length >= 10 && value.includes('(')) return 'phone';
-    if (numbers.length === 8 && value.includes('-')) return 'cep';
-    if (value.includes('/') && value.split('/').length === 3) return 'date';
-    if (value.includes('R$')) return 'currency';
-    if (value.includes('%')) return 'percentage';
+    if (numbers.length === 11 && value.includes('-')) {return 'cpf';}
+    if (numbers.length === 14 && value.includes('/')) {return 'cnpj';}
+    if (numbers.length >= 10 && value.includes('(')) {return 'phone';}
+    if (numbers.length === 8 && value.includes('-')) {return 'cep';}
+    if (value.includes('/') && value.split('/').length === 3) {return 'date';}
+    if (value.includes('R$')) {return 'currency';}
+    if (value.includes('%')) {return 'percentage';}
 
     return 'text';
 };

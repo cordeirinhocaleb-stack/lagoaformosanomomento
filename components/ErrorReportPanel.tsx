@@ -93,7 +93,7 @@ ${'='.repeat(80)}
     };
 
     const handleSendReport = async () => {
-        if (errors.length === 0) return;
+        if (errors.length === 0) {return;}
         setIsSending(true);
         try {
             // Envia o último erro crítico como principal, e o log completo como contexto

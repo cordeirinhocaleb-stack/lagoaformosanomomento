@@ -41,7 +41,7 @@ export const dispatchSocialWebhook = async (
   };
 
   for (const platform of PLATFORMS) {
-      if (onProgress) onProgress(platform.id, 'posting');
+      if (onProgress) {onProgress(platform.id, 'posting');}
 
       const customCaption = news.socialDistribution?.find(s => s.platform === platform.id)?.content;
       const finalCaption = customCaption || news.lead;
@@ -64,10 +64,10 @@ export const dispatchSocialWebhook = async (
           }
 
           await new Promise(resolve => setTimeout(resolve, platform.delay));
-          if (onProgress) onProgress(platform.id, 'success');
+          if (onProgress) {onProgress(platform.id, 'success');}
       } catch (error) {
           console.error(`Falha na distribuição para ${platform.label}`, error);
-          if (onProgress) onProgress(platform.id, 'error');
+          if (onProgress) {onProgress(platform.id, 'error');}
       }
   }
 
@@ -98,7 +98,7 @@ export const dispatchGenericSocialPost = async (
     const selectedPlatforms = PLATFORMS.filter(p => post.platforms.includes(p.id as any));
 
     for (const platform of selectedPlatforms) {
-        if (onProgress) onProgress(platform.id, 'posting');
+        if (onProgress) {onProgress(platform.id, 'posting');}
 
         try {
             if (webhookUrl && webhookUrl.startsWith('http')) {
@@ -112,9 +112,9 @@ export const dispatchGenericSocialPost = async (
             }
 
             await new Promise(resolve => setTimeout(resolve, platform.delay));
-            if (onProgress) onProgress(platform.id, 'success');
+            if (onProgress) {onProgress(platform.id, 'success');}
         } catch (error) {
-            if (onProgress) onProgress(platform.id, 'error');
+            if (onProgress) {onProgress(platform.id, 'error');}
         }
     }
 
@@ -127,7 +127,7 @@ export const generateWhatsAppLink = (
   itemName: string,
   itemId?: string
 ): string => {
-  if (!phone) return '#';
+  if (!phone) {return '#';}
   const cleanPhone = phone.replace(/\D/g, '');
   let message = '';
   switch (context) {

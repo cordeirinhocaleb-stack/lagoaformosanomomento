@@ -90,7 +90,7 @@ lines.forEach(line => {
 
             let catType = 'improvement';
             for (const key in categoryMap) {
-                if (rawCat.includes(key)) catType = categoryMap[key];
+                if (rawCat.includes(key)) {catType = categoryMap[key];}
             }
 
             currentVer.items.push({
@@ -103,7 +103,7 @@ lines.forEach(line => {
 });
 
 const configDir = path.join(rootDir, 'config');
-if (!fs.existsSync(configDir)) fs.mkdirSync(configDir);
+if (!fs.existsSync(configDir)) {fs.mkdirSync(configDir);}
 
 fs.writeFileSync(
     path.join(configDir, 'changelog.json'),

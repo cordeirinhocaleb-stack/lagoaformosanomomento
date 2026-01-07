@@ -70,8 +70,8 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
     };
 
     const handleBroadcast = async () => {
-        if (!content && !pendingMedia) return alert("Adicione texto ou mídia para postar.");
-        if (selectedPlatforms.length === 0) return alert("Selecione ao menos uma rede social.");
+        if (!content && !pendingMedia) {return alert("Adicione texto ou mídia para postar.");}
+        if (selectedPlatforms.length === 0) {return alert("Selecione ao menos uma rede social.");}
 
         setPublishStatus('uploading');
         

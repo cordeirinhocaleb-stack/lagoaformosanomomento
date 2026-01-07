@@ -9,9 +9,10 @@ import LivePreviewStage from './LivePreviewStage';
 interface PopupSetBuilderProps {
     config: PromoPopupSetConfig;
     onChange: (config: PromoPopupSetConfig) => void;
+    darkMode?: boolean;
 }
 
-const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange }) => {
+const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, darkMode = false }) => {
     const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
     const [mobileTab, setMobileTab] = useState<'config' | 'preview'>('config');
     const [isConfigOpen, setIsConfigOpen] = useState(true);
@@ -26,7 +27,7 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange }) =
     }, [config.items, selectedItemId]);
 
     const handleAdd = () => {
-        if (config.items.length >= MAX_ITEMS_PER_SET) return;
+        if (config.items.length >= MAX_ITEMS_PER_SET) { return; }
         const newItem: PromoPopupItemConfig = {
             ...DEFAULT_POPUP_ITEM,
             id: Math.random().toString(36).substr(2, 9),
@@ -37,17 +38,17 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange }) =
     };
 
     const handleDelete = (id: string) => {
-        if (!window.confirm("Tem certeza que deseja excluir este slide?")) return;
+        if (!window.confirm("Tem certeza que deseja excluir este slide?")) { return; }
         const newItems = config.items.filter(i => i.id !== id);
         onChange({ items: newItems });
         if (selectedItemId === id) {
-            if (newItems.length > 0) setSelectedItemId(newItems[0].id);
-            else setSelectedItemId(null);
+            if (newItems.length > 0) { setSelectedItemId(newItems[0].id); }
+            else { setSelectedItemId(null); }
         }
     };
 
     const handleClearAll = () => {
-        if (!window.confirm("ATENÇÃO: Isso removerá todos os slides. Continuar?")) return;
+        if (!window.confirm("ATENÇÃO: Isso removerá todos os slides. Continuar?")) { return; }
         onChange({ items: [] });
         setSelectedItemId(null);
     };
@@ -61,34 +62,41 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange }) =
     const selectedItem = config.items.find(i => i.id === selectedItemId);
 
     return (
-        <div className="flex flex-col h-[800px] lg:h-full bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden relative">
-            
+        <div className={`flex flex-col h-[800px] lg:h-full rounded-3xl lg:rounded-[2.5rem] border shadow-xl overflow-hidden relative ${darkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-gray-100'}`}>
+
             {/* 1. LISTA DE SLIDES HORIZONTAL NO TOPO */}
-            <PopupList 
+            <PopupList
                 items={config.items}
                 selectedId={selectedItemId}
                 onSelect={setSelectedItemId}
                 onAdd={handleAdd}
                 onDelete={handleDelete}
-                onDuplicate={() => {}}
-                onMove={() => {}}
+                onDuplicate={() => { }}
+                onMove={() => { }}
                 onUpdate={handleUpdate}
                 isCollapsed={false}
-                onToggleCollapse={() => {}}
+                onToggleCollapse={() => { }}
                 onClearAll={handleClearAll}
+                darkMode={darkMode}
             />
 
             {/* Mobile View Toggles */}
-            <div className="lg:hidden flex border-b border-gray-100 shrink-0">
-                <button 
-                    onClick={() => setMobileTab('config')} 
-                    className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest ${mobileTab === 'config' ? 'bg-black text-white' : 'bg-white text-gray-500'}`}
+            <div className={`lg:hidden flex border-b shrink-0 ${darkMode ? 'border-white/10' : 'border-gray-100'}`}>
+                <button
+                    onClick={() => setMobileTab('config')}
+                    className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest ${mobileTab === 'config'
+                        ? (darkMode ? 'bg-white text-black' : 'bg-black text-white')
+                        : (darkMode ? 'bg-zinc-900 text-gray-500' : 'bg-white text-gray-500')
+                        }`}
                 >
                     Configurar
                 </button>
-                <button 
-                    onClick={() => setMobileTab('preview')} 
-                    className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest ${mobileTab === 'preview' ? 'bg-black text-white' : 'bg-white text-gray-500'}`}
+                <button
+                    onClick={() => setMobileTab('preview')}
+                    className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest ${mobileTab === 'preview'
+                        ? (darkMode ? 'bg-white text-black' : 'bg-black text-white')
+                        : (darkMode ? 'bg-zinc-900 text-gray-500' : 'bg-white text-gray-500')
+                        }`}
                 >
                     Preview
                 </button>
@@ -96,25 +104,27 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange }) =
 
             <div className="flex-1 flex overflow-hidden relative">
                 {/* LADO ESQUERDO: EDITOR */}
-                <div 
+                <div
                     className={`
-                        flex flex-col border-r border-gray-100 transition-all duration-500 ease-in-out bg-white z-20
+                        flex flex-col border-r transition-all duration-500 ease-in-out z-20
                         ${isConfigOpen ? 'w-full lg:w-[50%] xl:w-[45%] translate-x-0 opacity-100' : 'w-0 -translate-x-full opacity-0 absolute inset-y-0'}
                         ${mobileTab === 'preview' ? 'hidden lg:flex' : 'flex'}
+                        ${darkMode ? 'bg-zinc-900 border-white/5' : 'bg-white border-gray-100'}
                     `}
                 >
-                    <div className="flex-1 h-full overflow-hidden bg-white relative flex flex-col">
+                    <div className={`flex-1 h-full overflow-hidden relative flex flex-col ${darkMode ? 'bg-zinc-900' : 'bg-white'}`}>
                         {/* Botão de Expansão removido conforme solicitado */}
                         {selectedItem ? (
-                            <PopupEditor 
+                            <PopupEditor
                                 key={selectedItem.id}
-                                item={selectedItem} 
-                                onChange={(updates) => handleUpdate(selectedItem.id, updates)} 
+                                item={selectedItem}
+                                onChange={(updates) => handleUpdate(selectedItem.id, updates)}
                                 onDelete={() => handleDelete(selectedItem.id)}
+                                darkMode={darkMode}
                             />
                         ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-gray-400 p-8 text-center bg-gray-50/30">
-                                <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4">
+                            <div className={`h-full flex flex-col items-center justify-center p-8 text-center ${darkMode ? 'bg-black/20 text-gray-600' : 'bg-gray-50/30 text-gray-400'}`}>
+                                <div className={`w-16 h-16 rounded-full shadow-sm flex items-center justify-center mb-4 ${darkMode ? 'bg-white/5' : 'bg-white'}`}>
                                     <i className="fas fa-bullhorn text-2xl opacity-20"></i>
                                 </div>
                                 <p className="text-[10px] font-black uppercase tracking-widest">Crie ou selecione um slide no menu superior</p>
@@ -124,19 +134,20 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange }) =
                 </div>
 
                 {/* LADO DIREITO: PREVIEW */}
-                <div className={`flex-1 bg-gray-50 p-2 lg:p-4 ${mobileTab === 'config' ? 'hidden lg:block' : 'block'} transition-all duration-500 relative`}>
+                <div className={`flex-1 p-2 lg:p-4 ${mobileTab === 'config' ? 'hidden lg:block' : 'block'} transition-all duration-500 relative ${darkMode ? 'bg-black/40' : 'bg-gray-50'}`}>
                     {!isConfigOpen && (
-                        <button 
+                        <button
                             onClick={() => setIsConfigOpen(true)}
-                            className="absolute top-6 left-6 z-[60] bg-black text-white px-5 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest shadow-xl flex items-center gap-3 hover:bg-green-600 transition-all animate-fadeIn"
+                            className={`absolute top-6 left-6 z-[60] px-5 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest shadow-xl flex items-center gap-3 transition-all animate-fadeIn ${darkMode ? 'bg-white text-black hover:bg-green-500 hover:text-white' : 'bg-black text-white hover:bg-green-600'}`}
                         >
                             <i className="fas fa-pen"></i> Voltar ao Editor
                         </button>
                     )}
 
-                    <LivePreviewStage 
-                        popupSet={config} 
+                    <LivePreviewStage
+                        popupSet={config}
                         selectedItemId={selectedItemId}
+                        darkMode={darkMode}
                     />
                 </div>
             </div>

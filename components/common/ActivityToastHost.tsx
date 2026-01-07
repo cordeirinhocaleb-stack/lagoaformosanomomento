@@ -36,7 +36,7 @@ const ActivityToastHost: React.FC = () => {
     return () => unsubscribe();
   }, [removeToast]);
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {return null;}
 
   return (
     <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-[400px] px-4 pointer-events-none space-y-2 flex flex-col items-center">

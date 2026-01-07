@@ -32,7 +32,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ news, forcedFontSize = 
     useEffect(() => {
         const wrapper = wrapperRef.current;
         const content = contentRef.current;
-        if (!wrapper || !content) return;
+        if (!wrapper || !content) {return;}
 
         const getDistance = (touches: TouchList) => {
             return Math.hypot(
@@ -75,7 +75,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ news, forcedFontSize = 
         const onTouchMove = (e: TouchEvent) => {
             if (state.current.isZooming && e.touches.length === 2) {
                 // Previne zoom da página inteira, queremos apenas o elemento
-                if (e.cancelable) e.preventDefault();
+                if (e.cancelable) {e.preventDefault();}
 
                 const dist = getDistance(e.touches);
                 const delta = dist / state.current.initialDist;

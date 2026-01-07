@@ -126,8 +126,8 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
     // Actually, I can pass the real setToast to the hook.
 
     const resolveMedia = useCallback((url: string | undefined): string => {
-        if (!url) return '';
-        if (url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('http')) return url;
+        if (!url) { return ''; }
+        if (url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('http')) { return url; }
         if (url.startsWith('local_')) {
             return localPreviews[url] || '';
         }
@@ -143,7 +143,7 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
             currentEffects = currentEffects[index];
         }
 
-        if (!currentEffects) return {};
+        if (!currentEffects) { return {}; }
 
         return {
             filter: `
@@ -167,12 +167,12 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
     const handleVideoSourceSelect = useCallback((source: 'internal' | 'youtube') => {
         setBannerVideoSource(source);
         setBannerVideoUrl('');
-        if (setBannerYoutubeVideoId) setBannerYoutubeVideoId('');
-        if (setBannerYoutubeStatus) setBannerYoutubeStatus('uploading');
+        if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(''); }
+        if (setBannerYoutubeStatus) { setBannerYoutubeStatus('uploading'); }
     }, [setBannerVideoSource, setBannerVideoUrl, setBannerYoutubeVideoId, setBannerYoutubeStatus]);
 
     const handleVideoUpload = useCallback(async (file: File) => {
-        if (!onVideoUpload || !bannerVideoSource) return;
+        if (!onVideoUpload || !bannerVideoSource) { return; }
 
         try {
             const url = await onVideoUpload(file, bannerVideoSource);
@@ -210,7 +210,7 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                             setBannerMediaType('image');
                             // Clear video if needed, or just switch view
                             setBannerVideoUrl('');
-                            if (setBannerYoutubeVideoId) setBannerYoutubeVideoId('');
+                            if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(''); }
                         }}
                         className={`flex-1 py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${bannerMediaType === 'image'
                             ? 'bg-black text-white shadow-xl'
@@ -261,7 +261,7 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                             isOpen={showEffectsPanel}
                             bannerEffects={((): any => {
                                 const defaultEffects = { brightness: 1, contrast: 1, saturation: 1, blur: 0, sepia: 0, opacity: 1 };
-                                if (Array.isArray(bannerEffects)) return bannerEffects[selectedImageIndex] || defaultEffects;
+                                if (Array.isArray(bannerEffects)) { return bannerEffects[selectedImageIndex] || defaultEffects; }
                                 return bannerEffects || defaultEffects;
                             })() as any}
                             onEffectsChange={(newEffects: any) => {
@@ -369,8 +369,8 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                                             <button
                                                 onClick={() => {
                                                     setBannerVideoUrl('');
-                                                    if (setBannerYoutubeVideoId) setBannerYoutubeVideoId('');
-                                                    if (setBannerYoutubeStatus) setBannerYoutubeStatus('uploading');
+                                                    if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(''); }
+                                                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('uploading'); }
                                                 }}
                                                 className="text-xs text-red-600 font-bold hover:underline flex items-center gap-1"
                                             >
@@ -471,18 +471,20 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                         {/* Modal Content */}
                         <div className="p-6">
                             <YouTubeVideoUploader
-                                onUploadComplete={(localId, metadata) => {
-                                    setBannerVideoUrl(localId);
-                                    if (setBannerYoutubeVideoId) setBannerYoutubeVideoId(`job_${Date.now()}`); // Placeholder ID
-                                    if (setBannerYoutubeStatus) setBannerYoutubeStatus('ready');
-                                    if (setBannerYoutubeMetadata) setBannerYoutubeMetadata(metadata);
+                                onUploadComplete={(youtubeUrl, metadata, videoId) => {
+                                    // Use the actual YouTube URL instead of localId
+                                    // This prevents syncService from trying to re-upload it
+                                    setBannerVideoUrl(youtubeUrl);
+                                    if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(videoId); }
+                                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('ready'); }
+                                    if (setBannerYoutubeMetadata) { setBannerYoutubeMetadata(metadata); }
 
-                                    console.log('✅ Vídeo preparado localmente para YouTube:', { localId, metadata });
+                                    console.log('✅ Vídeo enviado com sucesso para YouTube:', { youtubeUrl, videoId, metadata });
                                     setShowYouTubeModal(false);
                                 }}
                                 onUploadError={(error) => {
                                     console.error('❌ Erro no upload YouTube:', error);
-                                    if (setBannerYoutubeStatus) setBannerYoutubeStatus('failed');
+                                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('failed'); }
                                 }}
                                 onSmartPlaybackRequired={(duration) => {
                                     console.log('🎬 Smart Playback será ativado (duração:', duration, 's)');

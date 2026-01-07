@@ -25,7 +25,7 @@ export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
     // Tratamento de CTA
     const isCtaSafe = isSafeUrl(item.ctaUrl);
     const handleCtaClick = () => {
-        if (isCtaSafe && item.ctaUrl && onAction) onAction(item.ctaUrl);
+        if (isCtaSafe && item.ctaUrl && onAction) {onAction(item.ctaUrl);}
     };
 
     const textStyle = item.textStyle;
@@ -48,9 +48,9 @@ export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
 
     // Button Style
     let btnClasses = 'px-8 py-3.5 font-black uppercase tracking-widest text-xs transition-all shadow-xl border-2';
-    if (textStyle.buttonRounded === 'full') btnClasses += ' rounded-full';
-    else if (textStyle.buttonRounded === 'none') btnClasses += ' rounded-none';
-    else btnClasses += ' rounded-xl';
+    if (textStyle.buttonRounded === 'full') {btnClasses += ' rounded-full';}
+    else if (textStyle.buttonRounded === 'none') {btnClasses += ' rounded-none';}
+    else {btnClasses += ' rounded-xl';}
 
     let btnStyle = {};
     if (textStyle.buttonStyle === 'outline') {

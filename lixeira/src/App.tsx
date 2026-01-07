@@ -184,16 +184,16 @@ const App: React.FC = () => {
   };
 
   const checkUserExists = async (sessionUser: any, sbClient: any) => {
-      if (!sessionUser || !sessionUser.email) return null;
+      if (!sessionUser || !sessionUser.email) {return null;}
       try {
           const { data: dbUser } = await sbClient.from('users').select('*').eq('email', sessionUser.email).single();
-          if (dbUser) return { ...dbUser, avatar: sessionUser.user_metadata.avatar_url || dbUser.avatar };
+          if (dbUser) {return { ...dbUser, avatar: sessionUser.user_metadata.avatar_url || dbUser.avatar };}
           return null;
       } catch (error) { return null; }
   };
 
   const handleFinalizeRegistration = async (selectedRole: UserRole, extraData: any) => {
-      if (!pendingGoogleUser) return;
+      if (!pendingGoogleUser) {return;}
       const newUser: User = {
           id: pendingGoogleUser.id,
           name: extraData.username || pendingGoogleUser.user_metadata.full_name || 'Usuário Google',
@@ -229,7 +229,7 @@ const App: React.FC = () => {
 
   const cancelRegistration = async () => {
       const sb = getSupabase();
-      if (sb) await sb.auth.signOut();
+      if (sb) {await sb.auth.signOut();}
       setShowRoleSelector(false);
       setPendingGoogleUser(null);
       setView('home');
@@ -253,7 +253,7 @@ const App: React.FC = () => {
         const savedSettings = localStorage.getItem('lfnm_system_settings');
         let currentSettings = DEFAULT_SETTINGS;
         if(savedSettings) {
-            try { const parsed = JSON.parse(savedSettings); if(parsed) currentSettings = parsed; } catch {}
+            try { const parsed = JSON.parse(savedSettings); if(parsed) {currentSettings = parsed;} } catch {}
         }
         setSystemSettings(currentSettings);
 
@@ -290,13 +290,13 @@ const App: React.FC = () => {
                 setDataSource(response.source);
                 if (response.source === 'database') {
                     const remoteConfig = await getSystemSetting('ad_config');
-                    if (remoteConfig) setAdConfig(remoteConfig);
+                    if (remoteConfig) {setAdConfig(remoteConfig);}
                 }
             }
         }
 
         const loadExternalNews = () => {
-            getExternalNews().then(data => { if (isMounted) setExternalCategories(data); });
+            getExternalNews().then(data => { if (isMounted) {setExternalCategories(data);} });
         };
         loadExternalNews();
         newsInterval = setInterval(loadExternalNews, 3600000);
@@ -305,7 +305,7 @@ const App: React.FC = () => {
     };
 
     initializeSystem();
-    return () => { isMounted = false; if (newsInterval) clearInterval(newsInterval); };
+    return () => { isMounted = false; if (newsInterval) {clearInterval(newsInterval);} };
   }, []);
 
   useEffect(() => {
@@ -325,11 +325,11 @@ const App: React.FC = () => {
   }, [view, showRoleSelector]);
 
   useEffect(() => {
-    if (!isInitialized) return;
+    if (!isInitialized) {return;}
     const handleHashChange = () => {
       // Leitura segura do hash
       const hash = getSafeHash();
-      if (!hash) return;
+      if (!hash) {return;}
       
       if (hash.includes('access_token') || hash.includes('refresh_token') || hash.includes('type=recovery') || hash.includes('/oauth/consent')) {
           setView('auth_callback');
@@ -408,8 +408,8 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = (u: User, remember: boolean) => {
     setUser(u);
-    if (remember) localStorage.setItem('lfnm_user', JSON.stringify(u));
-    else sessionStorage.setItem('lfnm_user', JSON.stringify(u));
+    if (remember) {localStorage.setItem('lfnm_user', JSON.stringify(u));}
+    else {sessionStorage.setItem('lfnm_user', JSON.stringify(u));}
     setShowLoginModal(false);
     setView('admin');
     updateHash('/admin');
@@ -426,7 +426,7 @@ const App: React.FC = () => {
     // 2. Limpeza no Backend (Assíncrona)
     try {
         const sb = getSupabase();
-        if (sb) await sb.auth.signOut();
+        if (sb) {await sb.auth.signOut();}
     } catch (e) {
         console.warn("Falha no logout backend (ignorado pois usuário já saiu localmente):", e);
     }
@@ -459,8 +459,8 @@ const App: React.FC = () => {
       setUsers(p => p.map(x => x.id === u.id ? u : x));
       if(user && user.id === u.id) {
           setUser(u);
-          if (localStorage.getItem('lfnm_user')) localStorage.setItem('lfnm_user', JSON.stringify(u));
-          else if (sessionStorage.getItem('lfnm_user')) sessionStorage.setItem('lfnm_user', JSON.stringify(u));
+          if (localStorage.getItem('lfnm_user')) {localStorage.setItem('lfnm_user', JSON.stringify(u));}
+          else if (sessionStorage.getItem('lfnm_user')) {sessionStorage.setItem('lfnm_user', JSON.stringify(u));}
       }
       if (dataSource === 'database') { try { await updateUser(u); } catch (e) {} }
   };
@@ -468,7 +468,7 @@ const App: React.FC = () => {
   const handleUpdateAdvertiser = async (a: Advertiser) => {
       setAdvertisers(prev => {
          const exists = prev.find(item => item.id === a.id);
-         if(exists) return prev.map(item => item.id === a.id ? a : item);
+         if(exists) {return prev.map(item => item.id === a.id ? a : item);}
          return [...prev, a];
       });
       if(dataSource === 'database') { try { await upsertAdvertiser(a); } catch(e) {} }
@@ -483,7 +483,7 @@ const App: React.FC = () => {
   const handleUpdateSystemSettings = (s: SystemSettings) => {
       setSystemSettings(s);
       localStorage.setItem('lfnm_system_settings', JSON.stringify(s));
-      if(s.supabase?.url && s.supabase?.anonKey) initSupabase(s.supabase.url, s.supabase.anonKey);
+      if(s.supabase?.url && s.supabase?.anonKey) {initSupabase(s.supabase.url, s.supabase.anonKey);}
   };
 
   const containerClasses = showLoading 
@@ -520,7 +520,7 @@ const App: React.FC = () => {
         <PricingModal 
             config={adConfig}
             onClose={() => setShowPricingModal(false)}
-            onSelectPlan={(plan) => { setShowPricingModal(false); if(user) handleAdminClick(); }}
+            onSelectPlan={(plan) => { setShowPricingModal(false); if(user) {handleAdminClick();} }}
         />
       )}
 

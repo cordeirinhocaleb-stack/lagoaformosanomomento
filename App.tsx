@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { BUILD_NUMBER } from './src/version';
 
 // Components
 import Header from './components/layout/Header';
@@ -32,6 +33,26 @@ const App: React.FC = () => {
     const ctrl = useAppController();
     const { modals } = ctrl;
 
+    // Version Enforcement & Cache Busting
+    useEffect(() => {
+        const storedVersion = localStorage.getItem('app_version');
+        const currentVersion = String(BUILD_NUMBER);
+
+        if (storedVersion !== currentVersion) {
+            console.warn(`[System] Version Override: ${storedVersion || 'Unknown'} -> ${currentVersion}`);
+
+            // 1. Force Clear Storage (Logout & Clean State)
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // 2. Set New Version
+            localStorage.setItem('app_version', currentVersion);
+
+            // 3. Force Reload to ensure clean memory
+            window.location.reload();
+        }
+    }, []);
+
     return (
         <ErrorBoundary onError={ctrl.triggerErrorModal}>
             <div className={`min-h-screen flex flex-col w-full overflow-x-hidden ${ctrl.user?.themePreference === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-gray-50 text-gray-900'}`}>
@@ -59,14 +80,14 @@ const App: React.FC = () => {
                                 onClose={() => modals.setShowPricingModal(false)}
                                 onSelectPlan={(planId) => {
                                     modals.setShowPricingModal(false);
-                                    if (!ctrl.user) modals.setShowLoginModal(true);
+                                    if (!ctrl.user) { modals.setShowLoginModal(true); }
                                     else if (ctrl.user.role !== 'Leitor') { ctrl.setView('admin'); ctrl.updateHash('/admin'); }
                                 }}
                                 onUpdateUser={async (u) => {
                                     ctrl.setUsers(p => p.map(x => x.id === u.id ? u : x));
                                     ctrl.setUser(u);
                                     localStorage.setItem('lfnm_user', JSON.stringify(u));
-                                    if (ctrl.dataSource === 'database') await updateUser(u);
+                                    if (ctrl.dataSource === 'database') { await updateUser(u); }
                                 }}
                             />
                         )}
@@ -74,19 +95,38 @@ const App: React.FC = () => {
                         <PromoPopupHost popupSet={ctrl.adConfig.popupSet} currentContext={ctrl.currentContext} mode="live" />
                         <ActivityToastHost />
 
-                        {ctrl.isInitialized && ctrl.systemSettings.maintenanceMode && process.env.NODE_ENV !== 'development' && (!ctrl.user || ctrl.user.role === 'Leitor') ? (
-                            <ConstructionPage
-                                user={ctrl.user}
-                                onLogin={(u) => { ctrl.setUser(u); if (u.role !== 'Leitor') ctrl.setView('admin'); }}
-                                onLogout={ctrl.handleLogout}
-                                onShowLogin={() => modals.setShowLoginModal(true)}
-                                disableSignup={!ctrl.systemSettings.registrationEnabled}
-                            />
-                        ) : (
+                        {(() => {
+                            const bypassRoles = ['Admin', 'Administrador', 'Desenvolvedor', 'Editor-Chefe', 'Editor'];
+                            const isBypassRole = ctrl.user && bypassRoles.includes(ctrl.user.role);
+                            const isLocal = window.location.hostname.includes('localhost');
+                            const shouldShowConstruction = ctrl.isInitialized && ctrl.systemSettings.maintenanceMode && !isBypassRole && !isLocal;
+
+                            if (ctrl.isInitialized && ctrl.systemSettings.maintenanceMode) {
+                                console.log("🚧 [MAINTENANCE DEBUG]", { isInitialized: ctrl.isInitialized, maintenanceMode: ctrl.systemSettings.maintenanceMode, isBypassRole, isLocal, user: ctrl.user?.role });
+                            }
+
+                            return shouldShowConstruction ? (
+                                <ConstructionPage
+                                    user={ctrl.user}
+                                    onLogin={(u) => {
+                                        ctrl.setUser(u);
+                                        if (bypassRoles.includes(u.role)) {
+                                            ctrl.setView('home');
+                                            ctrl.updateHash('/');
+                                        }
+                                    }}
+                                    onLogout={ctrl.handleLogout}
+                                    onShowLogin={() => modals.setShowLoginModal(true)}
+                                    disableSignup={!ctrl.systemSettings.registrationEnabled}
+                                />
+                            ) : null;
+                        })()}
+
+                        {(!ctrl.systemSettings.maintenanceMode || (ctrl.user && ['Admin', 'Administrador', 'Desenvolvedor', 'Editor-Chefe', 'Editor'].includes(ctrl.user.role)) || window.location.hostname.includes('localhost')) && (
                             <div className="w-full flex flex-col min-h-screen animate-fadeIn">
                                 {ctrl.view !== 'admin' && (
                                     <Header
-                                        onAdminClick={() => { if (ctrl.user) { if (ctrl.user.role === 'Leitor') modals.setShowProfileModal(true); else { ctrl.setView('admin'); ctrl.updateHash('/admin'); } } else modals.setShowLoginModal(true); }}
+                                        onAdminClick={() => { if (ctrl.user) { if (ctrl.user.role === 'Leitor') { modals.setShowProfileModal(true); } else { ctrl.setView('admin'); ctrl.updateHash('/admin'); } } else { modals.setShowLoginModal(true); } }}
                                         onHomeClick={() => ctrl.setView('home')}
                                         latestNews={ctrl.tickerNews} brazilNews={ctrl.marqueeNews}
                                         user={ctrl.user} onOpenProfile={() => modals.setShowProfileModal(true)}
@@ -121,8 +161,8 @@ const App: React.FC = () => {
                                                 <Home
                                                     news={ctrl.news} advertisers={ctrl.advertisers} user={ctrl.user}
                                                     onNewsClick={(n) => { ctrl.setSelectedNews(n); ctrl.setView('details'); ctrl.updateHash(`/news/${n.id}`); }}
-                                                    onAdvertiserClick={(ad) => { if (ad.redirectType === 'external') window.open(ad.externalUrl, '_blank'); else { ctrl.setSelectedAdvertiser(ad); ctrl.setView('advertiser'); } }}
-                                                    onAdminClick={() => { if (ctrl.user?.role !== 'Leitor') ctrl.setView('admin'); else modals.setShowProfileModal(true); }}
+                                                    onAdvertiserClick={(ad) => { if (ad.redirectType === 'external') { window.open(ad.externalUrl, '_blank'); } else { ctrl.setSelectedAdvertiser(ad); ctrl.setView('advertiser'); } }}
+                                                    onAdminClick={() => { if (ctrl.user?.role !== 'Leitor') { ctrl.setView('admin'); } else { modals.setShowProfileModal(true); } }}
                                                     onPricingClick={() => modals.setShowPricingModal(true)}
                                                     onJobsClick={() => { ctrl.setView('jobs'); ctrl.updateHash('/jobs'); }}
                                                     adConfig={ctrl.adConfig} externalCategories={ctrl.externalCategories}
@@ -163,13 +203,16 @@ const App: React.FC = () => {
 
                         <AuthModalsContainer
                             modals={modals}
-                            user={ctrl.user} users={ctrl.users}
+                            user={ctrl.user}
+                            users={ctrl.users}
                             systemSettings={ctrl.systemSettings}
-                            setUser={ctrl.setUser} setUsers={ctrl.setUsers}
+                            setUser={ctrl.setUser}
+                            setUsers={ctrl.setUsers}
                             setView={(v) => ctrl.setView(v as any)}
                             updateHash={ctrl.updateHash}
                             handleBackToHome={() => ctrl.setView('home')}
                             triggerErrorModal={ctrl.triggerErrorModal}
+                            onCheckEmail={(email: string) => Promise.resolve(true)}
                         />
                     </>
                 )}

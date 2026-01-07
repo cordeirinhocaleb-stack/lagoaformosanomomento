@@ -15,7 +15,7 @@ export const getActiveAdsForSlot = (advertisers: Advertiser[], slotPlan: AdPlan)
   return advertisers
     .filter(ad => {
       // 1. Verifica se está ativo manualmente
-      if (!ad.isActive) return false;
+      if (!ad.isActive) {return false;}
 
       // 2. Regra de Expiração (Workflow Diário)
       const endDate = new Date(ad.endDate);
@@ -26,11 +26,11 @@ export const getActiveAdsForSlot = (advertisers: Advertiser[], slotPlan: AdPlan)
       }
 
       // 3. Regra de Slot (Master vs Premium)
-      if (ad.plan !== slotPlan) return false;
+      if (ad.plan !== slotPlan) {return false;}
 
       // 4. Verifica Data de Início
       const startDate = new Date(ad.startDate);
-      if (now < startDate) return false;
+      if (now < startDate) {return false;}
 
       return true;
     })

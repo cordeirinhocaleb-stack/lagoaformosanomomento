@@ -21,7 +21,7 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
     getPreviewStyle
 }) => {
     // Only show preview if there are images
-    if (!bannerImages.some(img => img)) return null;
+    if (!bannerImages.some(img => img)) {return null;}
 
     return (
         <div className="mt-6 mx-8">

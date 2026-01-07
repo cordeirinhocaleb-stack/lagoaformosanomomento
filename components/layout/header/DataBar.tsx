@@ -18,7 +18,7 @@ const DataBar: React.FC<DataBarProps> = ({ weatherForecast, dollar, user, onAdmi
   const [canScroll, setCanScroll] = useState(false);
 
   const duplicatedForecast = useMemo(() => {
-    if (weatherForecast.length === 0) return [];
+    if (weatherForecast.length === 0) {return [];}
     return [...weatherForecast, ...weatherForecast];
   }, [weatherForecast]);
 
@@ -28,8 +28,8 @@ const DataBar: React.FC<DataBarProps> = ({ weatherForecast, dollar, user, onAdmi
     const checkOverflow = () => {
       if (weatherScrollRef.current) {
         const { scrollWidth, clientWidth } = weatherScrollRef.current;
-        if (canScroll) setCanScroll((scrollWidth / 2) > clientWidth);
-        else setCanScroll(scrollWidth > clientWidth);
+        if (canScroll) {setCanScroll((scrollWidth / 2) > clientWidth);}
+        else {setCanScroll(scrollWidth > clientWidth);}
       }
     };
     const timer = setTimeout(checkOverflow, 100);
@@ -39,13 +39,13 @@ const DataBar: React.FC<DataBarProps> = ({ weatherForecast, dollar, user, onAdmi
 
   useEffect(() => {
     const container = weatherScrollRef.current;
-    if (!container || weatherForecast.length === 0 || !canScroll) return;
+    if (!container || weatherForecast.length === 0 || !canScroll) {return;}
     let interval: any;
     if (!isPaused && !manualInteraction) {
       interval = setInterval(() => {
         const halfWidth = container.scrollWidth / 2;
-        if (container.scrollLeft >= halfWidth) container.scrollTo({ left: 0, behavior: 'auto' });
-        else container.scrollBy({ left: 1, behavior: 'auto' });
+        if (container.scrollLeft >= halfWidth) {container.scrollTo({ left: 0, behavior: 'auto' });}
+        else {container.scrollBy({ left: 1, behavior: 'auto' });}
       }, 50);
     }
     return () => clearInterval(interval);
@@ -59,7 +59,7 @@ const DataBar: React.FC<DataBarProps> = ({ weatherForecast, dollar, user, onAdmi
       const target = direction === 'right' ? container.scrollLeft + jump : container.scrollLeft - jump;
       container.scrollTo({ left: target, behavior: 'smooth' });
       setTimeout(() => {
-          if(container.scrollLeft >= container.scrollWidth / 2) container.scrollTo({ left: 0, behavior: 'auto' });
+          if(container.scrollLeft >= container.scrollWidth / 2) {container.scrollTo({ left: 0, behavior: 'auto' });}
           setManualInteraction(false);
       }, 5000);
     }

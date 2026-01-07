@@ -42,7 +42,7 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
                     : ['home', 'news_detail'];
                 
                 // Se tiver 'all', aparece em tudo
-                if (targets.includes('all')) return true;
+                if (targets.includes('all')) {return true;}
 
                 // Verifica match exato
                 return targets.includes(currentContext);
@@ -86,16 +86,16 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
             const storageKey = `lfnm_popup_set_${setHash}_seen`;
             sessionStorage.setItem(storageKey, 'true');
         }
-        if (onClose) onClose();
+        if (onClose) {onClose();}
     };
 
     const handleAction = (url: string) => {
-        if (url) window.open(url, '_blank');
+        if (url) {window.open(url, '_blank');}
         handleClose();
     };
 
     // Renderização Condicional Estrita
-    if (!isOpen || normalizedItems.length === 0) return null;
+    if (!isOpen || normalizedItems.length === 0) {return null;}
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center animate-fadeIn">

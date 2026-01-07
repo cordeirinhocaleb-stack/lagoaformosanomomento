@@ -1,14 +1,15 @@
 
 import React, { useState } from 'react';
 import { User, AdPricingConfig } from '../../../../types';
-import { adminPurchaseForUser } from '../../../../services/supabaseService';
-import { getSupabase } from '../../../../services/supabaseService';
+import { adminPurchaseForUser, getSupabase } from '../../../../services/supabaseService';
+
 import lfnmCoin from '../../../../src/assets/lfnm_coin.png';
 
 interface UserPOSPanelProps {
     user: User;
     adConfig?: AdPricingConfig;
     onUpdateUser: (updates: Partial<User>) => void;
+    darkMode?: boolean;
 }
 
 interface MarketItem {
@@ -21,7 +22,7 @@ interface MarketItem {
     details?: any; // For boosts
 }
 
-const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUser }) => {
+const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUser, darkMode = false }) => {
     const [cartItems, setCartItems] = useState<MarketItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -37,19 +38,10 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
             name: p.name,
             cost: p.prices.monthly || 0,
             icon: 'fa-certificate',
-            color: 'text-purple-600 bg-purple-100',
+            color: 'text-purple-600 bg-purple-100', // Keep colors for items as they are branded/status colors? Or dim them?
             details: { planName: p.name }
         });
     });
-
-    // Add Boosts
-    // Add Boosts - REMOVED as per request to show only database items
-    // marketItems.push(
-    //     { id: 'boost_posts_10', type: 'boost', name: '10 Posts', cost: 50, icon: 'fa-bullhorn', color: 'text-blue-600 bg-blue-100', details: { posts: 10 } },
-    //     { id: 'boost_posts_50', type: 'boost', name: '50 Posts', cost: 200, icon: 'fa-bullhorn', color: 'text-blue-600 bg-blue-100', details: { posts: 50 } },
-    //     { id: 'boost_videos_5', type: 'boost', name: '5 Vídeos', cost: 100, icon: 'fa-video', color: 'text-red-600 bg-red-100', details: { videos: 5 } },
-    //     { id: 'boost_featured_7', type: 'boost', name: 'Destaque 7d', cost: 70, icon: 'fa-star', color: 'text-yellow-600 bg-yellow-100', details: { featuredDays: 7 } }
-    // );
 
     const handleDragStart = (e: React.DragEvent, item: MarketItem) => {
         e.dataTransfer.setData('application/json', JSON.stringify(item));
@@ -86,7 +78,7 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
     const calculateTotal = () => cartItems.reduce((acc, item) => acc + item.cost, 0);
 
     const handlePurchase = async () => {
-        if (cartItems.length === 0) return;
+        if (cartItems.length === 0) { return; }
 
         const totalCost = calculateTotal();
         const currentBalance = user.siteCredits || 0;
@@ -96,7 +88,7 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
             return;
         }
 
-        if (!confirm(`Confirmar venda de ${cartItems.length} itens?\nTotal: C$ ${totalCost}\nSaldo Final: C$ ${currentBalance - totalCost}`)) return;
+        if (!confirm(`Confirmar venda de ${cartItems.length} itens?\nTotal: C$ ${totalCost}\nSaldo Final: C$ ${currentBalance - totalCost}`)) { return; }
 
         setIsLoading(true);
         try {
@@ -123,9 +115,6 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                     successCount++;
                 } else {
                     console.error(`Falha ao comprar ${item.name}: ${res.message}`);
-                    // Break or continue? Usually break to avoid inconsistent state with funds?
-                    // For now, let's assume if one fails we stop.
-                    alert(`Erro ao processar ${item.name}: ${res.message}`);
                     break;
                 }
             }
@@ -148,8 +137,8 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
     const finalBalance = currentBalance - cartTotal;
 
     return (
-        <div className="bg-gray-50 rounded-xl p-6 mt-6 md:col-span-3">
-            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <div className={`rounded-xl p-6 mt-6 md:col-span-3 ${darkMode ? 'bg-black/40' : 'bg-gray-50'}`}>
+            <h3 className={`text-sm font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                 <style>{`
                     @keyframes coin-flip {
                         0% { transform: rotateY(0deg); }
@@ -169,7 +158,7 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
 
                 {/* 1. Shelves (Draggable Items) */}
                 <div className="flex-1">
-                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-full">
+                    <div className={`p-4 rounded-xl shadow-sm border h-full ${darkMode ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100'}`}>
                         <p className="text-[9px] font-bold text-gray-400 uppercase mb-3 text-center md:text-left">Arraste itens para o carrinho</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {marketItems.map(item => (
@@ -180,16 +169,17 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                                     // Make click work as "Add to Cart" for mobile/accessibility
                                     onClick={() => setCartItems(prev => [...prev, item])}
                                     className={`
-                                        cursor-grab active:cursor-grabbing p-3 rounded-lg border border-gray-100 
-                                        hover:shadow-md hover:border-gray-300 transition-all flex flex-col items-center gap-2
-                                        group bg-gray-50 hover:bg-white relative
+                                        cursor-grab active:cursor-grabbing p-3 rounded-lg border 
+                                        hover:shadow-md transition-all flex flex-col items-center gap-2
+                                        group relative
+                                        ${darkMode ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-gray-50 border-gray-100 hover:bg-white hover:border-gray-300'}
                                     `}
                                 >
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform`}>
                                         <i className={`fas ${item.icon}`}></i>
                                     </div>
                                     <div className="text-center">
-                                        <span className="block text-[10px] font-bold uppercase text-gray-700 leading-tight">{item.name}</span>
+                                        <span className={`block text-[10px] font-bold uppercase leading-tight ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{item.name}</span>
                                         <span className="block text-[9px] font-black text-gray-400 mt-1 flex items-center justify-center gap-1">
                                             <img src={lfnmCoin} alt="$" className="w-4 h-4 object-contain inline-block mr-0.5 animate-coin-sm" /> {item.cost}
                                         </span>
@@ -207,13 +197,13 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         className={`
-                            flex-1 min-h-[300px] border-2 border-dashed rounded-xl flex flex-col p-4 transition-all relative overflow-hidden bg-white shadow-sm
-                            ${isDragOver ? 'border-green-500 bg-green-50 scale-[1.02]' : 'border-gray-300'}
+                            flex-1 min-h-[300px] border-2 border-dashed rounded-xl flex flex-col p-4 transition-all relative overflow-hidden shadow-sm
+                            ${isDragOver ? 'border-green-500 bg-green-50 scale-[1.02]' : (darkMode ? 'border-white/10 bg-white/5' : 'border-gray-300 bg-white')}
                         `}
                     >
                         {/* Cart Header */}
-                        <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2 pointer-events-none">
-                            <h3 className="text-sm font-black uppercase text-gray-800 flex items-center gap-2">
+                        <div className={`flex items-center justify-between mb-4 border-b pb-2 pointer-events-none ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
+                            <h3 className={`text-sm font-black uppercase flex items-center gap-2 ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                                 <i className="fas fa-shopping-cart text-gray-400"></i> Carrinho
                             </h3>
                             <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
@@ -225,13 +215,13 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                         <div className={`flex-1 overflow-y-auto space-y-2 mb-4 pr-1 max-h-[200px] ${isDragOver ? 'pointer-events-none opacity-50' : ''}`}>
                             {cartItems.length > 0 ? (
                                 cartItems.map((item, index) => (
-                                    <div key={`${item.id}-${index}`} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100 animate-fadeIn">
+                                    <div key={`${item.id}-${index}`} className={`flex items-center justify-between p-2 rounded-lg border animate-fadeIn ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
                                         <div className="flex items-center gap-2">
                                             <div className={`w-6 h-6 rounded-full flex items-center justify-center ${item.color} text-[10px]`}>
                                                 <i className={`fas ${item.icon}`}></i>
                                             </div>
                                             <div>
-                                                <span className="block text-[10px] font-bold text-gray-800 uppercase leading-none">{item.name}</span>
+                                                <span className={`block text-[10px] font-bold uppercase leading-none ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{item.name}</span>
                                                 <span className="text-[9px] text-gray-400 font-bold flex items-center gap-1"><img src={lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {item.cost}</span>
                                             </div>
                                         </div>
@@ -252,7 +242,7 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                         </div>
 
                         {/* Totals & Checkout */}
-                        <div className={`border-t border-gray-100 pt-3 mt-auto ${isDragOver ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <div className={`border-t pt-3 mt-auto ${isDragOver ? 'opacity-50 pointer-events-none' : ''} ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
                             {/* Saldo Inicial */}
                             <div className="flex justify-between items-center mb-1 opacity-60 text-[9px] font-bold uppercase text-gray-500">
                                 <span>Saldo Atual</span>
@@ -260,13 +250,13 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                             </div>
 
                             {/* Total Carrinho */}
-                            <div className="flex justify-between items-center mb-1 text-[10px] font-bold uppercase text-gray-800">
+                            <div className={`flex justify-between items-center mb-1 text-[10px] font-bold uppercase ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                                 <span>Total Carrinho</span>
                                 <span className="text-purple-600 flex items-center gap-1">- <img src={lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {cartTotal.toFixed(2)}</span>
                             </div>
 
                             {/* Saldo Final */}
-                            <div className="flex justify-between items-center mb-3 bg-yellow-50 p-2 rounded-lg border border-yellow-100">
+                            <div className={`flex justify-between items-center mb-3 p-2 rounded-lg border ${darkMode ? 'bg-yellow-900/10 border-yellow-500/20' : 'bg-yellow-50 border-yellow-100'}`}>
                                 <span className="text-[10px] font-black uppercase text-yellow-800">Saldo Final</span>
                                 <span className={`text-[12px] font-black flex items-center gap-1 ${finalBalance < 0 ? 'text-red-500' : 'text-green-600'}`}>
                                     <img src={lfnmCoin} alt="$" className="w-5 h-5 object-contain animate-coin-sm" /> {finalBalance.toFixed(2)}

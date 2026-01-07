@@ -47,7 +47,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         }, 300);
     };
 
-    if (!show) return null;
+    if (!show) {return null;}
 
     return createPortal(
         <div className={`fixed inset-0 z-[10040] flex items-center justify-center p-4 transition-all duration-300 ${animating ? 'opacity-100' : 'opacity-0'}`}>

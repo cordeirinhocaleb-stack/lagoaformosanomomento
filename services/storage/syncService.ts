@@ -20,7 +20,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     // Count Content Blocks Images
     if (updatedNews.blocks) {
         updatedNews.blocks.forEach(block => {
-            if (block.type === 'image') totalOps += countLocal(block.content);
+            if (block.type === 'image') {totalOps += countLocal(block.content);}
             if (['paragraph', 'heading', 'quote', 'list'].includes(block.type)) {
                 const matches = (block.content.match(/(?:src="|data-local-id=")(local_[^"]+)/g) || []);
                 totalOps += matches.length;
@@ -36,7 +36,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     const updateProgress = (msg: string) => {
         completedOps++;
         const percent = totalOps > 0 ? Math.round((completedOps / totalOps) * 100) : 100;
-        if (onProgress) onProgress(percent, msg);
+        if (onProgress) {onProgress(percent, msg);}
     };
 
     if (totalOps === 0 && onProgress) {

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { NewsItem, User, Advertiser } from '../types';
+import { NewsItem, User, Advertiser , AdPricingConfig } from '../types';
 import { getExternalNews } from '../services/geminiService';
 import { getSupabase, getSystemSetting } from '../services/supabaseService';
-import { AdPricingConfig } from '../types';
+
 import { INITIAL_AD_CONFIG } from '../config/systemDefaults';
 
 /**
@@ -49,7 +49,7 @@ export const useDataHandlers = ({
 
         if (response.source === 'database') {
             const remoteAdConfig = await getSystemSetting('ad_config');
-            if (remoteAdConfig) setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig });
+            if (remoteAdConfig) {setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig });}
         }
 
         // Carregar notícias externas

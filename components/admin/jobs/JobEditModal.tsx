@@ -38,7 +38,7 @@ const JobEditModal: React.FC<JobEditModalProps> = ({ job, isOpen, onClose, onSav
         }
     }, [job, isOpen]);
 
-    if (!isOpen) return null;
+    if (!isOpen) {return null;}
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

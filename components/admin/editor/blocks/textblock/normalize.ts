@@ -19,9 +19,9 @@ export const normalizeTextBlockData = (block: ContentBlock) => {
   
   // Fallback de variante baseado no tipo de bloco se não definido
   if (!settings.editorialVariant) {
-      if (type === 'list') variant = 'bullets_clean';
-      if (type === 'quote') variant = 'impact_quote';
-      if (type === 'heading') variant = 'hero_headline';
+      if (type === 'list') {variant = 'bullets_clean';}
+      if (type === 'quote') {variant = 'impact_quote';}
+      if (type === 'heading') {variant = 'hero_headline';}
   }
 
   // 3. Garante acesso seguro ao objeto de configurações de variantes específicas

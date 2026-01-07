@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { User, NewsItem, SystemSettings } from '../../../../types';
 import { processPendingUploads } from '../../../../services/storage/syncService';
 import { logUserAction } from '../../../../services/content/contentService';
@@ -42,7 +42,8 @@ export const useNewsPublication = ({ user, onSave, systemSettings, setToast }: U
             setPublishStatus('success');
 
             // Log
-            await logUserAction(user.id, 'news', processedNews.id || 'new', isUpdate ? 'UPDATE_DRAFT' : 'CREATE_DRAFT', JSON.stringify({ title: processedNews.title }));
+            // Log
+            await logUserAction(user.id, user.name, isUpdate ? 'UPDATE_DRAFT' : 'CREATE_DRAFT', processedNews.id || 'new', JSON.stringify({ title: processedNews.title }));
 
             return processedNews; // Return for local state updates if needed
 
@@ -80,7 +81,7 @@ export const useNewsPublication = ({ user, onSave, systemSettings, setToast }: U
             onSave(processedNews, isUpdate);
             setPublishStatus('success');
 
-            await logUserAction(user.id, 'news', processedNews.id || 'new', isUpdate ? 'UPDATE_PUBLISH' : 'PUBLISH', JSON.stringify({ title: processedNews.title }));
+            await logUserAction(user.id, user.name, isUpdate ? 'UPDATE_PUBLISH' : 'PUBLISH', processedNews.id || 'new', JSON.stringify({ title: processedNews.title }));
 
             return processedNews;
 

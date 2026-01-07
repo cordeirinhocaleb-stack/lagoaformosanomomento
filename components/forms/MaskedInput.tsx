@@ -112,7 +112,7 @@ const MaskedInput: React.FC<MaskedInputProps> = ({
     };
 
     const getBorderColor = () => {
-        if (!touched || !value) return 'border-gray-300 dark:border-zinc-600';
+        if (!touched || !value) {return 'border-gray-300 dark:border-zinc-600';}
         return isValid
             ? 'border-green-500 dark:border-green-600'
             : 'border-red-500 dark:border-red-600';

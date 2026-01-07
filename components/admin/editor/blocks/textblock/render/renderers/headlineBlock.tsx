@@ -26,8 +26,8 @@ export const renderHeadlineBlock = (variant: string, perStyle: any, baseStyles: 
             textTransform: hh.uppercase ? 'uppercase' : 'none', 
             textShadow: hh.shadowDepth ? `${hh.shadowDepth}px ${hh.shadowDepth}px 0 rgba(0,0,0,0.1)` : 'none' 
         };
-        if (hh.width === 'prose') variantClasses = "max-w-prose mx-auto";
-        if (hh.subtitle) variantPost = <p className="mt-4 text-zinc-400 font-black uppercase tracking-widest text-[10px] italic">{hh.subtitle}</p>;
+        if (hh.width === 'prose') {variantClasses = "max-w-prose mx-auto";}
+        if (hh.subtitle) {variantPost = <p className="mt-4 text-zinc-400 font-black uppercase tracking-widest text-[10px] italic">{hh.subtitle}</p>;}
     } 
     
     else if (variant === 'breaking_alert') {

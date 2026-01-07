@@ -152,13 +152,13 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
   }, []);
 
   const handleScroll = useCallback(() => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current) {return;}
     const currentScrollY = scrollContainerRef.current.scrollTop;
     if (currentScrollY > 50) {
         if (currentScrollY > lastScrollY.current) {
-            if (isHeaderVisible) setIsHeaderVisible(false);
+            if (isHeaderVisible) {setIsHeaderVisible(false);}
         } else {
-            if (!isHeaderVisible) setIsHeaderVisible(true);
+            if (!isHeaderVisible) {setIsHeaderVisible(true);}
         }
     } else {
         setIsHeaderVisible(true);
@@ -207,13 +207,13 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
 
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>, slotIndex: number) => {
     const file = e.target.files?.[0];
-    if (!file || !accessToken) return;
+    if (!file || !accessToken) {return;}
     setUploadingSlot(slotIndex);
     try {
         const url = await uploadFileToDrive(file, accessToken);
         const newImages = [...bannerImages];
         newImages[slotIndex] = url;
-        if (slotIndex === 0) setMainImageUrl(url);
+        if (slotIndex === 0) {setMainImageUrl(url);}
         setBannerImages(newImages);
         setToast({ message: `Imagem ${slotIndex + 1} sincronizada.`, type: 'success' });
     } catch (e) { 
@@ -235,7 +235,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
           newImages.splice(index, 1);
       }
       setBannerImages(newImages);
-      if (index === 0 && newImages[0]) setMainImageUrl(newImages[0]);
+      if (index === 0 && newImages[0]) {setMainImageUrl(newImages[0]);}
   };
 
   const handlePublish = async (isUpdate: boolean, forceSocial: boolean = false) => {
@@ -248,12 +248,12 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
     
     // Fallback HTML generation para legacy support
     const simpleContent = blocks.map(b => {
-        if(b.type === 'paragraph') return `<p>${b.content}</p>`;
-        if(b.type === 'heading') return `<h2>${b.content}</h2>`;
-        if(b.type === 'image') return `<img src="${b.content}" alt="Imagem" style="width:100%;" />`;
-        if(b.type === 'quote') return `<blockquote>${b.content}</blockquote>`;
-        if(b.type === 'list') return b.content; 
-        if(b.type === 'smart_block') return b.content;
+        if(b.type === 'paragraph') {return `<p>${b.content}</p>`;}
+        if(b.type === 'heading') {return `<h2>${b.content}</h2>`;}
+        if(b.type === 'image') {return `<img src="${b.content}" alt="Imagem" style="width:100%;" />`;}
+        if(b.type === 'quote') {return `<blockquote>${b.content}</blockquote>`;}
+        if(b.type === 'list') {return b.content;} 
+        if(b.type === 'smart_block') {return b.content;}
         return '';
     }).join('');
 
@@ -706,7 +706,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
               {/* Right Group */}
               <div className="flex items-center gap-4">
                   <button 
-                    onClick={() => { if(selectedBlockId) { setShowInspectorMobile(true); setShowMobileFormatting(false); } else setToast({message: "Selecione um bloco primeiro", type: 'info'}); }}
+                    onClick={() => { if(selectedBlockId) { setShowInspectorMobile(true); setShowMobileFormatting(false); } else {setToast({message: "Selecione um bloco primeiro", type: 'info'});} }}
                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${selectedBlockId && !showMobileFormatting && !showLibraryMobile ? 'text-blue-400 bg-blue-500/20' : 'text-zinc-400 hover:text-white hover:bg-white/10'}`}
                   >
                       <i className="fas fa-sliders-h"></i>

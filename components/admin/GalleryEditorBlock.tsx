@@ -59,7 +59,7 @@ export const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, onUpda
     }, [images]);
 
     const getImgSrc = (img: string | number) => {
-        if (typeof img === 'number') return null;
+        if (typeof img === 'number') {return null;}
         return previewUrls[img] || img;
     };
 
@@ -238,7 +238,7 @@ export const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, onUpda
                             className="hidden"
                             onChange={async (e) => {
                                 const files = Array.from(e.target.files || []);
-                                if (files.length === 0) return;
+                                if (files.length === 0) {return;}
 
                                 const newImages: string[] = [];
                                 for (const file of files) {

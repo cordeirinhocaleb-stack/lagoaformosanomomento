@@ -18,9 +18,10 @@ interface AdvertisersConfigViewProps {
     onSave: (config: AdPricingConfig) => void;
     onCancel: () => void;
     currentUser: User;
+    darkMode?: boolean;
 }
 
-const AdvertisersConfigView: React.FC<AdvertisersConfigViewProps> = ({ config, onSave, onCancel, currentUser }) => {
+const AdvertisersConfigView: React.FC<AdvertisersConfigViewProps> = ({ config, onSave, onCancel, currentUser, darkMode = false }) => {
     // Estado local para evitar auto-save. Só persiste ao clicar em Salvar.
     const [tempConfig, setTempConfig] = useState<AdPricingConfig>(JSON.parse(JSON.stringify(config)));
     const [activeTab, setActiveTab] = useState<ConfigTabId>('banners');
@@ -83,11 +84,11 @@ const AdvertisersConfigView: React.FC<AdvertisersConfigViewProps> = ({ config, o
                 <div>
                     <button
                         onClick={handleBack}
-                        className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black mb-2 flex items-center gap-2 transition-colors"
+                        className={`text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2 transition-colors ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-black'}`}
                     >
                         <i className="fas fa-arrow-left"></i> Voltar para Lista
                     </button>
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter text-gray-900">
+                    <h2 className={`text-2xl md:text-3xl font-black uppercase italic tracking-tighter ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                         Sistema <span className="text-red-600">Comercial</span>
                     </h2>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
@@ -96,17 +97,17 @@ const AdvertisersConfigView: React.FC<AdvertisersConfigViewProps> = ({ config, o
                 </div>
 
                 {/* Ações Superiores */}
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <button
                         onClick={handleBack}
-                        className="px-6 py-3 rounded-xl border border-gray-200 text-gray-500 font-black uppercase text-[10px] tracking-widest hover:bg-gray-50 transition-colors"
+                        className={`flex-1 md:flex-none px-6 py-3 rounded-xl border font-black uppercase text-[10px] tracking-widest transition-colors ${darkMode ? 'border-white/10 text-gray-400 hover:bg-white/5 hover:text-white' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={!isDirty || isSaving}
-                        className={`px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-colors flex items-center gap-2 shadow-lg ${isDirty ? 'bg-black text-white hover:bg-green-600' : 'bg-gray-100 text-gray-400 cursor-not-allowed'} ${isSaving ? 'opacity-70 cursor-wait' : ''}`}
+                        className={`flex-1 md:flex-none px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-colors flex items-center justify-center gap-2 shadow-lg ${isDirty ? (darkMode ? 'bg-white text-black hover:bg-green-400' : 'bg-black text-white hover:bg-green-600') : 'bg-gray-100 text-gray-400 cursor-not-allowed'} ${isSaving ? 'opacity-70 cursor-wait' : ''}`}
                     >
                         {isSaving ? <i className="fas fa-sync fa-spin"></i> : <i className="fas fa-save"></i>}
                         {isSaving ? 'Salvando...' : 'Salvar Alterações'}
@@ -114,29 +115,29 @@ const AdvertisersConfigView: React.FC<AdvertisersConfigViewProps> = ({ config, o
                 </div>
             </div>
 
-            <ConfigTabs activeTab={activeTab} onChange={setActiveTab} />
+            <ConfigTabs activeTab={activeTab} onChange={setActiveTab} darkMode={darkMode} />
 
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm min-h-[600px]">
+            <div className={`rounded-3xl md:rounded-[2.5rem] border p-4 md:p-8 shadow-sm min-h-[600px] transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
                 {activeTab === 'overview' && (
-                    <OverviewPanel config={tempConfig} onChange={setTempConfig} />
+                    <OverviewPanel config={tempConfig} onChange={setTempConfig} darkMode={darkMode} />
                 )}
                 {activeTab === 'banners' && (
-                    <BannersPanel config={tempConfig} onChange={setTempConfig} />
+                    <BannersPanel config={tempConfig} onChange={setTempConfig} darkMode={darkMode} />
                 )}
                 {activeTab === 'popup' && (
-                    <PromoPopupPanel config={tempConfig} onChange={setTempConfig} />
+                    <PromoPopupPanel config={tempConfig} onChange={setTempConfig} darkMode={darkMode} />
                 )}
                 {activeTab === 'plans' && (
-                    <PlansPanel config={tempConfig} onChange={setTempConfig} currentUser={currentUser} />
+                    <PlansPanel config={tempConfig} onChange={setTempConfig} currentUser={currentUser} darkMode={darkMode} />
                 )}
                 {activeTab === 'placements' && (
-                    <PlacementsPanel config={tempConfig} onChange={setTempConfig} />
+                    <PlacementsPanel config={tempConfig} onChange={setTempConfig} darkMode={darkMode} />
                 )}
                 {activeTab === 'rules' && (
-                    <RulesBenefitsPanel config={tempConfig} />
+                    <RulesBenefitsPanel config={tempConfig} darkMode={darkMode} />
                 )}
                 {activeTab === 'upcoming' && (
-                    <UpcomingModulesPanel />
+                    <UpcomingModulesPanel darkMode={darkMode} />
                 )}
                 {activeTab === 'reports' && (
                     <div className="flex flex-col items-center justify-center h-96 opacity-50">

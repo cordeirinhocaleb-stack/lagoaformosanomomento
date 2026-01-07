@@ -5,25 +5,26 @@ import { PromoPopupItemConfig, PopupTextStyle } from '../../../../types';
 interface PopupStylePanelProps {
     textStyle: PopupTextStyle;
     onChange: (style: Partial<PopupTextStyle>) => void;
+    darkMode?: boolean;
 }
 
 const EDITOR_PALETTE = ['#000000', '#ffffff', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#8b5cf6', '#6b7280'];
 
-const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }) => {
-    
+const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, darkMode = false }) => {
+
     // Componente de Paleta de Cores Reutilizável
     const ColorPicker = ({ label, value, onSelect }: { label: string, value: string, onSelect: (c: string) => void }) => (
         <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
-                <label className="text-[9px] font-black uppercase text-gray-400 tracking-widest">{label}</label>
+                <label className={`text-[9px] font-black uppercase tracking-widest ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{label}</label>
                 <div className="flex items-center gap-2">
-                    <input 
-                        type="color" 
-                        value={value} 
+                    <input
+                        type="color"
+                        value={value}
                         onChange={(e) => onSelect(e.target.value)}
                         className="w-5 h-5 rounded-full border-none p-0 cursor-pointer overflow-hidden"
                     />
-                    <span className="text-[8px] font-mono text-gray-400 uppercase">{value}</span>
+                    <span className={`text-[8px] font-mono uppercase ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>{value}</span>
                 </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -31,7 +32,7 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                     <button
                         key={c}
                         onClick={() => onSelect(c)}
-                        className={`w-6 h-6 rounded-full border-2 transition-all ${value === c ? 'border-gray-900 scale-110 shadow-sm' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                        className={`w-6 h-6 rounded-full border-2 transition-all ${value === c ? (darkMode ? 'border-white scale-110 shadow-sm' : 'border-gray-900 scale-110 shadow-sm') : 'border-transparent opacity-50 hover:opacity-100'}`}
                         style={{ backgroundColor: c }}
                         title={c}
                     />
@@ -40,23 +41,32 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
         </div>
     );
 
+    const sectionHeaderClass = `flex items-center gap-2 border-b pb-2 mb-4 ${darkMode ? 'border-white/5' : 'border-gray-100'}`;
+    const sectionTitleClass = `text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-white' : 'text-gray-900'}`;
+    const labelClass = `text-[8px] font-bold uppercase mb-1 block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`;
+    const iconClass = `text-xs ${darkMode ? 'text-gray-600' : 'text-gray-400'}`;
+
+    const selectClass = `w-full rounded-lg p-2 text-[10px] font-bold uppercase outline-none border transition-colors ${darkMode ? 'bg-black/20 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-black'}`;
+    const buttonGroupClass = `flex p-1 rounded-lg border ${darkMode ? 'bg-black/20 border-white/5' : 'bg-gray-50 border-gray-200'}`;
+    const buttonClass = (isActive: boolean) => `flex-1 py-1 rounded text-[9px] font-bold transition-all ${isActive ? (darkMode ? 'bg-white/10 shadow-sm text-white' : 'bg-white shadow-sm text-black') : (darkMode ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400')}`;
+
     return (
         <div className="space-y-8 animate-fadeIn pb-8">
-            
+
             {/* 1. TIPOGRAFIA DO TÍTULO */}
             <section className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
-                    <i className="fas fa-heading text-gray-400 text-xs"></i>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-900">Manchete (Título)</h3>
+                <div className={sectionHeaderClass}>
+                    <i className={`fas fa-heading ${iconClass}`}></i>
+                    <h3 className={sectionTitleClass}>Manchete (Título)</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Peso</label>
-                        <select 
-                            value={textStyle.titleWeight || '900'} 
+                        <label className={labelClass}>Peso</label>
+                        <select
+                            value={textStyle.titleWeight || '900'}
                             onChange={e => onChange({ titleWeight: e.target.value as any })}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-black uppercase outline-none"
+                            className={selectClass}
                         >
                             <option value="300">Light (300)</option>
                             <option value="400">Regular (400)</option>
@@ -66,8 +76,8 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                         </select>
                     </div>
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Transformação</label>
-                        <div className="flex bg-gray-50 p-1 rounded-lg border border-gray-200">
+                        <label className={labelClass}>Transformação</label>
+                        <div className={buttonGroupClass}>
                             {[
                                 { val: 'none', lbl: 'Aa' },
                                 { val: 'uppercase', lbl: 'AA' },
@@ -76,7 +86,7 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                                 <button
                                     key={opt.val}
                                     onClick={() => onChange({ titleTransform: opt.val as any })}
-                                    className={`flex-1 py-1 rounded text-[9px] font-bold transition-all ${textStyle.titleTransform === opt.val ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}
+                                    className={buttonClass(textStyle.titleTransform === opt.val)}
                                 >
                                     {opt.lbl}
                                 </button>
@@ -90,18 +100,18 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
 
             {/* 2. TIPOGRAFIA DO CORPO */}
             <section className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
-                    <i className="fas fa-paragraph text-gray-400 text-xs"></i>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-900">Corpo do Texto</h3>
+                <div className={sectionHeaderClass}>
+                    <i className={`fas fa-paragraph ${iconClass}`}></i>
+                    <h3 className={sectionTitleClass}>Corpo do Texto</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Peso</label>
-                        <select 
-                            value={textStyle.bodyWeight || '400'} 
+                        <label className={labelClass}>Peso</label>
+                        <select
+                            value={textStyle.bodyWeight || '400'}
                             onChange={e => onChange({ bodyWeight: e.target.value as any })}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-bold uppercase outline-none"
+                            className={selectClass}
                         >
                             <option value="300">Light</option>
                             <option value="400">Regular</option>
@@ -110,11 +120,11 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                         </select>
                     </div>
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Tamanho</label>
-                        <select 
-                            value={textStyle.bodySize || 'md'} 
+                        <label className={labelClass}>Tamanho</label>
+                        <select
+                            value={textStyle.bodySize || 'md'}
                             onChange={e => onChange({ bodySize: e.target.value as any })}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-bold uppercase outline-none"
+                            className={selectClass}
                         >
                             <option value="sm">Pequeno</option>
                             <option value="md">Normal</option>
@@ -128,20 +138,20 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
 
             {/* 3. ALINHAMENTO E EFEITOS GERAIS */}
             <section className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
-                    <i className="fas fa-sliders text-gray-400 text-xs"></i>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-900">Layout & Efeitos</h3>
+                <div className={sectionHeaderClass}>
+                    <i className={`fas fa-sliders ${iconClass}`}></i>
+                    <h3 className={sectionTitleClass}>Layout & Efeitos</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Alinhamento</label>
-                        <div className="flex bg-gray-50 p-1 rounded-lg border border-gray-200">
+                        <label className={labelClass}>Alinhamento</label>
+                        <div className={buttonGroupClass}>
                             {['left', 'center', 'right'].map(align => (
                                 <button
                                     key={align}
                                     onClick={() => onChange({ textAlign: align as any })}
-                                    className={`flex-1 py-1 rounded text-[10px] transition-all ${textStyle.textAlign === align ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}
+                                    className={buttonClass(textStyle.textAlign === align)}
                                 >
                                     <i className={`fas fa-align-${align}`}></i>
                                 </button>
@@ -149,11 +159,11 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                         </div>
                     </div>
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Espaçamento</label>
-                        <select 
-                            value={textStyle.letterSpacing || 'normal'} 
+                        <label className={labelClass}>Espaçamento</label>
+                        <select
+                            value={textStyle.letterSpacing || 'normal'}
                             onChange={e => onChange({ letterSpacing: e.target.value })}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-bold uppercase outline-none"
+                            className={selectClass}
                         >
                             <option value="tighter">Apertado</option>
                             <option value="normal">Normal</option>
@@ -163,13 +173,13 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                 </div>
 
                 <div>
-                    <label className="text-[8px] font-bold text-gray-400 uppercase mb-2 block">Sombra do Texto</label>
+                    <label className={`${labelClass} mb-2`}>Sombra do Texto</label>
                     <div className="flex gap-2">
                         {['none', 'soft', 'strong'].map(shadow => (
                             <button
                                 key={shadow}
                                 onClick={() => onChange({ textShadow: shadow as any })}
-                                className={`flex-1 py-2 rounded-lg border text-[9px] font-black uppercase transition-all ${textStyle.textShadow === shadow ? 'bg-black text-white border-black' : 'bg-white text-gray-500 border-gray-200'}`}
+                                className={`flex-1 py-2 rounded-lg border text-[9px] font-black uppercase transition-all ${textStyle.textShadow === shadow ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black') : (darkMode ? 'bg-black/20 text-gray-500 border-white/5' : 'bg-white text-gray-500 border-gray-200')}`}
                             >
                                 {shadow}
                             </button>
@@ -180,18 +190,18 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
 
             {/* 4. BOTÃO CTA */}
             <section className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
-                    <i className="fas fa-mouse-pointer text-gray-400 text-xs"></i>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-900">Botão CTA</h3>
+                <div className={sectionHeaderClass}>
+                    <i className={`fas fa-mouse-pointer ${iconClass}`}></i>
+                    <h3 className={sectionTitleClass}>Botão CTA</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Estilo</label>
-                        <select 
-                            value={textStyle.buttonStyle || 'solid'} 
+                        <label className={labelClass}>Estilo</label>
+                        <select
+                            value={textStyle.buttonStyle || 'solid'}
                             onChange={e => onChange({ buttonStyle: e.target.value as any })}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-bold uppercase outline-none"
+                            className={selectClass}
                         >
                             <option value="solid">Sólido</option>
                             <option value="outline">Contorno</option>
@@ -199,11 +209,11 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange }
                         </select>
                     </div>
                     <div>
-                        <label className="text-[8px] font-bold text-gray-400 uppercase mb-1 block">Arredondamento</label>
-                        <select 
-                            value={textStyle.buttonRounded || 'md'} 
+                        <label className={labelClass}>Arredondamento</label>
+                        <select
+                            value={textStyle.buttonRounded || 'md'}
                             onChange={e => onChange({ buttonRounded: e.target.value as any })}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-bold uppercase outline-none"
+                            className={selectClass}
                         >
                             <option value="none">Quadrado</option>
                             <option value="md">Médio</option>

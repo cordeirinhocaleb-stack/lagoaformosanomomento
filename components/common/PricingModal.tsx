@@ -265,7 +265,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
                                             return;
                                         }
 
-                                        if (!confirm(`Confirmar assinatura do plano ${plan.name} por C$ ${currentPrice.toFixed(2)}? \nIsso descontará do seu saldo na carteira virtual.`)) return;
+                                        if (!confirm(`Confirmar assinatura do plano ${plan.name} por C$ ${currentPrice.toFixed(2)}? \nIsso descontará do seu saldo na carteira virtual.`)) {return;}
 
                                         setIsProcessing(true);
                                         try {

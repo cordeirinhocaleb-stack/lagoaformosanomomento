@@ -1,7 +1,7 @@
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
-import Login from "./pages/Login";
+import Login from "../components/Login";
 
 export const AppRouter: React.FC = () => (
     <Router>

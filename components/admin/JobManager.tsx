@@ -28,14 +28,14 @@ const JobManager: React.FC<JobManagerProps> = ({ currentUser }) => {
         setLoading(true);
         try {
             const supabase = getSupabase();
-            if (!supabase) throw new Error("Supabase não inicializado");
+            if (!supabase) {throw new Error("Supabase não inicializado");}
 
             const { data, error } = await supabase
                 .from('jobs')
                 .select('*')
                 .order('postedAt', { ascending: false });
 
-            if (error) throw error;
+            if (error) {throw error;}
             setJobs(data || []);
         } catch (error) {
             console.error("Erro ao buscar vagas:", error);
@@ -58,10 +58,10 @@ const JobManager: React.FC<JobManagerProps> = ({ currentUser }) => {
     const handleDelete = async (jobId: string) => {
         try {
             const supabase = getSupabase();
-            if (!supabase) throw new Error("Supabase não inicializado");
+            if (!supabase) {throw new Error("Supabase não inicializado");}
 
             const { error } = await supabase.from('jobs').delete().eq('id', jobId);
-            if (error) throw error;
+            if (error) {throw error;}
 
             setJobs(prev => prev.filter(j => j.id !== jobId));
         } catch (error) {
@@ -72,7 +72,7 @@ const JobManager: React.FC<JobManagerProps> = ({ currentUser }) => {
 
     const handleSave = async (jobId: string | undefined, data: Partial<Job>) => {
         const supabase = getSupabase();
-        if (!supabase) throw new Error("Supabase não inicializado");
+        if (!supabase) {throw new Error("Supabase não inicializado");}
 
         try {
             if (jobId) {
@@ -82,7 +82,7 @@ const JobManager: React.FC<JobManagerProps> = ({ currentUser }) => {
                     .update(data)
                     .eq('id', jobId);
 
-                if (error) throw error;
+                if (error) {throw error;}
 
                 setJobs(prev => prev.map(j => j.id === jobId ? { ...j, ...data } as Job : j));
             } else {
@@ -98,7 +98,7 @@ const JobManager: React.FC<JobManagerProps> = ({ currentUser }) => {
                     .select()
                     .single();
 
-                if (error) throw error;
+                if (error) {throw error;}
                 setJobs(prev => [createdJob, ...prev]);
             }
         } catch (error) {
@@ -114,8 +114,8 @@ const JobManager: React.FC<JobManagerProps> = ({ currentUser }) => {
             (job.location?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
         let matchesStatus = true;
-        if (statusFilter === 'active') matchesStatus = job.isActive === true;
-        if (statusFilter === 'inactive') matchesStatus = job.isActive === false;
+        if (statusFilter === 'active') {matchesStatus = job.isActive === true;}
+        if (statusFilter === 'inactive') {matchesStatus = job.isActive === false;}
 
         return matchesSearch && matchesStatus;
     });

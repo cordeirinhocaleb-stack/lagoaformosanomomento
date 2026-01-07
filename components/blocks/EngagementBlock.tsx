@@ -16,7 +16,7 @@ const EngagementBlock: React.FC<EngagementBlockProps> = ({ block, newsId }) => {
     const { engagementType, question, options, correctOptionIndex, reactionEmojis, leftLabel, rightLabel, buttonText, clickEmoji } = block.settings || {};
 
     useEffect(() => {
-        if (!newsId || !block.id) return;
+        if (!newsId || !block.id) {return;}
 
         const checkInteraction = async () => {
             const interacted = await hasUserInteracted(newsId, block.id);
@@ -37,7 +37,7 @@ const EngagementBlock: React.FC<EngagementBlockProps> = ({ block, newsId }) => {
     }, [newsId, block.id]);
 
     const handleInteraction = async (data: any) => {
-        if (hasInteracted && engagementType !== 'counter' && engagementType !== 'slider') return;
+        if (hasInteracted && engagementType !== 'counter' && engagementType !== 'slider') {return;}
 
         setIsLoading(true);
         setSelectedOption(data.value || data.selectedOption);
@@ -71,7 +71,7 @@ const EngagementBlock: React.FC<EngagementBlockProps> = ({ block, newsId }) => {
 
     // Renderizadores simplificados
     const renderPoll = () => {
-        if (!options) return null;
+        if (!options) {return null;}
 
         return (
             <div className="space-y-3">
@@ -114,7 +114,7 @@ const EngagementBlock: React.FC<EngagementBlockProps> = ({ block, newsId }) => {
     };
 
     const renderQuiz = () => {
-        if (!options) return null;
+        if (!options) {return null;}
 
         return (
             <div className="space-y-3">

@@ -39,8 +39,8 @@ export const renderQuoteAspas = (variant: string, perStyle: any, baseStyles: Rea
             lineHeight: '1.2',
             color: '#111827'
         };
-        if (iq.bigQuotes) variantPre = <i className="fas fa-quote-left absolute top-4 left-4 opacity-20 text-6xl pointer-events-none" style={{ color: iqColor }}></i>;
-        if (iq.author) variantPost = <p className="mt-6 text-sm font-black uppercase tracking-[0.2em] opacity-60 not-italic break-words" style={{ textAlign: iq.authorAlign || 'right', color: iqColor }}>— {iq.author}</p>;
+        if (iq.bigQuotes) {variantPre = <i className="fas fa-quote-left absolute top-4 left-4 opacity-20 text-6xl pointer-events-none" style={{ color: iqColor }}></i>;}
+        if (iq.author) {variantPost = <p className="mt-6 text-sm font-black uppercase tracking-[0.2em] opacity-60 not-italic break-words" style={{ textAlign: iq.authorAlign || 'right', color: iqColor }}>— {iq.author}</p>;}
     } else if (variant === 'vintage_letter') {
         const vl = perStyle.vintage_letter || { paperTexture: true, tilt: 0 };
         variantStyles = { 
@@ -53,7 +53,7 @@ export const renderQuoteAspas = (variant: string, perStyle: any, baseStyles: Rea
             transform: `rotate(${vl.tilt * 0.5}deg)`, 
             boxShadow: vl.paperTexture ? 'inset 0 0 40px rgba(0,0,0,0.05)' : 'none' 
         };
-        if (vl.signature) variantPost = <cite className="block text-right mt-8 font-serif italic text-lg opacity-60 break-words">— {vl.signature}</cite>;
+        if (vl.signature) {variantPost = <cite className="block text-right mt-8 font-serif italic text-lg opacity-60 break-words">— {vl.signature}</cite>;}
     }
 
     return (

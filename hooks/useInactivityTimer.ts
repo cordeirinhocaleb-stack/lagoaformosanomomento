@@ -15,7 +15,7 @@ export const useInactivityTimer = (timeoutMs: number = 30 * 60 * 1000, onIdle: (
     }, [onIdle]);
 
     const resetTimer = useCallback(() => {
-        if (timerRef.current) clearTimeout(timerRef.current);
+        if (timerRef.current) {clearTimeout(timerRef.current);}
 
         timerRef.current = setTimeout(() => {
             if (callbackRef.current) {
@@ -42,7 +42,7 @@ export const useInactivityTimer = (timeoutMs: number = 30 * 60 * 1000, onIdle: (
 
         // Cleanup
         return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
+            if (timerRef.current) {clearTimeout(timerRef.current);}
             events.forEach(event => {
                 window.removeEventListener(event, handleActivity);
             });

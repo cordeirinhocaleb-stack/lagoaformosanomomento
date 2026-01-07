@@ -10,7 +10,7 @@ interface PresentationProps {
 // --- 1. HERO SINGLE ---
 // Apresenta uma única imagem em destaque total.
 const HeroSingle: React.FC<PresentationProps> = ({ images, className }) => {
-    if (images.length === 0) return null;
+    if (images.length === 0) {return null;}
     return (
         <img 
             src={images[0]} 
@@ -24,7 +24,7 @@ const HeroSingle: React.FC<PresentationProps> = ({ images, className }) => {
 // Divide o espaço em duas colunas verticais.
 // Fallback: Se 1 imagem -> HeroSingle.
 const Split2Col: React.FC<PresentationProps> = ({ images, className }) => {
-    if (images.length < 2) return <HeroSingle images={images} className={className} />;
+    if (images.length < 2) {return <HeroSingle images={images} className={className} />;}
     
     return (
         <div className="grid grid-cols-2 h-full w-full">
@@ -42,8 +42,8 @@ const Split2Col: React.FC<PresentationProps> = ({ images, className }) => {
 // Layout de mosaico: 1 imagem grande à esquerda, 2 menores à direita.
 // Fallback: 2 imagens -> Split2Col, 1 imagem -> HeroSingle.
 const Collage3: React.FC<PresentationProps> = ({ images, className }) => {
-    if (images.length < 2) return <HeroSingle images={images} className={className} />;
-    if (images.length === 2) return <Split2Col images={images} className={className} />;
+    if (images.length < 2) {return <HeroSingle images={images} className={className} />;}
+    if (images.length === 2) {return <Split2Col images={images} className={className} />;}
 
     return (
         <div className="grid grid-cols-2 h-full w-full">
@@ -66,8 +66,8 @@ const Collage3: React.FC<PresentationProps> = ({ images, className }) => {
 // Imagens empilhadas com leve rotação para efeito de "baralho".
 // Fallback: 1 imagem -> HeroSingle.
 const StackCards: React.FC<PresentationProps> = ({ images, className }) => {
-    if (images.length === 0) return null;
-    if (images.length === 1) return <HeroSingle images={images} className={className} />;
+    if (images.length === 0) {return null;}
+    if (images.length === 1) {return <HeroSingle images={images} className={className} />;}
 
     return (
         <div className="relative w-full h-full flex items-center justify-center p-8 bg-gray-50/10">
@@ -101,15 +101,15 @@ const MiniSlider: React.FC<PresentationProps> = ({ images, className }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
-        if (images.length <= 1) return;
+        if (images.length <= 1) {return;}
         const timer = setInterval(() => {
             setCurrentIndex(prev => (prev + 1) % images.length);
         }, 3000);
         return () => clearInterval(timer);
     }, [images.length]);
 
-    if (images.length === 0) return null;
-    if (images.length === 1) return <HeroSingle images={images} className={className} />;
+    if (images.length === 0) {return null;}
+    if (images.length === 1) {return <HeroSingle images={images} className={className} />;}
 
     return (
         <div className="relative w-full h-full overflow-hidden group">
@@ -146,7 +146,7 @@ export const PopupMediaRenderer: React.FC<{
     // 1. Limite Global de Segurança (Max 3 Imagens)
     const safeImages = images.slice(0, 3);
     
-    if (safeImages.length === 0) return null;
+    if (safeImages.length === 0) {return null;}
 
     // 2. Roteamento de Layouts
     switch (mode) {

@@ -42,15 +42,17 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
     });
 
     const [loading, setLoading] = useState(false);
+    const [isLoadingCep, setIsLoadingCep] = useState(false);
+    const [manualAddressEntry, setManualAddressEntry] = useState(false);
 
     // Lógica de força da senha
     const passwordStrength = useMemo(() => {
         const p = formData.password;
-        if (!p) return 0;
+        if (!p) { return 0; }
         let strength = 0;
-        if (p.length >= 6) strength += 20;
-        if (/[a-zA-Z]/.test(p)) strength += 40;
-        if (/[0-9]/.test(p)) strength += 40;
+        if (p.length >= 6) { strength += 20; }
+        if (/[a-zA-Z]/.test(p)) { strength += 40; }
+        if (/[0-9]/.test(p)) { strength += 40; }
         return strength;
     }, [formData.password]);
 
@@ -83,43 +85,43 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 8) value = value.slice(0, 8);
-        if (value.length >= 5) value = value.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
-        else if (value.length >= 3) value = value.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+        if (value.length > 8) { value = value.slice(0, 8); }
+        if (value.length >= 5) { value = value.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3'); }
+        else if (value.length >= 3) { value = value.replace(/(\d{2})(\d{1,2})/, '$1/$2'); }
         updateField('birthDate', value);
     };
 
     const handleNext = async () => {
-        if (step === 'role' && role) setStep('personal');
+        if (step === 'role' && role) { setStep('personal'); }
         else if (step === 'personal') {
-            if (!formData.username || !formData.birthDate) return alert("Preencha os campos obrigatórios.");
+            if (!formData.username || !formData.birthDate) { return alert("Preencha os campos obrigatórios."); }
             setStep('address');
         }
         else if (step === 'address') {
-            if (!formData.city || !formData.state) return alert("Cidade e Estado são obrigatórios.");
+            if (!formData.city || !formData.state) { return alert("Cidade e Estado são obrigatórios."); }
             setStep('specifics');
         }
         else if (step === 'specifics') {
-            if (isSocialLogin) await handleFinish();
-            else setStep('security');
+            if (isSocialLogin) { await handleFinish(); }
+            else { setStep('security'); }
         }
         else if (step === 'security') {
-            if (passwordStrength < 100) return alert("Sua senha precisa conter letras e números.");
+            if (passwordStrength < 100) { return alert("Sua senha precisa conter letras e números."); }
             await handleFinish();
         }
     };
 
     const handleBack = () => {
-        if (step === 'personal') setStep('role');
-        else if (step === 'address') setStep('personal');
-        else if (step === 'specifics') setStep('address');
-        else if (step === 'security') setStep('specifics');
+        if (step === 'personal') { setStep('role'); }
+        else if (step === 'address') { setStep('personal'); }
+        else if (step === 'specifics') { setStep('address'); }
+        else if (step === 'security') { setStep('specifics'); }
     };
 
     const handleFinish = async () => {
         if (!isSocialLogin) {
-            if (formData.password.length < 6) return alert("A senha deve ter pelo menos 6 dígitos.");
-            if (formData.password !== formData.confirmPassword) return alert("As senhas não coincidem.");
+            if (formData.password.length < 6) { return alert("A senha deve ter pelo menos 6 dígitos."); }
+            if (formData.password !== formData.confirmPassword) { return alert("As senhas não coincidem."); }
         }
 
         if (role) {
@@ -159,21 +161,39 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
     const handleCepBlur = async () => {
         const cep = formData.zipCode.replace(/\D/g, '');
         if (cep.length === 8) {
+            setIsLoadingCep(true);
+            setManualAddressEntry(false); // Reseta modo manual enquanto tenta buscar
+
             try {
                 const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const data = await res.json();
+
                 if (!data.erro) {
                     updateField('city', data.localidade);
                     updateField('state', data.uf);
                     updateField('street', data.logradouro);
+                } else {
+                    // CEP não encontrado -> Libera digitação manual
+                    setManualAddressEntry(true);
+                    updateField('city', '');
+                    updateField('state', '');
+                    updateField('street', '');
                 }
-            } catch (e) { }
+            } catch (e) {
+                // Erro de rede/API -> Libera digitação manual
+                setManualAddressEntry(true);
+            } finally {
+                setIsLoadingCep(false);
+            }
+        } else {
+            // CEP inválido/incompleto -> Permite edição manual se quiser
+            setManualAddressEntry(true);
         }
     };
 
     const steps = useMemo(() => {
         const list: WizardStep[] = ['role', 'personal', 'address', 'specifics'];
-        if (!isSocialLogin) list.push('security');
+        if (!isSocialLogin) { list.push('security'); }
         return list;
     }, [isSocialLogin]);
 
@@ -336,24 +356,52 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">CEP</label>
-                                    <input
-                                        type="text"
-                                        placeholder="00000-000"
-                                        value={formData.zipCode}
-                                        onChange={(e) => updateField('zipCode', e.target.value)}
-                                        onBlur={handleCepBlur}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600 transition-colors"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="00000-000"
+                                            value={formData.zipCode}
+                                            onChange={(e) => updateField('zipCode', e.target.value)}
+                                            onBlur={handleCepBlur}
+                                            disabled={isLoadingCep}
+                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600 transition-colors disabled:opacity-50"
+                                        />
+                                        {isLoadingCep && (
+                                            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                                                <i className="fas fa-circle-notch fa-spin text-red-600"></i>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-[9px] text-gray-500 ml-2">Digite o CEP para buscar automaticamente.</p>
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="col-span-2 space-y-2">
                                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Cidade</label>
-                                        <input type="text" value={formData.city} onChange={(e) => updateField('city', e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600" />
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={formData.city}
+                                                onChange={(e) => updateField('city', e.target.value)}
+                                                disabled={!manualAddressEntry && !formData.city} // Bloqueia se não for manual e estiver vazio (força busca)
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                placeholder={isLoadingCep ? "Buscando..." : "Cidade"}
+                                            />
+                                            {isLoadingCep && <div className="absolute right-4 top-1/2 -translate-y-1/2"><i className="fas fa-spinner fa-spin text-gray-400"></i></div>}
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">UF</label>
-                                        <input type="text" value={formData.state} onChange={(e) => updateField('state', e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600 text-center" />
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={formData.state}
+                                                onChange={(e) => updateField('state', e.target.value)}
+                                                disabled={!manualAddressEntry && !formData.state}
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600 text-center disabled:opacity-50"
+                                                placeholder={isLoadingCep ? "..." : "UF"}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -361,7 +409,14 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
                                     <div className="grid grid-cols-4 gap-4 animate-fade-in">
                                         <div className="col-span-3 space-y-2">
                                             <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Endereço</label>
-                                            <input type="text" value={formData.street} onChange={(e) => updateField('street', e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600" />
+                                            <input
+                                                type="text"
+                                                value={formData.street}
+                                                onChange={(e) => updateField('street', e.target.value)}
+                                                disabled={!manualAddressEntry && !formData.street}
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-red-600 disabled:opacity-50"
+                                                placeholder={isLoadingCep ? "Carregando endereço..." : "Rua/Av"}
+                                            />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Nº</label>

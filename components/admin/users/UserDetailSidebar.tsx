@@ -77,7 +77,7 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
             alert("Erro: Você não tem permissão para esta ação.");
             return;
         }
-        if (!confirm("Atenção: Você está forçando a ativação manual. O usuário terá acesso imediato sem validar o e-mail. Continuar?")) return;
+        if (!confirm("Atenção: Você está forçando a ativação manual. O usuário terá acesso imediato sem validar o e-mail. Continuar?")) {return;}
 
         try {
             // Atualiza localmente
@@ -97,7 +97,7 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
 
     const handleResendActivation = async () => {
         console.log("Tentando reenviar email...");
-        if (!confirm("Enviar novo e-mail de confirmação para este usuário?")) return;
+        if (!confirm("Enviar novo e-mail de confirmação para este usuário?")) {return;}
 
         try {
             setIsProcessingMail(true);
@@ -120,7 +120,7 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
 
     const handleTriggerReset = async () => {
         console.log("Tentando reset senha...");
-        if (!confirm("Deseja enviar um link de redefinição de senha para o e-mail do usuário?")) return;
+        if (!confirm("Deseja enviar um link de redefinição de senha para o e-mail do usuário?")) {return;}
 
         try {
             setIsProcessingMail(true);
@@ -146,7 +146,7 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
     };
 
     const handleExtendSubscription = (days: number) => {
-        if (!canEditPlan) return;
+        if (!canEditPlan) {return;}
         const currentEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : new Date();
         const baseDate = currentEnd < new Date() ? new Date() : currentEnd;
         const newEnd = new Date(baseDate);

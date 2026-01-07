@@ -44,10 +44,10 @@ const YouTubeMetadataForm: React.FC<YouTubeMetadataFormProps> = ({ initialData, 
     useEffect(() => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData.title.trim()) newErrors.title = "O título é obrigatório";
-        if (formData.title.length > 100) newErrors.title = "O título é muito longo (máx 100 caracteres)";
+        if (!formData.title.trim()) {newErrors.title = "O título é obrigatório";}
+        if (formData.title.length > 100) {newErrors.title = "O título é muito longo (máx 100 caracteres)";}
 
-        if (formData.description.length > 5000) newErrors.description = "A descrição é muito longa (máx 5000 caracteres)";
+        if (formData.description.length > 5000) {newErrors.description = "A descrição é muito longa (máx 5000 caracteres)";}
 
         // COPPA é um boolean, mas vamos garantir que o usuário tenha interagido conscientemente se fosse um form vazio
         // (Aqui assumimos false como padrão, mas em produção poderíamos forçar null inicial para check explícito)
@@ -62,7 +62,7 @@ const YouTubeMetadataForm: React.FC<YouTubeMetadataFormProps> = ({ initialData, 
             e.preventDefault();
             const tag = tagsInput.trim();
             if (tag && !formData.tags.includes(tag)) {
-                if (formData.tags.length >= 50) return; // Limite de tags
+                if (formData.tags.length >= 50) {return;} // Limite de tags
                 const newTags = [...formData.tags, tag];
                 setFormData(prev => ({ ...prev, tags: newTags }));
                 setTagsInput('');

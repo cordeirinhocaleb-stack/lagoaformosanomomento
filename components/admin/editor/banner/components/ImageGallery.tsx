@@ -109,7 +109,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                                                 className="hidden"
                                                 onChange={(e) => {
                                                     const file = e.target.files?.[0];
-                                                    if (file) onImageUpload(file, index);
+                                                    if (file) {onImageUpload(file, index);}
                                                 }}
                                             />
                                         </label>
@@ -171,7 +171,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                                             className="hidden"
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
-                                                if (file) onImageUpload(file, index);
+                                                if (file) {onImageUpload(file, index);}
                                             }}
                                         />
                                     )}

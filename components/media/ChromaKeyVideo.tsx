@@ -8,10 +8,10 @@ interface VideoPresenterProps {
 }
 
 function getVimeoId(input: string | undefined): string {
-  if (!input) return "";
+  if (!input) {return "";}
   const m = input.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (m?.[1]) return m[1];
-  if (/^\d+$/.test(input)) return input;
+  if (m?.[1]) {return m[1];}
+  if (/^\d+$/.test(input)) {return input;}
   return "";
 }
 
@@ -102,7 +102,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
 
   const triggerAnimation = useCallback(
     async (isInitial = false) => {
-      if (isAnimatingRef.current) return;
+      if (isAnimatingRef.current) {return;}
       isAnimatingRef.current = true;
 
       setIsScanning(false);
@@ -115,7 +115,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
           setIsScanning(false);
           isAnimatingRef.current = false;
 
-          if (isInitial) safeStorage.setItem(SESSION_KEY, "true");
+          if (isInitial) {safeStorage.setItem(SESSION_KEY, "true");}
         }, 900);
       }, 300);
     },
@@ -124,7 +124,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
 
   // Vimeo Integration
   useEffect(() => {
-    if (!isVimeo || !embedUrl) return;
+    if (!isVimeo || !embedUrl) {return;}
 
     let disposed = false;
     // Removed the aggressive safetyTimer that was forcing visibility too early.
@@ -135,7 +135,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
         const mod = await import("@vimeo/player");
         const Player = (mod as any).default || mod;
 
-        if (disposed || !iframeRef.current) return;
+        if (disposed || !iframeRef.current) {return;}
 
         const player = new Player(iframeRef.current);
         playerRef.current = player;
@@ -158,7 +158,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
         // Trigger visibility only when playback actually begins
         player.on("play", () => {
           setTimeout(() => {
-             if (!disposed) setIsVideoReady(true);
+             if (!disposed) {setIsVideoReady(true);}
           }, 150); // Small buffer to ensure first frame is rendered
         });
         
@@ -192,7 +192,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
 
   // General Logic
   useEffect(() => {
-    if (!src) return;
+    if (!src) {return;}
 
     const hasPlayed = safeStorage.getItem(SESSION_KEY);
 
@@ -218,7 +218,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
     return () => window.clearInterval(intervalId);
   }, [src, isVimeo, autoPlay, triggerAnimation, runPlayWithRetry]);
 
-  if (!src) return null;
+  if (!src) {return null;}
 
   const matrixChroma = "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.6 -3.2 1.6 1.0 0";
 
@@ -293,7 +293,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
             preload="auto"
             onPlaying={() => setIsVideoReady(true)} 
             onCanPlay={() => {
-               if(autoPlay) videoRef.current?.play().catch(()=>{});
+               if(autoPlay) {videoRef.current?.play().catch(()=>{});}
             }}
             className="w-full h-full object-contain bg-transparent pointer-events-none"
             loop={false}

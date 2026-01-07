@@ -28,7 +28,7 @@ interface EditorCanvasProps {
 }
 
 const getWidthClass = (width: string, type: string, orientation?: string) => {
-    if (type === 'separator' && orientation === 'vertical') return 'w-auto mx-2';
+    if (type === 'separator' && orientation === 'vertical') {return 'w-auto mx-2';}
 
     switch (width) {
         case '1/4': return 'w-full md:w-1/4';

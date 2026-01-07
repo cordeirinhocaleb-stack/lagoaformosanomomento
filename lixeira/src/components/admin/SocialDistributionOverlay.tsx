@@ -9,7 +9,7 @@ interface SocialDistributionOverlayProps {
 }
 
 const SocialDistributionOverlay: React.FC<SocialDistributionOverlayProps> = ({ status, distributions, onClose }) => {
-  if (status === 'idle') return null;
+  if (status === 'idle') {return null;}
 
   const isReport = status === 'report';
 

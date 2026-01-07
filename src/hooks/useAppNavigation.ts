@@ -29,16 +29,16 @@ export const useAppNavigation = ({
     const updateHash = useCallback((hash: string) => {
         const target = hash.startsWith('#') ? hash : `#${hash}`;
         try {
-            if (getSafeHash() !== target) window.location.hash = target;
+            if (getSafeHash() !== target) {window.location.hash = target;}
         } catch { }
     }, [getSafeHash]);
 
     useEffect(() => {
-        if (!isInitialized) return;
+        if (!isInitialized) {return;}
 
         const handleHashChange = () => {
             const hash = getSafeHash();
-            if (!hash) return;
+            if (!hash) {return;}
 
             if (hash.includes('access_token')) {
                 setView('auth_callback');

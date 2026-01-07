@@ -7,8 +7,13 @@
 - [x] Limpeza de cache no `RoleSelectionModal.tsx`
 - [ ] Teste de Fluxo: Cadastro e Login (Manual) - **Pendente Validação em Staging**
 - [x] Deploy para Ambiente de Teste (v0.0.0 Build 221) -> https://dev.webgho.com
+- [x] Deploy para Ambiente de Teste (v0.0.0 Build 227) -> https://dev.webgho.com
 - [x] Integrate Supabase MCP & Verify Connection (Project: xlqyccbnlqahyxhfswzh)
 - [x] Synchronize Database Schema (Soft Migration v1.177) - Added missing snake_case columns
+- [x] Fix: Supabase Connection Timeout (Implemented Credential Auto-Healing v1.103/Build 226)
+- [x] Security: Hardening RLS Policies (Migration 009)
+- [x] Fix: Empty Home Feed (Adjusted Region Filter to show National News v1.104)
+- [x] Feature: Auto-News Rotation (Limit 100 items for external source)
 
 ## Refactoring - Global Law Adherence (Code Quality & Modularity)
 - [x] Refactor `App.tsx` (Reduced from 462 to 171 lines - Container/Presenter Pattern)

@@ -91,7 +91,7 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
   // 2. Renderização de Imagens
   const renderImages = () => {
       const { imagePresentation, imageStyle } = item.media;
-      if (!images || images.length === 0) return null;
+      if (!images || images.length === 0) {return null;}
 
       const visualClasses = getVisualClasses(imageStyle);
       const filterClass = getMediaFilterCss(imageStyle.filterId, imageStyle.filterVariant);
@@ -110,6 +110,6 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
   };
 
   // Render condicional
-  if (item.media.videoUrl) return renderVideo();
+  if (item.media.videoUrl) {return renderVideo();}
   return renderImages();
 };

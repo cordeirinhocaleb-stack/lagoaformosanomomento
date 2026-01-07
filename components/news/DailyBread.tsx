@@ -27,9 +27,9 @@ const DailyBread: React.FC = () => {
             }
         } catch (e) {
             console.error("Falha ao carregar Pão Diário", e);
-            if (isMounted) setData(FALLBACK_BREAD);
+            if (isMounted) {setData(FALLBACK_BREAD);}
         } finally {
-            if (isMounted) setLoading(false);
+            if (isMounted) {setLoading(false);}
         }
     };
     loadContent();

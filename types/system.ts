@@ -105,8 +105,8 @@ export type ActivityStatus = 'pending' | 'success' | 'error' | 'info';
 export type ActivityKind = 'upload' | 'distribution' | 'sync' | 'error';
 
 export const checkPermission = (user: User | null, permission: string): boolean => {
-    if (!user) return false;
-    if (user.role === 'Desenvolvedor') return true;
+    if (!user) {return false;}
+    if (user.role === 'Desenvolvedor') {return true;}
     return !!user.permissions?.[permission];
 };
 

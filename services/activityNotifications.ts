@@ -54,7 +54,7 @@ export const emitActivity = (event: ActivityEvent) => {
  * Recupera o nome do usuário logado de forma segura.
  */
 export const getCurrentUserNameSafe = (): string => {
-  if (typeof window === 'undefined') return 'Sistema';
+  if (typeof window === 'undefined') {return 'Sistema';}
   try {
     const rawUser = localStorage.getItem('lfnm_user') || sessionStorage.getItem('lfnm_user');
     if (rawUser) {
@@ -72,7 +72,7 @@ export const getCurrentUserNameSafe = (): string => {
  */
 export const formatElapsed = (ms: number): string => {
   const seconds = Math.floor(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 60) {return `${seconds}s`;}
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   return `${minutes}m ${remainingSeconds}s`;

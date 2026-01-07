@@ -10,13 +10,15 @@ interface NewsManagerProps {
     onDeleteNews: (id: string) => void;
     systemSettings: SystemSettings;
     initialNewsToEdit?: NewsItem | null;
+    initialFilter?: string;
+    darkMode?: boolean;
 }
 
-const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpdateNews, onDeleteNews, systemSettings, initialNewsToEdit }) => {
+const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpdateNews, onDeleteNews, systemSettings, initialNewsToEdit, initialFilter, darkMode = false }) => {
     const [view, setView] = useState<'list' | 'editor'>('list');
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategory, setFilterCategory] = useState('Todas');
+    const [filterCategory, setFilterCategory] = useState(initialFilter || 'Todas');
 
     // Deep Linking Effect
     React.useEffect(() => {
@@ -37,6 +39,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
             let matchesCategory = true;
             if (filterCategory === 'Postagens do Site') {
                 matchesCategory = item.source === 'site' || (!item.source && item.category !== 'Brasil' && item.category !== 'Mundo'); // Fallback if source empty
+            } else if (filterCategory === 'Minhas Publicações') {
+                matchesCategory = item.author === user.name || item.authorId === user.id;
             } else if (filterCategory !== 'Todas') {
                 matchesCategory = item.category === filterCategory;
             }
@@ -48,6 +52,18 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
             return dateB - dateA;
         });
     }, [news, searchTerm, filterCategory]);
+
+    // Pagination
+    const ITEMS_PER_PAGE = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
+    const currentNews = filteredNews.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+    // Reset page when filter changes
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterCategory]);
 
     const [editorKey, setEditorKey] = useState(0);
 
@@ -68,9 +84,9 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
         } else {
             onAddNews(savedNews);
         }
+        setSelectedNews(savedNews);
         // Don't close editor automatically. Let the EditorTab/User decide via the Success Modal.
         // setView('list');
-        // setSelectedNews(null);
     };
 
     const handleDelete = (id: string) => {
@@ -81,7 +97,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
 
     if (view === 'editor') {
         return (
-            <div className="h-[calc(100vh-100px)] -m-8 relative">
+            <div className="h-[calc(100vh-5rem)] -m-4 md:-m-8 relative">
                 <EditorTab
                     key={selectedNews?.id || `new_${editorKey}`}
                     user={user}
@@ -91,6 +107,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                     onCancel={() => { setView('list'); setSelectedNews(null); }}
                     accessToken={null} // Handle tokens if needed
                     systemSettings={systemSettings}
+                    darkMode={darkMode}
                 />
             </div>
         );
@@ -114,6 +131,16 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
 
                     {/* Quick Filter Buttons */}
                     <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                            onClick={() => setFilterCategory('Minhas Publicações')}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Minhas Publicações'
+                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                                : 'bg-black/40 text-gray-400 border border-white/10 hover:border-purple-600/50'
+                                }`}
+                        >
+                            <i className="fas fa-user-edit mr-1.5"></i>
+                            Minhas
+                        </button>
                         <button
                             onClick={() => setFilterCategory('Postagens do Site')}
                             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Postagens do Site'
@@ -178,7 +205,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {filteredNews.map(item => (
+                            {currentNews.map(item => (
                                 <tr key={item.id} className="hover:bg-white/5 transition-colors group">
                                     <td className="p-4 max-w-md">
                                         <div className="flex items-center gap-3">
@@ -243,7 +270,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
 
                 {/* Mobile Card View */}
                 <div className="md:hidden space-y-3 p-4">
-                    {filteredNews.map(item => (
+                    {currentNews.map(item => (
                         <div key={item.id} className="bg-white/5 rounded-xl p-4 border border-white/5 active:bg-white/10 transition-colors">
                             <div className="flex gap-3 mb-3">
                                 <div className="w-16 h-16 rounded-lg bg-black/40 overflow-hidden shrink-0">
@@ -295,6 +322,71 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                 {filteredNews.length === 0 && (
                     <div className="p-8 text-center text-gray-500 text-sm">
                         Nenhuma notícia encontrada.
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="p-4 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest order-2 md:order-1">
+                            Mostrando {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredNews.length)} de {filteredNews.length}
+                        </span>
+
+                        <div className="flex items-center gap-2 order-1 md:order-2">
+                            {/* Previous */}
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${currentPage === 1
+                                    ? 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                    : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'
+                                    }`}
+                            >
+                                <i className="fas fa-chevron-left text-xs"></i>
+                            </button>
+
+                            {/* Page Numbers */}
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    // Simple logic: Show window around current page or first 5 if pages are few
+                                    // For generic robustness dealing with < 100 pages:
+                                    // Let's implement a smarter window logic
+                                    let pageNum = i + 1;
+                                    if (totalPages > 5) {
+                                        if (currentPage > 3 && currentPage < totalPages - 2) {
+                                            pageNum = currentPage - 2 + i;
+                                        } else if (currentPage >= totalPages - 2) {
+                                            pageNum = totalPages - 4 + i;
+                                        }
+                                    }
+
+                                    return (
+                                        <button
+                                            key={pageNum}
+                                            onClick={() => setCurrentPage(pageNum)}
+                                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === pageNum
+                                                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                                                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                                                }`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Next */}
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${currentPage === totalPages
+                                    ? 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                    : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'
+                                    }`}
+                            >
+                                <i className="fas fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

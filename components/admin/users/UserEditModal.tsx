@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { UserProfile } from '../../../types';
+import { User, UserRole } from '../../../types';
 
 interface UserEditModalProps {
-    user: UserProfile | null;
+    user: User | null;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (userId: string | undefined, data: Partial<UserProfile>) => Promise<void>;
+    onSave: (userId: string | undefined, data: Partial<User>) => Promise<void>;
 }
 
 const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, onSave }) => {
-    const [formData, setFormData] = useState<Partial<UserProfile>>({});
+    const [formData, setFormData] = useState<Partial<User>>({});
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -17,20 +17,20 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
             setFormData({ ...user });
         } else {
             setFormData({
-                role: 'user',
+                role: 'Leitor',
                 name: '',
                 email: '',
                 phone: '',
-                address: '',
+                city: '',
                 profession: '',
-                company: ''
+                companyName: ''
             });
         }
     }, [user, isOpen]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev: Partial<User>) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -47,12 +47,12 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
         }
     };
 
-    if (!isOpen) return null;
+    if (!isOpen) { return null; }
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
-            <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-slideUp border border-gray-100">
-                <div className="bg-gray-900 px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4">
+            <div className="bg-[#0F0F0F] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-slideUp border border-white/10">
+                <div className="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/5">
                     <h3 className="text-white font-bold text-lg flex items-center gap-2">
                         <i className={`fas ${user ? 'fa-user-edit' : 'fa-user-plus'} text-red-500`}></i>
                         {user ? 'Editar Usuário' : 'Novo Usuário'}
@@ -62,115 +62,116 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[80vh]">
+                <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[80vh] custom-scrollbar">
                     <div className="space-y-4">
                         {/* Avatar Preview */}
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                                {formData.avatar_url ? (
-                                    <img src={formData.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        <div className="flex items-center gap-4 mb-6 group">
+                            <div className="w-16 h-16 rounded-full bg-black/40 flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-red-500/50 transition-colors">
+                                {formData.avatar ? (
+                                    <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
-                                    <i className="fas fa-user text-2xl text-gray-300"></i>
+                                    <i className="fas fa-user text-2xl text-gray-400 group-hover:text-white group-hover:animate-almost-fall transition-colors"></i>
                                 )}
                             </div>
                             <div>
-                                <h4 className="font-bold text-gray-900">{formData.name || 'Novo Usuário'}</h4>
+                                <h4 className="font-bold text-white group-hover:text-red-500 transition-colors">{formData.name || 'Novo Usuário'}</h4>
                                 <p className="text-xs text-gray-500">{formData.email}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="col-span-2">
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Nome Completo</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Nome Completo</label>
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name || ''}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all"
                                     required
                                 />
                             </div>
 
                             <div className="col-span-2">
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">E-mail</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">E-mail</label>
                                 <input
                                     type="email"
                                     name="email"
                                     value={formData.email || ''}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     required
-                                    disabled={!!user} // Email geralmente é imutável se já cadastrado via provider
+                                    disabled={!!user}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Telefone</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Telefone</label>
                                 <input
                                     type="text"
                                     name="phone"
                                     value={formData.phone || ''}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all"
                                     placeholder="(00) 00000-0000"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Função (Role)</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Função (Role)</label>
                                 <select
                                     name="role"
-                                    value={formData.role || 'user'}
+                                    value={formData.role || 'Leitor'}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all appearance-none"
                                 >
-                                    <option value="user">Usuário Comum</option>
-                                    <option value="admin">Administrador</option>
-                                    <option value="advertiser">Anunciante</option>
-                                    <option value="candidate">Candidato</option>
+                                    <option value="Leitor" className="bg-black text-white">Leitor (Padrão)</option>
+                                    <option value="Editor-Chefe" className="bg-black text-white">Editor-Chefe (Admin)</option>
+                                    <option value="Repórter" className="bg-black text-white">Repórter</option>
+                                    <option value="Anunciante" className="bg-black text-white">Anunciante</option>
+                                    <option value="Prestador de Serviço" className="bg-black text-white">Prestador de Serviço</option>
                                 </select>
                             </div>
 
                             <div className="col-span-2">
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Endereço</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Cidade</label>
                                 <input
                                     type="text"
-                                    name="address"
-                                    value={formData.address || ''}
+                                    name="city"
+                                    value={formData.city || ''}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Profissão</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Profissão</label>
                                 <input
                                     type="text"
                                     name="profession"
                                     value={formData.profession || ''}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Empresa</label>
+                                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1 tracking-widest">Empresa</label>
                                 <input
                                     type="text"
-                                    name="company"
-                                    value={formData.company || ''}
+                                    name="companyName"
+                                    value={formData.companyName || ''}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:border-red-500"
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white outline-none focus:border-red-500 focus:bg-white/5 transition-all"
                                 />
                             </div>
                         </div>
 
-                        <div className="pt-6 flex items-center justify-end gap-3 mt-4 border-t border-gray-100">
+                        <div className="pt-6 flex items-center justify-end gap-3 mt-4 border-t border-white/10">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-xs font-bold uppercase text-gray-500 hover:text-gray-700 transition-colors"
+                                className="px-4 py-2 text-xs font-bold uppercase text-gray-500 hover:text-white transition-colors"
                             >
                                 Cancelar
                             </button>

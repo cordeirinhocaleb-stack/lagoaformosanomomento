@@ -66,7 +66,7 @@ export const useAuth = ({
         console.log('✅ Login bem-sucedido:', loggedUser.name);
 
         // Close modal FIRST
-        if (onClose) onClose();
+        if (onClose) {onClose();}
         setShowLoginModal(false);
 
         // Set user
@@ -103,7 +103,7 @@ export const useAuth = ({
      */
     const handleCheckEmail = useCallback(async (email: string): Promise<boolean> => {
         const localExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
-        if (localExists) return true;
+        if (localExists) {return true;}
         return await checkEmailService(email);
     }, [users]);
 

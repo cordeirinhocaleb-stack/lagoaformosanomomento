@@ -12,7 +12,7 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!config || !config.active) return;
+    if (!config || !config.active) {return;}
 
     // 1. Validação de Rota (Onde exibir)
     const currentHash = window.location.hash || '#/';
@@ -30,7 +30,7 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
         isOnAllowedPage = true;
     }
 
-    if (!isOnAllowedPage) return;
+    if (!isOnAllowedPage) {return;}
 
     // 2. Validação de Frequência (Storage) - Usa título sanitizado como chave
     const safeTitle = sanitizeText(config.title);
@@ -41,10 +41,10 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
 
     if (config.frequency === 'once_per_session') {
       const sessionSeen = sessionStorage.getItem(storageKey);
-      if (sessionSeen) shouldShow = false;
+      if (sessionSeen) {shouldShow = false;}
     } else if (config.frequency === 'once_per_day' && lastSeen) {
       const hoursSince = (now - parseInt(lastSeen)) / (1000 * 60 * 60);
-      if (hoursSince < 24) shouldShow = false;
+      if (hoursSince < 24) {shouldShow = false;}
     }
 
     if (shouldShow) {
@@ -55,7 +55,7 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
   }, [config]);
 
   const handleClose = () => {
-    if (!config) return;
+    if (!config) {return;}
     setIsVisible(false);
     
     // Salva estado de visualização
@@ -72,7 +72,7 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
     handleClose();
   };
 
-  if (!isVisible || !config) return null;
+  if (!isVisible || !config) {return null;}
 
   return (
     <PromoPopupView 

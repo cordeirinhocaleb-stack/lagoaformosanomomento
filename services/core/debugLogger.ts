@@ -16,7 +16,7 @@ class DebugLogger {
         }
 
         this.logs.unshift(formattedMsg); // Add to top
-        if (this.logs.length > 50) this.logs.pop(); // Keep last 50
+        if (this.logs.length > 50) {this.logs.pop();} // Keep last 50
 
         this.notify();
 

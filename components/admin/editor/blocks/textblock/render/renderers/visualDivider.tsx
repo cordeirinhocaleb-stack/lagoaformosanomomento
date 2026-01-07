@@ -4,7 +4,7 @@ import React from 'react';
  * Renderiza divisores decorativos com suporte a ícones, gradientes e textos.
  */
 export const renderAdvancedDivider = (config: any, blockBg: string = 'transparent') => {
-    if (!config || !config.enabled) return null;
+    if (!config || !config.enabled) {return null;}
     const colors: Record<string, string> = { themeDefault: '#0f172a', muted: '#cbd5e1', accent: '#dc2626' };
     const color = colors[config.color] || colors.themeDefault;
     const thickness = config.thickness || 1;

@@ -17,7 +17,7 @@ const NetworkStatusBanner: React.FC<NetworkStatusBannerProps> = ({ onReconnect }
       setIsReconnecting(true);
       
       // Feedback visual de "Reconectando..."
-      if (onReconnect) onReconnect();
+      if (onReconnect) {onReconnect();}
       
       setTimeout(() => {
         setIsReconnecting(false);
@@ -33,7 +33,7 @@ const NetworkStatusBanner: React.FC<NetworkStatusBannerProps> = ({ onReconnect }
     };
   }, [onReconnect]);
 
-  if (!isOffline && !isReconnecting) return null;
+  if (!isOffline && !isReconnecting) {return null;}
 
   return (
     <div className={`fixed bottom-0 left-0 right-0 z-[10000] py-3 px-4 flex items-center justify-center transition-all duration-500 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] ${isOffline ? 'bg-red-600' : 'bg-green-600'}`}>

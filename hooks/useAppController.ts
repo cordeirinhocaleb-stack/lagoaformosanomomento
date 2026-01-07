@@ -60,14 +60,14 @@ export const useAppController = () => {
 
         if (response.source === 'database') {
             const remoteAdConfig = await getSystemSetting('ad_config');
-            if (remoteAdConfig) setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig });
+            if (remoteAdConfig) {setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig });}
         }
         getExternalNews().then(setExternalCategories);
     }, []);
 
     const handleUserRestored = useCallback((restoredUser: User | null) => {
         setUser(restoredUser);
-        if (!restoredUser) localStorage.removeItem('lfnm_user');
+        if (!restoredUser) {localStorage.removeItem('lfnm_user');}
     }, []);
 
     useEffect(() => {
@@ -84,11 +84,11 @@ export const useAppController = () => {
     };
 
     const triggerErrorModal = useCallback((error: any, context: string = 'System Error', severity: 'info' | 'warning' | 'critical' = 'critical') => {
-        if (severity === 'critical') console.error(`🛡️ CRITICAL ERROR[${context}]: `, error);
-        else console.warn(`🛡️ Warning[${context}]: `, error);
+        if (severity === 'critical') {console.error(`🛡️ CRITICAL ERROR[${context}]: `, error);}
+        else {console.warn(`🛡️ Warning[${context}]: `, error);}
 
         const isProduction = process.env.NODE_ENV === 'production' || window.location.hostname.includes('webgho.com');
-        if (isProduction && severity !== 'critical') return;
+        if (isProduction && severity !== 'critical') {return;}
 
         setErrorModal({ open: true, error, context, severity });
     }, []);
@@ -107,7 +107,7 @@ export const useAppController = () => {
                 });
                 modals.setShowAccessDenied(true);
                 const sb = getSupabase();
-                if (sb) sb.auth.signOut();
+                if (sb) {sb.auth.signOut();}
             }
         },
         onSettingsLoaded: setSystemSettings,
@@ -154,19 +154,19 @@ export const useAppController = () => {
     }, [externalCategories]);
 
     useEffect(() => {
-        if (user?.themePreference === 'dark') document.documentElement.classList.add('dark');
-        else document.documentElement.classList.remove('dark');
+        if (user?.themePreference === 'dark') {document.documentElement.classList.add('dark');}
+        else {document.documentElement.classList.remove('dark');}
     }, [user?.themePreference]);
 
     const handleNetworkReconnect = () => {
         loadRemoteData();
         getExternalNews().then(setExternalCategories);
         const sb = getSupabase();
-        if (sb) sb.auth.getSession().then(({ data }) => {
+        if (sb) {sb.auth.getSession().then(({ data }) => {
             if (data.session?.user && !user) {
                 console.log("🔄 Reconnect detectado, aguardando sincronização oficial...");
             }
-        });
+        });}
     };
 
     const handleLogout = async () => {
@@ -174,7 +174,7 @@ export const useAppController = () => {
         localStorage.removeItem('lfnm_user');
         sessionStorage.removeItem('lfnm_user');
         modals.setShowProfileModal(false);
-        try { const sb = getSupabase(); if (sb) await sb.auth.signOut(); } catch (e) { console.warn("⚠️ Erro ao deslogar:", e); }
+        try { const sb = getSupabase(); if (sb) {await sb.auth.signOut();} } catch (e) { console.warn("⚠️ Erro ao deslogar:", e); }
         setView('home');
         updateHash('/');
         window.location.reload();
@@ -186,7 +186,7 @@ export const useAppController = () => {
             const reason = e.reason?.toString() || '';
             if (reason.includes('AuthSessionMissingError') || reason.includes('AuthApiError: invalid_grant')) {
                 console.warn("⚠️ Sessão inválida. Assumindo estado deslogado.");
-                if (user) setUser(null);
+                if (user) {setUser(null);}
                 return;
             }
             triggerErrorModal(e.reason, 'Promise Rejection');
@@ -200,12 +200,12 @@ export const useAppController = () => {
     }, [triggerErrorModal, user]);
 
     useInactivityTimer(30 * 60 * 1000, () => {
-        if (user) setShowSessionExpiredModal(true);
+        if (user) {setShowSessionExpiredModal(true);}
     });
 
     const handleUpdateSystemSettings = async (newSettings: SystemSettings) => {
         setSystemSettings(newSettings);
-        if (dataSource === 'database') await saveSystemSetting('general_settings', newSettings);
+        if (dataSource === 'database') {await saveSystemSetting('general_settings', newSettings);}
     };
 
     const handleProfileUpdate = async (u: User) => {
@@ -214,7 +214,7 @@ export const useAppController = () => {
             setUser(u);
             localStorage.setItem('lfnm_user', JSON.stringify(u));
         }
-        if (dataSource === 'database') await updateUser(u);
+        if (dataSource === 'database') {await updateUser(u);}
     };
 
     const handleEditNews = (newsItem: NewsItem) => {
@@ -234,9 +234,9 @@ export const useAppController = () => {
     };
 
     const currentContext: PopupTargetPage = useMemo(() => {
-        if (view === 'admin') return 'admin_area';
-        if (view === 'jobs') return 'jobs_board';
-        if (view === 'details') return 'news_detail';
+        if (view === 'admin') {return 'admin_area';}
+        if (view === 'jobs') {return 'jobs_board';}
+        if (view === 'details') {return 'news_detail';}
         return 'home';
     }, [view]);
 

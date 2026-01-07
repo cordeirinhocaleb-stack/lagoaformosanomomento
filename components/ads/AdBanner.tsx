@@ -16,13 +16,13 @@ const AdBanner: React.FC<AdBannerProps> = ({ advertisers = [], adConfig, onAdver
 
   // Filtra anunciantes cujo plano tenha placement incluindo 'master_carousel'
   const masterAds = React.useMemo(() => {
-      if (!adConfig) return [];
+      if (!adConfig) {return [];}
       
       const now = new Date();
       return advertisers.filter(ad => {
-          if (!ad.isActive) return false;
-          if (new Date(ad.endDate) < now) return false;
-          if (new Date(ad.startDate) > now) return false;
+          if (!ad.isActive) {return false;}
+          if (new Date(ad.endDate) < now) {return false;}
+          if (new Date(ad.startDate) > now) {return false;}
 
           const plan = adConfig.plans.find(p => p.id === ad.plan);
           // Atualizado para verificar se 'placements' (array) inclui o local
@@ -37,7 +37,7 @@ const AdBanner: React.FC<AdBannerProps> = ({ advertisers = [], adConfig, onAdver
   const loopAdvertisers = [...masterAds, ...masterAds, ...masterAds, ...masterAds];
 
   useEffect(() => {
-    if (loopAdvertisers.length === 0) return;
+    if (loopAdvertisers.length === 0) {return;}
 
     let animationFrameId: number;
     

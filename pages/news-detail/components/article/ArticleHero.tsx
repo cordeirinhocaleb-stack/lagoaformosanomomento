@@ -15,13 +15,13 @@ const YouTubeFacade: React.FC<{ url: string; videoStart?: number; videoEnd?: num
         return match ? match[1] : null;
     };
     const videoId = getVideoId(url);
-    if (!videoId) return null;
+    if (!videoId) {return null;}
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
     if (isPlaying) {
         let params = `?autoplay=1&mute=0&rel=0&iv_load_policy=3&modestbranding=1`;
-        if (videoStart && videoStart > 0) params += `&start=${videoStart}`;
-        if (videoEnd && videoEnd > 0) params += `&end=${videoEnd}`;
+        if (videoStart && videoStart > 0) {params += `&start=${videoStart}`;}
+        if (videoEnd && videoEnd > 0) {params += `&end=${videoEnd}`;}
         return (
             <iframe
                 src={`https://www.youtube.com/embed/${videoId}${params}`}
@@ -49,7 +49,7 @@ const YouTubeFacade: React.FC<{ url: string; videoStart?: number; videoEnd?: num
 const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAuthorClick }) => {
     const [activeIdx, setActiveIdx] = useState(0);
     const bannerList = useMemo(() => {
-        if (news.bannerMediaType === 'video') return [];
+        if (news.bannerMediaType === 'video') {return [];}
 
         let images = news.bannerImages && news.bannerImages.length > 0 ? news.bannerImages : [news.imageUrl];
 
@@ -97,7 +97,7 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
             effects = news.bannerVideoSettings.effects;
         }
 
-        if (!effects) return {};
+        if (!effects) {return {};}
 
         return {
             filter: `
