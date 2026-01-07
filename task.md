@@ -6,4 +6,4 @@
 - [x] Adicionar Sanitização no `userService.ts` (Security)
 - [x] Limpeza de cache no `RoleSelectionModal.tsx`
 - [ ] Teste de Fluxo: Cadastro e Login (Manual) - **Pendente Validação em Staging**
-- [x] Deploy para Ambiente de Teste (v0.1.1 Build 217) -> https://dev.webgho.com
+- [x] Deploy para Ambiente de Teste (v0.1.2 Build 218) -> https://dev.webgho.com

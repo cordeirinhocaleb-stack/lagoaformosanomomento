@@ -3,6 +3,10 @@
 > Este controle de versão é gerenciado automaticamente pela IA Antigravity.
 > Mantenha este arquivo sincronizado com o `package.json` (Versão Pública) e `src/version.ts` (Build Number).
 
+## 0.1.3 (Build 219) - 06/01/2026 22:05
+- **UX/UI:** Substituído alerta nativo do navegador por `SuccessModal` no fluxo de cadastro manual.
+- **Feature:** Mensagem explícita instruindo o usuário a verificar o e-mail para ativação da conta.
+
 ## 0.1.2 (Build 218) - 06/01/2026 21:55
 - **Bug Fix (Crítico):** Corrigido erro de "ID/Email não identificado" no cadastro manual com verificação de email ativada.
 - **Resilience:** Reforçado fallback de cadastro para ignorar falha de perfil se a conta Auth for criada (ativação via email + Self-Healing).

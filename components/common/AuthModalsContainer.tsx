@@ -123,9 +123,10 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     // Limpeza de cache de cadastro
                     localStorage.removeItem('lfnm_registration_backup');
 
-                    alert('Cadastro realizado! Por favor, verifique seu e-mail para ativar a conta.');
+                    setSuccessMessage('Cadastro realizado com sucesso! Enviamos um link de confirmação para o seu e-mail. Por favor, verifique sua caixa de entrada (e spam) para ativar sua conta.');
                     setShowRoleSelector(false);
-                    setShowLoginModal(true);
+                    setShowSuccessModal(true);
+                    // Login modal will be opened by SuccessModal onClose if needed
                 }
             }
             // CADASTRO SOCIAL (Google)
@@ -210,9 +211,9 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     setShowRoleSelector(false);
                 } else {
                     // Manual Fallback Success
-                    alert('Cadastro básico salvo. Verifique seu email.');
+                    setSuccessMessage('Cadastro básico salvo. Verifique seu email para concluir a ativação.');
                     setShowRoleSelector(false);
-                    setShowLoginModal(true);
+                    setShowSuccessModal(true);
                 }
             } catch (retryError: any) {
                 console.error('❌ Falha crítica no cadastro:', retryError);
