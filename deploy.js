@@ -27,7 +27,7 @@ const config = {
     remoteRoot: process.env.FTP_REMOTE_ROOT || '/public_html/',
     include: ['*', '**/*'], // Enviar tudo
     exclude: ['dist/**/*.map', 'node_modules/**', '.git/**'], // Excluir arquivos desnecessários
-    deleteRemote: false, // NÃO deletar arquivos remotos (mais seguro, mude para true se quiser limpar antes)
+    deleteRemote: true, // DELETAR arquivos remotos antes de enviar (deploy limpo)
     forcePasv: true, // Modo Passivo (Geralmente necessário para HostGator)
     sftp: false // HostGator padrão usa FTP, mude para true se tiver SFTP ativado
 };
@@ -40,7 +40,7 @@ ftpDeploy
     .deploy(config)
     .then((res) => {
         console.log('✅ Deploy finalizado com sucesso!');
-        console.log(`📄 Arquivos enviados: ${res.uploadedCount}`);
+        console.log('📦 Detalhes do deploy:', res);
     })
     .catch((err) => {
         console.error('❌ Erro no deploy:', err);

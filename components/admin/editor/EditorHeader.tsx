@@ -64,12 +64,14 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({ isPublished, isHeade
                 ) : (
                     <>
                         <button
+                            type="button"
                             onClick={onSaveDraft}
                             className="bg-white/10 text-white px-5 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2"
                         >
                             <i className="fas fa-save"></i> Salvar Rascunho
                         </button>
                         <button
+                            type="button"
                             onClick={() => onPublish(false, false)}
                             className="bg-red-600 text-white px-8 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:bg-white hover:text-red-600 transition-all flex items-center gap-2 group transform hover:scale-105"
                         >

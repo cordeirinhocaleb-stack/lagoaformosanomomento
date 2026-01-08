@@ -4,9 +4,12 @@ import { storeLocalFile, getLocalFile } from '../../../../services/storage/local
 import { ContentBlock } from '../../../../types';
 import MediaUploader from '../../../media/MediaUploader';
 import VideoSourcePicker from '../media/VideoSourcePicker';
-import YouTubeConfigModal from '../../YouTubeConfigModal';
+import YouTubeVideoUploader from '../banner/YouTubeVideoUploader';
 import { VideoMetadata } from '../../../../services/youtubeService';
+import { YouTubeVideoMetadata } from '../../../../services/upload/youtubeVideoService';
+import ConfirmModal from '../../../../components/common/ConfirmModal';
 
+// ... (props interface remains same)
 interface MediaBlockProps {
     block: ContentBlock;
     isSelected: boolean;
@@ -15,11 +18,33 @@ interface MediaBlockProps {
     onUpdate?: (content: any, settings?: any, extraProps?: Partial<ContentBlock>) => void;
 }
 
+
 const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading, onSelect, onUpdate }) => {
     const [showYouTubeWizard, setShowYouTubeWizard] = useState(false);
+    const [pendingYouTubeFile, setPendingYouTubeFile] = useState<File | null>(null);
+
+    // State for Custom Confirm Modal
+    // ... rest of state
+    const [confirmConfig, setConfirmConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        type?: 'danger' | 'warning' | 'info';
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'warning'
+    });
+
     const [localVideoUrl, setLocalVideoUrl] = useState<string | null>(null);
-    const [showEffects, setShowEffects] = useState(false); // Controls effects panel
+    const [showEffects, setShowEffects] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
+    const [panelPosition, setPanelPosition] = useState({ x: 20, y: 100 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
     const isVideo = block.type === 'video';
     const style = block.settings.style || 'clean';
@@ -31,9 +56,12 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     const isMuted = block.settings.muted ?? false;
     const isLoop = block.settings.loop ?? false;
     const isAutoplay = block.settings.autoplay ?? false;
-    const effects = block.settings.effects || {
+
+    // Safe defaults for effects to prevent undefined CSS values
+    const defaultEffects = {
         brightness: 100, contrast: 100, saturation: 100, blur: 0, sepia: 0, opacity: 100
     };
+    const effects = { ...defaultEffects, ...(block.settings.effects || {}) };
 
     const isYouTube = typeof content === 'string' && (content.includes('youtube.com') || content.includes('youtu.be'));
     const isLocalBlob = typeof content === 'string' && (content.startsWith('blob:') || content.startsWith('data:') || content.startsWith('local_'));
@@ -54,14 +82,14 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
         }
     }, [content]);
 
-    const videoId = isYouTube ? content.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1] : null;
+    const videoId = isYouTube ? content.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11,})/)?.[1] : null;
 
     const getEmbedUrl = () => {
-        if (!videoId) {return null;}
+        if (!videoId) { return null; }
         let url = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
-        if (isMuted) {url += '&mute=1';}
-        if (isAutoplay) {url += '&autoplay=1';}
-        if (isLoop) {url += `&loop=1&playlist=${videoId}`;}
+        if (isMuted) { url += '&mute=1'; }
+        if (isAutoplay) { url += '&autoplay=1'; }
+        if (isLoop) { url += `&loop=1&playlist=${videoId}`; }
         return url;
     };
     const embedUrl = getEmbedUrl();
@@ -73,7 +101,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     };
 
     const handleMediaSelect = async (file: File | null, previewUrl: string, type: 'image' | 'video') => {
-        if (!onUpdate) {return;}
+        if (!onUpdate) { return; }
         setUploadError(null);
 
         if (file) {
@@ -87,11 +115,9 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
                         setUploadError(`O arquivo excede o limite de 100MB para hospedagem interna (${sizeMB.toFixed(1)}MB). Use o YouTube.`);
                         return;
                     }
-                    // Trigger Cloudinary Upload (Simulated here by passing to parent handler or triggering specific service)
-                    // For now we treat as local/generic upload which eventually goes to Cloud
                     try {
                         const localId = await storeLocalFile(file);
-                        onUpdate(localId); // Placeholder: In real app, this would be the Cloudinary process start
+                        onUpdate(localId);
                         const event = new CustomEvent('lfnm:media-selected', { detail: { blockId: block.id, file, type, source: 'cloudinary' } });
                         window.dispatchEvent(event);
                     } catch (e) {
@@ -104,10 +130,9 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
                         setUploadError(`O arquivo excede o limite de 1GB para upload no YouTube.`);
                         return;
                     }
-                    // Proceed to Wizard
                     try {
-                        const localId = await storeLocalFile(file); // Cache locally first for preview
-                        onUpdate(localId);
+                        // Store locally for backup but open Wizard immediately
+                        setPendingYouTubeFile(file);
                         setShowYouTubeWizard(true);
                     } catch (e) {
                         console.error("Erro prep youtube:", e);
@@ -127,32 +152,23 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
         }
     };
 
-    const handleYouTubeConfig = (metadata: VideoMetadata) => {
-        // Trigger actual upload process with metadata
-        const event = new CustomEvent('lfnm:youtube-upload-start', {
-            detail: { blockId: block.id, metadata }
-        });
-        window.dispatchEvent(event);
-
-        if (onUpdate) {onUpdate(block.content, { ...block.settings }, { youtubeMeta: metadata });}
-        setShowYouTubeWizard(false);
-    };
-
-    const resetSource = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (confirm("Trocar a origem removerá o vídeo atual. Continuar?")) {
-            setUploadError(null);
-            setLocalVideoUrl(null);
-            if (onUpdate) {
-                // Clear content and videoSource to force source picker to show
-                onUpdate('', { ...block.settings }, { videoSource: undefined, youtubeMeta: undefined });
-            }
+    const handleYouTubeComplete = (youtubeUrl: string, metadata: YouTubeVideoMetadata, videoId: string) => {
+        if (onUpdate) {
+            onUpdate(youtubeUrl, {
+                ...block.settings,
+                uploadStatus: 'ready'
+            }, {
+                youtubeMeta: metadata,
+                videoSource: 'youtube'
+            });
         }
+        setShowYouTubeWizard(false);
+        setPendingYouTubeFile(null);
     };
+
 
     const handleSettingChange = (key: string, value: any) => {
-        if (onUpdate) {onUpdate(block.content, { ...block.settings, [key]: value });}
+        if (onUpdate) { onUpdate(block.content, { ...block.settings, [key]: value }); }
     };
 
     const handleEffectChange = (key: string, value: number) => {
@@ -160,12 +176,44 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
         handleSettingChange('effects', newEffects);
     };
 
+    const handleDragStart = (e: React.MouseEvent) => {
+        setIsDragging(true);
+        setDragStart({
+            x: e.clientX - panelPosition.x,
+            y: e.clientY - panelPosition.y
+        });
+    };
+
+    const handleDragMove = (e: MouseEvent) => {
+        if (isDragging) {
+            setPanelPosition({
+                x: e.clientX - dragStart.x,
+                y: e.clientY - dragStart.y
+            });
+        }
+    };
+
+    const handleDragEnd = () => {
+        setIsDragging(false);
+    };
+
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleDragMove);
+            window.addEventListener('mouseup', handleDragEnd);
+            return () => {
+                window.removeEventListener('mousemove', handleDragMove);
+                window.removeEventListener('mouseup', handleDragEnd);
+            };
+        }
+    }, [isDragging, dragStart]);
+
     const getFilterString = () => {
         return `brightness(${effects.brightness}%) contrast(${effects.contrast}%) saturate(${effects.saturation}%) blur(${effects.blur}px) sepia(${effects.sepia}%) opacity(${effects.opacity}%)`;
     };
 
     const getContainerStyles = () => {
-        if (!isVideo) {return {};}
+        if (!isVideo) { return {}; }
         switch (style) {
             case 'cinema': return { backgroundColor: '#000', padding: '40px 0', width: '100%' };
             case 'shorts': return { width: '300px', margin: '0 auto', aspectRatio: '9/16' };
@@ -173,6 +221,34 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
             default: return {};
         }
     };
+
+    const closeConfirm = () => {
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+    };
+
+
+    const resetSource = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        // Open Custom Modal instead of window.confirm
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Trocar Origem?',
+            message: 'Trocar a origem removerá o vídeo atual. Você tem certeza que deseja continuar?',
+            type: 'danger',
+            onConfirm: () => {
+                setUploadError(null);
+                setLocalVideoUrl(null);
+                if (onUpdate) {
+                    onUpdate('', { ...block.settings }, { videoSource: undefined, youtubeMeta: undefined });
+                }
+                closeConfirm();
+            }
+        });
+    };
+
+    // ... (rest of component) ...
 
     // RENDER: STEP 1 - SOURCE PICKER
     if (isVideo && !videoSource && !content) {
@@ -185,12 +261,57 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
 
     return (
         <div onClick={(e) => { e.stopPropagation(); onSelect(); }} className={`p-4 transition-all duration-300 ${isSelected ? 'z-50' : 'z-0'}`}>
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                title={confirmConfig.title}
+                message={confirmConfig.message}
+                onConfirm={confirmConfig.onConfirm}
+                onCancel={closeConfirm}
+                type={confirmConfig.type}
+                confirmText="Continuar"
+                cancelText="Cancelar"
+            />
             {showYouTubeWizard && (
-                <YouTubeConfigModal
-                    videoFile={null}
-                    onConfirm={handleYouTubeConfig}
-                    onCancel={() => setShowYouTubeWizard(false)}
-                />
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[6000] overflow-y-auto p-4 md:p-10 flex justify-center animate-fadeIn">
+                    <div className="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full my-auto overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Modal Header */}
+                        <div className="bg-red-600 p-8 text-white flex justify-between items-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                            <div className="flex items-center gap-4 relative z-10">
+                                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-red-600 shadow-xl">
+                                    <i className="fab fa-youtube text-3xl"></i>
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-[1000] uppercase italic tracking-tighter">Wizard YouTube</h3>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Upload Direto & SEO</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowYouTubeWizard(false);
+                                    setPendingYouTubeFile(null);
+                                }}
+                                className="text-white/50 hover:text-white transition-colors relative z-10"
+                            >
+                                <i className="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-10">
+                            <YouTubeVideoUploader
+                                initialFile={pendingYouTubeFile}
+                                onUploadComplete={handleYouTubeComplete}
+                                onUploadError={(error) => {
+                                    setUploadError(error);
+                                    setShowYouTubeWizard(false);
+                                }}
+                                isShorts={style === 'shorts'}
+                            />
+                        </div>
+                    </div>
+                </div>
             )}
 
             {isVideo && style === 'native' && block.settings.videoTitle && (
@@ -209,9 +330,17 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
                             {thumbUrl && !isYouTube && (
                                 <img src={thumbUrl} className="absolute inset-0 w-full h-full object-cover z-10 opacity-60" alt="Capa" />
                             )}
-                            {embedUrl ? (
+
+                            {/* PENDING STATE HANDLING */}
+                            {(block.settings?.uploadStatus === 'uploading' || (typeof content === 'string' && content.includes('pending_'))) ? (
+                                <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20 text-center p-6">
+                                    <div className="w-12 h-12 border-4 border-white/20 border-t-red-600 rounded-full animate-spin mb-4"></div>
+                                    <span className="text-white font-black uppercase text-xs tracking-widest mb-1">Processando Vídeo</span>
+                                    <span className="text-zinc-500 text-[10px]">Isso pode levar alguns minutos...</span>
+                                </div>
+                            ) : embedUrl ? (
                                 <iframe src={embedUrl} className="w-full h-full pointer-events-none z-0" title="Preview YouTube" allow="autoplay" />
-                            ) : (localVideoUrl || (content && !isYouTube)) ? ( // Check localVisualUrl OR content exists and is not youtube
+                            ) : (localVideoUrl || (content && !isYouTube && !content.includes('pending_'))) ? ( // Check localVisualUrl OR content exists and is not youtube/pending
                                 <video
                                     src={localVideoUrl || content}
                                     className="w-full h-full object-contain z-0"
@@ -249,14 +378,44 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
                                     <button onClick={resetSource} className="bg-white/90 text-black px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2 border border-black/10 hover:bg-red-600 hover:text-white transition-colors">
                                         <i className="fas fa-undo"></i> Trocar Origem
                                     </button>
+                                    {videoSource === 'youtube' && block.youtubeMeta && (
+                                        <button onClick={(e) => { e.stopPropagation(); setShowYouTubeWizard(true); }} className="bg-red-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2 border border-red-700 hover:bg-red-700 transition-colors">
+                                            <i className="fab fa-youtube"></i> Editar Info YouTube
+                                        </button>
+                                    )}
                                     <button onClick={(e) => { e.stopPropagation(); setShowEffects(!showEffects); }} className="bg-zinc-800 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2 border border-white/10 hover:bg-blue-600 transition-colors">
                                         <i className="fas fa-sliders-h"></i> Ajustes
                                     </button>
                                 </div>
 
                                 {showEffects && (
-                                    <div className="absolute top-14 left-4 z-50 bg-black/90 p-4 rounded-xl border border-zinc-700 w-64 backdrop-blur-md animate-in fade-in slide-in-from-left-4" onClick={e => e.stopPropagation()}>
-                                        <h4 className="text-[10px] font-black uppercase text-zinc-400 mb-3 tracking-widest">Configuração do Vídeo</h4>
+                                    <div
+                                        className="fixed bg-black/95 p-4 rounded-xl border-2 border-zinc-700 w-72 backdrop-blur-md shadow-2xl"
+                                        style={{
+                                            left: `${panelPosition.x}px`,
+                                            top: `${panelPosition.y}px`,
+                                            zIndex: 9999,
+                                            cursor: isDragging ? 'grabbing' : 'default'
+                                        }}
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        {/* Draggable Header */}
+                                        <div
+                                            className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-700 cursor-grab active:cursor-grabbing"
+                                            onMouseDown={handleDragStart}
+                                        >
+                                            <h4 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-2">
+                                                <i className="fas fa-grip-vertical text-zinc-500"></i>
+                                                Configuração do Vídeo
+                                            </h4>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setShowEffects(false); }}
+                                                className="text-zinc-400 hover:text-white transition-colors"
+                                            >
+                                                <i className="fas fa-times"></i>
+                                            </button>
+                                        </div>
+
                                         <div className="grid grid-cols-3 gap-2 mb-4">
                                             <button onClick={() => handleSettingChange('muted', !isMuted)} className={`p-2 rounded-lg flex flex-col items-center gap-1 text-[9px] font-bold uppercase ${isMuted ? 'bg-red-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>
                                                 <i className={`fas fa-volume-${isMuted ? 'mute' : 'up'}`}></i> Mudo

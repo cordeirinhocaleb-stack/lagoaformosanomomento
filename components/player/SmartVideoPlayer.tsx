@@ -17,6 +17,10 @@ interface SmartVideoPlayerProps {
     controls?: boolean;
     muted?: boolean;
     loop?: boolean;
+    onLoadedMetadata?: (event: React.SyntheticEvent<HTMLVideoElement>) => void;
+    style?: React.CSSProperties;
+    videoStart?: number; // Manual trim start time
+    videoEnd?: number;   // Manual trim end time
 }
 
 export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
@@ -28,7 +32,11 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     className = '',
     controls = false,
     muted = true,
-    loop = true
+    loop = true,
+    onLoadedMetadata,
+    style,
+    videoStart,
+    videoEnd
 }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
@@ -39,7 +47,7 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     // Generate segments when video metadata is loaded
     useEffect(() => {
         const video = videoRef.current;
-        if (!video) {return;}
+        if (!video) { return; }
 
         const handleLoadedMetadata = () => {
             const duration = video.duration;
@@ -73,10 +81,10 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     // Handle segment playback
     useEffect(() => {
         const video = videoRef.current;
-        if (!video || !smartPlayback || segments.length === 0 || !isReady) {return;}
+        if (!video || !smartPlayback || segments.length === 0 || !isReady) { return; }
 
         const currentSegment = segments[currentSegmentIndex];
-        if (!currentSegment) {return;}
+        if (!currentSegment) { return; }
 
         // Jump to segment start
         video.currentTime = currentSegment.start;
@@ -93,6 +101,53 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
         return () => video.removeEventListener('timeupdate', handleTimeUpdate);
     }, [smartPlayback, segments, currentSegmentIndex, isReady]);
 
+    // Handle manual trim playback (videoStart/videoEnd)
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || !isReady) return;
+
+        // If manual trim is set (videoStart and videoEnd provided)
+        if (videoStart !== undefined && videoEnd !== undefined && videoEnd > videoStart) {
+            // Set initial position to trim start
+            if (video.currentTime < videoStart || video.currentTime > videoEnd) {
+                video.currentTime = videoStart;
+            }
+
+            const handleTrimTimeUpdate = () => {
+                // Loop back to start when reaching end
+                if (video.currentTime >= videoEnd) {
+                    video.currentTime = videoStart;
+                    // Force play to ensure continuous loop
+                    video.play().catch(err => console.log('Play error:', err));
+                }
+            };
+
+            video.addEventListener('timeupdate', handleTrimTimeUpdate);
+            return () => video.removeEventListener('timeupdate', handleTrimTimeUpdate);
+        }
+    }, [videoStart, videoEnd, isReady]);
+
+    // Handle Tab Visibility (Resume playback when tab becomes active)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            const video = videoRef.current;
+            if (!video) return;
+
+            if (document.visibilityState === 'visible') {
+                // Force layout recalculation
+                video.style.display = 'none';
+                video.offsetHeight; // trigger reflow
+                video.style.display = 'block';
+
+                // Resume playback
+                video.play().catch(e => console.log('Resume play failed', e));
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
+
     // Normal playback (no smart playback)
     if (!smartPlayback || videoDuration <= 60) {
         return (
@@ -105,6 +160,8 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
                 loop={loop}
                 autoPlay
                 playsInline
+                onLoadedMetadata={onLoadedMetadata}
+                style={style}
             />
         );
     }
@@ -120,6 +177,8 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
                 muted={muted}
                 autoPlay
                 playsInline
+                onLoadedMetadata={onLoadedMetadata}
+                style={style}
             />
 
             {/* Smart Playback Indicator */}

@@ -3,7 +3,7 @@ import { BannerLayout, BannerTransition } from './ads';
 
 export interface ContentBlock {
     id: string;
-    type: 'paragraph' | 'heading' | 'image' | 'video' | 'quote' | 'list' | 'separator' | 'gallery' | 'engagement' | 'smart_block';
+    type: 'paragraph' | 'heading' | 'image' | 'video' | 'video_link' | 'quote' | 'list' | 'separator' | 'gallery' | 'engagement' | 'smart_block';
     content: any;
     settings: any;
     videoSource?: 'cloudinary' | 'youtube';

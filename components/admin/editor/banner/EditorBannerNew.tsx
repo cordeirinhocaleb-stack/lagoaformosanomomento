@@ -15,6 +15,7 @@ import { User } from '../../../../types';
 import CloudinaryVideoUploader from './CloudinaryVideoUploader';
 import YouTubeVideoUploader from './YouTubeVideoUploader';
 import { deleteFromCloudinary } from '../../../../services/cloudinaryService';
+import { deleteVideoFromYouTube, extractYouTubeVideoId } from '../../../../services/upload/youtubeVideoService';
 import SmartVideoPlayer from '../../../player/SmartVideoPlayer';
 import Toast, { ToastType } from '../../../common/Toast';
 import {
@@ -24,6 +25,7 @@ import {
     EffectsPanel,
     ImageGallery
 } from './components';
+import VideoTrimSelector from './components/VideoTrimSelector';
 
 // Custom Hooks
 import { useImageUploadQueue } from '../hooks/useImageUploadQueue';
@@ -74,6 +76,12 @@ interface EditorBannerProps {
     // Callbacks
     onImageUpload?: (file: File) => Promise<string>;
     onVideoUpload?: (file: File, source: 'internal' | 'youtube') => Promise<string>;
+
+    // Video Trim
+    videoStart?: number;
+    setVideoStart?: (start: number) => void;
+    videoEnd?: number;
+    setVideoEnd?: (end: number) => void;
 }
 
 export const EditorBanner: React.FC<EditorBannerProps> = ({
@@ -100,12 +108,18 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
     setBannerEffects,
     localPreviews = {},
     onImageUpload,
-    onVideoUpload
+    onVideoUpload,
+    videoStart = 0,
+    setVideoStart,
+    videoEnd = 0,
+    setVideoEnd
 }) => {
-
     const [showYouTubeModal, setShowYouTubeModal] = useState(false);
     const [showEffectsPanel, setShowEffectsPanel] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    const [showRemovalWarning, setShowRemovalWarning] = useState(false);
+    const [showGaleriaConfirmation, setShowGaleriaConfirmation] = useState(false);
+    const [videoDuration, setVideoDuration] = useState(0);
 
     // Extracted Hook for Image Queue
     const {
@@ -207,10 +221,17 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                 <div className="flex bg-white p-1.5 rounded-2xl border border-gray-200 shadow-sm max-w-md mx-auto">
                     <button
                         onClick={() => {
-                            setBannerMediaType('image');
-                            // Clear video if needed, or just switch view
-                            setBannerVideoUrl('');
-                            if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(''); }
+                            // Check if switching would delete existing video
+                            const hasVideo = bannerVideoUrl && bannerVideoUrl.trim() !== '';
+                            const hasYouTubeVideo = bannerYoutubeVideoId && bannerYoutubeVideoId.trim() !== '';
+
+                            if ((hasVideo || hasYouTubeVideo) && bannerMediaType === 'video') {
+                                // Show custom confirmation modal
+                                setShowGaleriaConfirmation(true);
+                            } else {
+                                setBannerMediaType('image');
+                                setBannerVideoSource(null); // Reset source selection
+                            }
                         }}
                         className={`flex-1 py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${bannerMediaType === 'image'
                             ? 'bg-black text-white shadow-xl'
@@ -222,9 +243,15 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                     </button>
                     <button
                         onClick={() => {
-                            setBannerMediaType('video');
-                            // Clear images if needed? No, user might want to keep them if they switch back. BUT public view only shows one.
-                            // The user request "não pode os 2" is satisfied by this toggle being 'image' OR 'video'.
+                            // Check if switching would delete existing images
+                            const hasImages = bannerImages && bannerImages.length > 0;
+
+                            if (hasImages && bannerMediaType === 'image') {
+                                // BLOCK the switch and show custom modal
+                                setShowRemovalWarning(true);
+                            } else {
+                                setBannerMediaType('video');
+                            }
                         }}
                         className={`flex-1 py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${bannerMediaType === 'video'
                             ? 'bg-red-600 text-white shadow-xl shadow-red-600/20'
@@ -272,7 +299,7 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                                         setBannerEffects(updated);
                                     } else {
                                         // Initialize array if it was object or undefined, preserving existing if object
-                                        const initial = bannerEffects ? [bannerEffects] : [];
+                                        const initial: any[] = bannerEffects ? [bannerEffects] : [];
                                         initial[selectedImageIndex] = newEffects;
                                         setBannerEffects(initial);
                                     }
@@ -392,6 +419,23 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                                                     className="w-full h-full object-cover"
                                                     muted={true}
                                                     loop={true}
+                                                    videoStart={videoStart}
+                                                    videoEnd={videoEnd}
+                                                    onLoadedMetadata={(e) => {
+                                                        const video = e.target as HTMLVideoElement;
+                                                        setVideoDuration(video.duration);
+                                                        console.log('📹 Duração do vídeo:', video.duration);
+                                                    }}
+                                                    style={{
+                                                        filter: bannerEffects && (Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects) ? `
+                                                            brightness(${(Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).brightness || 1})
+                                                            contrast(${(Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).contrast || 1})
+                                                            saturate(${(Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).saturation || 1})
+                                                            blur(${(Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).blur || 0}px)
+                                                            sepia(${(Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).sepia || 0})
+                                                            opacity(${(Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).opacity !== undefined ? (Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects).opacity : 1})
+                                                        `.replace(/\s+/g, ' ').trim() : undefined
+                                                    }}
                                                 />
                                             )}
                                             <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/90 to-transparent">
@@ -400,6 +444,49 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                                                     <span className="text-white text-[10px] font-black uppercase tracking-[0.3em]">Cinema Preview Active</span>
                                                 </div>
                                             </div>
+                                        </div>
+
+                                        {/* Video Trim Selector */}
+                                        {setVideoStart && setVideoEnd && videoDuration > 0 && (
+                                            <VideoTrimSelector
+                                                videoUrl={resolveMedia(bannerVideoUrl)}
+                                                duration={videoDuration}
+                                                initialStart={videoStart}
+                                                initialEnd={videoEnd || videoDuration}
+                                                onTrimChange={(start, end) => {
+                                                    setVideoStart(start);
+                                                    setVideoEnd(end);
+                                                }}
+                                                maxDuration={60}
+                                            />
+                                        )}
+
+                                        {/* Video Effects Panel */}
+                                        <div className="mt-6">
+                                            <button
+                                                onClick={() => setShowEffectsPanel(!showEffectsPanel)}
+                                                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl transition-all shadow-lg"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                                                        <i className="fas fa-magic text-lg"></i>
+                                                    </div>
+                                                    <span className="font-black text-sm uppercase tracking-wider">
+                                                        Ajustar Vídeo
+                                                    </span>
+                                                </div>
+                                                <i className={`fas fa-chevron-${showEffectsPanel ? 'up' : 'down'} transition-transform`}></i>
+                                            </button>
+
+                                            {showEffectsPanel && setBannerEffects && (
+                                                <EffectsPanel
+                                                    isOpen={true}
+                                                    bannerEffects={Array.isArray(bannerEffects) ? bannerEffects[0] : (bannerEffects || { brightness: 1, contrast: 1, saturation: 1, blur: 0, sepia: 0, opacity: 1 })}
+                                                    onEffectsChange={(newEffects) => {
+                                                        setBannerEffects([newEffects]);
+                                                    }}
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -491,6 +578,108 @@ export const EditorBanner: React.FC<EditorBannerProps> = ({
                                     setBannerSmartPlayback(true);
                                 }}
                             />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Removal Warning Modal */}
+            {showRemovalWarning && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] animate-fadeIn">
+                    <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-red-600 to-red-700 p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                                    <i className="fas fa-exclamation-triangle text-white text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-black text-xl tracking-tight">Atenção</h3>
+                                    <p className="text-white/80 text-sm font-medium">Ação necessária</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6">
+                            <p className="text-gray-700 text-base leading-relaxed mb-2">
+                                <strong className="text-gray-900">Retire todas as fotos</strong> para poder mudar para vídeo.
+                            </p>
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                                Clique no <span className="inline-flex items-center justify-center w-5 h-5 bg-red-500 rounded-full text-white text-xs mx-1">✕</span> em cada foto para removê-las.
+                            </p>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 pt-0">
+                            <button
+                                onClick={() => setShowRemovalWarning(false)}
+                                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                Entendi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Galeria Confirmation Modal */}
+            {showGaleriaConfirmation && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] animate-fadeIn">
+                    <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-red-600 to-red-700 p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                                    <i className="fas fa-images text-white text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-black text-xl tracking-tight">Mudar para Galeria?</h3>
+                                    <p className="text-white/80 text-sm font-medium">O vídeo configurado será removido</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6">
+                            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg mb-4">
+                                <div className="flex items-start gap-3">
+                                    <i className="fas fa-exclamation-triangle text-amber-600 text-lg mt-0.5"></i>
+                                    <div>
+                                        <p className="text-amber-900 font-bold text-sm mb-1">Atenção: Esta ação não pode ser desfeita</p>
+                                        <p className="text-amber-800 text-sm leading-relaxed">
+                                            Ao mudar para <strong>Galeria</strong>, o vídeo atual será <strong>permanentemente removido</strong>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                                Você poderá adicionar até 5 imagens no modo Galeria. Deseja continuar?
+                            </p>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 pt-0 flex gap-3">
+                            <button
+                                onClick={() => setShowGaleriaConfirmation(false)}
+                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setBannerMediaType('image');
+                                    setBannerVideoUrl('');
+                                    setBannerVideoSource(null);
+                                    if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(''); }
+                                    setShowGaleriaConfirmation(false);
+                                }}
+                                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <i className="fas fa-images mr-2"></i>
+                                Mudar para Galeria
+                            </button>
                         </div>
                     </div>
                 </div>

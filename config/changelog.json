@@ -1,5 +1,46 @@
 [
   {
+    "version": "0.0.1",
+    "date": "07/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "YouTube Engine 2.0",
+        "description": "Experiência 'Cinema' padronizada em todo o portal (Matérias, Banner e Hub Social) com seleção direta de contas Google."
+      },
+      {
+        "category": "feature",
+        "title": "Automação de Reels/Shorts",
+        "description": "Detecção automática de conteúdo vertical com injeção de SEO (#Shorts) e renderização 9:16 nativa."
+      },
+      {
+        "category": "feature",
+        "title": "Suíte de Efeitos Visuais",
+        "description": "Controle em tempo real de Brilho, Contraste, Saturação e Blur para vídeos de capa e blocos de mídia."
+      },
+      {
+        "category": "feature",
+        "title": "Seletor de Trim (Corte)",
+        "description": "Interface estilo WhatsApp para clipping de precisão em vídeos teaser."
+      },
+      {
+        "category": "improvement",
+        "title": "Editor Mobile Premium",
+        "description": "Novo painel 'Inspector' deslizante e modais com scroll vertical para total controle editorial no celular."
+      },
+      {
+        "category": "improvement",
+        "title": "Sync Inteligente",
+        "description": "Otimização do syncService para detectar uploads diretos, eliminando redundância e consumo de banda."
+      },
+      {
+        "category": "fix",
+        "title": "Robustez YouTube",
+        "description": "Regex de extração de ID ultra-resiliente para suportar múltiplos formatos de URL e estados de processamento."
+      }
+    ]
+  },
+  {
     "version": "1.212",
     "date": "06/01/2026",
     "items": [

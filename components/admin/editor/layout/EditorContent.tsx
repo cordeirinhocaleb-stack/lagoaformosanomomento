@@ -4,6 +4,7 @@ import { ContentBlock } from '../../../../types';
 import { ToastType } from '../../../common/Toast';
 import TextBlock from '../blocks/TextBlock';
 import MediaBlock from '../blocks/MediaBlock';
+import VideoLinkBlock from '../blocks/VideoLinkBlock';
 import SeparatorBlock from '../blocks/SeparatorBlock';
 import GalleryEditorBlock from '../../GalleryEditorBlock';
 import EngagementEditorBlock from '../../EngagementEditorBlock';
@@ -49,6 +50,7 @@ const getBlockTypeLabel = (type: string) => {
         case 'heading': return 'TÍTULO';
         case 'image': return 'IMAGEM';
         case 'video': return 'VÍDEO';
+        case 'video_link': return 'VÍDEO LINK';
         case 'gallery': return 'GALERIA';
         case 'quote': return 'CITAÇÃO';
         case 'separator': return 'DIVISOR';
@@ -154,6 +156,8 @@ const EditorContent: React.FC<EditorContentProps> = ({
                                         );
                                     case 'image': case 'video':
                                         return <MediaBlock block={block} isSelected={selectedBlockId === block.id} isUploading={!!uploadingSlot} onSelect={() => handleBlockSelect(block.id)} />;
+                                    case 'video_link':
+                                        return <VideoLinkBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => handleBlockSelect(block.id)} onUpdate={(content) => handleUpdateBlock({ ...block, content })} />;
                                     case 'separator':
                                         return <SeparatorBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => handleBlockSelect(block.id)} />;
                                     case 'gallery':

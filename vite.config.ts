@@ -10,7 +10,6 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
-  base: './', // Força caminhos relativos no build (evita 404 em diferentes hosts)
   resolve: {
     alias: {
       // Define @ como a raiz do projeto

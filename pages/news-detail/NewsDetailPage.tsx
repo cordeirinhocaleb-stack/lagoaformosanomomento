@@ -61,7 +61,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
     // Lógica de Permissão Staff - Desenvolvedor e Editor-Chefe têm acesso total
     const canManage = useMemo(() => {
-        if (!user) {return false;}
+        if (!user) { return false; }
         const isHighStaff = ['Desenvolvedor', 'Editor-Chefe'].includes(user.role);
         const isAuthor = user.id === news.authorId;
         const isEditorialStaff = ['Repórter', 'Jornalista'].includes(user.role);
@@ -112,7 +112,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
             {/* STAFF CONTROL BAR - FLUTUANTE (Responsivo) */}
             {canManage && (
-                <div className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-[1000] w-[95%] md:w-auto animate-fadeInUp">
+                <div className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-[1000] w-[95%] md:w-auto animate-fade-in-up">
                     <div className="bg-black/90 backdrop-blur-xl border-2 border-red-600 rounded-2xl md:rounded-full px-4 py-3 md:px-6 md:py-3 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6 shadow-2xl">
                         <div className="flex items-center gap-4 w-full md:w-auto border-b md:border-b-0 md:border-r border-white/20 pb-2 md:pb-0 md:pr-6 justify-center md:justify-start">
                             <div className="flex flex-col text-center md:text-left">

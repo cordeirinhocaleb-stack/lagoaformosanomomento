@@ -7,6 +7,12 @@
 > Mantenha este arquivo sincronizado com `src/version.ts`.
 
 
+## 0.0.1 (Build 01) - 07/01/2026 23:16
+- **Release Milestone:** Lançamento consolidado da Versão 0.0.1.
+- **YouTube Engine 2.0:** Padronização completa e modo cinema.
+- **Mobile UI:** Refatoração de modais para scroll vertical e Inspector lateral.
+- **Visual Suite:** Filtros de vídeo brilho/contraste e seletor de trim.
+
 ## 0.0.0 (Build 237) - 07/01/2026 17:15
 - **Fix:** Resolvido "Erro Crítico" ao publicar vídeos para o YouTube (TypeError na assinatura do serviço).
 - **Fix:** Otimizado o fluxo de upload para evitar tentativas duplicadas de envio durante a publicação final.

@@ -9,11 +9,12 @@ import MediaUploader from '../media/MediaUploader';
 import SocialDistributionOverlay from './SocialDistributionOverlay';
 import Logo from '../common/Logo';
 import VideoSourcePicker from './editor/media/VideoSourcePicker';
-import YouTubeConfigModal from './YouTubeConfigModal';
+import YouTubeVideoUploader from './editor/banner/YouTubeVideoUploader';
+import { YouTubeVideoMetadata } from '../../services/upload/youtubeVideoService';
 
 interface SocialHubTabProps {
-  user: User;
-  systemSettings: SystemSettings;
+    user: User;
+    systemSettings: SystemSettings;
 }
 
 const PLATFORMS: { id: SocialDistribution['platform'], icon: string, label: string, color: string }[] = [
@@ -47,7 +48,7 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
         if (file) {
             setPendingMedia({ file, preview });
             setMediaType(type);
-            
+
             if (type === 'video') {
                 setShowSourcePicker(true);
             }
@@ -70,11 +71,11 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
     };
 
     const handleBroadcast = async () => {
-        if (!content && !pendingMedia) {return alert("Adicione texto ou mídia para postar.");}
-        if (selectedPlatforms.length === 0) {return alert("Selecione ao menos uma rede social.");}
+        if (!content && !pendingMedia) { return alert("Adicione texto ou mídia para postar."); }
+        if (selectedPlatforms.length === 0) { return alert("Selecione ao menos uma rede social."); }
 
         setPublishStatus('uploading');
-        
+
         setCurrentDistributions(selectedPlatforms.map(p => ({
             platform: p,
             content: content,
@@ -112,7 +113,7 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
             };
 
             setPublishStatus('distributing');
-            
+
             await dispatchGenericSocialPost(postData, systemSettings.socialWebhookUrl, (plat, status) => {
                 setCurrentDistributions(prev => prev.map(d => d.platform === plat ? { ...d, status: status === 'success' ? 'posted' : status === 'error' ? 'failed' : 'pending' } : d));
             });
@@ -132,10 +133,10 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
 
     return (
         <div className="animate-fadeIn w-full max-w-6xl mx-auto pb-20">
-            <SocialDistributionOverlay 
-                status={publishStatus === 'idle' ? 'idle' : publishStatus} 
-                distributions={currentDistributions} 
-                onClose={() => setPublishStatus('idle')} 
+            <SocialDistributionOverlay
+                status={publishStatus === 'idle' ? 'idle' : publishStatus}
+                distributions={currentDistributions}
+                onClose={() => setPublishStatus('idle')}
             />
 
             {/* MODALS */}
@@ -153,12 +154,33 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
             )}
 
             {showYouTubeWizard && (
-                <YouTubeConfigModal 
-                    videoFile={pendingMedia?.file || null}
-                    onConfirm={handleYouTubeConfig}
-                    onCancel={() => setShowYouTubeWizard(false)}
-                    currentDescription={content}
-                />
+                <div className="fixed inset-0 z-[6000] bg-black/60 backdrop-blur-md overflow-y-auto p-4 md:p-10 flex justify-center animate-fadeIn">
+                    <div className="bg-white rounded-[2rem] max-w-2xl w-full my-auto overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="bg-red-600 p-6 text-white flex justify-between items-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                            <h3 className="text-xl font-black uppercase tracking-tight relative z-10"><i className="fab fa-youtube mr-2"></i>Wizard YouTube</h3>
+                            <button onClick={() => { setShowYouTubeWizard(false); setPendingMedia(null); }} className="text-white/50 hover:text-white transition-colors relative z-10"><i className="fas fa-times text-xl"></i></button>
+                        </div>
+                        <div className="p-8">
+                            <YouTubeVideoUploader
+                                initialFile={pendingMedia?.file || null}
+                                onUploadComplete={(url: string, meta: YouTubeVideoMetadata, vid: string) => {
+                                    setYoutubeMeta({ ...meta, videoId: vid } as any);
+                                    setShowYouTubeWizard(false);
+                                    // Update pending media with the real URL for the hub flow
+                                    if (pendingMedia) {
+                                        setPendingMedia({ ...pendingMedia, preview: url }); // Using preview as temp storage for the real url if needed
+                                    }
+                                }}
+                                onUploadError={(err: string) => {
+                                    alert(err);
+                                    setShowYouTubeWizard(false);
+                                }}
+                                isShorts={true} // Social Hub is for Shorts/Reels usually
+                            />
+                        </div>
+                    </div>
+                </div>
             )}
 
             <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -170,7 +192,7 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
                         Postagem simultânea em todas as redes da Rede Welix Duarte
                     </p>
                 </div>
-                
+
                 <div className="bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Webhook: {systemSettings.socialWebhookUrl ? 'Conectado' : 'Simulação'}</span>
@@ -182,14 +204,14 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
                 <div className="lg:col-span-7 space-y-6">
                     <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-4 block">Mensagem da Postagem</label>
-                        <textarea 
+                        <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             rows={6}
                             placeholder="O que está acontecendo agora em Lagoa Formosa?"
                             className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-6 text-base font-medium text-gray-800 outline-none focus:border-red-500 transition-all resize-none"
                         />
-                        
+
                         <div className="mt-8">
                             <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-4 block">Mídia de Fundo (Img / Vídeo)</label>
                             <div className="h-64">
@@ -246,7 +268,7 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
                                         <Logo className="opacity-20 scale-150" />
                                     </div>
                                 )}
-                                
+
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 p-6 flex flex-col justify-end">
                                     <div className="flex items-center gap-2 mb-4">
                                         <div className="w-8 h-8 rounded-full border-2 border-red-600 bg-white p-0.5"><Logo /></div>
@@ -265,7 +287,7 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
                             </div>
                         </div>
 
-                        <button 
+                        <button
                             onClick={handleBroadcast}
                             disabled={publishStatus !== 'idle'}
                             className="w-full py-6 rounded-[2rem] bg-red-600 text-white font-[1000] uppercase italic text-lg tracking-tighter shadow-[0_20px_50px_rgba(220,38,38,0.4)] hover:bg-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-4 group"

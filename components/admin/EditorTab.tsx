@@ -4,7 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { User, NewsItem, SystemSettings } from '../../types';
 import Toast, { ToastType } from '../common/Toast';
 
-import EditorSidebar from './editor/EditorSidebar';
+import EditorSidebar from './editor/layout/EditorSidebar';
 import InspectorSidebar from './InspectorSidebar';
 import { storeLocalFile } from '../../services/storage/localStorageService';
 
@@ -85,6 +85,21 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                     <EditorSidebar onAddBlock={handleAddBlockWrapper} isUploading={!!ctrl.uploadingSlot} darkMode={darkMode} />
                 </aside>
 
+                {/* MOBILE INSPECTOR DRAWER */}
+                <aside className={`fixed inset-y-0 right-0 z-[2000] w-80 shadow-2xl transition-transform duration-300 lg:hidden ${showInspectorMobile ? 'translate-x-0' : 'translate-x-full'} ${darkMode ? 'bg-black border-l border-white/5' : 'bg-white'}`}>
+                    <div className="flex-1 overflow-hidden h-full">
+                        <InspectorSidebar
+                            block={ctrl.blocks.find(b => b.id === ctrl.selectedBlockId) || null}
+                            onUpdate={ctrl.handleUpdateBlock}
+                            onDelete={(id) => { ctrl.handleDeleteBlock(id); setShowInspectorMobile(false); }}
+                            onClose={() => setShowInspectorMobile(false)}
+                            accessToken={accessToken}
+                            newsMetadata={{ slug: ctrl.slug, setSlug: ctrl.setSlug, category: ctrl.category, setCategory: ctrl.setCategory, title: ctrl.title, lead: ctrl.lead, socialCaptions: ctrl.socialCaptions, setSocialCaptions: ctrl.setSocialCaptions }}
+                            darkMode={darkMode}
+                        />
+                    </div>
+                </aside>
+
                 <div className="flex-1 flex overflow-hidden relative">
                     {/* DESKTOP LEFT SIDEBAR */}
                     <aside className={`hidden lg:flex flex-col border-r transition-all duration-300 relative z-20 ${isLeftSidebarOpen ? 'w-60' : 'w-0 overflow-hidden'} ${darkMode ? 'bg-black border-white/5' : 'bg-white border-zinc-200'}`}>
@@ -131,6 +146,8 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                                     bannerYoutubeMetadata={ctrl.bannerYoutubeMetadata} setBannerYoutubeMetadata={ctrl.setBannerYoutubeMetadata}
                                     bannerSmartPlayback={ctrl.bannerSmartPlayback} setBannerSmartPlayback={ctrl.setBannerSmartPlayback}
                                     bannerEffects={ctrl.bannerEffects} setBannerEffects={ctrl.setBannerEffects}
+                                    videoStart={ctrl.videoStart} setVideoStart={ctrl.setVideoStart}
+                                    videoEnd={ctrl.videoEnd} setVideoEnd={ctrl.setVideoEnd}
                                     localPreviews={ctrl.localPreviews}
                                     onImageUpload={async (file) => {
                                         const localId = await storeLocalFile(file);

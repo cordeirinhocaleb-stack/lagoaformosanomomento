@@ -85,8 +85,9 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
             onAddNews(savedNews);
         }
         setSelectedNews(savedNews);
-        // Don't close editor automatically. Let the EditorTab/User decide via the Success Modal.
-        // setView('list');
+        // CRITICAL: Do NOT close editor automatically. 
+        // We rely on PublishSuccessModal in EditorTab to give user options.
+        // setView('list'); 
     };
 
     const handleDelete = (id: string) => {

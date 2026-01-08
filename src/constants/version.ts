@@ -4,13 +4,13 @@
  */
 
 export const SYSTEM_VERSION = {
-    major: 1,
-    minor: 197, // Increment here
-    timestamp: '060120260939', // Format: DDMMYYYYHHMM
-    full: '1.197',
-    label: 'alpha',
+    major: 0,
+    minor: 1,
+    timestamp: '070120262316',
+    full: '0.0.1',
+    label: 'stable-release',
 
-    getDisplayString: () => `versão alpha 1.197 060120260939`,
+    getDisplayString: () => `versão 0.0.1 070120262316`,
 };
 
 export default SYSTEM_VERSION;

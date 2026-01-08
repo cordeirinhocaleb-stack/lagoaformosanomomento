@@ -5,6 +5,7 @@ import { uploadToCloudinary } from '../cloudinaryService';
 import { queueYouTubeUpload } from '../youtubeService';
 
 export const processPendingUploads = async (newsData: NewsItem, onProgress?: (progress: number, status: string) => void): Promise<NewsItem> => {
+    const startTime = Date.now();
     const updatedNews = { ...newsData };
 
     // Calculate total operations for progress tracking
@@ -20,7 +21,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     // Count Content Blocks Images
     if (updatedNews.blocks) {
         updatedNews.blocks.forEach(block => {
-            if (block.type === 'image') {totalOps += countLocal(block.content);}
+            if (block.type === 'image') { totalOps += countLocal(block.content); }
             if (['paragraph', 'heading', 'quote', 'list'].includes(block.type)) {
                 const matches = (block.content.match(/(?:src="|data-local-id=")(local_[^"]+)/g) || []);
                 totalOps += matches.length;
@@ -36,7 +37,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     const updateProgress = (msg: string) => {
         completedOps++;
         const percent = totalOps > 0 ? Math.round((completedOps / totalOps) * 100) : 100;
-        if (onProgress) {onProgress(percent, msg);}
+        if (onProgress) { onProgress(percent, msg); }
     };
 
     if (totalOps === 0 && onProgress) {
@@ -127,6 +128,47 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                 newBlock.settings = { ...newBlock.settings, images: newImages };
             }
 
+            // Video Blocks - NEW IMPLEMENTATION
+            if (block.type === 'video' && typeof block.content === 'string') {
+                const isLocal = block.content.startsWith('local_');
+                const isPublicYouTube = block.content.includes('youtube.com') || block.content.includes('youtu.be');
+
+                // Case A: YouTube Upload (Only if local OR explicitly requiring re-process)
+                const youtubeMeta = block.youtubeMeta || block.settings?.youtubeMeta;
+
+                if (block.videoSource === 'youtube' && youtubeMeta && !isPublicYouTube) {
+                    try {
+                        const localId = isLocal ? block.content : null;
+                        const blob = localId ? await getLocalFile(localId) : null;
+
+                        if (blob) {
+                            const file = new File([blob], `yt_block_${Date.now()}.mp4`, { type: blob.type });
+                            const result = await queueYouTubeUpload(file, youtubeMeta as any, updatedNews.id);
+
+                            // Update block content to a temporary placeholder
+                            newBlock.content = `https://www.youtube.com/embed/pending_${result.jobId}`;
+                            newBlock.settings = { ...newBlock.settings, youtubeJobId: result.jobId, uploadStatus: 'uploading' };
+
+                            await removeLocalFile(localId!);
+                            updateProgress("Vídeo enviado para fila do YouTube");
+                        }
+                    } catch (e) {
+                        console.error('Falha no upload para YouTube (Bloco):', e);
+                        throw new Error("Falha no upload do vídeo para o YouTube. Tente novamente.");
+                    }
+                }
+                // Case B: Cloudinary / Internal Upload (Only if local)
+                else if (isLocal) {
+                    try {
+                        const cloudUrl = await uploadAndCleanup(block.content, getFolder('videos'));
+                        newBlock.content = cloudUrl;
+                        updateProgress("Vídeo do conteúdo enviado");
+                    } catch (e) {
+                        console.error('Falha no upload de vídeo interno (Bloco):', e);
+                    }
+                }
+            }
+
             return newBlock;
         }));
         updatedNews.blocks = newBlocks;
@@ -151,18 +193,39 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 
                     // Set a placeholder URL (embed URL will be updated by webhook/backend later)
                     updatedNews.bannerVideoUrl = `https://www.youtube.com/embed/pending_${result.jobId}`;
-                    updateProgress("Estou enviando o video para 'youtube'");
+                    updateProgress("Vídeo enviado para processamento no YouTube");
                 }
             } catch (e) {
                 console.error('❌ Failed to queue YouTube upload:', e);
             }
         } else {
             // Internal video (Cloudinary or Supabase Storage)
-            console.log('🎥 Syncing video to Cloud storage:', localId);
-            updatedNews.bannerVideoUrl = await uploadAndCleanup(localId, getFolder('videos'));
-            updateProgress("Estou enviando o video para 'Hospedagem'");
+            try {
+                const cloudUrl = await uploadAndCleanup(localId, getFolder('videos'));
+                updatedNews.bannerVideoUrl = cloudUrl;
+                updateProgress("Vídeo enviado com sucesso");
+            } catch (err) {
+                console.error('❌ Failed to upload video:', err);
+                throw err;
+            }
+        }
+
+        // Final check: if we expected a video URL but have none/local, throw error
+        if (!updatedNews.bannerVideoUrl || updatedNews.bannerVideoUrl.startsWith('local_')) {
+            throw new Error("Falha Crítica: URL do vídeo não foi gerada corretamente. Tente novamente.");
         }
     }
+
+    // UX: Ensure minimum duration of 5 seconds
+    const elapsed = Date.now() - startTime;
+    const MIN_DURATION = 5000;
+
+    if (elapsed < MIN_DURATION) {
+        if (onProgress) onProgress(99, "Finalizando processamento...");
+        await new Promise(resolve => setTimeout(resolve, MIN_DURATION - elapsed));
+    }
+
+    if (onProgress) onProgress(100, "Concluído!");
 
     return updatedNews;
 };

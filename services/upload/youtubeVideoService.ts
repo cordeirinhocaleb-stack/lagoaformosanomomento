@@ -164,9 +164,36 @@ export const cancelYouTubeUpload = async (videoId: string): Promise<void> => {
 /**
  * Deleta vídeo do YouTube
  */
-export const deleteVideoFromYouTube = async (videoId: string): Promise<void> => {
-    // TODO: Implementar via backend
-    console.log('🗑️ Deletando vídeo do YouTube:', videoId);
+export const deleteVideoFromYouTube = async (videoId: string, accessToken?: string): Promise<void> => {
+    try {
+        console.log('🗑️ Deletando vídeo do YouTube:', videoId);
+
+        // Se não tiver accessToken, apenas loga (usuário pode não estar autenticado)
+        if (!accessToken) {
+            console.warn('⚠️ Sem token de acesso. Vídeo não será deletado do YouTube.');
+            return;
+        }
+
+        // YouTube Data API v3 - Delete video
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('❌ Erro ao deletar vídeo do YouTube:', error);
+            throw new Error(`Falha ao deletar vídeo: ${error.error?.message || 'Erro desconhecido'}`);
+        }
+
+        console.log('✅ Vídeo deletado do YouTube com sucesso');
+    } catch (error) {
+        console.error('❌ Erro ao deletar vídeo do YouTube:', error);
+        // Não lança erro para não bloquear a remoção local
+    }
 };
 
 /**

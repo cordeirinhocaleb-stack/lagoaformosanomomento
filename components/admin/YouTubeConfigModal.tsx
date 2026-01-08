@@ -9,6 +9,7 @@ interface YouTubeConfigModalProps {
     onCancel: () => void;
     currentTitle?: string;
     currentDescription?: string;
+    isShorts?: boolean;
 }
 
 const YOUTUBE_CATEGORIES = [
@@ -23,11 +24,20 @@ const YOUTUBE_CATEGORIES = [
 ];
 
 const YouTubeConfigModal: React.FC<YouTubeConfigModalProps> = ({
-    videoFile, onConfirm, onCancel, currentTitle, currentDescription
+    videoFile, onConfirm, onCancel, currentTitle, currentDescription, isShorts = false
 }) => {
-    const [title, setTitle] = useState(currentTitle || (videoFile?.name ? videoFile.name.split('.')[0].substring(0, 100) : 'Novo Vídeo LFNM'));
-    const [description, setDescription] = useState(currentDescription || 'Vídeo exclusivo Portal Lagoa Formosa No Momento.');
-    const [tags, setTags] = useState('lagoa formosa, noticias, regional, lfnm');
+    const defaultTitle = isShorts
+        ? (videoFile?.name ? `${videoFile.name.split('.')[0].substring(0, 80)} #Shorts` : 'Novo Reels LFNM #Shorts')
+        : (videoFile?.name ? videoFile.name.split('.')[0].substring(0, 100) : 'Novo Vídeo LFNM');
+
+    const [title, setTitle] = useState(currentTitle || defaultTitle);
+
+    const defaultDesc = isShorts
+        ? (currentDescription || 'Vídeo exclusivo Portal Lagoa Formosa No Momento.\n\n#Shorts #LFNM #Noticias')
+        : (currentDescription || 'Vídeo exclusivo Portal Lagoa Formosa No Momento.');
+
+    const [description, setDescription] = useState(defaultDesc);
+    const [tags, setTags] = useState(isShorts ? 'shorts, lagoa formosa, noticias, vertical' : 'lagoa formosa, noticias, regional, lfnm');
     const [privacy, setPrivacy] = useState<'public' | 'unlisted' | 'private'>('public');
     const [categoryId, setCategoryId] = useState('25');
     const [madeForKids, setMadeForKids] = useState(false);

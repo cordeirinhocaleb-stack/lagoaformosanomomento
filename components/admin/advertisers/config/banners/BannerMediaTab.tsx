@@ -82,22 +82,53 @@ export const BannerMediaTab: React.FC<BannerMediaTabProps> = ({ banner, onUpdate
         onUpdate({ images: currentImages });
     };
 
+    const handleTypeSwitch = (newType: 'image' | 'video') => {
+        // Check if switching would delete existing media
+        const hasImages = banner.images && banner.images.length > 0;
+        const hasVideo = banner.videoUrl && banner.videoUrl.trim() !== '';
+
+        if (newType === 'video' && hasImages) {
+            if (confirm("Atenção: Ao mudar para Vídeo, as imagens da galeria serão removidas. Deseja continuar?")) {
+                onUpdate({ type: 'video', images: [] });
+            }
+        } else if (newType === 'image' && hasVideo) {
+            if (confirm("Atenção: Ao mudar para Galeria, o vídeo configurado será removido. Deseja continuar?")) {
+                onUpdate({ type: 'image', videoUrl: '' });
+            }
+        } else {
+            // No conflict, just switch
+            onUpdate({ type: newType });
+        }
+    };
+
+    const handleClearGallery = () => {
+        if (confirm("Remover todas as imagens da galeria?")) {
+            onUpdate({ images: [] });
+        }
+    };
+
+    const handleRemoveVideo = () => {
+        if (confirm("Remover o vídeo atual?")) {
+            onUpdate({ videoUrl: '' });
+        }
+    };
+
     return (
         <div className="space-y-6 animate-fadeIn">
             <div className="flex gap-4 mb-4">
                 <button
-                    onClick={() => onUpdate({ type: 'image' })}
+                    onClick={() => handleTypeSwitch('image')}
                     className={`flex-1 py-3 rounded-xl border-2 flex items-center justify-center gap-2 transition-all ${banner.type === 'image'
-                            ? (darkMode ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-red-600 bg-red-50 text-red-600')
-                            : (darkMode ? 'border-white/10 text-gray-400 hover:text-white' : 'border-gray-100 text-gray-400')}`}
+                        ? (darkMode ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-red-600 bg-red-50 text-red-600')
+                        : (darkMode ? 'border-white/10 text-gray-400 hover:text-white' : 'border-gray-100 text-gray-400')}`}
                 >
                     <i className="fas fa-images"></i> Imagens
                 </button>
                 <button
-                    onClick={() => onUpdate({ type: 'video' })}
+                    onClick={() => handleTypeSwitch('video')}
                     className={`flex-1 py-3 rounded-xl border-2 flex items-center justify-center gap-2 transition-all ${banner.type === 'video'
-                            ? (darkMode ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-red-600 bg-red-50 text-red-600')
-                            : (darkMode ? 'border-white/10 text-gray-400 hover:text-white' : 'border-gray-100 text-gray-400')}`}
+                        ? (darkMode ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-red-600 bg-red-50 text-red-600')
+                        : (darkMode ? 'border-white/10 text-gray-400 hover:text-white' : 'border-gray-100 text-gray-400')}`}
                 >
                     <i className="fas fa-video"></i> Vídeo (Mudo)
                 </button>
@@ -110,13 +141,23 @@ export const BannerMediaTab: React.FC<BannerMediaTabProps> = ({ banner, onUpdate
                             <h4 className={`text-[10px] font-black uppercase ${darkMode ? 'text-white' : 'text-gray-900'}`}>Galeria (Slideshow)</h4>
                             <p className="text-[9px] text-gray-500">Até 5 imagens rotativas.</p>
                         </div>
-                        <div className="w-32 h-8 relative">
-                            <div className="absolute inset-0 opacity-0 z-10">
-                                <MediaUploader onMediaSelect={handleAddImage} />
+                        <div className="flex gap-2">
+                            {banner.images && banner.images.length > 0 && (
+                                <button
+                                    onClick={handleClearGallery}
+                                    className={`h-8 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 ${darkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                                >
+                                    <i className="fas fa-trash"></i> Limpar
+                                </button>
+                            )}
+                            <div className="w-32 h-8 relative">
+                                <div className="absolute inset-0 opacity-0 z-10">
+                                    <MediaUploader onMediaSelect={handleAddImage} />
+                                </div>
+                                <button className={`w-full h-full rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 ${darkMode ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                                    <i className="fas fa-upload"></i> Adicionar
+                                </button>
                             </div>
-                            <button className={`w-full h-full rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 ${darkMode ? 'bg-white text-black' : 'bg-black text-white'}`}>
-                                <i className="fas fa-upload"></i> Adicionar
-                            </button>
                         </div>
                     </div>
 
@@ -138,7 +179,17 @@ export const BannerMediaTab: React.FC<BannerMediaTabProps> = ({ banner, onUpdate
             ) : (
                 <div className="space-y-4">
                     <div className={`p-4 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                        <h4 className={`text-[10px] font-black uppercase mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Arquivo de Vídeo</h4>
+                        <div className="flex items-center justify-between mb-2">
+                            <h4 className={`text-[10px] font-black uppercase ${darkMode ? 'text-white' : 'text-gray-900'}`}>Arquivo de Vídeo</h4>
+                            {banner.videoUrl && (
+                                <button
+                                    onClick={handleRemoveVideo}
+                                    className={`h-6 px-2 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center justify-center gap-1 ${darkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                                >
+                                    <i className="fas fa-trash"></i> Remover
+                                </button>
+                            )}
+                        </div>
                         <div className={`h-40 relative border-2 border-dashed rounded-xl overflow-hidden group ${darkMode ? 'border-white/10' : 'border-gray-200'}`}>
                             {banner.videoUrl ? (
                                 <video src={resolveUrl(banner.videoUrl)} className="w-full h-full object-cover" muted autoPlay loop />

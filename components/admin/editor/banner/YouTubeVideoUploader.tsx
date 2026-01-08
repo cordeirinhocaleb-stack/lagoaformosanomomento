@@ -5,16 +5,18 @@
  * Includes full metadata form (title, description, tags, privacy)
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { validateVideo, formatDuration, formatFileSize, requiresSmartPlayback } from '../../../../utils/videoValidator';
 import { storeLocalFile } from '../../../../services/storage/localStorageService';
 import { YouTubeVideoMetadata, uploadVideoToYouTube } from '../../../../services/upload/youtubeVideoService';
 import { useGoogleLogin } from '@react-oauth/google';
 
 interface YouTubeVideoUploaderProps {
+    initialFile?: File | null;
     onUploadComplete: (youtubeUrl: string, metadata: YouTubeVideoMetadata, videoId: string) => void;
     onUploadError?: (error: string) => void;
     onSmartPlaybackRequired?: (duration: number) => void;
+    isShorts?: boolean;
 }
 
 /**
@@ -23,15 +25,17 @@ interface YouTubeVideoUploaderProps {
  * Separado para evitar crash de hooks quando o ClientID está ausente.
  */
 const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
+    initialFile,
     onUploadComplete,
     onUploadError,
-    onSmartPlaybackRequired
+    onSmartPlaybackRequired,
+    isShorts = false
 }) => {
     // RENDER DEBUG
     const gClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     console.log('📹 [YOUTUBE RENDER DEBUG] Componente BASE montado. Client ID:', gClientId ? `${gClientId.substring(0, 10)}...` : 'Vazio');
 
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(initialFile || null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadStage, setUploadStage] = useState<'validating' | 'uploading' | 'processing'>('validating');
@@ -40,14 +44,34 @@ const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [accessToken, setAccessToken] = useState<string | null>(null);
 
+    // Auto-validate initial file
+    useEffect(() => {
+        if (initialFile) {
+            handleFileSelect(initialFile);
+        }
+    }, [initialFile]);
+
     // Metadata form state
     const [metadata, setMetadata] = useState<YouTubeVideoMetadata>({
-        title: '',
-        description: '',
-        tags: [],
-        privacy: 'unlisted',
+        title: isShorts ? 'Novo Reels LFNM #Shorts' : 'Novo Vídeo LFNM',
+        description: isShorts
+            ? 'Vídeo exclusivo Portal Lagoa Formosa No Momento.\n\n#Shorts #LFNM #Noticias'
+            : 'Vídeo exclusivo Portal Lagoa Formosa No Momento.',
+        tags: isShorts ? ['shorts', 'lagoa formosa', 'noticias', 'vertical'] : ['lagoa formosa', 'noticias', 'regional', 'lfnm'],
+        privacy: 'public',
         madeForKids: false
     });
+
+    // Update metadata when file is selected or isShorts changes
+    useEffect(() => {
+        if (selectedFile) {
+            const fileName = selectedFile.name.split('.')[0].substring(0, isShorts ? 80 : 100);
+            setMetadata(prev => ({
+                ...prev,
+                title: isShorts ? `${fileName} #Shorts` : fileName
+            }));
+        }
+    }, [selectedFile, isShorts]);
 
     // useGoogleLogin is the hook that crashes if GoogleOAuthProvider is misconfigured
     const login = useGoogleLogin({
@@ -224,7 +248,7 @@ const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
 
             {/* Metadata Form */}
             {selectedFile && !isUploading && (
-                <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+                <div className="bg-gray-50 rounded-xl p-4 md:p-6 space-y-4">
 
                     {/* File Info */}
                     <div className="flex items-start justify-between pb-4 border-b border-gray-200">
@@ -353,7 +377,7 @@ const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
                     <button
                         onClick={handleUpload}
                         disabled={!metadata.title.trim() || isUploading}
-                        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors shadow-lg"
+                        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-lg transition-colors shadow-lg active:scale-[0.98]"
                     >
                         <i className="fab fa-youtube mr-2"></i>
                         {accessToken ? 'Enviar para o YouTube' : 'Conectar Conta para Enviar'}

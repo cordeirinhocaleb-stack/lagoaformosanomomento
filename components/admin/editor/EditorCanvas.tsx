@@ -4,6 +4,7 @@ import React from 'react';
 import { ContentBlock } from '../../../types';
 import TextBlock from './blocks/TextBlock';
 import MediaBlock from './blocks/MediaBlock';
+import VideoLinkBlock from './blocks/VideoLinkBlock';
 import SeparatorBlock from './blocks/SeparatorBlock';
 import GalleryEditorBlock from '../GalleryEditorBlock';
 import EngagementEditorBlock from '../EngagementEditorBlock';
@@ -28,7 +29,7 @@ interface EditorCanvasProps {
 }
 
 const getWidthClass = (width: string, type: string, orientation?: string) => {
-    if (type === 'separator' && orientation === 'vertical') {return 'w-auto mx-2';}
+    if (type === 'separator' && orientation === 'vertical') { return 'w-auto mx-2'; }
 
     switch (width) {
         case '1/4': return 'w-full md:w-1/4';
@@ -46,6 +47,7 @@ const getBlockTypeLabel = (type: string) => {
         case 'heading': return 'TÍTULO';
         case 'image': return 'IMAGEM';
         case 'video': return 'VÍDEO';
+        case 'video_link': return 'VÍDEO LINK';
         case 'gallery': return 'GALERIA';
         case 'quote': return 'CITAÇÃO';
         case 'separator': return 'DIVISOR';
@@ -152,6 +154,13 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
                                             settings: settings ? { ...block.settings, ...settings } : block.settings,
                                             ...extraProps
                                         })}
+                                    />;
+                                case 'video_link':
+                                    return <VideoLinkBlock
+                                        block={block}
+                                        isSelected={selectedBlockId === block.id}
+                                        onSelect={() => onBlockSelect(block.id)}
+                                        onUpdate={(newUrl) => onUpdateBlock({ ...block, content: newUrl })}
                                     />;
                                 case 'separator':
                                     return <SeparatorBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => onBlockSelect(block.id)} />;

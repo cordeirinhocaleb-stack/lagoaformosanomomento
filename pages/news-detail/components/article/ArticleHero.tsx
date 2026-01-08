@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { NewsItem } from '../../../../types';
+import SmartVideoPlayer from '../../../../components/player/SmartVideoPlayer';
 
 interface ArticleHeroProps {
     news: NewsItem;
@@ -10,18 +11,39 @@ interface ArticleHeroProps {
 
 const YouTubeFacade: React.FC<{ url: string; videoStart?: number; videoEnd?: number }> = ({ url, videoStart, videoEnd }) => {
     const [isPlaying, setIsPlaying] = useState(false);
+
     const getVideoId = (link: string) => {
-        const match = link.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+        if (!link) return null;
+        // 1. Check for pending ID
+        if (link.includes('pending_')) return link;
+        // 2. Already an ID (11+ chars)
+        if (/^[a-zA-Z0-9_-]{11,}$/.test(link)) return link;
+        // 3. Extract from various URL formats
+        const match = link.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11,})/);
         return match ? match[1] : null;
     };
+
     const videoId = getVideoId(url);
-    if (!videoId) {return null;}
+    if (!videoId) { return null; }
+
+    const isPending = videoId.includes('pending_');
+
+    if (isPending) {
+        return (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900/60 backdrop-blur-sm">
+                <div className="w-12 h-12 border-4 border-white/20 border-t-red-600 rounded-full animate-spin mb-4"></div>
+                <span className="text-white font-black uppercase text-[10px] tracking-[0.2em] mb-1 drop-shadow-lg">Processando Vídeo</span>
+                <span className="text-white/60 text-[9px] uppercase tracking-widest font-bold">Daremos o play em instantes</span>
+            </div>
+        );
+    }
+
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
     if (isPlaying) {
-        let params = `?autoplay=1&mute=0&rel=0&iv_load_policy=3&modestbranding=1`;
-        if (videoStart && videoStart > 0) {params += `&start=${videoStart}`;}
-        if (videoEnd && videoEnd > 0) {params += `&end=${videoEnd}`;}
+        let params = `?autoplay=1&mute=1&rel=0&iv_load_policy=3&modestbranding=1`;
+        if (videoStart && videoStart > 0) { params += `&start=${videoStart}`; }
+        if (videoEnd && videoEnd > 0) { params += `&end=${videoEnd}`; }
         return (
             <iframe
                 src={`https://www.youtube.com/embed/${videoId}${params}`}
@@ -49,7 +71,7 @@ const YouTubeFacade: React.FC<{ url: string; videoStart?: number; videoEnd?: num
 const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAuthorClick }) => {
     const [activeIdx, setActiveIdx] = useState(0);
     const bannerList = useMemo(() => {
-        if (news.bannerMediaType === 'video') {return [];}
+        if (news.bannerMediaType === 'video') { return []; }
 
         let images = news.bannerImages && news.bannerImages.length > 0 ? news.bannerImages : [news.imageUrl];
 
@@ -82,6 +104,24 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
         }
     }, [bannerList, news.bannerMediaType, news.bannerDuration, news.bannerLayout, news.bannerImageLayout, news.bannerTransition]);
 
+    // Helper to apply Cloudinary blur transformation to URL
+    const applyCloudinaryBlur = (url: string, blurAmount: number): string => {
+        if (blurAmount <= 0 || !url.includes('cloudinary.com')) {
+            return url;
+        }
+
+        // Cloudinary blur range: 1-2000 (we multiply by 100 for better effect)
+        const cloudinaryBlur = Math.min(2000, Math.round(blurAmount * 100));
+
+        // Insert blur transformation into Cloudinary URL
+        // Format: https://res.cloudinary.com/[cloud]/image/upload/e_blur:1000/[path]
+        if (url.includes('/upload/')) {
+            return url.replace('/upload/', `/upload/e_blur:${cloudinaryBlur}/`);
+        }
+
+        return url;
+    };
+
     // Helper to get effect styles
     const getEffectsStyle = (index: number = 0) => {
         // First try bannerEffects (for images)
@@ -97,17 +137,21 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
             effects = news.bannerVideoSettings.effects;
         }
 
-        if (!effects) {return {};}
+        if (!effects) { return { filter: '', blur: 0 }; }
+
+        // Separate blur from other effects for security
+        const blur = effects.blur || 0;
+        const otherFilters = `
+            brightness(${effects.brightness || 1}) 
+            contrast(${effects.contrast || 1}) 
+            saturate(${effects.saturation || 1}) 
+            sepia(${effects.sepia || 0}) 
+            opacity(${effects.opacity !== undefined ? effects.opacity : 1})
+        `.replace(/\s+/g, ' ').trim();
 
         return {
-            filter: `
-                brightness(${effects.brightness || 1}) 
-                contrast(${effects.contrast || 1}) 
-                saturate(${effects.saturation || 1}) 
-                blur(${effects.blur || 0}px) 
-                sepia(${effects.sepia || 0}) 
-                opacity(${effects.opacity !== undefined ? effects.opacity : 1})
-            `.replace(/\s+/g, ' ').trim()
+            filter: otherFilters,
+            blur: blur
         };
     };
 
@@ -115,17 +159,84 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
     const timeFull = new Date(news.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     const renderMedia = () => {
-        if (news.bannerMediaType === 'video' && news.bannerVideoUrl) {
-            return <div className="absolute inset-0 bg-black"><YouTubeFacade url={news.bannerVideoUrl} videoStart={news.videoStart} videoEnd={news.videoEnd} /></div>;
+        // Robust check for video type
+        // Trust the URL presence - if we have a video URL, it is a video regardless of mediaType flag
+        const hasVideoUrl = !!news.bannerVideoUrl && news.bannerVideoUrl.length > 0;
+        const isVideo = news.bannerMediaType === 'video' || hasVideoUrl;
+
+        if (isVideo && hasVideoUrl) {
+            // Check if it's a YouTube video
+            const isYouTube = news.bannerVideoUrl!.includes('youtube.com') ||
+                news.bannerVideoUrl!.includes('youtu.be') ||
+                news.bannerVideoUrl!.includes('pending_');
+
+            if (isYouTube) {
+                return <div className="absolute inset-0 bg-black"><YouTubeFacade url={news.bannerVideoUrl!} videoStart={news.videoStart} videoEnd={news.videoEnd} /></div>;
+            } else {
+                // Cloudinary or other video source - use SmartVideoPlayer
+                // Get effects from bannerEffects or bannerVideoSettings
+                const effects = news.bannerEffects
+                    ? (Array.isArray(news.bannerEffects) ? news.bannerEffects[0] : news.bannerEffects)
+                    : news.bannerVideoSettings?.effects;
+
+                if (!news.bannerVideoUrl) return null;
+
+                return (
+                    <div className="absolute inset-0 bg-black">
+                        <SmartVideoPlayer
+                            src={news.bannerVideoUrl}
+                            smartPlayback={news.bannerSmartPlayback !== false} // Default to true
+                            className="w-full h-full object-cover"
+                            muted={true}
+                            loop={true}
+                            videoStart={news.videoStart}
+                            videoEnd={news.videoEnd}
+                            style={effects ? {
+                                filter: `
+                                    brightness(${effects.brightness || 1})
+                                    contrast(${effects.contrast || 1})
+                                    saturate(${effects.saturation || 1})
+                                    blur(${effects.blur || 0}px)
+                                    sepia(${effects.sepia || 0})
+                                    opacity(${effects.opacity !== undefined ? effects.opacity : 1})
+                                `.replace(/\s+/g, ' ').trim()
+                            } : undefined}
+                        />
+                    </div>
+                );
+            }
         }
 
         const layout = news.bannerImageLayout || news.bannerLayout || 'carousel';
 
         // CAROUSEL / FADE
         if (layout === 'carousel' || layout === 'fade') {
-            return bannerList.map((url, i) => (
-                <img key={i} src={url} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === activeIdx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`} style={getEffectsStyle(i)} alt="" />
-            ));
+            return bannerList.map((url, i) => {
+                const effectStyle = getEffectsStyle(i);
+                const hasBlur = effectStyle.blur > 0;
+
+                // Apply blur via Cloudinary URL transformation (secure)
+                const secureUrl = applyCloudinaryBlur(url, effectStyle.blur);
+
+                return (
+                    <img
+                        key={i}
+                        src={secureUrl}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === activeIdx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                        style={{
+                            filter: effectStyle.filter,
+                            pointerEvents: hasBlur ? 'none' : 'auto',
+                            userSelect: hasBlur ? 'none' : 'auto',
+                            // GPU acceleration hints to prevent disappearance on tab switch
+                            willChange: 'filter, transform',
+                            transform: 'translateZ(0)',
+                            backfaceVisibility: 'hidden'
+                        }}
+                        alt=""
+                        onContextMenu={hasBlur ? (e) => e.preventDefault() : undefined}
+                    />
+                );
+            });
         }
 
         // SPLIT (2 Images)
