@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - components/layout/Header.tsx is the correct file

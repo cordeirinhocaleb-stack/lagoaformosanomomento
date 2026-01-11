@@ -1,6 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { APP_VERSION } from '../src/version';
-import { NewsItem, User, Advertiser, Job, AdPricingConfig, SystemSettings, PopupTargetPage } from '../types';
+import {
+    NewsItem,
+    User,
+    Advertiser,
+    Job,
+    AdPricingConfig,
+    SystemSettings,
+    PopupTargetPage,
+    AppView
+} from '../types';
 import { RegionFilterType } from '../components/layout/CategoryMenu';
 import { DEFAULT_SETTINGS, INITIAL_AD_CONFIG } from '../config/systemDefaults';
 
@@ -26,6 +35,7 @@ import {
 export const useAppController = () => {
     const CURRENT_VERSION = APP_VERSION;
     const [user, setUser] = useState<User | null>(null);
+    const [view, setView] = useState<AppView>('home');
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -46,6 +56,7 @@ export const useAppController = () => {
     const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
 
     const [errorModal, setErrorModal] = useState<{ open: boolean; error: any; context: string; severity: 'info' | 'warning' | 'critical' }>({ open: false, error: null, context: '', severity: 'critical' });
+    const [fatalError, setFatalError] = useState<{ error: any; stack: string } | null>(null);
     const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
 
     const modals = useModals();
@@ -60,14 +71,14 @@ export const useAppController = () => {
 
         if (response.source === 'database') {
             const remoteAdConfig = await getSystemSetting('ad_config');
-            if (remoteAdConfig) {setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig });}
+            if (remoteAdConfig) { setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig }); }
         }
         getExternalNews().then(setExternalCategories);
     }, []);
 
     const handleUserRestored = useCallback((restoredUser: User | null) => {
         setUser(restoredUser);
-        if (!restoredUser) {localStorage.removeItem('lfnm_user');}
+        if (!restoredUser) { localStorage.removeItem('lfnm_user'); }
     }, []);
 
     useEffect(() => {
@@ -84,32 +95,46 @@ export const useAppController = () => {
     };
 
     const triggerErrorModal = useCallback((error: any, context: string = 'System Error', severity: 'info' | 'warning' | 'critical' = 'critical') => {
-        if (severity === 'critical') {console.error(`🛡️ CRITICAL ERROR[${context}]: `, error);}
-        else {console.warn(`🛡️ Warning[${context}]: `, error);}
+        if (severity === 'critical') {
+            console.error(`🛡️ CRITICAL ERROR[${context}]: `, error); // eslint-disable-line no-console
+            // If it's a critical initialization error or similar, we might want the full page error instead
+            if (context === 'Inicialização' || context === 'Window Error') {
+                setFatalError({ error, stack: error?.stack || 'No stack available' });
+                setView('error');
+                return;
+            }
+        } else { console.warn(`🛡️ Warning[${context}]: `, error); } // eslint-disable-line no-console
 
         const isProduction = process.env.NODE_ENV === 'production' || window.location.hostname.includes('webgho.com');
-        if (isProduction && severity !== 'critical') {return;}
+        if (isProduction && severity !== 'critical') { return; }
 
         setErrorModal({ open: true, error, context, severity });
-    }, []);
+    }, [setView]);
+
+    const onAuthChallenge = useCallback(async (gUser: any) => {
+        if (systemSettings.registrationEnabled) {
+            modals.setPendingGoogleUser(gUser);
+            modals.setShowRoleSelector(true);
+        } else {
+            modals.setAccessDeniedConfig({
+                title: 'CADASTRO DESATIVADO',
+                message: 'O cadastro de novos usuários está temporariamente desativado. Entre em contato com o administrador para solicitar inclusão.'
+            });
+            modals.setShowAccessDenied(true);
+            const sb = getSupabase();
+            if (sb) {
+                try {
+                    const { data: { session } } = await sb.auth.getSession();
+                    if (session) { await sb.auth.signOut(); }
+                } catch (e) { console.warn("⚠️ Erro ao deslogar no desafio:", e); } // eslint-disable-line no-console
+            }
+        }
+    }, [systemSettings.registrationEnabled, modals]);
 
     const { isLoading: showLoading, isInitialized, loadRemoteData } = useAppInitialization({
         onDataLoaded: handleDataLoaded,
         onUserRestored: handleUserRestored,
-        onAuthChallenge: (gUser) => {
-            if (systemSettings.registrationEnabled) {
-                modals.setPendingGoogleUser(gUser);
-                modals.setShowRoleSelector(true);
-            } else {
-                modals.setAccessDeniedConfig({
-                    title: 'CADASTRO DESATIVADO',
-                    message: 'O cadastro de novos usuários está temporariamente desativado. Entre em contato com o administrador para solicitar inclusão.'
-                });
-                modals.setShowAccessDenied(true);
-                const sb = getSupabase();
-                if (sb) {sb.auth.signOut();}
-            }
-        },
+        onAuthChallenge,
         onSettingsLoaded: setSystemSettings,
         onError: (e) => {
             const errorMsg = e.message || '';
@@ -126,10 +151,12 @@ export const useAppController = () => {
         currentVersion: CURRENT_VERSION
     });
 
-    const { view, setView, updateHash, handleBackToHome } = useAppNavigation({
+    const { updateHash, handleBackToHome } = useAppNavigation({
         isInitialized,
         user,
         news,
+        view,
+        setView,
         setSelectedNews,
         setShowLoginModal: modals.setShowLoginModal,
         setShowProfileModal: modals.setShowProfileModal
@@ -154,19 +181,21 @@ export const useAppController = () => {
     }, [externalCategories]);
 
     useEffect(() => {
-        if (user?.themePreference === 'dark') {document.documentElement.classList.add('dark');}
-        else {document.documentElement.classList.remove('dark');}
+        if (user?.themePreference === 'dark') { document.documentElement.classList.add('dark'); }
+        else { document.documentElement.classList.remove('dark'); }
     }, [user?.themePreference]);
 
     const handleNetworkReconnect = () => {
         loadRemoteData();
         getExternalNews().then(setExternalCategories);
         const sb = getSupabase();
-        if (sb) {sb.auth.getSession().then(({ data }) => {
-            if (data.session?.user && !user) {
-                console.log("🔄 Reconnect detectado, aguardando sincronização oficial...");
-            }
-        });}
+        if (sb) {
+            sb.auth.getSession().then(({ data }) => {
+                if (data.session?.user && !user) {
+                    console.log("🔄 Reconnect detectado, aguardando sincronização oficial..."); // eslint-disable-line no-console
+                }
+            });
+        }
     };
 
     const handleLogout = async () => {
@@ -174,7 +203,13 @@ export const useAppController = () => {
         localStorage.removeItem('lfnm_user');
         sessionStorage.removeItem('lfnm_user');
         modals.setShowProfileModal(false);
-        try { const sb = getSupabase(); if (sb) {await sb.auth.signOut();} } catch (e) { console.warn("⚠️ Erro ao deslogar:", e); }
+        try {
+            const sb = getSupabase();
+            if (sb) {
+                const { data: { session } } = await sb.auth.getSession();
+                if (session) { await sb.auth.signOut(); }
+            }
+        } catch (e) { console.warn("⚠️ Erro ao deslogar:", e); } // eslint-disable-line no-console
         setView('home');
         updateHash('/');
         window.location.reload();
@@ -185,8 +220,8 @@ export const useAppController = () => {
         const globalRejectionHandler = (e: PromiseRejectionEvent) => {
             const reason = e.reason?.toString() || '';
             if (reason.includes('AuthSessionMissingError') || reason.includes('AuthApiError: invalid_grant')) {
-                console.warn("⚠️ Sessão inválida. Assumindo estado deslogado.");
-                if (user) {setUser(null);}
+                console.warn("⚠️ Sessão inválida. Assumindo estado deslogado."); // eslint-disable-line no-console
+                if (user) { setUser(null); }
                 return;
             }
             triggerErrorModal(e.reason, 'Promise Rejection');
@@ -200,12 +235,12 @@ export const useAppController = () => {
     }, [triggerErrorModal, user]);
 
     useInactivityTimer(30 * 60 * 1000, () => {
-        if (user) {setShowSessionExpiredModal(true);}
+        if (user) { setShowSessionExpiredModal(true); }
     });
 
     const handleUpdateSystemSettings = async (newSettings: SystemSettings) => {
         setSystemSettings(newSettings);
-        if (dataSource === 'database') {await saveSystemSetting('general_settings', newSettings);}
+        if (dataSource === 'database') { await saveSystemSetting('general_settings', newSettings); }
     };
 
     const handleProfileUpdate = async (u: User) => {
@@ -214,7 +249,7 @@ export const useAppController = () => {
             setUser(u);
             localStorage.setItem('lfnm_user', JSON.stringify(u));
         }
-        if (dataSource === 'database') {await updateUser(u);}
+        if (dataSource === 'database') { await updateUser(u); }
     };
 
     const handleEditNews = (newsItem: NewsItem) => {
@@ -234,9 +269,9 @@ export const useAppController = () => {
     };
 
     const currentContext: PopupTargetPage = useMemo(() => {
-        if (view === 'admin') {return 'admin_area';}
-        if (view === 'jobs') {return 'jobs_board';}
-        if (view === 'details') {return 'news_detail';}
+        if (view === 'admin') { return 'admin_area'; }
+        if (view === 'jobs') { return 'jobs_board'; }
+        if (view === 'details') { return 'news_detail'; }
         return 'home';
     }, [view]);
 
@@ -261,6 +296,7 @@ export const useAppController = () => {
         adConfig, setAdConfig,
         systemSettings, setSystemSettings,
         errorModal, setErrorModal,
+        fatalError, setFatalError,
         showSessionExpiredModal, setShowSessionExpiredModal,
         modals,
         CURRENT_VERSION,

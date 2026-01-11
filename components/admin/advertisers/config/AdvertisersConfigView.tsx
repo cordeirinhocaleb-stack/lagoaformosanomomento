@@ -47,9 +47,10 @@ const AdvertisersConfigView: React.FC<AdvertisersConfigViewProps> = ({ config, o
         try {
             const syncedConfig = await processConfigUploads(tempConfig);
             onSave(syncedConfig);
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error(e);
-            alert(`Erro ao salvar configurações: ${e.message}`);
+            const message = e instanceof Error ? e.message : String(e);
+            alert(`Erro ao salvar configurações: ${message}`);
             setIsSaving(false);
         }
     };

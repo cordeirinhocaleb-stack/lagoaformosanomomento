@@ -24,10 +24,10 @@ const SecureImage: React.FC<SecureImageProps> = ({ src, blur, className, style, 
         }
 
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas) {return;}
 
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        if (!ctx) {return;}
 
         const img = new Image();
         img.crossOrigin = 'anonymous';

@@ -42,7 +42,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
                 return;
             }
             // Don't search if it matches a city exactly (already handled)
-            if (REGIONAL_CITIES.some(c => c.toLowerCase() === inputValue.toLowerCase())) return;
+            if (REGIONAL_CITIES.some(c => c.toLowerCase() === inputValue.toLowerCase())) { return; }
 
             const results = await searchTags(inputValue);
             // Filter out already selected tags
@@ -223,7 +223,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
                                 className="px-4 py-3 text-xs font-black text-red-600 hover:bg-red-50 cursor-pointer transition-colors border-t border-zinc-100 flex items-center gap-2"
                             >
                                 <i className="fas fa-plus bg-red-600 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]"></i>
-                                <span>ADICIONAR: "#{inputValue.toUpperCase()}"</span>
+                                <span>ADICIONAR: &quot;#{inputValue.toUpperCase()}&quot;</span>
                             </div>
                         </>
                     )}

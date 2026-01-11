@@ -3,16 +3,17 @@ import { useState, useEffect } from 'react';
 import { User, SystemSettings } from '@/types';
 import { DEFAULT_SETTINGS } from '@/config/systemDefaults';
 import { initSupabase, fetchSiteData } from '@/services/supabaseService';
+import { mapDbToUser } from '@/services/users/userService';
 import { loadSystemSettings } from '@/services/settingsService';
 import { getExternalNews } from '@/services/geminiService';
 import { logger as DebugLogger } from '@/services/core/debugLogger';
 
 interface AppInitializationProps {
-    onDataLoaded: (data: any) => void;
-    onUserRestored: (user: User) => void;
-    onAuthChallenge: (user: any) => void;
+    onDataLoaded: (data: unknown) => void;
+    onUserRestored: (user: User | null) => void;
+    onAuthChallenge: (user: unknown) => void;
     onSettingsLoaded: (settings: SystemSettings) => void;
-    onError: (error: any) => void;
+    onError: (error: unknown) => void;
     currentVersion: string; // Nova prop
 }
 
@@ -30,7 +31,7 @@ export const useAppInitialization = ({
     // Helper de carregamento de dados
     const loadRemoteData = async (): Promise<SystemSettings | null> => {
         try {
-            console.log("🔄 Sincronizando dados do Supabase...");
+            DebugLogger.log("🔄 Sincronizando dados do Supabase...");
 
             // Reduz timeout para 10 segundos para feedback mais rápido
             const timeoutPromise = new Promise((_, reject) =>
@@ -41,12 +42,12 @@ export const useAppInitialization = ({
             const response = await Promise.race([
                 fetchSiteData(),
                 timeoutPromise
-            ]) as any; // Cast para evitar erro de tipo implícito
+            ]) as { source: string; data: any } | null;
 
             let finalSettings: SystemSettings | null = null;
 
             if (response) {
-                console.log(`✅ Dados recebidos do Supabase (fonte: ${response.source})`);
+                DebugLogger.log(`✅ Dados recebidos do Supabase (fonte: ${response.source})`);
                 onDataLoaded(response);
 
                 // Carrega configurações apenas se tiver resposta do banco
@@ -58,19 +59,20 @@ export const useAppInitialization = ({
                             finalSettings = remoteSettings;
                         }
                     } catch (settingsError) {
-                        console.warn("⚠️ Erro ao carregar configurações remotas:", settingsError);
+                        DebugLogger.warn("⚠️ Erro ao carregar configurações remotas:", settingsError);
                     }
                 }
             } else {
-                console.warn("⚠️ Supabase retornou null - dados podem estar vazios.");
+                DebugLogger.warn("⚠️ Supabase retornou null - dados podem estar vazios.");
                 onDataLoaded({
                     source: 'empty',
                     data: { news: [], advertisers: [], users: [], jobs: [] }
                 });
             }
             return finalSettings;
-        } catch (e: any) {
-            console.error("❌ Erro ao carregar dados do Supabase:", e.message);
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Erro desconhecido';
+            DebugLogger.error("❌ Erro ao carregar dados do Supabase:", errorMessage);
 
             onDataLoaded({
                 source: 'error',
@@ -82,15 +84,15 @@ export const useAppInitialization = ({
 
     useEffect(() => {
         let isMounted = true;
-        let newsInterval: any;
-        let isInitialSessionCheck = true;  // Flag para diferenciar carregamento inicial de novo login
+        let newsInterval: ReturnType<typeof setInterval>;
+        const isInitialSessionCheck = true;  // Flag para diferenciar carregamento inicial de novo login
 
         const initializeSystem = async () => {
             // [NOVO] Verificação Estrita de Versão
             // Se a versão do código mudou, atualiza mas NÃO recarrega para evitar loop
             const storedVersion = localStorage.getItem('lfnm_app_version');
             if (storedVersion !== currentVersion) {
-                console.log(`🚀 Versão alterada (${storedVersion} -> ${currentVersion}). Atualizando versão...`);
+                DebugLogger.log(`🚀 Versão alterada (${storedVersion} -> ${currentVersion}). Atualizando versão...`);
                 // localStorage.clear(); // REMOVIDO: Causava perda de dados e loop infinito
                 localStorage.setItem('lfnm_app_version', currentVersion);
                 // window.location.reload(); // REMOVIDO: Causava loop infinito
@@ -136,23 +138,23 @@ export const useAppInitialization = ({
 
                 // [FIX] Force update credentials if they don't match DEFAULT (to fix stale cache issues)
                 if (DEFAULT_SETTINGS.supabase?.anonKey && localSettings.supabase?.anonKey !== DEFAULT_SETTINGS.supabase.anonKey) {
-                    console.log("🔄 Atualizando credenciais do Supabase (Cache Stale detected)...");
+                    DebugLogger.log("🔄 Atualizando credenciais do Supabase (Cache Stale detected)...");
                     localSettings.supabase = { ...localSettings.supabase, ...DEFAULT_SETTINGS.supabase };
                     localStorage.setItem('lfnm_system_settings', JSON.stringify(localSettings));
                 }
 
-                console.log(`🔑 Usando Supabase: ${localSettings.supabase?.url}`);
+                DebugLogger.log(`🔑 Usando Supabase: ${localSettings.supabase?.url}`);
 
                 // Se a URL estiver vazia após o parse de um localStorage que existia, limpa para forçar reset
                 if (localSettingsRaw && (!localSettings.supabase?.url || localSettings.supabase.url === "")) {
-                    console.warn("⚠️ Configurações do Supabase inválidas no cache. Limpando...");
+                    DebugLogger.warn("⚠️ Configurações do Supabase inválidas no cache. Limpando...");
                     localStorage.removeItem('lfnm_system_settings');
                 }
 
                 onSettingsLoaded(localSettings);
 
                 // 3. CRÍTICO: Carregar dados mock IMEDIATAMENTE para evitar tela vazia
-                console.log("📦 Carregando dados iniciais (mock)...");
+                DebugLogger.log("📦 Carregando dados iniciais (mock)...");
                 onDataLoaded({
                     source: 'mock',
                     data: {
@@ -171,7 +173,7 @@ export const useAppInitialization = ({
                     const sbClient = initSupabase(sbUrl, sbKey);
                     if (sbClient) {
                         // Helper para restaurar perfil do usuário do banco
-                        const restoreUserProfile = async (authUser: any) => {
+                        const restoreUserProfile = async (authUser: { id: string }) => {
                             try {
                                 const { data: profile } = await sbClient
                                     .from('users')
@@ -191,21 +193,29 @@ export const useAppInitialization = ({
 
                                 if (isProfileComplete) {
                                     DebugLogger.log(`[AUTH] ✅ Perfil completo recuperado: ${profile.name}`);
-                                    onUserRestored(profile);
-                                    localStorage.setItem('lfnm_user', JSON.stringify(profile));
+                                    const user = mapDbToUser(profile);
+                                    onUserRestored(user);
+                                    localStorage.setItem('lfnm_user', JSON.stringify(user));
                                 } else if (profile && profile.role) {
                                     // Perfil existe e tem role, mas sem dados adicionais
                                     // Isso pode ser um Leitor que ainda não preencheu tudo
                                     // Aceitar mesmo assim (não forçar recadastro)
                                     DebugLogger.log(`[AUTH] ✅ Perfil básico aceito: ${profile.name} (${profile.role})`);
-                                    onUserRestored(profile);
-                                    localStorage.setItem('lfnm_user', JSON.stringify(profile));
+                                    const user = mapDbToUser(profile);
+                                    onUserRestored(user);
+                                    localStorage.setItem('lfnm_user', JSON.stringify(user));
                                 } else {
                                     DebugLogger.log(`[AUTH] ⚠️ Perfil incompleto ou inexistente (Novo Usuário): ${authUser.id}`);
                                     onAuthChallenge(authUser);
                                 }
-                            } catch (e) {
-                                console.warn("⚠️ Erro ao restaurar perfil via Auth Listener:", e);
+                            } catch (e: unknown) {
+                                DebugLogger.warn("⚠️ Erro ao restaurar perfil via Auth Listener:", e);
+                                // Se o erro for 403 (Forbidden), as permissões RLS podem estar bloqueando o acesso
+                                // devido a um estado inconsistente. Tentamos forçar re-cadastro.
+                                const isForbidden = e && typeof e === 'object' && ('status' in e && e.status === 403 || 'message' in e && (e.message as string)?.includes('403'));
+                                if (isForbidden) {
+                                    onAuthChallenge(authUser);
+                                }
                             }
                         };
 
@@ -216,7 +226,7 @@ export const useAppInitialization = ({
                                 restoreUserProfile(session.user);
                                 loadRemoteData();
                             } else if (event === 'SIGNED_OUT') {
-                                onUserRestored(null as any);
+                                onUserRestored(null);
                                 localStorage.removeItem('lfnm_user');
                                 sessionStorage.removeItem('lfnm_user');
                                 loadRemoteData();
@@ -234,7 +244,7 @@ export const useAppInitialization = ({
                         });
                     }
                 } catch (supabaseError) {
-                    console.warn("⚠️ Erro ao inicializar Supabase:", supabaseError);
+                    DebugLogger.warn("⚠️ Erro ao inicializar Supabase:", supabaseError);
                 }
 
                 // 4. CRÍTICO: Marca como inicializado
@@ -247,22 +257,22 @@ export const useAppInitialization = ({
                         if (isMounted) {
                             setIsInitialized(true);
                             setIsLoading(false);
-                            console.log("✅ Aplicação inicializada (Modo Local - Otimista).");
+                            DebugLogger.log("✅ Aplicação inicializada (Modo Local - Otimista).");
                         }
                     }, 2000);
                 }
 
                 // 5. Carregar Dados Remotos em BACKGROUND (ou bloqueante na Prod)
-                console.log("🔍 [INIT DEBUG] Iniciando loadRemoteData...");
+                DebugLogger.log("🔍 [INIT] Iniciando loadRemoteData...");
                 loadRemoteData().then((settings) => {
-                    console.log("🔍 [INIT DEBUG] loadRemoteData finalizado. Configurações recebidas:", settings?.maintenanceMode);
+                    DebugLogger.log("🔍 [INIT] loadRemoteData finalizado. Configurações recebidas:", settings?.maintenanceMode);
                     if (!isLocal && isMounted) {
                         setIsInitialized(true);
                         setIsLoading(false);
-                        console.log("✅ Aplicação inicializada (PROD - Dados Sincronizados).");
+                        DebugLogger.log("✅ Aplicação inicializada (PROD - Dados Sincronizados).");
                     }
                 }).catch((err) => {
-                    console.warn("⚠️ Erro ao carregar dados em background:", err);
+                    DebugLogger.warn("⚠️ Erro ao carregar dados em background:", err);
                     if (!isLocal && isMounted) {
                         setIsInitialized(true);
                         setIsLoading(false);
@@ -270,7 +280,7 @@ export const useAppInitialization = ({
                 });
 
             } catch (initError) {
-                console.error("❌ Erro crítico na inicialização:", initError);
+                DebugLogger.error("❌ Erro crítico na inicialização:", initError);
                 onError(initError);
 
                 // CRÍTICO: Mesmo com erro, marca como inicializado para não travar

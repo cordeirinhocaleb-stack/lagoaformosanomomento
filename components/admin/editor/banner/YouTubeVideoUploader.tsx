@@ -168,11 +168,12 @@ const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
                 madeForKids: false
             });
             setUploadProgress(0);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('❌ [YOUTUBE DEBUG] Falha catastrófica no upload:', err);
-            const errorMsg = err.message || 'Erro ao enviar vídeo para YouTube';
-            setError(errorMsg);
-            if (onUploadError) { onUploadError(errorMsg); }
+            const message = err instanceof Error ? err.message : String(err);
+            alert(`Erro no upload: ${message}`);
+            setError(message);
+            if (onUploadError) { onUploadError(message); }
         } finally {
             setIsUploading(false);
         }

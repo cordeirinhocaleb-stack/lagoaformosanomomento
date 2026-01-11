@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Creator Component Tree</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #09090b;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .mermaid {
+            background: transparent !important;
+        }
+        /* Custom Mermaid styling via CSS variables */
+        :root {
+            --mermaid-font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mermaid">
+            graph TD
+                subgraph "News Creator Archetecture"
+                A["EditorTab (Root)"] --- B["EditorHeader"]
+                A --- C["EditorSidebar"]
+                A --- D["EditorContent"]
+                A --- E["InspectorSidebar"]
+                
+                D --- G["EditorCanvas"]
+                
+                G --- H1["TextBlock"]
+                G --- H2["MediaBlock"]
+                G --- H3["GalleryBlock"]
+                G --- H4["EngagementBlock"]
+                G --- H5["SmartBlock"]
+                
+                I["useEditorController"] -.-> A
+                J["useNewsPublication"] -.-> I
+                K["syncService"] -.-> J
+                L["Supabase / Cloudinary"] -.-> K
+                end
+
+                style A fill:#dc2626,stroke:#fff,stroke-width:2px,color:#fff,font-weight:900
+                style D fill:#2563eb,stroke:#fff,stroke-width:2px,color:#fff,font-weight:900
+                style G fill:#1d4ed8,stroke:#fff,stroke-width:1px,color:#fff
+                style I fill:#000,stroke:#3b82f6,stroke-width:2px,color:#fff
+                style L fill:#059669,stroke:#fff,stroke-width:1px,color:#fff
+                
+                linkStyle default stroke:#4b5563,stroke-width:2px,fill:none
+        </div>
+    </div>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                primaryColor: '#2563eb',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#3b82f6',
+                lineColor: '#60a5fa',
+                secondaryColor: '#dc2626',
+                tertiaryColor: '#1f2937'
+            }
+        });
+    </script>
+</body>
+</html>

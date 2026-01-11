@@ -16,12 +16,12 @@ export const normalizeTextBlockData = (block: ContentBlock) => {
 
   // 2. Determina a variante visual (Oficial do Estúdio)
   let variant = settings.editorialVariant || 'newspaper_standard';
-  
+
   // Fallback de variante baseado no tipo de bloco se não definido
   if (!settings.editorialVariant) {
-      if (type === 'list') {variant = 'bullets_clean';}
-      if (type === 'quote') {variant = 'impact_quote';}
-      if (type === 'heading') {variant = 'hero_headline';}
+    if (type === 'list') { variant = 'bullets_clean'; }
+    if (type === 'quote') { variant = 'impact_quote'; }
+    if (type === 'heading') { variant = 'hero_headline'; }
   }
 
   // 3. Garante acesso seguro ao objeto de configurações de variantes específicas
@@ -34,13 +34,13 @@ export const normalizeTextBlockData = (block: ContentBlock) => {
     perStyle.impact_quote = { borderPosition: 'left', borderWidth: 8, borderTone: 'accent', backgroundSubtle: true, bigQuotes: true, quoteSize: 'lg', authorAlign: 'right' };
   } else if (variant === 'hero_headline' && !perStyle.hero_headline) {
     perStyle.hero_headline = { shadowDepth: 4, weight: 900, width: 'full' };
-  } else if (['bullets_clean', 'bullets_square', 'numbered_steps', 'timeline_dots'].includes(variant)) {
+  } else if (['bullets_clean', 'bullets_square', 'numbered_steps', 'timeline_dots', 'list_bullets_classic', 'list_check_circle', 'list_numbered_modern', 'list_timeline_vertical', 'list_cards_shadow'].includes(variant)) {
     // UPDATED: Garante que os novos campos de lista tenham valores padrão
-    perStyle[variant] = { 
-        spacing: perStyle[variant]?.spacing || 'normal',
-        markerColor: perStyle[variant]?.markerColor || 'default',
-        fontSize: perStyle[variant]?.fontSize || 'normal',
-        weight: perStyle[variant]?.weight || 'normal'
+    perStyle[variant] = {
+      spacing: perStyle[variant]?.spacing || 'normal',
+      markerColor: perStyle[variant]?.markerColor || 'default',
+      fontSize: perStyle[variant]?.fontSize || 'normal',
+      weight: perStyle[variant]?.weight || 'normal'
     };
   }
 
@@ -48,6 +48,6 @@ export const normalizeTextBlockData = (block: ContentBlock) => {
     editorial,
     variant,
     perStyle,
-    listType: settings.listType || (variant === 'numbered_steps' ? 'ordered' : 'unordered')
+    listType: (settings.listStyle === 'ordered' || ['numbered_steps', 'list_numbered_modern'].includes(variant)) ? 'ordered' : 'unordered'
   };
 };

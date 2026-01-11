@@ -19,7 +19,7 @@ interface MarketItem {
     cost: number;
     icon: string;
     color: string;
-    details?: any; // For boosts
+    details?: Record<string, unknown>; // For boosts
 }
 
 const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUser, darkMode = false }) => {
@@ -125,8 +125,9 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                 alert(`${successCount} itens comprados com sucesso!`);
             }
 
-        } catch (e: any) {
-            alert("Erro na venda em lote: " + e.message);
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Erro desconhecido";
+            alert("Erro na venda em lote: " + message);
         } finally {
             setIsLoading(false);
         }

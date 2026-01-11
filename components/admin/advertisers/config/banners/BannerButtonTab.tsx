@@ -18,7 +18,7 @@ export const BannerButtonTab: React.FC<BannerButtonTabProps> = ({ banner, onUpda
         effect: 'none'
     };
 
-    const updateConfig = (key: string, value: any) => {
+    const updateConfig = (key: string, value: unknown) => {
         onUpdate({ buttonConfig: { ...btnConfig, [key]: value } as any });
     };
 

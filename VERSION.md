@@ -7,6 +7,41 @@
 > Mantenha este arquivo sincronizado com `src/version.ts`.
 
 
+
+
+## 0.0.4 (Build 03) - 11/01/2026 00:10
+- **Type Safety**: Corrigidos erros críticos de tipagem em `GalleryPreview`, `InspectorSidebar`, `TicketsModal` e `UserListTable`.
+- **Sync**: Padronização da propriedade `avatar_url` no tipo `User` para sincronia com o schema do banco.
+- **Maintenance**: Remoção de diretórios residuais do ambiente mobile (`lixeira/android`) para limpeza do IDE.
+- **Workflow**: Aplicação rigorosa das regras de versionamento e design system `/lagoa`.
+
+## 0.0.3 (Build 02) - 10/01/2026 23:55
+- **Compliance Audit**: Auditoria completa de conformidade com os workflows `/lagoa` e `/performacer`.
+- **Refactor**: Modularização massiva dos componentes Admin (Engagement, Gallery, Inspector).
+- **Type Safety**: Eliminação de `any` e implementação de tipagem estrita na pasta `components/admin`.
+- **Security**: Implementação de sanitização XSS via DOMPurify em todos os blocos de renderização.
+- **Maintenance**: Remoção definitiva de resíduos do Capacitor e Capacitor Android.
+
+## 0.0.3 (Build 01) - 10/01/2026 18:35
+- **Reset Milestone:** Versão do sistema reiniciada para 0.0.3 (Build 01).
+- **Tools:** Implementação de análise estática profunda (SonarQube-like) via ESLint e SonarJS.
+- **Fix:** Corrigido bug de lógica no `NewsCard` (Teleprompter) e remoção de metadados órfãos do Capacitor.
+
+## 1.102 (Build 1102) - 10/01/2026 15:05
+- **Maintenance:** Bloqueio definitivo de deseleção dos Termos de Uso após o aceite.
+- **Bug Fix:** Correção de persistência do aceite dos termos (normalização snake_case/camelCase).
+- **Core:** Padronização de autenticação e otimização de índices do banco de dados.
+
+## 1.101 (Build 1101) - 10/01/2026 08:45
+- **Feature:** Adicionados 3 novos estilos de citação editoriais ("G1", "Lux" e "Breaking").
+- **UX:** Novos presets de estilo acessíveis diretamente no painel de propriedades do bloco de citação.
+- **Visual:** Renderização personalizada com ícones, fontes específicas (Inter/Merriweather) e layouts dinâmicos.
+
+## 1.100 (Build 1100) - 10/01/2026 08:40
+- **Melhoria:** Adicionada borda sutil (dashed) em todos os blocos do editor para melhorar a visibilidade dos limites dos elementos.
+- **Visual:** Alterado efeito de hover para destacar levemente os blocos não selecionados.
+- **Sistema:** Sincronização de versão para v1.100.
+
 ## 0.0.1 (Build 01) - 07/01/2026 23:16
 - **Release Milestone:** Lançamento consolidado da Versão 0.0.1.
 - **YouTube Engine 2.0:** Padronização completa e modo cinema.

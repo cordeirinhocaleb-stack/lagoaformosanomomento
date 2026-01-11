@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { User } from '@/types';
 import { SystemSettings, SettingsAuditItem } from '../../types';
 import { checkConnection, getSupabase } from '../../services/supabaseService';
 import { testCloudinaryConnection } from '../../services/cloudinaryService';
@@ -16,7 +17,7 @@ interface SettingsTabProps {
     onExportSchema?: () => void;
     gapiInited?: boolean;
     gisInited?: boolean;
-    currentUser: any;
+    currentUser: User | null;
     onUpdateSettings: (settings: SystemSettings) => void;
     darkMode?: boolean;
 }
@@ -106,9 +107,10 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             setNotification({ type: 'success', message: result.message || "Configurações salvas!" });
             setTimeout(() => setNotification(null), 3000);
             await loadHistory();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Erro ao salvar.";
             console.error("Erro ao salvar:", error);
-            setNotification({ type: 'error', message: error.message || "Erro ao salvar." });
+            setNotification({ type: 'error', message: message });
             setTimeout(() => setNotification(null), 5000);
         } finally {
             setIsSaving(false);

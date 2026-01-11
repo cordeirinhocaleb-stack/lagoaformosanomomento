@@ -15,7 +15,7 @@ interface MediaBlockProps {
     isSelected: boolean;
     isUploading?: boolean;
     onSelect: () => void;
-    onUpdate?: (content: any, settings?: any, extraProps?: Partial<ContentBlock>) => void;
+    onUpdate: (content: unknown, settings?: any, extraProps?: Partial<ContentBlock>) => void;
 }
 
 
@@ -167,7 +167,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
     };
 
 
-    const handleSettingChange = (key: string, value: any) => {
+    const handleSettingChange = (key: string, value: unknown) => {
         if (onUpdate) { onUpdate(block.content, { ...block.settings, [key]: value }); }
     };
 
@@ -275,15 +275,15 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[6000] overflow-y-auto p-4 md:p-10 flex justify-center animate-fadeIn">
                     <div className="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full my-auto overflow-hidden animate-in zoom-in-95 duration-300">
                         {/* Modal Header */}
-                        <div className="bg-red-600 p-8 text-white flex justify-between items-center relative overflow-hidden">
+                        <div className="bg-red-600 p-4 md:p-8 text-white flex justify-between items-center relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
                             <div className="flex items-center gap-4 relative z-10">
-                                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-red-600 shadow-xl">
-                                    <i className="fab fa-youtube text-3xl"></i>
+                                <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-2xl flex items-center justify-center text-red-600 shadow-xl shrink-0">
+                                    <i className="fab fa-youtube text-2xl md:text-3xl"></i>
                                 </div>
-                                <div>
-                                    <h3 className="text-2xl font-[1000] uppercase italic tracking-tighter">Wizard YouTube</h3>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Upload Direto & SEO</p>
+                                <div className="min-w-0">
+                                    <h3 className="text-lg md:text-2xl font-[1000] uppercase italic tracking-tighter truncate">Wizard YouTube</h3>
+                                    <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest opacity-80">Upload Direto & SEO</p>
                                 </div>
                             </div>
                             <button

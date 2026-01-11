@@ -115,17 +115,28 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
             }
 
             // Gallery Blocks
-            if (block.type === 'gallery' && Array.isArray(block.settings?.images)) {
-                const newImages = await Promise.all(block.settings.images.map(async (img: any) => {
-                    const url = typeof img === 'string' ? img : img.url;
-                    if (url && url.startsWith('local_')) {
-                        const newUrl = await uploadAndCleanup(url, getFolder('gallery'));
-                        updateProgress("Imagem da galeria enviada");
-                        return typeof img === 'string' ? newUrl : { ...img, url: newUrl };
+            if (block.type === 'gallery') {
+                // Check both locations (content.images is used by Editor, settings.images by legacy/sync)
+                const images = block.content?.images || block.settings?.images;
+
+                if (Array.isArray(images)) {
+                    const newImages = await Promise.all(images.map(async (img: any) => {
+                        const url = typeof img === 'string' ? img : img.url;
+                        if (url && url.startsWith('local_')) {
+                            const newUrl = await uploadAndCleanup(url, getFolder('gallery'));
+                            updateProgress("Imagem da galeria enviada");
+                            return typeof img === 'string' ? newUrl : { ...img, url: newUrl };
+                        }
+                        return img;
+                    }));
+
+                    // Update the correct location
+                    if (block.content?.images) {
+                        newBlock.content = { ...newBlock.content, images: newImages };
+                    } else {
+                        newBlock.settings = { ...newBlock.settings, images: newImages };
                     }
-                    return img;
-                }));
-                newBlock.settings = { ...newBlock.settings, images: newImages };
+                }
             }
 
             // Video Blocks - NEW IMPLEMENTATION

@@ -1,4 +1,3 @@
-
 import { BannerLayout, BannerTransition } from './ads';
 
 export interface ContentBlock {
@@ -7,15 +6,27 @@ export interface ContentBlock {
     content: any;
     settings: any;
     videoSource?: 'cloudinary' | 'youtube';
-    youtubeMeta?: {
-        title: string;
-        description: string;
-        tags: string[];
-        privacy: 'public' | 'unlisted' | 'private';
-        categoryId?: string;
-        madeForKids?: boolean;
-    };
+    youtubeMeta?: YoutubeMetadata;
     fileRef?: File | null;
+}
+
+export interface YoutubeMetadata {
+    title: string;
+    description: string;
+    tags: string[];
+    privacy: 'public' | 'unlisted' | 'private';
+    categoryId?: string;
+    madeForKids?: boolean;
+    uploadedAt?: string;
+}
+
+export interface BannerEffect {
+    brightness: number;
+    contrast: number;
+    saturation: number;
+    blur: number;
+    sepia: number;
+    opacity: number;
 }
 
 export interface SocialDistribution {
@@ -64,16 +75,8 @@ export interface NewsItem {
     bannerImageLayout?: 'carousel' | 'grid' | 'fade' | 'split' | 'mosaic';
 
     // Image Effects (brightness, contrast, etc.)
-    // Image Effects (brightness, contrast, etc.)
     // Changed to Array for per-image effects (v1.200)
-    bannerEffects?: Array<{
-        brightness: number;
-        contrast: number;
-        saturation: number;
-        blur: number;
-        sepia: number;
-        opacity: number;
-    }>;
+    bannerEffects?: BannerEffect[];
 
     // Video Management
     bannerMediaType?: 'image' | 'video';
@@ -83,15 +86,7 @@ export interface NewsItem {
     // YouTube Integration
     bannerYoutubeVideoId?: string;
     bannerYoutubeStatus?: 'uploading' | 'processing' | 'ready' | 'failed';
-    bannerYoutubeMetadata?: {
-        title: string;
-        description: string;
-        tags: string[];
-        privacy: 'public' | 'unlisted' | 'private';
-        categoryId?: string;
-        madeForKids?: boolean;
-        uploadedAt?: string;
-    };
+    bannerYoutubeMetadata?: YoutubeMetadata;
 
     // Smart Playback (para vídeos >1min)
     bannerSmartPlayback?: boolean;
@@ -111,14 +106,7 @@ export interface NewsItem {
         muted: boolean;
         loop: boolean;
         autoplay: boolean;
-        effects: {
-            brightness: number;
-            contrast: number;
-            saturation: number;
-            blur: number;
-            sepia: number;
-            opacity: number;
-        };
+        effects: BannerEffect;
     };
     isBannerAnimated?: boolean;
     imageCredits?: string;
@@ -157,4 +145,4 @@ export interface GalleryItem {
     isPending?: boolean;
 }
 
-export type GalleryStyle = 'hero_slider' | 'news_mosaic' | 'filmstrip' | 'comparison' | 'masonry' | 'stories_scroll' | 'card_peek';
+export type GalleryStyle = 'grid' | 'masonry' | 'carousel' | 'slideshow' | 'columns' | 'hero_slider' | 'polaroid' | 'reel' | 'news_mosaic' | 'filmstrip' | 'comparison' | 'stories_scroll' | 'card_peek';

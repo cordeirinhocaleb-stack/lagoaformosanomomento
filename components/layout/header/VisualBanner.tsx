@@ -24,7 +24,7 @@ const VisualBanner: React.FC<VisualBannerProps> = ({ onHomeClick, currentTime, s
         if (animationRef.current) {cancelAnimationFrame(animationRef.current);}
         return;
     }
-    let startTimestamp = performance.now();
+    const startTimestamp = performance.now();
     const animate = (time: number) => {
         if (!bannerRef.current) {return;}
         const elapsed = time - startTimestamp;

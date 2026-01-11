@@ -75,7 +75,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
                 >
                     <div
                         onClick={(e) => { e.stopPropagation(); onBlockSelect(block.id); }}
-                        className={`relative group/block rounded-[2rem] transition-all duration-300 h-full border-2 ${selectedBlockId === block.id ? 'shadow-2xl ring-2 ring-red-100 bg-white z-10 scale-[1.01] border-red-600' : 'bg-white border-transparent hover:border-zinc-100'}`}
+                        className={`relative group/block rounded-[2rem] transition-all duration-300 h-full border-2 ${selectedBlockId === block.id ? 'shadow-2xl ring-2 ring-red-100 bg-white z-10 scale-[1.01] border-red-600' : 'bg-white border-zinc-200 border-dashed hover:border-zinc-300'}`}
                     >
                         {selectedBlockId === block.id && (
                             <>

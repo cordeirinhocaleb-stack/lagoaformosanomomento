@@ -10,7 +10,7 @@ import EditorBanner from './layout/EditorBanner';
 import EditorContent from './layout/EditorContent';
 import EditorMobileDock from './layout/EditorMobileDock';
 import EditorSidebar from './layout/EditorSidebar';
-import InspectorSidebar from '../InspectorSidebar';
+import InspectorSidebar from './layout/InspectorSidebar';
 import SocialDistributionOverlay from '../SocialDistributionOverlay';
 
 interface EditorTabProps {
@@ -112,7 +112,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
     }, [isHeaderVisible]);
 
     // Handlers
-    const handleAddBlock = (type: ContentBlock['type'], content?: any, settings?: any) => {
+    const handleAddBlock = (type: ContentBlock['type'], content?: unknown, settings?: Record<string, any>) => {
         const id = Math.random().toString(36).substr(2, 9);
         const newBlock: ContentBlock = {
             id, type, content: content !== undefined ? content : '',
@@ -256,7 +256,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
                             lead={lead} setLead={setLead}
                             isPublished={isPublished}
                             uploadingSlot={uploadingSlot}
-                            handleBlockSelect={(id) => { setSelectedBlockId(id); if (isMobile) { setShowLibraryMobile(false); setShowInspectorMobile(true); } else { setIsRightSidebarOpen(true); } }}
+                            handleBlockSelect={(id: string) => { setSelectedBlockId(id); if (isMobile) { setShowLibraryMobile(false); setShowInspectorMobile(true); } else { setIsRightSidebarOpen(true); } }}
                             handleDeleteBlock={handleDeleteBlock}
                             handleUpdateBlock={handleUpdateBlock}
                             setShowInspectorMobile={setShowInspectorMobile}
@@ -293,7 +293,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
                     onDelete={handleDeleteBlock}
                     onClose={() => setShowInspectorMobile(false)}
                     accessToken={accessToken}
-                    newsMetadata={{ slug, setSlug, category, setCategory, title, lead, socialCaptions, setSocialCaptions }}
+                    newsMetadata={{ slug, setSlug, category, setCategory }}
                 />
             </aside>
             <aside className={`hidden lg:flex flex-col bg-white border-l border-zinc-200 transition-all duration-300 relative z-20 shadow-[-5px_0_15px_rgba(0,0,0,0.02)] ${isRightSidebarOpen ? 'w-80 md:w-96' : 'w-0 overflow-hidden'}`}>
@@ -304,7 +304,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCanc
                         onDelete={handleDeleteBlock}
                         onClose={() => setIsRightSidebarOpen(false)}
                         accessToken={accessToken}
-                        newsMetadata={{ slug, setSlug, category, setCategory, title, lead, socialCaptions, setSocialCaptions }}
+                        newsMetadata={{ slug, setSlug, category, setCategory }}
                     />
                 </div>
             </aside>

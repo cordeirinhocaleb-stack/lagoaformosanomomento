@@ -11,6 +11,44 @@ interface PopupMediaPanelProps {
 
 type MediaSubTab = 'source' | 'layout' | 'style' | 'filters';
 
+const FilterSelector = ({ value, onChange, darkMode }: { value: string, onChange: (v: string) => void, darkMode: boolean }) => {
+    const buttonClass = (isActive: boolean) => `px-2 py-2 rounded-lg border text-[9px] font-bold uppercase transition-all ${isActive ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black') : (darkMode ? 'bg-black/20 text-gray-400 border-white/5 hover:bg-white/5' : 'bg-white text-gray-500 hover:bg-gray-50')}`;
+
+    return (
+        <div className="grid grid-cols-4 gap-2">
+            {['none', 'grayscale', 'sepia', 'saturate', 'contrast', 'brightness', 'blur', 'vintage'].map(f => (
+                <button
+                    key={f}
+                    onClick={() => onChange(f)}
+                    className={buttonClass(value === f)}
+                >
+                    {f}
+                </button>
+            ))}
+        </div>
+    );
+};
+
+const OverlaySelector = ({ value, onChange, darkMode }: { value: string, onChange: (v: string) => void, darkMode: boolean }) => {
+    const selectClass = `w-full border rounded-lg p-2 text-[10px] font-bold uppercase outline-none ${darkMode ? 'bg-black/20 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-black'}`;
+
+    return (
+        <select
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className={selectClass}
+        >
+            <option value="none">Nenhum</option>
+            <option value="dark_soft">Escuro Suave</option>
+            <option value="dark_strong">Escuro Forte</option>
+            <option value="bottom_gradient">Gradiente Base</option>
+            <option value="top_gradient">Gradiente Topo</option>
+            <option value="vignette_soft">Vinheta Suave</option>
+            <option value="glass_blur_soft">Vidro (Blur)</option>
+        </select>
+    );
+};
+
 const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, darkMode = false }) => {
     const [activeSubTab, setActiveSubTab] = useState<MediaSubTab>('source');
 
@@ -50,40 +88,9 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
     };
 
     const tabClass = (isActive: boolean) => `flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${isActive ? (darkMode ? 'bg-white shadow-sm text-black' : 'bg-white shadow-sm text-black') : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-600')}`;
-    const buttonClass = (isActive: boolean) => `px-2 py-2 rounded-lg border text-[9px] font-bold uppercase transition-all ${isActive ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black') : (darkMode ? 'bg-black/20 text-gray-400 border-white/5 hover:bg-white/5' : 'bg-white text-gray-500 hover:bg-gray-50')}`;
+    // Helper Components for Reusable Controls
     const selectClass = `w-full border rounded-lg p-2 text-[10px] font-bold uppercase outline-none ${darkMode ? 'bg-black/20 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-black'}`;
     const labelClass = `block text-[9px] font-bold uppercase mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`;
-
-    // Helper Components for Reusable Controls
-    const FilterSelector = ({ value, onChange }: { value: string, onChange: (v: string) => void }) => (
-        <div className="grid grid-cols-4 gap-2">
-            {['none', 'grayscale', 'sepia', 'saturate', 'contrast', 'brightness', 'blur', 'vintage'].map(f => (
-                <button
-                    key={f}
-                    onClick={() => onChange(f)}
-                    className={buttonClass(value === f)}
-                >
-                    {f}
-                </button>
-            ))}
-        </div>
-    );
-
-    const OverlaySelector = ({ value, onChange }: { value: string, onChange: (v: string) => void }) => (
-        <select
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            className={selectClass}
-        >
-            <option value="none">Nenhum</option>
-            <option value="dark_soft">Escuro Suave</option>
-            <option value="dark_strong">Escuro Forte</option>
-            <option value="bottom_gradient">Gradiente Base</option>
-            <option value="top_gradient">Gradiente Topo</option>
-            <option value="vignette_soft">Vinheta Suave</option>
-            <option value="glass_blur_soft">Vidro (Blur)</option>
-        </select>
-    );
 
     return (
         <div className="space-y-6">
@@ -180,7 +187,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 <label className={labelClass}>Ajuste (Fit)</label>
                                 <select
                                     value={media.videoSettings.fit}
-                                    onChange={e => updateVideoSettings({ fit: e.target.value as any })}
+                                    onChange={e => updateVideoSettings({ fit: e.target.value as PopupVideoSettings['fit'] })}
                                     className={selectClass}
                                 >
                                     <option value="cover">Preencher (Cover)</option>
@@ -191,7 +198,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 <label className={labelClass}>Zoom Motion</label>
                                 <select
                                     value={media.videoSettings.zoomMotion}
-                                    onChange={e => updateVideoSettings({ zoomMotion: e.target.value as any })}
+                                    onChange={e => updateVideoSettings({ zoomMotion: e.target.value as PopupVideoSettings['zoomMotion'] })}
                                     className={selectClass}
                                 >
                                     <option value="off">Fixo</option>
@@ -210,8 +217,8 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                             key={layout}
                                             onClick={() => onChange({ imagePresentation: layout as PopupImagePresentation })}
                                             className={`px-3 py-2 rounded-lg border text-[9px] font-bold uppercase transition-all ${media.imagePresentation === layout
-                                                    ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
-                                                    : (darkMode ? 'bg-black/20 text-gray-400 border-white/5 hover:bg-white/5' : 'bg-white text-gray-500 hover:bg-gray-50')
+                                                ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
+                                                : (darkMode ? 'bg-black/20 text-gray-400 border-white/5 hover:bg-white/5' : 'bg-white text-gray-500 hover:bg-gray-50')
                                                 }`}
                                         >
                                             {layout.replace('_', ' ')}
@@ -224,7 +231,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                     <label className={labelClass}>Ajuste (Fit)</label>
                                     <select
                                         value={media.imageStyle.fit}
-                                        onChange={e => updateImageStyle({ fit: e.target.value as any })}
+                                        onChange={e => updateImageStyle({ fit: e.target.value as PopupImageStyle['fit'] })}
                                         className={selectClass}
                                     >
                                         <option value="cover">Preencher</option>
@@ -235,7 +242,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                     <label className={labelClass}>Foco</label>
                                     <select
                                         value={media.imageStyle.focusPoint}
-                                        onChange={e => updateImageStyle({ focusPoint: e.target.value as any })}
+                                        onChange={e => updateImageStyle({ focusPoint: e.target.value as PopupImageStyle['focusPoint'] })}
                                         className={selectClass}
                                     >
                                         <option value="center">Centro</option>
@@ -261,7 +268,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 {['none', 'soft', 'strong'].map(r => (
                                     <button
                                         key={r}
-                                        onClick={() => mediaType === 'video' ? updateVideoSettings({ borderRadius: r as any }) : updateImageStyle({ borderRadius: r as any })}
+                                        onClick={() => mediaType === 'video' ? updateVideoSettings({ borderRadius: r as PopupVideoSettings['borderRadius'] }) : updateImageStyle({ borderRadius: r as PopupImageStyle['borderRadius'] })}
                                         className={`flex-1 py-2 rounded text-[8px] font-bold uppercase ${(mediaType === 'video' ? media.videoSettings.borderRadius : media.imageStyle.borderRadius) === r ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
                                             }`}
                                     >
@@ -276,7 +283,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 {['none', 'soft', 'strong'].map(s => (
                                     <button
                                         key={s}
-                                        onClick={() => mediaType === 'video' ? updateVideoSettings({ shadow: s as any }) : updateImageStyle({ shadow: s as any })}
+                                        onClick={() => mediaType === 'video' ? updateVideoSettings({ shadow: s as PopupVideoSettings['shadow'] }) : updateImageStyle({ shadow: s as PopupImageStyle['shadow'] })}
                                         className={`flex-1 py-2 rounded text-[8px] font-bold uppercase ${(mediaType === 'video' ? media.videoSettings.shadow : media.imageStyle.shadow) === s ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
                                             }`}
                                     >
@@ -291,7 +298,8 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                         <label className={labelClass}>Overlay (Sobreposição)</label>
                         <OverlaySelector
                             value={mediaType === 'video' ? media.videoSettings.overlayPreset : media.imageStyle.overlayPreset}
-                            onChange={v => mediaType === 'video' ? updateVideoSettings({ overlayPreset: v as any }) : updateImageStyle({ overlayPreset: v as any })}
+                            onChange={v => mediaType === 'video' ? updateVideoSettings({ overlayPreset: v as PopupVideoSettings['overlayPreset'] }) : updateImageStyle({ overlayPreset: v as PopupImageStyle['overlayPreset'] })}
+                            darkMode={darkMode}
                         />
                     </div>
 
@@ -300,7 +308,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                             <label className={labelClass}>Frame Preset</label>
                             <select
                                 value={media.videoSettings.framePreset}
-                                onChange={e => updateVideoSettings({ framePreset: e.target.value as any })}
+                                onChange={e => updateVideoSettings({ framePreset: e.target.value as PopupVideoSettings['framePreset'] })}
                                 className={selectClass}
                             >
                                 <option value="clean_border">Borda Limpa</option>
@@ -320,7 +328,8 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                         <label className={labelClass}>Tipo de Filtro</label>
                         <FilterSelector
                             value={mediaType === 'video' ? media.videoSettings.filterId : media.imageStyle.filterId}
-                            onChange={v => mediaType === 'video' ? updateVideoSettings({ filterId: v as any }) : updateImageStyle({ filterId: v as any })}
+                            onChange={v => mediaType === 'video' ? updateVideoSettings({ filterId: v as PopupVideoSettings['filterId'] }) : updateImageStyle({ filterId: v as PopupImageStyle['filterId'] })}
+                            darkMode={darkMode}
                         />
                     </div>
 
@@ -330,7 +339,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                             {['soft', 'strong'].map(v => (
                                 <button
                                     key={v}
-                                    onClick={() => mediaType === 'video' ? updateVideoSettings({ filterVariant: v as any }) : updateImageStyle({ filterVariant: v as any })}
+                                    onClick={() => mediaType === 'video' ? updateVideoSettings({ filterVariant: v as PopupVideoSettings['filterVariant'] }) : updateImageStyle({ filterVariant: v as PopupImageStyle['filterVariant'] })}
                                     className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${(mediaType === 'video' ? media.videoSettings.filterVariant : media.imageStyle.filterVariant) === v ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
                                         }`}
                                 >

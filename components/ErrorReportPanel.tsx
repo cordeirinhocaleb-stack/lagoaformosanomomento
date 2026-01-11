@@ -45,7 +45,7 @@ const ErrorReportPanel: React.FC<ErrorReportPanelProps> = ({ user }) => {
             setErrors(prev => [...prev, errorLog]);
             setHasNewErrors(true);
             // Mantém log original para não suprimir do console do browser
-            console.error('🔴 Erro capturado:', errorLog);
+            console.error('🔴 Erro capturado:', errorLog); // eslint-disable-line no-console
         };
 
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -57,7 +57,7 @@ const ErrorReportPanel: React.FC<ErrorReportPanelProps> = ({ user }) => {
             };
             setErrors(prev => [...prev, errorLog]);
             setHasNewErrors(true);
-            console.error('🔴 Promise rejeitada:', errorLog);
+            console.error('🔴 Promise rejeitada:', errorLog); // eslint-disable-line no-console
         };
 
         // REMOVIDO: Interceptação de console.error/warn causava loop infinito.
@@ -93,7 +93,7 @@ ${'='.repeat(80)}
     };
 
     const handleSendReport = async () => {
-        if (errors.length === 0) {return;}
+        if (errors.length === 0) { return; }
         setIsSending(true);
         try {
             // Envia o último erro crítico como principal, e o log completo como contexto
@@ -104,7 +104,7 @@ ${'='.repeat(80)}
             await sendErrorReport(new Error(lastError.message), `Relatório Manual Panel:\n${fullLogContext}`, user);
             alert("✅ Relatório enviado com sucesso para a equipe de desenvolvimento!");
         } catch (error) {
-            console.error("Falha ao enviar relatório:", error);
+            console.error("Falha ao enviar relatório:", error); // eslint-disable-line no-console
             alert("Erro ao enviar relatório.");
         } finally {
             setIsSending(false);
@@ -119,26 +119,28 @@ ${'='.repeat(80)}
     return (
         <>
             {/* Botão Flutuante - Só aparece se shouldRender for true */}
-            <button
-                onClick={() => {
-                    setShowPanel(!showPanel);
-                    setHasNewErrors(false);
-                }}
-                className={`fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${hasNewErrors
-                    ? 'bg-red-600 animate-pulse'
-                    : 'bg-gray-800 hover:bg-gray-700'
-                    }`}
-                title="Relatório de Erros"
-            >
-                <div className="relative">
-                    <i className="fas fa-bug text-white text-xl"></i>
-                    {errors.length > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center">
-                            {errors.length > 99 ? '99+' : errors.length}
-                        </span>
-                    )}
-                </div>
-            </button>
+            {shouldRender && (
+                <button
+                    onClick={() => {
+                        setShowPanel(!showPanel);
+                        setHasNewErrors(false);
+                    }}
+                    className={`fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${hasNewErrors
+                        ? 'bg-red-600 animate-pulse'
+                        : 'bg-gray-800 hover:bg-gray-700'
+                        }`}
+                    title="Relatório de Erros"
+                >
+                    <div className="relative">
+                        <i className="fas fa-bug text-white text-xl"></i>
+                        {errors.length > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center">
+                                {errors.length > 99 ? '99+' : errors.length}
+                            </span>
+                        )}
+                    </div>
+                </button>
+            )}
 
             {/* Painel de Erros */}
             {showPanel && (

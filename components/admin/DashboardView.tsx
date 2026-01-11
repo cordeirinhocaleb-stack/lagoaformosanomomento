@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { User, NewsItem, Advertiser, Job } from '../../types';
+import { User, NewsItem, Advertiser, Job, AuditLog } from '../../types';
 
 interface DashboardViewProps {
     currentUser: User;
@@ -7,7 +7,7 @@ interface DashboardViewProps {
     news: NewsItem[];
     advertisers: Advertiser[];
     jobs: Job[];
-    auditLogs: any[];
+    auditLogs: AuditLog[];
     onNavigate: (view: string, filter?: string) => void;
     darkMode?: boolean;
 }
@@ -53,7 +53,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ currentUser, users, news,
                 action: () => onNavigate('advertisers')
             },
         ];
-    }, [users, news, advertisers, jobs, currentUser]);
+    }, [users, news, advertisers, jobs, currentUser, onNavigate]);
 
     return (
         <div className="space-y-8">

@@ -52,7 +52,7 @@ export const getExternalNews = async () => {
                         title: row.title,
                         sourceName: row.author || 'RSS',
                         sourceUrl: row.seo?.canonicalUrl || '#',
-                        imageUrl: row.imageUrl,
+                        imageUrl: row.image_url || row.imageUrl, // Fix: mapping snake_case from DB
                         category: row.category,
                         theme: ['Política', 'Agronegócio', 'Esporte'].includes(row.category) ? 'green' : 'blue'
                     });

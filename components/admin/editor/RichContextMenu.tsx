@@ -21,7 +21,7 @@ export const RichContextMenu: React.FC<RichContextMenuProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'style' | 'color' | 'layout'>('style');
 
-    const MobileToolBtn = ({ icon, label, action, val, activeColor, tooltip }: any) => (
+    const MobileToolBtn: React.FC<MobileToolBtnProps> = ({ icon, label, action, val, activeColor, tooltip }) => (
         <button
             onClick={(e) => {
                 e.stopPropagation();

@@ -1,9 +1,6 @@
-import { Capacitor } from '@capacitor/core';
-import { Network } from '@capacitor/network';
-
 /**
  * Serviço para detectar plataforma e status de rede
- * Versão: 1.100
+ * Versão: 1.101 (Web Only)
  */
 
 export class PlatformService {
@@ -11,35 +8,28 @@ export class PlatformService {
      * Verifica se está rodando como app nativo
      */
     static isNativeApp(): boolean {
-        return Capacitor.isNativePlatform();
-    }
-
-    /**
-     * Verifica se está rodando no Android
-     */
-    static isAndroid(): boolean {
-        return Capacitor.getPlatform() === 'android';
+        return false;
     }
 
     /**
      * Verifica se está rodando no iOS
      */
     static isIOS(): boolean {
-        return Capacitor.getPlatform() === 'ios';
+        return false;
     }
 
     /**
      * Verifica se está rodando na web
      */
     static isWeb(): boolean {
-        return Capacitor.getPlatform() === 'web';
+        return true;
     }
 
     /**
      * Retorna a plataforma atual
      */
     static getPlatform(): string {
-        return Capacitor.getPlatform();
+        return 'web';
     }
 }
 
@@ -50,8 +40,7 @@ export class NetworkService {
      * Verifica se está online
      */
     static async isOnline(): Promise<boolean> {
-        const status = await Network.getStatus();
-        return status.connected;
+        return navigator.onLine;
     }
 
     /**
@@ -60,16 +49,18 @@ export class NetworkService {
     static addNetworkListener(callback: (isOnline: boolean) => void): void {
         this.listeners.push(callback);
 
-        Network.addListener('networkStatusChange', (status) => {
-            callback(status.connected);
-        });
+        window.addEventListener('online', () => callback(true));
+        window.addEventListener('offline', () => callback(false));
     }
 
     /**
      * Remove todos os listeners
      */
     static removeAllListeners(): void {
-        Network.removeAllListeners();
+        // No browser implementation, we might not need to strictly remove global listeners 
+        // if this service is singleton, but for correctness:
+        // Note: Anonymous functions in addEventListener cannot be easily removed without reference.
+        // For this simple implementation, we assume simple lifecycle.
         this.listeners = [];
     }
 }

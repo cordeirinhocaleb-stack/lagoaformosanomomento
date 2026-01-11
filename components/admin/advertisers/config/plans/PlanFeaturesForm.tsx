@@ -11,7 +11,7 @@ interface PlanFeaturesFormProps {
 
 const PlanFeaturesForm: React.FC<PlanFeaturesFormProps> = ({ features, onChange, readOnly, darkMode = false }) => {
 
-    const update = (key: keyof AdPlanConfig['features'], value: any) => {
+    const update = (key: keyof AdPlanConfig['features'], value: unknown) => {
         onChange({ ...features, [key]: value });
     };
 
@@ -91,8 +91,8 @@ const PlanFeaturesForm: React.FC<PlanFeaturesFormProps> = ({ features, onChange,
                                 key={net}
                                 onClick={() => toggleSocial(net)}
                                 className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase border transition-all ${active
-                                        ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
-                                        : (darkMode ? 'bg-black/20 text-gray-500 border-white/10 hover:border-white/20' : 'bg-white text-gray-400 border-gray-200 hover:border-gray-300')
+                                    ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
+                                    : (darkMode ? 'bg-black/20 text-gray-500 border-white/10 hover:border-white/20' : 'bg-white text-gray-400 border-gray-200 hover:border-gray-300')
                                     }`}
                             >
                                 {net}

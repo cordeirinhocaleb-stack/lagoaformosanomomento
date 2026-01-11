@@ -15,22 +15,22 @@ const VideoLinkBlock: React.FC<VideoLinkBlockProps> = ({ block, isSelected, onSe
     const extractVideoId = (url: string): { platform: 'youtube' | 'vimeo' | 'dailymotion' | null; id: string | null } => {
         // YouTube
         const youtubeMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-        if (youtubeMatch) return { platform: 'youtube', id: youtubeMatch[1] };
+        if (youtubeMatch) {return { platform: 'youtube', id: youtubeMatch[1] };}
 
         // Vimeo
         const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-        if (vimeoMatch) return { platform: 'vimeo', id: vimeoMatch[1] };
+        if (vimeoMatch) {return { platform: 'vimeo', id: vimeoMatch[1] };}
 
         // Dailymotion
         const dailymotionMatch = url.match(/dailymotion\.com\/video\/([^_]+)/);
-        if (dailymotionMatch) return { platform: 'dailymotion', id: dailymotionMatch[1] };
+        if (dailymotionMatch) {return { platform: 'dailymotion', id: dailymotionMatch[1] };}
 
         return { platform: null, id: null };
     };
 
     const getEmbedUrl = (url: string): string | null => {
         const { platform, id } = extractVideoId(url);
-        if (!id) return null;
+        if (!id) {return null;}
 
         switch (platform) {
             case 'youtube':

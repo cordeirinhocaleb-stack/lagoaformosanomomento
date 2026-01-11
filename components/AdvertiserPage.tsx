@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - pages/Advertiser.tsx is the correct file

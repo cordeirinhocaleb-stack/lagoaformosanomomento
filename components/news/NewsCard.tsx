@@ -1,6 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { NewsItem } from '../../types';
+import { sanitizeText } from '../../utils/sanitizer';
 
 interface NewsCardProps {
     news: NewsItem;
@@ -36,7 +37,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
     const lastTapRef = useRef<number>(0);
 
     const executeNavigation = () => {
-        if (onClick) {onClick(news);}
+        if (onClick) { onClick(news); }
     };
 
     const handleContainerClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -46,7 +47,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         // Lógica de Double Tap (2x Rápido = Abre a Notícia)
         if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
             // Se estava expandido, recolhe visualmente antes de navegar para evitar glitches
-            if (isMobileActive) {setMobileActive(false);}
+            if (isMobileActive) { setMobileActive(false); }
             executeNavigation();
             lastTapRef.current = 0; // Reset
         } else {
@@ -83,7 +84,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         setIsHovering(false);
         // No desktop, o mouse leave desativa. No mobile não.
         if (window.matchMedia('(min-width: 1024px)').matches) {
-            if (isMobileActive) {setMobileActive(false);}
+            if (isMobileActive) { setMobileActive(false); }
         }
     };
 
@@ -121,9 +122,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
     // Speed Control
     const updateSpeed = (percentage: number) => {
         let level = 1;
-        if (percentage > 0.75) {level = 4;}
-        else if (percentage > 0.50) {level = 3;}
-        else if (percentage > 0.25) {level = 2;}
+        if (percentage > 0.75) { level = 4; }
+        else if (percentage > 0.50) { level = 3; }
+        else if (percentage > 0.25) { level = 2; }
 
         setSpeedLevel(level);
         scrollSpeedRef.current = level * 0.5;
@@ -156,11 +157,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
 
     const TeleprompterJSX = (
         <div
-            className={`absolute inset-0 z-30 flex items-center justify-center p-6 transition-opacity duration-300 bg-black/95 ${isActive => isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            className={`absolute inset-0 z-30 flex items-center justify-center p-6 transition-opacity duration-300 bg-black/95 ${(isHovering || isMobileActive) ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
-            onMouseEnter={() => setIsHovering(true)}
-            style={{ opacity: (isHovering || isMobileActive) ? 1 : 0, pointerEvents: (isHovering || isMobileActive) ? 'auto' : 'none' }}
         >
             <div className="w-full max-w-3xl h-full relative flex gap-4">
                 <div
@@ -178,8 +177,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                         </h3>
                         <div className={`w-6 h-1 mx-auto mb-4 rounded-full ${isInternal ? 'bg-red-600' : 'bg-blue-600'}`}></div>
                         <div
-                            className="text-sm md:text-lg font-serif text-gray-200 leading-relaxed max-w-2xl mx-auto drop-shadow-md text-justify [&_p]:mb-3 [&_h1]:text-white [&_h1]:font-bold [&_h2]:text-white [&_h2]:font-bold [&_h2]:mt-4 [&_img]:hidden [&_iframe]:hidden [&_video]:hidden"
-                            dangerouslySetInnerHTML={{ __html: displayContent }}
+                            className={`prose prose-sm prose-invert max-w-none text-gray-300 font-serif leading-relaxed line-clamp-[12] fade-bottom pb-8 space-y-4`}
+                            dangerouslySetInnerHTML={{ __html: sanitizeText(displayContent) }}
                         />
                         {!isInternal && (
                             <div className="mt-6 p-4 border border-white/20 rounded-xl bg-white/5">
@@ -197,10 +196,10 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                     <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-emerald-500/10 via-yellow-500/10 to-red-600/20 pointer-events-none"></div>
                     {[1, 2, 3, 4].map((level) => {
                         let activeColorClass = "";
-                        if (level === 1) {activeColorClass = "bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]";}
-                        else if (level === 2) {activeColorClass = "bg-yellow-500 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.8)]";}
-                        else if (level === 3) {activeColorClass = "bg-orange-500 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.8)]";}
-                        else {activeColorClass = "bg-red-600 border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.8)]";}
+                        if (level === 1) { activeColorClass = "bg-emerald-500 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]"; }
+                        else if (level === 2) { activeColorClass = "bg-yellow-500 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.8)]"; }
+                        else if (level === 3) { activeColorClass = "bg-orange-500 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.8)]"; }
+                        else { activeColorClass = "bg-red-600 border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.8)]"; }
 
                         return (
                             <div key={level} className={`flex-1 w-full rounded-full flex items-center justify-center transition-all duration-200 relative z-10 border ${speedLevel === level ? `${activeColorClass} text-white scale-110 font-black` : 'bg-transparent border-transparent text-zinc-600 font-bold hover:text-white hover:bg-white/10'}`}>
@@ -219,7 +218,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         // We explicitly return undefined to allow Tailwind's 'grayscale' class to work if it relies on the style attribute being empty,
         // OR we can explicitly enforce grayscale here.
         // However, since 'style' overrides 'class', if we return a filter here, the 'grayscale' class might be ignored.
-        if (isHovering || isMobileActive) {return {};}
+        if (isHovering || isMobileActive) { return {}; }
 
         let effects = news.bannerEffects as any;
 
@@ -232,7 +231,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
             effects = news.bannerVideoSettings.effects;
         }
 
-        if (!effects) {return {};}
+        if (!effects) { return {}; }
 
         return {
             filter: `
@@ -251,12 +250,13 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
             ref={containerRef}
             onClick={handleContainerClick}
             onDoubleClick={handleDoubleClick}
+            onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={handleMouseLeave}
             className={`${containerClasses} ${heightClasses} rounded-xl shadow-sm border border-gray-100 ${featured ? 'bg-black' : 'bg-white'} group`}
         >
             <div className={`w-full ${featured ? 'h-full absolute inset-0' : 'h-32 md:h-40 lg:h-48'} overflow-hidden relative shrink-0`}>
                 <img
-                    src={news.imageUrl}
+                    src={news.imageUrl || (news as any).image_url}
                     alt={news.title}
                     style={getEffectsStyle()}
                     loading="lazy"

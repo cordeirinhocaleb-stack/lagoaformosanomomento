@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { User, NewsItem } from '../types';
+import { User, NewsItem, AppView } from '../../types';
 
-export type AppView = 'home' | 'admin' | 'details' | 'advertiser' | 'jobs' | 'auth_callback';
 
 interface UseAppNavigationProps {
     isInitialized: boolean;
     user: User | null;
     news: NewsItem[];
+    view: AppView;
+    setView: (view: AppView) => void;
     setSelectedNews: (news: NewsItem | null) => void;
     setShowLoginModal: (show: boolean) => void;
     setShowProfileModal: (show: boolean) => void;
@@ -16,11 +17,12 @@ export const useAppNavigation = ({
     isInitialized,
     user,
     news,
+    view,
+    setView,
     setSelectedNews,
     setShowLoginModal,
     setShowProfileModal
 }: UseAppNavigationProps) => {
-    const [view, setView] = useState<AppView>('home');
 
     const getSafeHash = useCallback(() => {
         try { return window.location.hash; } catch { return ''; }
@@ -29,16 +31,16 @@ export const useAppNavigation = ({
     const updateHash = useCallback((hash: string) => {
         const target = hash.startsWith('#') ? hash : `#${hash}`;
         try {
-            if (getSafeHash() !== target) {window.location.hash = target;}
+            if (getSafeHash() !== target) { window.location.hash = target; }
         } catch { }
     }, [getSafeHash]);
 
     useEffect(() => {
-        if (!isInitialized) {return;}
+        if (!isInitialized) { return; }
 
         const handleHashChange = () => {
             const hash = getSafeHash();
-            if (!hash) {return;}
+            if (!hash) { return; }
 
             if (hash.includes('access_token')) {
                 setView('auth_callback');

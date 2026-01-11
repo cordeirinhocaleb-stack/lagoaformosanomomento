@@ -38,7 +38,11 @@ export const useAuth = ({
         const supabase = getSupabase();
         if (supabase) {
             try {
-                await supabase.auth.signOut();
+                // Check if we actually have a session to avoid 403 (Invalid Grant / Forbidden) on redundant signouts
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    await supabase.auth.signOut();
+                }
             } catch (e) {
                 console.warn('⚠️ Erro ao fazer signOut no Supabase:', e);
             }
@@ -66,7 +70,7 @@ export const useAuth = ({
         console.log('✅ Login bem-sucedido:', loggedUser.name);
 
         // Close modal FIRST
-        if (onClose) {onClose();}
+        if (onClose) { onClose(); }
         setShowLoginModal(false);
 
         // Set user
@@ -103,7 +107,7 @@ export const useAuth = ({
      */
     const handleCheckEmail = useCallback(async (email: string): Promise<boolean> => {
         const localExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
-        if (localExists) {return true;}
+        if (localExists) { return true; }
         return await checkEmailService(email);
     }, [users]);
 

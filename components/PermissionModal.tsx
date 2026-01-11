@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - components/common/PermissionModal.tsx is the correct file

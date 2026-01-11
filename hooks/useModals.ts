@@ -12,7 +12,7 @@ interface AccessDeniedConfig {
 
 interface ErrorModalState {
     visible: boolean;
-    error: any;
+    error: unknown;
     context?: string;
 }
 
@@ -24,10 +24,11 @@ interface ModalsState {
     showSuccessModal: boolean;
     showChangelog: boolean;
     showPricingModal: boolean;
+    showTermsModal: boolean;
     errorModal: ErrorModalState;
     accessDeniedConfig: AccessDeniedConfig | null;
     successMessage: string;
-    pendingGoogleUser: any;
+    pendingGoogleUser: unknown;
     pendingManualEmail: string | null;
 }
 
@@ -39,6 +40,7 @@ export const useModals = () => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showChangelog, setShowChangelog] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
 
     const [errorModal, setErrorModal] = useState<ErrorModalState>({
         visible: false,
@@ -47,11 +49,11 @@ export const useModals = () => {
 
     const [accessDeniedConfig, setAccessDeniedConfig] = useState<AccessDeniedConfig | null>(null);
     const [successMessage, setSuccessMessage] = useState('');
-    const [pendingGoogleUser, setPendingGoogleUser] = useState<any>(null);
+    const [pendingGoogleUser, setPendingGoogleUser] = useState<unknown>(null);
     const [pendingManualEmail, setPendingManualEmail] = useState<string | null>(null);
 
     // Funções helper para mostrar modais com configuração
-    const showError = useCallback((error: any, context: string = 'System Error') => {
+    const showError = useCallback((error: unknown, context: string = 'System Error') => {
         console.error(`🛡️ Capturado:`, error);
         setErrorModal({ visible: true, error, context });
     }, []);
@@ -93,6 +95,9 @@ export const useModals = () => {
     const openPricingModal = useCallback(() => setShowPricingModal(true), []);
     const closePricingModal = useCallback(() => setShowPricingModal(false), []);
 
+    const openTermsModal = useCallback(() => setShowTermsModal(true), []);
+    const closeTermsModal = useCallback(() => setShowTermsModal(false), []);
+
     return {
         // Estados
         showLoginModal,
@@ -102,6 +107,7 @@ export const useModals = () => {
         showSuccessModal,
         showChangelog,
         showPricingModal,
+        showTermsModal,
         errorModal,
         accessDeniedConfig,
         successMessage,
@@ -139,6 +145,8 @@ export const useModals = () => {
         closeChangelog,
         openPricingModal,
         closePricingModal,
+        openTermsModal,
+        closeTermsModal,
     };
 };
 

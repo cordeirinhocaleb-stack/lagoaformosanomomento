@@ -9,7 +9,7 @@ export const renderAdvancedDivider = (config: any, blockBg: string = 'transparen
     const color = colors[config.color] || colors.themeDefault;
     const thickness = config.thickness || 1;
     const opacity = config.opacity ?? 1;
-    let width = config.width === 'content' ? '66%' : config.width === 'short' ? '33%' : '100%';
+    const width = config.width === 'content' ? '66%' : config.width === 'short' ? '33%' : '100%';
     const alignMap: Record<string, string> = { left: 'flex-start', center: 'center', right: 'flex-end' };
     
     return (

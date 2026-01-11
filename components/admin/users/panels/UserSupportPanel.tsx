@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SupportTicket, SupportMessage, getUserTickets, addTicketMessage, getTicketMessages, updateTicketStatus } from '../../../../services/supabaseService';
+import { getUserTickets, addTicketMessage, getTicketMessages, updateTicketStatus } from '../../../../services/supabaseService';
+import { SupportTicket, SupportMessage } from '@/types';
 import { User } from '../../../../types'; // Assuming User type is here or pass current admin user
 
 interface UserSupportPanelProps {
@@ -42,7 +43,7 @@ const UserSupportPanel: React.FC<UserSupportPanelProps> = ({ userId }) => {
     };
 
     const handleSendReply = async () => {
-        if (!selectedTicket || !replyText.trim() || !currentAdminId) {return;}
+        if (!selectedTicket || !replyText.trim() || !currentAdminId) { return; }
 
         const res = await addTicketMessage(selectedTicket.id, currentAdminId, replyText, true);
         if (res.success) {
@@ -57,7 +58,7 @@ const UserSupportPanel: React.FC<UserSupportPanelProps> = ({ userId }) => {
     };
 
     const handleResolve = async () => {
-        if (!selectedTicket) {return;}
+        if (!selectedTicket) { return; }
         await updateTicketStatus(selectedTicket.id, 'resolved');
         setSelectedTicket({ ...selectedTicket, status: 'resolved' });
         loadTickets();

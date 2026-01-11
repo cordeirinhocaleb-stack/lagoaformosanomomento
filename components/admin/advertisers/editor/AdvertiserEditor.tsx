@@ -40,33 +40,34 @@ const DEFAULT_ADVERTISER: Advertiser = {
 };
 
 const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave, onCancel, darkMode = false }) => {
+    // Prepare initial state helper
+    const prepareInitialState = (adv: Advertiser | null): Advertiser => {
+        if (adv) {
+            return {
+                ...DEFAULT_ADVERTISER,
+                ...adv,
+                internalPage: {
+                    description: adv.internalPage?.description || '',
+                    products: adv.internalPage?.products || [],
+                    whatsapp: adv.internalPage?.whatsapp || '',
+                    instagram: adv.internalPage?.instagram || '',
+                    location: adv.internalPage?.location || ''
+                },
+                coupons: adv.coupons || [],
+                popup: adv.popup
+            };
+        }
+        return {
+            ...DEFAULT_ADVERTISER,
+            id: Math.random().toString(36).substr(2, 9)
+        };
+    };
+
     const [activeTab, setActiveTab] = useState<EditorTabId>('geral');
-    const [formData, setFormData] = useState<Advertiser>(DEFAULT_ADVERTISER);
+    const [formData, setFormData] = useState<Advertiser>(() => prepareInitialState(advertiser));
     const [isSaving, setIsSaving] = useState(false);
 
-    // Inicializa dados
-    useEffect(() => {
-        if (advertiser) {
-            setFormData({
-                ...DEFAULT_ADVERTISER,
-                ...advertiser,
-                internalPage: {
-                    description: advertiser.internalPage?.description || '',
-                    products: advertiser.internalPage?.products || [],
-                    whatsapp: advertiser.internalPage?.whatsapp || '',
-                    instagram: advertiser.internalPage?.instagram || '',
-                    location: advertiser.internalPage?.location || ''
-                },
-                coupons: advertiser.coupons || [],
-                popup: advertiser.popup
-            });
-        } else {
-            setFormData({
-                ...DEFAULT_ADVERTISER,
-                id: Math.random().toString(36).substr(2, 9)
-            });
-        }
-    }, [advertiser]);
+
 
     const handleSave = async () => {
         if (!formData.name) { return alert("O nome da empresa é obrigatório."); }
@@ -78,9 +79,10 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
 
             // 2. Salva (envia para o pai/backend)
             onSave(syncedData);
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error(e);
-            alert(`Erro ao salvar: ${e.message}`);
+            const message = e instanceof Error ? e.message : 'Erro desconhecido';
+            alert(`Erro ao salvar: ${message}`);
             setIsSaving(false);
         }
     };

@@ -1,16 +1,16 @@
 
 import { useState } from 'react';
-import { NewsItem, ContentBlock, SystemSettings, SocialDistribution } from '../../../../types';
+import { NewsItem, ContentBlock, SystemSettings, SocialDistribution, User } from '../../../../types';
 import { dispatchSocialWebhook } from '../../../../services/integrationService';
 import { queueYouTubeUpload } from '../../../../services/youtubeService';
-import { uploadFileToDrive } from '../../../../services/driveService'; 
+import { uploadFileToDrive } from '../../../../services/driveService';
 
 export type PublishStatus = 'idle' | 'uploading' | 'distributing' | 'success' | 'error';
 
 interface UsePublishingWorkflowProps {
     accessToken: string | null;
     systemSettings?: SystemSettings;
-    user: any;
+    user: User;
 }
 
 export const usePublishingWorkflow = ({ accessToken, systemSettings, user }: UsePublishingWorkflowProps) => {
@@ -31,14 +31,14 @@ export const usePublishingWorkflow = ({ accessToken, systemSettings, user }: Use
             // 1. Process Banner Media (Video vs Image)
             if (draft.bannerMediaType === 'video' && draft.bannerVideoSource === 'youtube' && bannerFile) {
                 // FLUXO YOUTUBE BANNER: Enfileira e salva job ID
-                if (draft.bannerYoutubeMeta) {
-                     try {
-                         const { jobId } = await queueYouTubeUpload(bannerFile, draft.bannerYoutubeMeta, draft.id);
-                         console.log(`YouTube Banner Upload Queued: Job ${jobId}`);
-                         // Poderíamos atualizar bannerVideoUrl aqui com um placeholder, mas o preview local já deve estar lá
-                     } catch (ytError) {
-                         console.error("Falha ao enfileirar Banner YouTube:", ytError);
-                     }
+                if (draft.bannerYoutubeMetadata) {
+                    try {
+                        const { jobId } = await queueYouTubeUpload(bannerFile, draft.bannerYoutubeMetadata, draft.id);
+                        console.log(`YouTube Banner Upload Queued: Job ${jobId}`);
+                        // Poderíamos atualizar bannerVideoUrl aqui com um placeholder, mas o preview local já deve estar lá
+                    } catch (ytError) {
+                        console.error("Falha ao enfileirar Banner YouTube:", ytError);
+                    }
                 }
             } else if (bannerFile && accessToken) {
                 // FLUXO DRIVE (Imagem)
@@ -52,6 +52,8 @@ export const usePublishingWorkflow = ({ accessToken, systemSettings, user }: Use
 
                 if (block.type === 'video' && block.videoSource === 'youtube' && file) {
                     if (block.youtubeMeta) {
+                        // Cast madeForKids to boolean for block metadata
+                        block.youtubeMeta.madeForKids = !!block.youtubeMeta.madeForKids;
                         try {
                             const { jobId } = await queueYouTubeUpload(file, block.youtubeMeta, draft.id);
                             console.log(`YouTube Block Upload Queued: Job ${jobId}`);

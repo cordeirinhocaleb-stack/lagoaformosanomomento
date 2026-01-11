@@ -22,7 +22,7 @@ import { logAction } from '../admin/auditService';
  * Remove tags HTML e limita tamanho
  */
 const sanitizeInput = (input: string | null | undefined, maxLength: number = 500): string | null => {
-    if (!input) {return null;}
+    if (!input) { return null; }
     let clean = input.toString()
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -30,11 +30,11 @@ const sanitizeInput = (input: string | null | undefined, maxLength: number = 500
         .replace(/on\w+=/gi, "")
         .trim();
 
-    if (clean.length > maxLength) {clean = clean.substring(0, maxLength);}
+    if (clean.length > maxLength) { clean = clean.substring(0, maxLength); }
     return clean || null;
 };
 
-const mapUserToDb = (user: User): any => ({
+const mapUserToDb = (user: User): Record<string, unknown> => ({
     id: user.id,
     name: sanitizeInput(user.name, 100),
     email: user.email, // Email should be validated elsewhere, not sanitized aggressively here
@@ -66,41 +66,83 @@ const mapUserToDb = (user: User): any => ({
     two_factor_enabled: user.twoFactorEnabled,
     "usageCredits": user.usageCredits,
     "siteCredits": user.siteCredits,
-    custom_limits: user.customLimits
+    custom_limits: user.customLimits,
+    terms_accepted: user.termsAccepted,
+    terms_accepted_at: user.termsAcceptedAt
 });
+
+export const mapDbToUser = (dbUser: any): User | null => {
+    if (!dbUser) return null;
+    return {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        role: dbUser.role,
+        status: dbUser.status,
+        avatar: dbUser.avatar,
+        bio: dbUser.bio,
+        birthDate: dbUser.birthdate, // Db is birthdate (lowercase)
+        zipCode: dbUser.zipcode,
+        city: dbUser.city,
+        state: dbUser.state,
+        phone: dbUser.phone,
+        document: dbUser.document,
+        profession: dbUser.profession,
+        education: dbUser.education,
+        skills: dbUser.skills,
+        professionalBio: dbUser.professionalBio || dbUser.professional_bio, // Handle both just in case
+        availability: dbUser.availability,
+        companyName: dbUser.companyName || dbUser.company_name, // Handle inconsistent casing
+        businessType: dbUser.businessType || dbUser.business_type,
+        whatsappVisible: dbUser.whatsappVisible || dbUser.whatsapp_visible,
+        themePreference: dbUser.themePreference || dbUser.theme_preference,
+        socialLinks: dbUser.socialLinks || dbUser.social_links,
+        permissions: dbUser.permissions,
+        advertiserPlan: dbUser.advertiser_plan,
+        activePlans: dbUser.activePlans || dbUser.active_plans,
+        subscriptionStart: dbUser.subscriptionStart || dbUser.subscription_start,
+        subscriptionEnd: dbUser.subscriptionEnd || dbUser.subscription_end,
+        twoFactorEnabled: dbUser.two_factor_enabled,
+        usageCredits: dbUser.usageCredits || dbUser.usage_credits,
+        siteCredits: dbUser.siteCredits || dbUser.site_credits,
+        customLimits: dbUser.custom_limits,
+        termsAccepted: dbUser.terms_accepted,
+        termsAcceptedAt: dbUser.terms_accepted_at
+    };
+};
 
 export const createUser = async (user: User) => {
     const supabase = getSupabase();
-    if (!supabase) {return;}
+    if (!supabase) { return; }
     const payload = mapUserToDb(user);
     const { error } = await supabase.from('users').insert(payload);
-    if (error) {throw error;}
+    if (error) { throw error; }
 };
 
 export const updateUser = async (user: User) => {
     const supabase = getSupabase();
-    if (!supabase) {return;}
+    if (!supabase) { return; }
     const payload = mapUserToDb(user);
     const { error } = await supabase.from('users').update(payload).eq('id', user.id);
-    if (error) {throw error;}
+    if (error) { throw error; }
 };
 
 export const getEmailByUsername = async (username: string): Promise<string | null> => {
     const supabase = getSupabase();
-    if (!supabase) {return null;}
+    if (!supabase) { return null; }
     const { data, error } = await supabase
         .from('users')
         .select('email')
         .or(`name.eq.${username},email.eq.${username}`)
         .maybeSingle();
 
-    if (error) {return null;}
+    if (error) { return null; }
     return data?.email || null;
 };
 
 export const checkEmailExists = async (email: string): Promise<boolean> => {
     const supabase = getSupabase();
-    if (!supabase) {return false;}
+    if (!supabase) { return false; }
     const { data, error } = await supabase
         .from('users')
         .select('id')
@@ -131,17 +173,17 @@ export const checkAuthLockout = async (email: string) => {
 
 export const requestPasswordRecovery = async (email: string) => {
     const supabase = getSupabase();
-    if (!supabase) {return { success: false, message: "Erro de servidor" };}
+    if (!supabase) { return { success: false, message: "Erro de servidor" }; }
     const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) {return { success: false, message: error.message };}
+    if (error) { return { success: false, message: error.message }; }
     return { success: true, message: "Link enviado!" };
 };
 
 export const resendActivationEmail = async (email: string) => {
     const supabase = getSupabase();
-    if (!supabase) {return { success: false, message: "Erro de servidor" };}
+    if (!supabase) { return { success: false, message: "Erro de servidor" }; }
     const { error } = await supabase.auth.resend({ type: 'signup', email });
-    if (error) {return { success: false, message: error.message };}
+    if (error) { return { success: false, message: error.message }; }
     return { success: true, message: "E-mail reenviado!" };
 };
 
@@ -218,7 +260,7 @@ const validatePurchaseData = (
 /**
  * Sanitiza valores numéricos para garantir integridade
  */
-const sanitizeNumber = (value: any, defaultValue: number = 0): number => {
+const sanitizeNumber = (value: unknown, defaultValue: number = 0): number => {
     const num = Number(value);
     return isNaN(num) || num < 0 ? defaultValue : Math.floor(num);
 };
@@ -236,7 +278,7 @@ export const userPurchaseItem = async (
     details?: any
 ) => {
     const supabase = getSupabase();
-    if (!supabase) {return { success: false, message: "Erro de conexão" };}
+    if (!supabase) { return { success: false, message: "Erro de conexão" }; }
 
     try {
         // 1. VALIDAÇÃO DE ENTRADA
@@ -278,7 +320,7 @@ export const userPurchaseItem = async (
         }
 
         // 4. PREPARAR ATUALIZAÇÕES
-        const updates: any = {
+        const updates: Record<string, unknown> = {
             siteCredits: currentCredits - sanitizedCost
         };
 
@@ -373,11 +415,12 @@ export const userPurchaseItem = async (
             updatedUser: { ...user, ...updates }
         };
 
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("[userPurchaseItem] Erro crítico:", e);
+        const message = e instanceof Error ? e.message : "Erro ao processar compra";
         return {
             success: false,
-            message: e.message || "Erro ao processar compra"
+            message
         };
     }
 };

@@ -23,17 +23,18 @@ const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (!file) { return; }
 
         setIsUploading(true);
         try {
             const url = await uploadToCloudinary(file, 'avatars', 'admin_user_edit');
             onUpdateUser({ avatar: url });
-        } catch (err: any) {
-            alert('Erro no upload: ' + err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Erro desconhecido";
+            alert('Erro no upload: ' + message);
         } finally {
             setIsUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (fileInputRef.current) { fileInputRef.current.value = ''; }
         }
     };
 
@@ -90,11 +91,11 @@ const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
                 <div className="grid grid-cols-1 gap-4">
                     <div className={`p-4 rounded-xl border ${darkMode ? 'bg-black/40 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
                         <label className="text-[9px] font-bold text-gray-500 uppercase block mb-1">Nome Completo</label>
-                        <input type="text" value={user.name} onChange={(e) => onUpdateUser({ name: e.target.value })} className={`w-full bg-transparent font-bold outline-none ${darkMode ? 'text-white' : 'text-gray-900'}`} />
+                        <input type="text" value={user.name} onChange={(e) => onUpdateUser({ name: e.target.value.toUpperCase() })} className={`w-full bg-transparent font-bold outline-none ${darkMode ? 'text-white' : 'text-gray-900'}`} />
                     </div>
                     <div className={`p-4 rounded-xl border ${darkMode ? 'bg-black/40 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
                         <label className="text-[9px] font-bold text-gray-500 uppercase block mb-1">Nível de Acesso (Role)</label>
-                        <select value={user.role} onChange={(e) => onUpdateUser({ role: e.target.value as any })} className={`w-full bg-transparent font-bold outline-none uppercase text-xs ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <select value={user.role} onChange={(e) => onUpdateUser({ role: e.target.value as UserRole })} className={`w-full bg-transparent font-bold outline-none uppercase text-xs ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             <option value="Leitor" className={darkMode ? 'bg-black text-white' : 'bg-white text-gray-900'}>Leitor</option>
                             <option value="Anunciante" className={darkMode ? 'bg-black text-white' : 'bg-white text-gray-900'}>Anunciante</option>
                             <option value="Redator" className={darkMode ? 'bg-black text-white' : 'bg-white text-gray-900'}>Redator</option>

@@ -30,11 +30,15 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ data, onChange, darkM
         });
     };
 
-    const handleUpdateProduct = (id: string, field: keyof AdvertiserProduct, value: any) => {
-        const updatedProducts = products.map(p => p.id === id ? { ...p, [field]: value } : p);
+    const handleUpdateProduct = (id: string, field: keyof AdvertiserProduct, value: unknown) => {
+        if (!data.internalPage) return;
+        const newProducts = data.internalPage.products.map(p => p.id === id ? { ...p, [field]: value } : p);
         onChange({
             ...data,
-            internalPage: { ...data.internalPage!, products: updatedProducts }
+            internalPage: {
+                ...data.internalPage,
+                products: newProducts
+            }
         });
     };
 

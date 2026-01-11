@@ -5,7 +5,7 @@ import { EDITOR_WIDGETS } from '../../EditorWidgets';
 import { CELEBRATION_BLOCKS } from '../CelebrationBlocks';
 
 interface EditorSidebarProps {
-    onAddBlock: (type: ContentBlock['type'], content?: any, settings?: any) => void;
+    onAddBlock: (type: ContentBlock['type'], content?: unknown, settings?: any) => void;
     isUploading: boolean;
     darkMode?: boolean;
 }
@@ -167,7 +167,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, isUploading, 
                                                     e.stopPropagation();
                                                     e.preventDefault();
                                                     onAddBlock(
-                                                        celebration.template.type as any,
+                                                        celebration.template.type as ContentBlock['type'],
                                                         celebration.template.content,
                                                         celebration.template.settings
                                                     );
@@ -186,7 +186,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, isUploading, 
                                         )) :
                                             cat.items?.map(item => (
                                                 <button
-                                                    key={item.label} onClick={() => onAddBlock(item.type as any, (item as any).content, item.settings)}
+                                                    key={item.label} onClick={() => onAddBlock(item.type as ContentBlock['type'], (item as { content?: unknown }).content, item.settings)}
                                                     className={`flex flex-col items-center justify-center p-3 rounded-xl border cursor-pointer transition-all gap-2 aspect-square group hover:shadow-md hover:border-gray-200 ${darkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-gray-100'}`}
                                                 >
                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all ${item.bg || 'bg-gray-100'} ${item.color || 'text-gray-400'} ${darkMode ? 'group-hover:text-white' : 'group-hover:text-white'}`}>

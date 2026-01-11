@@ -9,7 +9,7 @@ interface GeneralSectionProps {
 }
 
 const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMode = false }) => {
-    const handleChange = (field: keyof Advertiser, value: any) => {
+    const handleChange = (field: keyof Advertiser, value: unknown) => {
         onChange({ ...data, [field]: value });
     };
 

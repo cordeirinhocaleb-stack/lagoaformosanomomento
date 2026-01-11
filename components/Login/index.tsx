@@ -1,21 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
 import Logo from '../../components/common/Logo';
 import { useLoginSecurity } from './hooks/useLoginSecurity';
 import { useAuthFlow } from './hooks/useAuthFlow';
+import TurnstileWidget from '../common/TurnstileWidget';
 
 interface LoginProps {
     onLogin: (user: User, remember: boolean) => void;
     onSignupRequest: (email: string) => void;
     onClose: () => void;
     disableSignup?: boolean;
+    onOpenTerms?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disableSignup = false }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disableSignup = false, onOpenTerms }) => {
     // Form State
     const [email, setEmail] = useState('');
     const [loginIdentifier, setLoginIdentifier] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
     // Hooks
     const security = useLoginSecurity();
@@ -23,7 +27,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
 
     // PERSISTÊNCIA DE FORMULÁRIO (F5) - Keep local or move to hook? Keeping simple logic here for now or extraction later
     useEffect(() => {
-        const savedData = sessionStorage.getItem('lfnm_login_temp');
+        const savedData = localStorage.getItem('lfnm_login_temp');
         if (savedData) {
             try {
                 const { pendingEmail, pendingIdentifier, pendingPassword, pendingMode } = JSON.parse(savedData);
@@ -37,7 +41,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
     }, []); // Roda apenas NA MONTAGEM para restaurar restaurar estado
 
     useEffect(() => {
-        sessionStorage.setItem('lfnm_login_temp', JSON.stringify({ pendingEmail: email, pendingIdentifier: loginIdentifier, pendingPassword: password, pendingMode: auth.mode }));
+        localStorage.setItem('lfnm_login_temp', JSON.stringify({ pendingEmail: email, pendingIdentifier: loginIdentifier, pendingPassword: password, pendingMode: auth.mode }));
     }, [email, loginIdentifier, password, auth.mode]);
 
     // Body Lock
@@ -49,8 +53,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
 
     const onFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (auth.mode === 'login') { auth.handleLoginSubmit(loginIdentifier, password); }
-        else if (auth.mode === 'signup') { auth.handleSignupSubmit(email); }
+        if (auth.mode === 'login') { auth.handleLoginSubmit(loginIdentifier, password, captchaToken || undefined); }
+        else if (auth.mode === 'signup') { auth.handleSignupSubmit(email, captchaToken || undefined); }
         else if (auth.mode === 'recovery') { auth.handleRecoveryRequest(email); }
     };
 
@@ -112,7 +116,22 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
                                 </div>
                                 <div className="relative group">
                                     <i className="fas fa-lock absolute left-3.5 md:left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-600 transition-colors text-base md:text-lg"></i>
-                                    <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={!!security.lockoutExpiry} placeholder="Sua Senha" className="w-full bg-white border-2 border-gray-200 focus:border-red-600 rounded-xl md:rounded-2xl p-3.5 pl-10 md:p-5 md:pl-14 text-sm md:text-base font-bold outline-none transition-all placeholder-gray-400 shadow-inner disabled:bg-gray-50" />
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        disabled={!!security.lockoutExpiry}
+                                        placeholder="Sua Senha"
+                                        className="w-full bg-white border-2 border-gray-200 focus:border-red-600 rounded-xl md:rounded-2xl p-3.5 pl-10 md:p-5 md:pl-14 pr-12 md:pr-14 text-sm md:text-base font-bold outline-none transition-all placeholder-gray-400 shadow-inner disabled:bg-gray-50"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3.5 md:right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-600 transition-colors p-1"
+                                    >
+                                        <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-base md:text-lg`}></i>
+                                    </button>
                                 </div>
                                 <div className="flex justify-end pr-1">
                                     <button type="button" onClick={() => { auth.setMode('recovery'); auth.setErrorMessage(null); auth.setSuccessMessage(null); }} className="text-[8px] md:text-[9px] font-black uppercase text-gray-400 hover:text-red-600 transition-colors tracking-widest">Esqueci minha senha</button>
@@ -136,9 +155,21 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupRequest, onClose, disabl
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <button type="submit" disabled={auth.loading} className={`w-full py-3.5 md:py-5 rounded-xl md:rounded-2xl font-[1000] uppercase text-xs md:text-sm tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-70 ${auth.successMessage ? 'bg-green-600 text-white' : security.attemptsMade >= 4 ? 'bg-red-600 text-white animate-pulse' : 'bg-black text-white hover:bg-red-600'}`}>
+                                    {(auth.mode === 'login' && security.attemptsMade >= 3) && (
+                                        <TurnstileWidget onVerify={setCaptchaToken} options={{ theme: 'light' }} />
+                                    )}
+
+                                    <button type="submit" disabled={auth.loading || (auth.mode === 'login' && security.attemptsMade >= 3 && !captchaToken)} className={`w-full py-3.5 md:py-5 rounded-xl md:rounded-2xl font-[1000] uppercase text-xs md:text-sm tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-70 ${auth.successMessage ? 'bg-green-600 text-white' : security.attemptsMade >= 4 ? 'bg-red-600 text-white animate-pulse' : 'bg-black text-white hover:bg-red-600'}`}>
                                         {auth.loading ? <i className="fas fa-circle-notch fa-spin"></i> : auth.successMessage ? <><i className="fas fa-paper-plane animate-bounce"></i> Enviado</> : (auth.mode === 'login' ? <>Acessar <i className="fas fa-arrow-right"></i></> : auth.mode === 'signup' ? 'Começar Cadastro' : 'Recuperar Acesso')}
                                     </button>
+
+                                    {auth.mode === 'signup' && onOpenTerms && (
+                                        <div className="text-center pt-2">
+                                            <p className="text-[9px] text-gray-400">
+                                                Ao criar conta, você concorda com nossos <button type="button" onClick={onOpenTerms} className="font-bold text-gray-600 hover:text-black hover:underline transition-colors">Termos de Uso e Privacidade</button>
+                                            </p>
+                                        </div>
+                                    )}
                                     {auth.mode === 'login' && security.attemptsMade > 0 && !security.lockoutExpiry && (
                                         <div className={`text-center animate-fadeInUp ${security.isShaking ? 'animate-shake' : ''}`}>
                                             <p className={`text-[9px] md:text-[11px] font-black uppercase tracking-[0.1em] transition-colors duration-300 ${security.attemptsMade >= 4 ? 'text-red-600 animate-pulse' : 'text-gray-400'}`}>Tentativa <span className="text-sm">{security.attemptsMade}</span> de 5</p>

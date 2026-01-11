@@ -1,7 +1,12 @@
 
 import { ContentBlock } from '@/types';
 
-export type EditorialStyle = 'paragraph' | 'heading' | 'quote' | 'list';
+export type EditorialStyle =
+  | 'paragraph' | 'heading' | 'quote' | 'list'
+  | 'newspaper_standard' | 'breaking_alert' | 'impact_quote' | 'hero_headline'
+  | 'police_siren' | 'tech_neon' | 'executive_summary' | 'vintage_letter'
+  | 'footnote' | 'checklist_pro' | 'quote_modern_accent' | 'quote_elegant_editorial' | 'quote_breaking_card'
+  | 'list_bullets_classic' | 'list_check_circle' | 'list_numbered_modern' | 'list_timeline_vertical' | 'list_cards_shadow';
 
 export interface GlobalTextSettings {
   alignment: 'left' | 'center' | 'right' | 'justify';
@@ -53,14 +58,14 @@ export interface QuoteSettings {
 
 export interface ListSettings {
   type: 'list';
-  listStyle: 'bullet' | 'ordered' | 'check';
+  listStyle: 'bullet' | 'ordered' | 'check' | 'square';
   spacing: 'tight' | 'normal' | 'wide';
 }
 
-export type PerStyleSettings = 
-  | ParagraphSettings 
-  | HeadingSettings 
-  | QuoteSettings 
+export type PerStyleSettings =
+  | ParagraphSettings
+  | HeadingSettings
+  | QuoteSettings
   | ListSettings
   | ImpactQuoteSettings;
 

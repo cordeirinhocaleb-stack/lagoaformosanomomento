@@ -19,8 +19,8 @@ interface EditorBannerProps {
     setMainImageUrl: (url: string) => void;
     bannerVideoUrl: string;
     setBannerVideoUrl: (url: string) => void;
-    bannerVideoConfig: any; // Using any for simplicity with new type
-    setBannerVideoConfig: (config: any) => void;
+    bannerVideoConfig: BannerVideoConfig;
+    setBannerVideoConfig: (config: Record<string, any>) => void;
     requiredSlots: number;
     setToast: (toast: { message: string, type: 'success' | 'error' | 'warning' | 'info' }) => void;
 }
@@ -66,18 +66,18 @@ const EditorBanner: React.FC<EditorBannerProps> = ({
     const [showEffects, setShowEffects] = React.useState(false);
 
     const removeBannerImage = (index: number) => {
-        if (bannerLayout === 'single' && bannerImages.length <= 1) {
-            setToast({ message: "Mínimo 1 imagem necessária.", type: 'warning' });
-            return;
-        }
         const newImages = [...bannerImages];
-        if (requiredSlots > 1) {
-            newImages[index] = 'https://placehold.co/800x600?text=Vazio';
-        } else {
-            newImages.splice(index, 1);
-        }
+        // Define como string vazia para exibir o Uploader no lugar
+        newImages[index] = '';
+
         setBannerImages(newImages);
-        if (index === 0 && newImages[0]) {setMainImageUrl(newImages[0]);}
+
+        // Se removeu a capa principal (index 0), tenta pegar a próxima disponível ou mantém vazio
+        if (index === 0) {
+            const nextImage = newImages.find(img => img !== '') || mainImageUrl;
+            // Se limpou a única, não atualiza mainImageUrl para não quebrar preview até novo upload
+            // Mas se tiver outras em grid, pode atualizar
+        }
     };
 
     const handleConfigChange = (key: string, value: any) => {
@@ -101,9 +101,9 @@ const EditorBanner: React.FC<EditorBannerProps> = ({
             const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
             if (videoId) {
                 let embed = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
-                if (bannerVideoConfig.muted) {embed += '&mute=1';}
-                if (bannerVideoConfig.autoplay) {embed += '&autoplay=1';}
-                if (bannerVideoConfig.loop) {embed += `&loop=1&playlist=${videoId}`;}
+                if (bannerVideoConfig.muted) { embed += '&mute=1'; }
+                if (bannerVideoConfig.autoplay) { embed += '&autoplay=1'; }
+                if (bannerVideoConfig.loop) { embed += `&loop=1&playlist=${videoId}`; }
                 return embed;
             }
         }
@@ -304,7 +304,7 @@ const EditorBanner: React.FC<EditorBannerProps> = ({
                                         onUploadComplete={(urls) => {
                                             const newImages = [...bannerImages];
                                             newImages[slot] = urls[0];
-                                            if (slot === 0) {setMainImageUrl(urls[0]);}
+                                            if (slot === 0) { setMainImageUrl(urls[0]); }
                                             setBannerImages(newImages);
                                             setToast({ message: "Imagem carregada", type: 'success' });
                                         }}

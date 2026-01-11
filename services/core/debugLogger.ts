@@ -16,12 +16,24 @@ class DebugLogger {
         }
 
         this.logs.unshift(formattedMsg); // Add to top
-        if (this.logs.length > 50) {this.logs.pop();} // Keep last 50
+        if (this.logs.length > 50) { this.logs.pop(); } // Keep last 50
 
         this.notify();
 
         // Also log to browser console as backup
-        console.log(message, data || '');
+        if (process.env.NODE_ENV === 'development') {
+            console.log(message, data || '');
+        }
+    }
+
+    warn(message: string, data?: any) {
+        this.log(`⚠️ ${message}`, data);
+        console.warn(message, data || '');
+    }
+
+    error(message: string, data?: any) {
+        this.log(`❌ ${message}`, data);
+        console.error(message, data || '');
     }
 
     getLogs() {

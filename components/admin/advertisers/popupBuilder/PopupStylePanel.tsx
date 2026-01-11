@@ -10,36 +10,35 @@ interface PopupStylePanelProps {
 
 const EDITOR_PALETTE = ['#000000', '#ffffff', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#8b5cf6', '#6b7280'];
 
-const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, darkMode = false }) => {
-
-    // Componente de Paleta de Cores Reutilizável
-    const ColorPicker = ({ label, value, onSelect }: { label: string, value: string, onSelect: (c: string) => void }) => (
-        <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-                <label className={`text-[9px] font-black uppercase tracking-widest ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{label}</label>
-                <div className="flex items-center gap-2">
-                    <input
-                        type="color"
-                        value={value}
-                        onChange={(e) => onSelect(e.target.value)}
-                        className="w-5 h-5 rounded-full border-none p-0 cursor-pointer overflow-hidden"
-                    />
-                    <span className={`text-[8px] font-mono uppercase ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>{value}</span>
-                </div>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-                {EDITOR_PALETTE.map(c => (
-                    <button
-                        key={c}
-                        onClick={() => onSelect(c)}
-                        className={`w-6 h-6 rounded-full border-2 transition-all ${value === c ? (darkMode ? 'border-white scale-110 shadow-sm' : 'border-gray-900 scale-110 shadow-sm') : 'border-transparent opacity-50 hover:opacity-100'}`}
-                        style={{ backgroundColor: c }}
-                        title={c}
-                    />
-                ))}
+const ColorPicker = ({ label, value, onSelect, darkMode }: { label: string, value: string, onSelect: (c: string) => void, darkMode: boolean }) => (
+    <div className="mb-4">
+        <div className="flex justify-between items-center mb-2">
+            <label className={`text-[9px] font-black uppercase tracking-widest ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{label}</label>
+            <div className="flex items-center gap-2">
+                <input
+                    type="color"
+                    value={value}
+                    onChange={(e) => onSelect(e.target.value)}
+                    className="w-5 h-5 rounded-full border-none p-0 cursor-pointer overflow-hidden"
+                />
+                <span className={`text-[8px] font-mono uppercase ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>{value}</span>
             </div>
         </div>
-    );
+        <div className="flex gap-2 flex-wrap">
+            {EDITOR_PALETTE.map(c => (
+                <button
+                    key={c}
+                    onClick={() => onSelect(c)}
+                    className={`w-6 h-6 rounded-full border-2 transition-all ${value === c ? (darkMode ? 'border-white scale-110 shadow-sm' : 'border-gray-900 scale-110 shadow-sm') : 'border-transparent opacity-50 hover:opacity-100'}`}
+                    style={{ backgroundColor: c }}
+                    title={c}
+                />
+            ))}
+        </div>
+    </div>
+);
+
+const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, darkMode = false }) => {
 
     const sectionHeaderClass = `flex items-center gap-2 border-b pb-2 mb-4 ${darkMode ? 'border-white/5' : 'border-gray-100'}`;
     const sectionTitleClass = `text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-white' : 'text-gray-900'}`;
@@ -95,7 +94,7 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, 
                     </div>
                 </div>
 
-                <ColorPicker label="Cor do Título" value={textStyle.titleColor} onSelect={c => onChange({ titleColor: c })} />
+                <ColorPicker label="Cor do Título" value={textStyle.titleColor} onSelect={c => onChange({ titleColor: c })} darkMode={darkMode} />
             </section>
 
             {/* 2. TIPOGRAFIA DO CORPO */}
@@ -133,7 +132,7 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, 
                     </div>
                 </div>
 
-                <ColorPicker label="Cor do Texto" value={textStyle.bodyColor} onSelect={c => onChange({ bodyColor: c })} />
+                <ColorPicker label="Cor do Texto" value={textStyle.bodyColor} onSelect={c => onChange({ bodyColor: c })} darkMode={darkMode} />
             </section>
 
             {/* 3. ALINHAMENTO E EFEITOS GERAIS */}
@@ -223,8 +222,8 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, 
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <ColorPicker label="Fundo Botão" value={textStyle.buttonColor || '#000000'} onSelect={c => onChange({ buttonColor: c })} />
-                    <ColorPicker label="Texto Botão" value={textStyle.buttonTextColor || '#ffffff'} onSelect={c => onChange({ buttonTextColor: c })} />
+                    <ColorPicker label="Fundo Botão" value={textStyle.buttonColor || '#000000'} onSelect={c => onChange({ buttonColor: c })} darkMode={darkMode} />
+                    <ColorPicker label="Texto Botão" value={textStyle.buttonTextColor || '#ffffff'} onSelect={c => onChange({ buttonTextColor: c })} darkMode={darkMode} />
                 </div>
             </section>
 

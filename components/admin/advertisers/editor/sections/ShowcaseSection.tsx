@@ -45,7 +45,7 @@ const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({ data, onChange, darkM
         return url;
     };
 
-    const handleInternalChange = (field: string, value: any) => {
+    const handleInternalChange = (field: string, value: unknown) => {
         onChange({
             ...data,
             internalPage: { ...internal, [field]: value }

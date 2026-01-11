@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ContentBlock } from '../../../../types';
+import { sanitize } from '../../../../utils/sanitizer';
 import { getWidgetStyles } from '../../WidgetPresets';
 import { EDITOR_WIDGETS } from '../../EditorWidgets';
 
@@ -18,7 +19,7 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({ block })
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!containerRef.current) {return;}
+        if (!containerRef.current) { return; }
 
         // 1. Identificar ID com Fallback Robusto
         let widgetId = block.settings.widgetId;
@@ -27,11 +28,11 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({ block })
             const content = block.content || '';
             const widgetDef = EDITOR_WIDGETS.find(w => {
                 // Check unique strings from default HTML
-                if (w.id === 'nota_oficial' && content.includes('COMUNICADO OFICIAL')) {return true;}
-                if (w.id === 'plantao_urgente' && content.includes('URGENTE')) {return true;}
-                if (w.id === 'destaque_citacao' && content.includes('fa-quote-left')) {return true;}
-                if (w.id === 'cartao_servico' && content.includes('fa-address-card') || content.includes('FARMÁCIA')) {return true;}
-                if (w.id === 'galeria_mini' && content.includes('grid-cols-2')) {return true;}
+                if (w.id === 'nota_oficial' && content.includes('COMUNICADO OFICIAL')) { return true; }
+                if (w.id === 'plantao_urgente' && content.includes('URGENTE')) { return true; }
+                if (w.id === 'destaque_citacao' && content.includes('fa-quote-left')) { return true; }
+                if (w.id === 'cartao_servico' && content.includes('fa-address-card') || content.includes('FARMÁCIA')) { return true; }
+                if (w.id === 'galeria_mini' && content.includes('grid-cols-2')) { return true; }
                 return content.includes(`data-key`);
             });
             if (widgetDef) {
@@ -81,6 +82,6 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({ block })
     }, [block.settings.editorialVariant, block.content, block.settings.widgetId]);
 
     return (
-        <div ref={containerRef} dangerouslySetInnerHTML={{ __html: block.content }} className="w-full" />
+        <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitize(block.content) }} className="w-full" />
     );
 };

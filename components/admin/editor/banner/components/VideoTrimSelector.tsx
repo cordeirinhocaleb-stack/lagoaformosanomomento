@@ -41,7 +41,7 @@ const VideoTrimSelector: React.FC<VideoTrimSelectorProps> = ({
 
     // Handle mouse/touch move
     const handleMove = (clientX: number) => {
-        if (!timelineRef.current || !isDragging) return;
+        if (!timelineRef.current || !isDragging) {return;}
 
         const rect = timelineRef.current.getBoundingClientRect();
         const x = clientX - rect.left;
@@ -60,7 +60,7 @@ const VideoTrimSelector: React.FC<VideoTrimSelectorProps> = ({
 
     // Mouse events
     useEffect(() => {
-        if (!isDragging) return;
+        if (!isDragging) {return;}
 
         const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX);
         const handleMouseUp = () => {

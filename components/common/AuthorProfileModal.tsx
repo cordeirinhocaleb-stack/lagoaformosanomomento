@@ -13,13 +13,13 @@ interface AuthorProfileModalProps {
     onUpdateUser?: (updatedUser: User) => void;
 }
 
-const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({ 
-    authorId, authorName, currentUser, allUsers, allNews, onClose, onNewsClick, onUpdateUser 
+const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
+    authorId, authorName, currentUser, allUsers, allNews, onClose, onNewsClick, onUpdateUser
 }) => {
     const [authorData, setAuthorData] = useState<User | null>(() => {
-        return allUsers.find(u => u.id === authorId) || 
-               (currentUser?.id === authorId ? currentUser : null) ||
-               ({ id: authorId, name: authorName, role: 'Repórter', bio: '', status: 'active', email: '' } as User);
+        return allUsers.find(u => u.id === authorId) ||
+            (currentUser?.id === authorId ? currentUser : null) ||
+            ({ id: authorId, name: authorName, role: 'Repórter', bio: '', status: 'active', email: '' } as User);
     });
 
     const [isEditing, setIsEditing] = useState(false);
@@ -53,13 +53,13 @@ const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-md animate-fadeIn">
             {/* Backdrop */}
             <div className="absolute inset-0" onClick={onClose}></div>
-            
+
             {/* Modal Card - Estilo Home (Limpo) */}
             <div className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-zinc-950 rounded-[2rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)] flex flex-col animate-slideUp overflow-visible border border-gray-100 dark:border-zinc-800">
-                
+
                 {/* BOTÃO SAIR - QUADRADO PERFEITO E SEM ARREDONDAMENTO */}
-                <button 
-                    onClick={onClose} 
+                <button
+                    onClick={onClose}
                     className="absolute top-12 -right-4 md:top-16 md:-right-6 z-[10500] bg-red-600 text-white w-16 h-16 md:w-20 md:h-20 flex flex-col items-center justify-center transition-all hover:bg-black group shadow-2xl rounded-none active:scale-95 border-none outline-none"
                     style={{ borderRadius: '0px !important' }}
                     title="Fechar"
@@ -70,12 +70,12 @@ const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
 
                 {/* CONTEÚDO */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar-clean rounded-[2rem] relative">
-                    
+
                     {/* Banner Superior */}
                     <div className="h-40 md:h-52 bg-zinc-950 relative shrink-0 overflow-visible z-10">
                         <div className="absolute inset-0 bg-gradient-to-br from-red-600/30 via-zinc-900 to-black"></div>
                         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                        
+
                         <div className="absolute top-6 left-8 flex items-center gap-3">
                             <div className="bg-red-600 text-white px-4 py-1 skew-x-[-12deg] shadow-lg">
                                 <span className="block skew-x-[12deg] text-[9px] font-black uppercase tracking-widest italic">Perfil Editorial</span>
@@ -107,10 +107,10 @@ const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
                         <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
                             <div className="flex-1 w-full">
                                 {isEditing ? (
-                                    <input 
-                                        type="text" 
-                                        value={editForm.name || authorData?.name} 
-                                        onChange={e => setEditForm({...editForm, name: e.target.value})}
+                                    <input
+                                        type="text"
+                                        value={editForm.name || authorData?.name}
+                                        onChange={e => setEditForm({ ...editForm, name: e.target.value })}
                                         className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-zinc-100 bg-transparent border-b-2 border-red-600 w-full outline-none py-2"
                                     />
                                 ) : (
@@ -127,7 +127,7 @@ const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
                             </div>
 
                             {canEdit && !isEditing && (
-                                <button 
+                                <button
                                     onClick={() => {
                                         setEditForm({ name: authorData?.name, role: authorData?.role, bio: authorData?.bio });
                                         setIsEditing(true);
@@ -142,9 +142,9 @@ const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
                         {/* Bio - Estilo Home */}
                         <div className="mb-16">
                             {isEditing ? (
-                                <textarea 
+                                <textarea
                                     value={editForm.bio || authorData?.bio}
-                                    onChange={e => setEditForm({...editForm, bio: e.target.value})}
+                                    onChange={e => setEditForm({ ...editForm, bio: e.target.value })}
                                     rows={4}
                                     className="w-full bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-6 text-base font-medium outline-none focus:border-red-600 resize-none font-serif italic text-zinc-800 dark:text-zinc-200"
                                 />
@@ -174,16 +174,16 @@ const AuthorProfileModal: React.FC<AuthorProfileModalProps> = ({
                                     </h4>
                                     <div className="h-0.5 flex-1 bg-gray-100 dark:bg-zinc-800"></div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {authorNews.length > 0 ? authorNews.map(news => (
-                                        <button 
+                                        <button
                                             key={news.id}
                                             onClick={() => { onNewsClick(news); onClose(); }}
                                             className="w-full flex flex-col bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 hover:border-red-500 hover:shadow-xl transition-all text-left overflow-hidden group"
                                         >
                                             <div className="w-full aspect-video overflow-hidden relative bg-gray-100">
-                                                <img src={news.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                                <img src={news.imageUrl || (news as any).image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
                                                 <div className="absolute top-2 left-2 bg-red-600 text-white text-[7px] font-black uppercase px-2 py-0.5 rounded shadow-sm">
                                                     {news.category}
                                                 </div>

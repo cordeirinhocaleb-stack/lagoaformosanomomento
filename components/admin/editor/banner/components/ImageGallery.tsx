@@ -48,17 +48,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         <div className="mt-8">
             <div className="flex items-center justify-between mb-6">
                 <label className="text-sm font-black text-gray-800 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center">
-                        <i className="fas fa-images text-white text-xs"></i>
+                    <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg flex items-center justify-center shadow-md shadow-amber-500/10">
+                        <i className="fas fa-film text-white text-xs"></i>
                     </div>
-                    Galeria de Imagens
+                    ROLO DE CÂMERA
                 </label>
-                <span className="text-xs font-bold text-white bg-gradient-to-r from-red-600 to-red-700 px-3 py-1.5 rounded-full shadow-lg">
-                    {bannerImages.filter(img => img).length} / {maxSlots} imagens
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-lg">
+                    {bannerImages.filter(img => img).length} / {maxSlots} assets
                 </span>
             </div>
 
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
                 {[...Array(5)].map((_, index) => {
                     const isDisabled = index >= maxSlots;
                     const hasImage = bannerImages[index];
@@ -109,7 +109,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                                                 className="hidden"
                                                 onChange={(e) => {
                                                     const file = e.target.files?.[0];
-                                                    if (file) {onImageUpload(file, index);}
+                                                    if (file) { onImageUpload(file, index); }
                                                 }}
                                             />
                                         </label>
@@ -154,16 +154,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                             ) : (
                                 <label className={`w-full h-full flex flex-col items-center justify-center cursor-pointer transition-all border-2 border-dashed rounded-2xl ${isDisabled
                                     ? 'bg-gray-100 border-gray-200'
-                                    : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:border-red-400 hover:from-red-50 hover:to-orange-50'
+                                    : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:border-amber-400 hover:from-amber-50 hover:to-yellow-50'
                                     }`}>
                                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 ${isDisabled ? 'bg-gray-200' : 'bg-white shadow-lg'
                                         }`}>
-                                        <i className={`fas fa-plus text-xl ${isDisabled ? 'text-gray-300' : 'text-red-500'}`}></i>
+                                        <i className={`fas fa-plus text-xl ${isDisabled ? 'text-gray-300' : 'text-amber-500'}`}></i>
                                     </div>
                                     <span className={`text-xs font-bold ${isDisabled ? 'text-gray-300' : 'text-gray-500'}`}>
-                                        {isDisabled ? 'Bloqueado' : 'Adicionar'}
+                                        {isDisabled ? 'Bloqueado' : 'Adicionar Take'}
                                     </span>
-                                    <span className="text-[10px] text-gray-400 mt-1">Slot {index + 1}</span>
+                                    <span className="text-[10px] text-gray-400 mt-1">CAM {index + 1}</span>
                                     {!isDisabled && (
                                         <input
                                             type="file"
@@ -171,7 +171,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                                             className="hidden"
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
-                                                if (file) {onImageUpload(file, index);}
+                                                if (file) { onImageUpload(file, index); }
                                             }}
                                         />
                                     )}

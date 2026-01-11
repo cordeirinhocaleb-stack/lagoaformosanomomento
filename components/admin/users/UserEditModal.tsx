@@ -30,7 +30,8 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((prev: Partial<User>) => ({ ...prev, [name]: value }));
+        const processedValue = name === 'name' ? value.toUpperCase() : value;
+        setFormData((prev: Partial<User>) => ({ ...prev, [name]: processedValue }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {

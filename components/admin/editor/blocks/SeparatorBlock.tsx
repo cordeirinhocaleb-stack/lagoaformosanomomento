@@ -16,25 +16,33 @@ const SeparatorBlock: React.FC<SeparatorBlockProps> = ({ block, isSelected, onSe
   const iconPosition = settings.iconPosition || 'none'; // 'none', 'left', 'center', 'right'
   const iconSize = settings.iconSize || 14;
   const opacity = settings.opacity !== undefined ? settings.opacity : 1;
-  
+
   // New props for vertical
   const orientation = settings.orientation || 'horizontal';
   const height = settings.height || 60;
 
   const IconComponent = () => (
-    <div 
-      className="flex items-center justify-center shrink-0 transition-all px-2"
+    <div
+      className="flex items-center justify-center shrink-0 transition-transform duration-700 hover:[transform:rotateY(360deg)] px-2 cursor-pointer"
       style={{ color: color, fontSize: `${iconSize}px`, opacity }}
     >
-      <i className={`fas ${iconName}`}></i>
+      {iconName === 'site_logo' ? (
+        <img
+          src="https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P"
+          alt="Logo"
+          style={{ width: `${iconSize * 1.5}px`, height: 'auto' }}
+        />
+      ) : (
+        <i className={`fas ${iconName}`}></i>
+      )}
     </div>
   );
 
   const Line = () => (
-    <div 
-      className="flex-1" 
-      style={{ 
-        height: lineStyle === 'double' ? `${thickness * 3}px` : `${thickness}px`, 
+    <div
+      className="flex-1"
+      style={{
+        height: lineStyle === 'double' ? `${thickness * 3}px` : `${thickness}px`,
         borderBottom: lineStyle !== 'double' ? `${thickness}px ${lineStyle} ${color}` : 'none',
         borderTop: lineStyle === 'double' ? `${thickness}px double ${color}` : 'none',
         opacity: opacity,
@@ -45,26 +53,46 @@ const SeparatorBlock: React.FC<SeparatorBlockProps> = ({ block, isSelected, onSe
 
   // Renderização Vertical
   if (orientation === 'vertical') {
-      return (
-        <div 
-            onClick={(e) => { e.stopPropagation(); onSelect(); }}
-            className={`py-6 cursor-pointer transition-all relative group flex justify-center ${isSelected ? 'bg-blue-50/5 ring-2 ring-blue-500/20 rounded-2xl' : 'hover:opacity-80'}`}
-        >
-            <div style={{
-                width: `${thickness}px`,
-                height: `${height}px`,
-                backgroundColor: color,
-                opacity: opacity,
-                borderRadius: '999px'
-            }}></div>
+    return (
+      <div
+        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        className={`py-6 cursor-pointer transition-all relative group flex flex-col items-center justify-center ${isSelected ? 'bg-blue-50/5 ring-2 ring-blue-500/20 rounded-2xl' : 'hover:opacity-80'}`}
+        style={{ height: `${height + 40}px` }} // Add padding to height
+      >
+        {/* Top Line */}
+        <div style={{
+          width: `${thickness}px`,
+          flex: 1,
+          backgroundColor: color,
+          opacity: opacity,
+          borderRadius: '999px',
+          minHeight: '10px'
+        }}></div>
 
-            {isSelected && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[7px] font-black uppercase px-3 py-1 rounded-full shadow-lg tracking-widest z-20 animate-fadeIn whitespace-nowrap">
-                Divisor Vertical
-                </div>
-            )}
-        </div>
-      );
+        {/* Icon (if enabled) */}
+        {iconPosition !== 'none' && (
+          <div className="py-2">
+            <IconComponent />
+          </div>
+        )}
+
+        {/* Bottom Line */}
+        <div style={{
+          width: `${thickness}px`,
+          flex: 1,
+          backgroundColor: color,
+          opacity: opacity,
+          borderRadius: '999px',
+          minHeight: '10px'
+        }}></div>
+
+        {isSelected && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[7px] font-black uppercase px-3 py-1 rounded-full shadow-lg tracking-widest z-20 animate-fadeIn whitespace-nowrap">
+            Divisor Vertical
+          </div>
+        )}
+      </div>
+    );
   }
 
   // Renderização Horizontal Padrão
@@ -99,14 +127,14 @@ const SeparatorBlock: React.FC<SeparatorBlockProps> = ({ block, isSelected, onSe
   };
 
   return (
-    <div 
+    <div
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
       className={`py-10 cursor-pointer transition-all relative group ${isSelected ? 'bg-blue-50/5 ring-2 ring-blue-500/20 rounded-2xl' : 'hover:opacity-80'}`}
     >
       <div className="max-w-[90%] mx-auto flex items-center justify-center">
         {renderContent()}
       </div>
-      
+
       {isSelected && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[7px] font-black uppercase px-3 py-1 rounded-full shadow-lg tracking-widest z-20 animate-fadeIn whitespace-nowrap">
           Configuração do Divisor

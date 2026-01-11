@@ -68,7 +68,7 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
             if (animationRef.current) {cancelAnimationFrame(animationRef.current);}
             return;
         }
-        let startTimestamp = performance.now();
+        const startTimestamp = performance.now();
         const animate = (time: number) => {
             if (!containerRef.current) {return;}
             const elapsed = time - startTimestamp;

@@ -1,5 +1,5 @@
 MÓDULO A: REGRAS GLOBAIS DE ESTRUTURA
-
+Atualize o central de atualizações o modal
 [RULE: MODULARIZAÇÃO_MANDATÓRIA]
 
     Conceito de Bloco: "Bloco" = "Container". Toda a lógica deve ser encapsulada em containers funcionais.

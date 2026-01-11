@@ -1,10 +1,10 @@
 import React from 'react';
-import { UserProfile } from '../../../types';
+import { User, UserRole } from '@/types';
 
 interface UserListTableProps {
-    users: UserProfile[];
+    users: User[];
     loading: boolean;
-    onEdit: (user: UserProfile) => void;
+    onEdit: (user: User) => void;
     onDelete: (userId: string) => void;
     currentUserLevel: string;
 }

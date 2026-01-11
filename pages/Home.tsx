@@ -108,7 +108,7 @@ const Home: React.FC<HomeProps> = ({
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString(),
                         status: 'published',
-                        imageUrl: item.imageUrl,
+                        imageUrl: item.imageUrl || item.image_url,
                         bannerMediaType: 'image',
                         mediaType: 'image',
                         isBreaking: false,
@@ -268,18 +268,20 @@ const Home: React.FC<HomeProps> = ({
 
             {/* 3. Menu de Categorias */}
             <div ref={newsGridRef} className="w-full relative z-10">
-                <CategoryMenu
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={handleCategoryClick}
-                    onAdminClick={onAdminClick}
-                    user={user}
-                    selectedRegion={selectedRegion}
-                    onSelectRegion={handleRegionClick}
-                />
+                <div className="max-w-7xl mx-auto px-4">
+                    <CategoryMenu
+                        selectedCategory={selectedCategory}
+                        onSelectCategory={handleCategoryClick}
+                        onAdminClick={onAdminClick}
+                        user={user}
+                        selectedRegion={selectedRegion}
+                        onSelectRegion={handleRegionClick}
+                    />
+                </div>
             </div>
 
             {/* 4. Grid Principal */}
-            <div className="w-full relative z-20 mt-8 md:mt-14">
+            <div className="w-full relative z-20 mt-8 md:mt-14 max-w-7xl mx-auto px-4">
                 <LazyBlock threshold={0.1} minHeight="800px">
                     <MainNewsGrid
                         news={paginatedNews} // Usa a lista paginada (8, 12 ou 18)
@@ -289,7 +291,7 @@ const Home: React.FC<HomeProps> = ({
 
                     {/* PAGINATION CONTROLS */}
                     {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 mt-12 mb-8 animate-fadeIn px-4">
+                        <div className="flex justify-center items-center gap-2 mt-12 mb-8 animate-fadeIn">
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
@@ -336,11 +338,13 @@ const Home: React.FC<HomeProps> = ({
 
             {/* 5. Giro Rápido */}
             <LazyBlock threshold={0.1} minHeight="600px">
-                <WorldNewsGrid externalCategories={externalCategories} />
+                <div className="max-w-7xl mx-auto px-4">
+                    <WorldNewsGrid externalCategories={externalCategories} />
+                </div>
             </LazyBlock>
 
             {/* 6. Pão Diário */}
-            <div className="mt-8 md:mt-16">
+            <div className="mt-8 md:mt-16 max-w-7xl mx-auto px-4">
                 <DailyBread />
             </div>
 

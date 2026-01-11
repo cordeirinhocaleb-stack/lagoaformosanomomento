@@ -1,0 +1,8 @@
+node_modules/**
+dist/**
+build/**
+android/**
+public/assets/**
+assets/**
+*.min.js
+linter_report*.txt

@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - components/news/DailyBread.tsx is the correct file

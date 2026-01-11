@@ -1,12 +1,10 @@
-import { Preferences } from '@capacitor/preferences';
-import { Capacitor } from '@capacitor/core';
 import { NewsItem } from '../types';
 
 /**
  * Serviço para gerenciar rascunhos offline
- * Versão: 1.101
- * Última Atualização: 04/01/2026
- * Changelog: Adicionado suporte cross-platform com fallback para localStorage
+ * Versão: 1.102 (Web Only)
+ * Última Atualização: 10/01/2026
+ * Changelog: Removido suporte ao Capacitor, agora usa exclusivamente localStorage
  */
 
 interface DraftPost {
@@ -21,32 +19,19 @@ interface DraftPost {
 }
 
 /**
- * Adaptador de armazenamento híbrido
- * Usa Capacitor Preferences em apps nativos e localStorage na web
+ * Adaptador de armazenamento Web
+ * Usa localStorage
  */
 class StorageAdapter {
-    private static isNative = Capacitor.isNativePlatform();
-
     /**
      * Armazena um valor
      */
     static async set(key: string, value: string): Promise<void> {
         try {
-            if (this.isNative) {
-                await Preferences.set({ key, value });
-            } else {
-                // Fallback para localStorage na web
-                localStorage.setItem(key, value);
-            }
+            localStorage.setItem(key, value);
         } catch (error) {
             console.error(`[StorageAdapter] Erro ao salvar ${key}:`, error);
-            // Fallback de emergência para localStorage
-            try {
-                localStorage.setItem(key, value);
-            } catch (fallbackError) {
-                console.error('[StorageAdapter] Fallback também falhou:', fallbackError);
-                throw new Error('Não foi possível salvar os dados');
-            }
+            throw new Error('Não foi possível salvar os dados');
         }
     }
 
@@ -55,22 +40,10 @@ class StorageAdapter {
      */
     static async get(key: string): Promise<string | null> {
         try {
-            if (this.isNative) {
-                const { value } = await Preferences.get({ key });
-                return value;
-            } else {
-                // Fallback para localStorage na web
-                return localStorage.getItem(key);
-            }
+            return localStorage.getItem(key);
         } catch (error) {
             console.error(`[StorageAdapter] Erro ao ler ${key}:`, error);
-            // Fallback de emergência para localStorage
-            try {
-                return localStorage.getItem(key);
-            } catch (fallbackError) {
-                console.error('[StorageAdapter] Fallback também falhou:', fallbackError);
-                return null;
-            }
+            return null;
         }
     }
 
@@ -79,19 +52,9 @@ class StorageAdapter {
      */
     static async remove(key: string): Promise<void> {
         try {
-            if (this.isNative) {
-                await Preferences.remove({ key });
-            } else {
-                localStorage.removeItem(key);
-            }
+            localStorage.removeItem(key);
         } catch (error) {
             console.error(`[StorageAdapter] Erro ao remover ${key}:`, error);
-            // Fallback de emergência
-            try {
-                localStorage.removeItem(key);
-            } catch (fallbackError) {
-                console.error('[StorageAdapter] Fallback também falhou:', fallbackError);
-            }
         }
     }
 }
@@ -221,7 +184,7 @@ export class OfflineService {
      * Verifica se está rodando em plataforma nativa
      */
     static isNativePlatform(): boolean {
-        return Capacitor.isNativePlatform();
+        return false;
     }
 
     /**
@@ -229,8 +192,8 @@ export class OfflineService {
      */
     static getPlatformInfo(): { platform: string; isNative: boolean } {
         return {
-            platform: Capacitor.getPlatform(),
-            isNative: Capacitor.isNativePlatform()
+            platform: 'web',
+            isNative: false
         };
     }
 }

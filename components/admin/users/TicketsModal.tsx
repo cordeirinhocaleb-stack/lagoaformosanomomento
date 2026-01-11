@@ -84,11 +84,9 @@ const TicketsModal: React.FC<TicketsModalProps> = ({ currentUser, onClose, onOpe
 
     const updateStatus = async (status: 'open' | 'in_progress' | 'resolved') => {
         if (!selectedTicket) { return; }
-        const success = await updateTicketStatus(selectedTicket.id, status);
-        if (success) {
-            setSelectedTicket({ ...selectedTicket, status });
-            setTickets(tickets.map(t => t.id === selectedTicket.id ? { ...t, status } : t));
-        }
+        await updateTicketStatus(selectedTicket.id, status);
+        setSelectedTicket({ ...selectedTicket, status });
+        setTickets(tickets.map(t => t.id === selectedTicket.id ? { ...t, status } : t));
     };
 
     return createPortal(

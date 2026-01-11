@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - components/ads/FullWidthPromo.tsx is the correct file

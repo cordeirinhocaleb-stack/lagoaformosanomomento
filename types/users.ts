@@ -19,6 +19,7 @@ export interface User {
   role: UserRole;
   status: string;
   avatar?: string;
+  avatar_url?: string; // Alias para compatibilidade com DB
   password?: string;
   bio?: string;
   isVerified?: boolean;
@@ -75,6 +76,10 @@ export interface User {
     maxUploadSize?: number; // em MB
     canPostUrgent?: boolean;
   };
+
+  // Consentimento e Termos de Uso
+  termsAccepted?: boolean;
+  termsAcceptedAt?: string;
 }
 
 export interface UserSession {

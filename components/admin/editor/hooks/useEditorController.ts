@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { User, NewsItem, ContentBlock, SystemSettings, SocialDistribution, BannerLayout, BannerTransition } from '../../../../types';
+import { User, NewsItem, ContentBlock, SystemSettings, SocialDistribution, BannerLayout, BannerTransition, YoutubeMetadata, BannerEffect } from '../../../../types';
 import { storeLocalFile, getLocalFile } from '../../../../services/storage/localStorageService';
 import { useNewsPublication } from './useNewsPublication';
 import { ToastType } from '../../../common/Toast';
@@ -43,21 +43,23 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
     const [bannerVideoSource, setBannerVideoSource] = useState<'internal' | 'youtube' | null>(initialData?.bannerVideoSource || null);
     const [bannerYoutubeVideoId, setBannerYoutubeVideoId] = useState(initialData?.bannerYoutubeVideoId || '');
     const [bannerYoutubeStatus, setBannerYoutubeStatus] = useState<'uploading' | 'processing' | 'ready' | 'failed'>(initialData?.bannerYoutubeStatus || 'uploading');
-    const [bannerYoutubeMetadata, setBannerYoutubeMetadata] = useState<any>(initialData?.bannerYoutubeMetadata || {});
+    const [bannerYoutubeMetadata, setBannerYoutubeMetadata] = useState<YoutubeMetadata>(initialData?.bannerYoutubeMetadata || {
+        title: '', description: '', tags: [], privacy: 'public'
+    });
     const [bannerSmartPlayback, setBannerSmartPlayback] = useState(initialData?.bannerSmartPlayback || false);
 
     // Effects
-    const [bannerEffects, setBannerEffects] = useState<any>(() => {
-        if (initialData?.bannerEffects) return initialData.bannerEffects;
+    const [bannerEffects, setBannerEffects] = useState<BannerEffect[] | BannerEffect>(() => {
+        if (initialData?.bannerEffects) { return initialData.bannerEffects; }
         const legacyEffects = initialData?.bannerVideoSettings?.effects;
-        if (legacyEffects) return legacyEffects;
+        if (legacyEffects) { return legacyEffects; }
         return [{ brightness: 1, contrast: 1, saturation: 1, blur: 0, sepia: 0, opacity: 1 }];
     });
 
     // Editor Content
     const [blocks, setBlocks] = useState<ContentBlock[]>(() => {
-        if (initialData?.blocks && initialData.blocks.length > 0) return initialData.blocks;
-        else if (initialData?.content) return [{ id: 'legacy_content', type: 'smart_block', content: initialData.content, settings: { width: 'full' } }];
+        if (initialData?.blocks && initialData.blocks.length > 0) { return initialData.blocks; }
+        else if (initialData?.content) { return [{ id: 'legacy_content', type: 'smart_block', content: initialData.content, settings: { width: 'full' } }]; }
         return [{ id: 'b1', type: 'paragraph', content: '', settings: { alignment: 'left', style: 'serif', thickness: '18', width: 'full' } }];
     });
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
         const loadLocalPreviews = async () => {
             const allMedia = [...bannerImages, mainImageUrl, bannerVideoUrl].filter(Boolean) as string[];
             const localIds = allMedia.filter(id => id.startsWith('local_') && !localPreviews[id]);
-            if (localIds.length === 0) return;
+            if (localIds.length === 0) { return; }
             const newPreviews = { ...localPreviews };
             let hasUpdates = false;
             await Promise.all(localIds.map(async (id) => {
@@ -99,20 +101,20 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
                     console.error("Falha ao carregar preview local", id);
                 }
             }));
-            if (hasUpdates) setLocalPreviews(newPreviews);
+            if (hasUpdates) { setLocalPreviews(newPreviews); }
         };
         loadLocalPreviews();
     }, [bannerImages, mainImageUrl, bannerVideoUrl, localPreviews]);
 
     const resolveMedia = useCallback((url: string | undefined): string => {
-        if (!url) return '';
-        if (url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('http')) return url;
-        if (url.startsWith('local_')) return localPreviews[url] || '';
+        if (!url) { return ''; }
+        if (url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('http')) { return url; }
+        if (url.startsWith('local_')) { return localPreviews[url] || ''; }
         return url;
     }, [localPreviews]);
 
     // Block Handlers
-    const handleAddBlock = (type: ContentBlock['type'], content?: any, settings?: any) => {
+    const handleAddBlock = (type: ContentBlock['type'], content?: unknown, settings?: Record<string, unknown>) => {
         const id = Math.random().toString(36).substr(2, 9);
         const newBlock: ContentBlock = {
             id, type, content: content !== undefined ? content : '',
@@ -134,7 +136,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
 
     const handleDuplicateBlock = useCallback((id: string) => {
         const blockToDuplicate = blocks.find(b => b.id === id);
-        if (!blockToDuplicate) return;
+        if (!blockToDuplicate) { return; }
         const newId = Math.random().toString(36).substr(2, 9);
         const duplicatedBlock: ContentBlock = { ...blockToDuplicate, id: newId };
         const index = blocks.findIndex(b => b.id === id);
@@ -145,12 +147,12 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
     // Data Building
     const buildNewsItem = (status: 'draft' | 'published'): NewsItem => {
         const simpleContent = status === 'published' ? (blocks || []).map(b => {
-            if (b.type === 'paragraph') return `<p>${b.content}</p>`;
-            if (b.type === 'heading') return `<h2>${b.content}</h2>`;
-            if (b.type === 'image') return `<img src="${b.content}" alt="Imagem" style="width:100%;" />`;
-            if (b.type === 'quote') return `<blockquote>${b.content}</blockquote>`;
-            if (b.type === 'list') return b.content;
-            if (b.type === 'smart_block') return b.content;
+            if (b.type === 'paragraph') { return `<p>${b.content}</p>`; }
+            if (b.type === 'heading') { return `<h2>${b.content}</h2>`; }
+            if (b.type === 'image') { return `<img src="${b.content}" alt="Imagem" style="width:100%;" />`; }
+            if (b.type === 'quote') { return `<blockquote>${b.content}</blockquote>`; }
+            if (b.type === 'list') { return b.content; }
+            if (b.type === 'smart_block') { return b.content; }
             return '';
         }).join('') : '';
 
@@ -180,7 +182,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             videoStart: videoStart ? Math.round(videoStart) : 0,
             videoEnd: videoEnd ? Math.round(videoEnd) : 0,
             bannerYoutubeMetadata,
-            bannerEffects,
+            bannerEffects: Array.isArray(bannerEffects) ? bannerEffects : (bannerEffects ? [bannerEffects] as BannerEffect[] : undefined),
             bannerVideoSettings: {
                 muted: true, loop: true, autoplay: true,
                 effects: Array.isArray(bannerEffects) ? bannerEffects[0] : bannerEffects
@@ -209,9 +211,10 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             setBlocks(result.blocks || []);
             setBannerVideoUrl(result.bannerVideoUrl || '');
             setToast({ message: "Rascunho salvo com sucesso!", type: 'success' });
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error('Error saving draft:', e);
-            setToast({ message: `Erro ao salvar rascunho: ${e.message || 'Erro desconhecido'}`, type: 'error' });
+            const message = e instanceof Error ? e.message : String(e);
+            setToast({ message: `Erro ao salvar rascunho: ${message}`, type: 'error' });
         }
     };
 
@@ -223,11 +226,12 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             const result = await publishNews(newsData, isActuallyUpdate, forceSocial);
             setBlocks(result.blocks || []);
             setBannerImages(result.bannerImages || []);
-            if (result.imageUrl) setMainImageUrl(result.imageUrl);
+            if (result.imageUrl) { setMainImageUrl(result.imageUrl); }
             setToast({ message: isActuallyUpdate ? "Edição salva com sucesso!" : "Notícia publicada com sucesso!", type: 'success' });
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error('Error publishing:', e);
-            setToast({ message: `Erro ao publicar: ${e.message || 'Erro desconhecido'}`, type: 'error' });
+            const message = e instanceof Error ? e.message : String(e);
+            setToast({ message: `Erro ao publicar: ${message}`, type: 'error' });
         }
     };
 

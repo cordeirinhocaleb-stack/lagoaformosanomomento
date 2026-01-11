@@ -12,7 +12,6 @@ const envArg = args.find(arg => arg.startsWith('--env='));
 const env = envArg ? envArg.split('=')[1] : 'prod';
 const envFile = env === 'dev' ? '.env.dev' : '.env';
 
-console.log(`🌍 Carregando configurações de: ${envFile}`);
 dotenv.config({ path: path.resolve(__dirname, envFile) });
 
 const ftpDeploy = new FtpDeploy();
@@ -27,13 +26,14 @@ const config = {
     remoteRoot: process.env.FTP_REMOTE_ROOT || '/public_html/',
     include: ['*', '**/*'], // Enviar tudo
     exclude: ['dist/**/*.map', 'node_modules/**', '.git/**'], // Excluir arquivos desnecessários
-    deleteRemote: true, // DELETAR arquivos remotos antes de enviar (deploy limpo)
+    deleteRemote: false, // SAFE MODE RESTORED
     forcePasv: true, // Modo Passivo (Geralmente necessário para HostGator)
     sftp: false // HostGator padrão usa FTP, mude para true se tiver SFTP ativado
 };
 
 console.log('🚀 Iniciando deploy para HostGator...');
 console.log(`📡 Host: ${config.host}`);
+console.log(`📂 Remote Root: ${config.remoteRoot}`);
 import fs from 'fs';
 
 ftpDeploy

@@ -1,12 +1,12 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { User, NewsItem, SystemSettings } from '../../types';
+import { User, NewsItem, SystemSettings, ContentBlock } from '../../types';
 import Toast, { ToastType } from '../common/Toast';
 
 import EditorSidebar from './editor/layout/EditorSidebar';
-import InspectorSidebar from './InspectorSidebar';
-import { storeLocalFile } from '../../services/storage/localStorageService';
+import InspectorSidebar from './editor/layout/InspectorSidebar';
+import { storeLocalFile } from '../services/storage/localStorageService';
 
 // Custom Hooks
 import { useEditorController } from './editor/hooks/useEditorController';
@@ -51,24 +51,24 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
 
     // DEBUG GOOGLE CONFIG
     useEffect(() => {
-        console.log('📡 [GOOGLE AUTH DEBUG] EditorTab Client ID:', googleClientId ? `${googleClientId.substring(0, 10)}...` : 'Vazio/Inexistente');
+        console.log('📡 [GOOGLE AUTH DEBUG] EditorTab Client ID:', googleClientId ? `${googleClientId.substring(0, 10)}...` : 'Vazio/Inexistente'); // eslint-disable-line no-console
     }, [googleClientId]);
 
     // Scroll Handler
     const handleScroll = useCallback(() => {
-        if (!scrollContainerRef.current) return;
+        if (!scrollContainerRef.current) { return; }
         const currentScrollY = scrollContainerRef.current.scrollTop;
         if (currentScrollY > 50) {
-            if (currentScrollY > lastScrollY.current) { if (isHeaderVisible) setIsHeaderVisible(false); }
-            else { if (!isHeaderVisible) setIsHeaderVisible(true); }
+            if (currentScrollY > lastScrollY.current) { if (isHeaderVisible) { setIsHeaderVisible(false); } }
+            else { if (!isHeaderVisible) { setIsHeaderVisible(true); } }
         } else { setIsHeaderVisible(true); }
         lastScrollY.current = currentScrollY;
     }, [isHeaderVisible]);
 
-    const handleAddBlockWrapper = (type: any, content?: any, settings?: any) => {
-        const id = ctrl.handleAddBlock(type, content, settings);
-        if (isMobile) setShowLibraryMobile(false);
-        else setIsRightSidebarOpen(true);
+    const handleAddBlockWrapper = (type: ContentBlock['type'], content?: unknown, settings?: any) => {
+        ctrl.handleAddBlock(type, content, settings);
+        if (isMobile) { setShowLibraryMobile(false); }
+        else { setIsRightSidebarOpen(true); }
     };
 
     return (
@@ -145,7 +145,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                                     bannerYoutubeStatus={ctrl.bannerYoutubeStatus} setBannerYoutubeStatus={ctrl.setBannerYoutubeStatus}
                                     bannerYoutubeMetadata={ctrl.bannerYoutubeMetadata} setBannerYoutubeMetadata={ctrl.setBannerYoutubeMetadata}
                                     bannerSmartPlayback={ctrl.bannerSmartPlayback} setBannerSmartPlayback={ctrl.setBannerSmartPlayback}
-                                    bannerEffects={ctrl.bannerEffects} setBannerEffects={ctrl.setBannerEffects}
+                                    bannerEffects={Array.isArray(ctrl.bannerEffects) ? ctrl.bannerEffects : (ctrl.bannerEffects ? [ctrl.bannerEffects] : [])} setBannerEffects={ctrl.setBannerEffects}
                                     videoStart={ctrl.videoStart} setVideoStart={ctrl.setVideoStart}
                                     videoEnd={ctrl.videoEnd} setVideoEnd={ctrl.setVideoEnd}
                                     localPreviews={ctrl.localPreviews}
@@ -171,7 +171,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                                     <EditorCanvas
                                         blocks={ctrl.blocks} selectedBlockId={ctrl.selectedBlockId} isMobile={isMobile}
                                         uploadingSlot={ctrl.uploadingSlot} showMobileFormatting={showMobileFormatting}
-                                        onBlockSelect={(id) => { ctrl.setSelectedBlockId(id); if (isMobile) setShowLibraryMobile(false); }}
+                                        onBlockSelect={(id) => { ctrl.setSelectedBlockId(id); if (isMobile) { setShowLibraryMobile(false); } }}
                                         onDeleteBlock={ctrl.handleDeleteBlock} onUpdateBlock={ctrl.handleUpdateBlock}
                                         onShowInspectorMobile={() => { setShowInspectorMobile(true); setShowMobileFormatting(false); }}
                                         setShowMobileFormatting={setShowMobileFormatting} localFileHandler={storeLocalFile}

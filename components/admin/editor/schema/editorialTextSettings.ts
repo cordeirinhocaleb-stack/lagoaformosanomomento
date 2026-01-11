@@ -4,7 +4,11 @@ import { ContentBlock } from '@/types';
 /**
  * Definição dos estilos editoriais suportados pelo TextBlock
  */
-export type EditorialStyle = 'paragraph' | 'heading' | 'quote' | 'list';
+export type EditorialStyle =
+  | 'paragraph' | 'heading' | 'quote' | 'list'
+  | 'newspaper_standard' | 'breaking_alert' | 'impact_quote' | 'hero_headline'
+  | 'police_siren' | 'tech_neon' | 'executive_summary' | 'vintage_letter'
+  | 'footnote' | 'checklist_pro' | 'quote_modern_accent' | 'quote_elegant_editorial' | 'quote_breaking_card';
 
 /**
  * Configurações globais de layout e tipografia comuns a todos os estilos de texto
@@ -84,10 +88,10 @@ export interface ListSettings {
 /**
  * União de configurações por estilo
  */
-export type PerStyleSettings = 
-  | ParagraphSettings 
-  | HeadingSettings 
-  | QuoteSettings 
+export type PerStyleSettings =
+  | ParagraphSettings
+  | HeadingSettings
+  | QuoteSettings
   | ListSettings
   | ImpactQuoteSettings;
 
@@ -152,12 +156,12 @@ export const getDefaultSettings = (style: EditorialStyle): EditorialTextSettings
     default:
       return {
         global: globalDefaults,
-        perStyle: { 
-            type: 'paragraph', 
-            dropCap: false, 
-            lineHeight: '1.8', 
-            indent: false,
-            newspaper_standard: newspaperDefaults 
+        perStyle: {
+          type: 'paragraph',
+          dropCap: false,
+          lineHeight: '1.8',
+          indent: false,
+          newspaper_standard: newspaperDefaults
         } as any,
       };
   }

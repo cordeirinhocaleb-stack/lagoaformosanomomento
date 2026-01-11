@@ -8,7 +8,7 @@ interface JobsBoardProps {
     darkMode?: boolean;
 }
 
-const JobsBoard: React.FC<JobsBoardProps> = ({ isAdmin, currentUser, darkMode = false }) => {
+const JobsBoard: React.FC<JobsBoardProps> = ({ darkMode = false }) => {
     return (
         <div className={`p-6 rounded-2xl transition-colors ${darkMode ? 'bg-[#0F0F0F] text-white border border-white/5' : 'bg-white text-gray-900 shadow-sm'}`}>
             <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Vagas de Emprego</h2>

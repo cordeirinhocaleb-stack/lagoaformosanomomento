@@ -47,9 +47,9 @@ export const useNewsPublication = ({ user, onSave, systemSettings, setToast }: U
 
             return processedNews; // Return for local state updates if needed
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Erro ao salvar:", error);
-            const errorMsg = error?.message || "";
+            const errorMsg = error instanceof Error ? error.message : String(error);
             if (errorMsg.includes('upload') || errorMsg.includes('Cloudinary') || errorMsg.includes('conexão')) {
                 setProgressMessage("Algo aconteceu e não foi possível fazer upload, tente novamente.");
             } else {
@@ -85,9 +85,9 @@ export const useNewsPublication = ({ user, onSave, systemSettings, setToast }: U
 
             return processedNews;
 
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Erro na publicação:", e);
-            const errorMsg = e?.message || "";
+            const errorMsg = e instanceof Error ? e.message : String(e);
             if (errorMsg.includes('upload') || errorMsg.includes('Cloudinary') || errorMsg.includes('conexão')) {
                 setProgressMessage("Algo aconteceu e não foi possível fazer upload, tente novamente.");
             } else {

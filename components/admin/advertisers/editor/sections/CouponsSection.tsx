@@ -22,9 +22,9 @@ const CouponsSection: React.FC<CouponsSectionProps> = ({ data, onChange, darkMod
         onChange({ ...data, coupons: [newCoupon, ...coupons] });
     };
 
-    const handleUpdateCoupon = (id: string, field: keyof Coupon, value: any) => {
-        const updated = coupons.map(c => c.id === id ? { ...c, [field]: value } : c);
-        onChange({ ...data, coupons: updated });
+    const handleUpdateCoupon = (id: string, field: keyof Coupon, value: unknown) => {
+        const newCoupons = (data.coupons || []).map(c => c.id === id ? { ...c, [field]: value } : c);
+        onChange({ ...data, coupons: newCoupons });
     };
 
     const handleRemoveCoupon = (id: string) => {

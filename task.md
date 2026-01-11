@@ -1,5 +1,10 @@
 # Tarefas
 
+- [x] Implementar Análise Estática Profunda (SonarJS + Security) - Build 01
+- [x] Fix: Bug de lógica no `NewsCard.tsx` (Teleprompter)
+- [x] Maintenance: Limpeza de metadados órfãos do Capacitor (`.project`)
+- [x] Project Reset: Versão reiniciada para 0.0.3 (Build 01)
+
 - [x] Sincronizar com GitHub
 - [x] Refatorar `AuthModalsContainer.tsx` (Transacionalidade Google Signup)
 - [x] Implementar Self-Healing no `Login.tsx` (Recriar perfil ausente)

@@ -24,6 +24,7 @@ import ConstructionPage from './pages/ConstructionPage';
 import NewsDetail from './pages/news-detail/NewsDetailPage';
 import AdvertiserPage from './pages/Advertiser';
 import Jobs from './pages/Jobs';
+import ErrorPage from './pages/ErrorPage';
 
 // Services
 import { createNews, updateNews, deleteNews, updateUser, upsertAdvertiser } from './services/supabaseService';
@@ -41,8 +42,28 @@ const App: React.FC = () => {
         if (storedVersion !== currentVersion) {
             console.warn(`[System] Version Override: ${storedVersion || 'Unknown'} -> ${currentVersion}`);
 
-            // 1. Force Clear Storage (Logout & Clean State)
-            localStorage.clear();
+            // 1. SELECTIVE Clear Storage (Preserve critical user agreements)
+            const keysToPreserve = [
+                'app_version', // Will be set below
+                'lfnm_theme',
+                'lfnm_last_version'
+            ];
+
+            // Add all terms_accepted keys to preserve list
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key?.startsWith('lfnm_terms_accepted_')) {
+                    keysToPreserve.push(key);
+                }
+            }
+
+            // Remove what's not in preserve list
+            Object.keys(localStorage).forEach(key => {
+                if (!keysToPreserve.includes(key)) {
+                    localStorage.removeItem(key);
+                }
+            });
+
             sessionStorage.clear();
 
             // 2. Set New Version
@@ -78,7 +99,7 @@ const App: React.FC = () => {
                             <PricingModal
                                 config={ctrl.adConfig} user={ctrl.user}
                                 onClose={() => modals.setShowPricingModal(false)}
-                                onSelectPlan={(planId) => {
+                                onSelectPlan={(_planId) => {
                                     modals.setShowPricingModal(false);
                                     if (!ctrl.user) { modals.setShowLoginModal(true); }
                                     else if (ctrl.user.role !== 'Leitor') { ctrl.setView('admin'); ctrl.updateHash('/admin'); }
@@ -185,6 +206,15 @@ const App: React.FC = () => {
                                             )}
                                             {ctrl.view === 'jobs' && <Jobs jobs={ctrl.systemJobs} onBack={() => ctrl.setView('home')} isEnabled={ctrl.systemSettings.jobsModuleEnabled} />}
                                             {ctrl.view === 'advertiser' && ctrl.selectedAdvertiser && <AdvertiserPage advertiser={ctrl.selectedAdvertiser} onBack={() => ctrl.setView('home')} />}
+                                            {ctrl.view === 'error' && (
+                                                <ErrorPage
+                                                    error={ctrl.fatalError?.error}
+                                                    stack={ctrl.fatalError?.stack}
+                                                    user={ctrl.user}
+                                                    systemSettings={ctrl.systemSettings}
+                                                    onBack={() => { ctrl.setFatalError(null); ctrl.setView('home'); ctrl.updateHash('/'); window.location.reload(); }}
+                                                />
+                                            )}
                                         </main>
                                         <Footer settings={ctrl.systemSettings} />
                                     </div>
@@ -196,6 +226,7 @@ const App: React.FC = () => {
                                         onUpdateUser={ctrl.handleProfileUpdate}
                                         onLogout={ctrl.handleLogout}
                                         adConfig={ctrl.adConfig}
+                                        onOpenTerms={modals.openTermsModal}
                                     />
                                 )}
                             </div>
@@ -212,7 +243,7 @@ const App: React.FC = () => {
                             updateHash={ctrl.updateHash}
                             handleBackToHome={() => ctrl.setView('home')}
                             triggerErrorModal={ctrl.triggerErrorModal}
-                            onCheckEmail={(email: string) => Promise.resolve(true)}
+                            onCheckEmail={(_email: string) => Promise.resolve(true)}
                         />
                     </>
                 )}

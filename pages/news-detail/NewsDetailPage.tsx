@@ -148,6 +148,13 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                 </div>
             )}
 
+            <ArticleHero
+                news={news}
+                readTime={readTime}
+                onBack={onBack}
+                onAuthorClick={handleAuthorProfile}
+            />
+
             <div ref={articleRef} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6 md:pt-10">
                     <aside className={`lg:col-span-2 hidden lg:block transition-all duration-500 ${readingMode ? 'opacity-0' : 'opacity-100'}`}>
@@ -161,12 +168,6 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                     </aside>
 
                     <main className={`${readingMode ? 'lg:col-span-12 max-w-3xl mx-auto' : 'lg:col-span-7'} space-y-6`}>
-                        <ArticleHero
-                            news={news}
-                            readTime={readTime}
-                            onBack={onBack}
-                            onAuthorClick={handleAuthorProfile}
-                        />
 
                         {!readingMode && (
                             <div className="flex flex-col sm:flex-row items-center justify-between py-6 gap-4 border-y border-gray-100 dark:border-zinc-900 bg-gray-50/30 dark:bg-zinc-900/10 px-4 rounded-2xl">

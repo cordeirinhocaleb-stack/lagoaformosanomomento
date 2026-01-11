@@ -1,10 +1,12 @@
 import React from 'react';
+import { translateAuthError } from '../../utils/authErrors';
 import Login from '../Login';
 import RoleSelectionModal from '../RoleSelectionModal';
+import TermsOfServiceModal from './TermsOfServiceModal';
 import AccessDeniedModal from './AccessDeniedModal';
 import SuccessModal from './SuccessModal';
 import { User, SystemSettings } from '../../types';
-import { getSupabase, createUser } from '../../services/supabaseService';
+import { getSupabase, createUser, updateUser } from '../../services/supabaseService';
 import { UseModalsReturn } from '../../hooks/useModals';
 
 /**
@@ -44,6 +46,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
         showRoleSelector,
         showAccessDenied,
         showSuccessModal,
+        showTermsModal,
         pendingGoogleUser,
         pendingManualEmail,
         accessDeniedConfig,
@@ -56,6 +59,58 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
         setPendingManualEmail,
         setSuccessMessage,
     } = modals;
+
+    const [notice, setNotice] = React.useState<{ message: string; type: 'error' | 'warning' | 'info' } | null>(null);
+
+    // Check for Terms Acceptance on Login/Load
+    React.useEffect(() => {
+        if (user) {
+            // Se não aceitou E não está vendo o modal, abre.
+            if (!user.termsAccepted && !showTermsModal) {
+                const timer = setTimeout(() => {
+                    modals.openTermsModal();
+                }, 1500); // Delay visual suave após login
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [user, showTermsModal, modals]); // Check when user changes
+
+    // Persistência do email de cadastro entre recarregamentos
+    React.useEffect(() => {
+        const savedEmail = localStorage.getItem('lfnm_pending_email');
+        if (savedEmail && !pendingManualEmail) {
+            setPendingManualEmail(savedEmail);
+        }
+
+        const savedGoogleUser = localStorage.getItem('lfnm_pending_google_user');
+        if (savedGoogleUser && !pendingGoogleUser) {
+            try {
+                setPendingGoogleUser(JSON.parse(savedGoogleUser));
+            } catch (e) { }
+        }
+
+        // Auto-retomada de cadastro pendente
+        const registrationBackup = localStorage.getItem('lfnm_registration_backup');
+        if (registrationBackup && !user && !showRoleSelector) {
+            modals.setShowRoleSelector(true);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (pendingManualEmail) {
+            localStorage.setItem('lfnm_pending_email', pendingManualEmail);
+        } else {
+            localStorage.removeItem('lfnm_pending_email');
+        }
+    }, [pendingManualEmail]);
+
+    React.useEffect(() => {
+        if (pendingGoogleUser) {
+            localStorage.setItem('lfnm_pending_google_user', JSON.stringify(pendingGoogleUser));
+        } else {
+            localStorage.removeItem('lfnm_pending_google_user');
+        }
+    }, [pendingGoogleUser, setPendingGoogleUser]);
 
     /**
      * Handler para seleção de role no cadastro
@@ -98,7 +153,8 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     email: pendingManualEmail!,
                     password: data.password,
                     options: {
-                        data: newUserMetadata // Trigger 'handle_new_auth_user' vai pegar isso e criar o user na tabela public.users
+                        data: newUserMetadata, // Trigger 'handle_new_auth_user' vai pegar isso e criar o user na tabela public.users
+                        captchaToken: data.captchaToken
                     }
                 });
 
@@ -117,6 +173,8 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
 
                     // Limpeza de cache de cadastro
                     localStorage.removeItem('lfnm_registration_backup');
+                    localStorage.removeItem('lfnm_pending_email');
+                    localStorage.removeItem('lfnm_pending_google_user');
 
                     setSuccessMessage('Cadastro realizado com sucesso! Enviamos um link de confirmação para o seu e-mail. Por favor, verifique sua caixa de entrada (e spam) para ativar sua conta.');
                     setShowRoleSelector(false);
@@ -154,7 +212,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     .update(updatedFields)
                     .eq('id', pendingGoogleUser.id);
 
-                if (updateError) throw updateError;
+                if (updateError) {throw updateError;}
 
                 // Montar objeto completo do usuário para o estado local
                 const fullUser = {
@@ -172,6 +230,8 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
 
                 // Limpeza de cache de cadastro
                 localStorage.removeItem('lfnm_registration_backup');
+                localStorage.removeItem('lfnm_pending_email');
+                localStorage.removeItem('lfnm_pending_google_user');
 
                 setShowRoleSelector(false);
                 setPendingGoogleUser(null);
@@ -196,10 +256,13 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 const fallbackId = createdUserId || (await sb.auth.getUser()).data.user?.id;
                 const fallbackEmail = createdUserEmail || pendingGoogleUser?.email || pendingManualEmail;
 
-                if (!fallbackId || !fallbackEmail) {
-                    // Se ainda não temos ID (signup falhou totalmente), é um erro real de auth, não de perfil db
-                    // Repassamos o erro original
-                    throw e;
+                if (!fallbackId || (!fallbackEmail && !pendingManualEmail)) {
+                    // Se ainda não temos ID (signup falhou totalmente), é um erro real de auth
+                    setNotice({
+                        message: 'Erro na autenticação: ' + translateAuthError(e.message),
+                        type: 'error'
+                    });
+                    return; // Interrompe para não cair no catch crítico abaixo
                 }
 
                 const basicUser = {
@@ -240,10 +303,10 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     'Cadastro de Usuário - Falha Crítica RLS/Schema',
                     'critical'
                 );
-                alert(
-                    'Erro ao processar cadastro: ' +
-                    (retryError.message || e.message)
-                );
+                setNotice({
+                    message: 'Erro ao processar cadastro: ' + translateAuthError(retryError.message || e.message),
+                    type: 'error'
+                });
             }
         }
     };
@@ -329,7 +392,64 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     onSignupRequest={handleSignupRequest}
                     onClose={() => setShowLoginModal(false)}
                     disableSignup={!systemSettings.registrationEnabled}
+                    onOpenTerms={modals.openTermsModal}
                 />
+            )}
+
+            {/* Terms of Service Modal */}
+            <TermsOfServiceModal
+                visible={modals.showTermsModal}
+                onAccept={async () => {
+                    if (user) {
+                        try {
+                            const updatedUser = {
+                                ...user,
+                                termsAccepted: true,
+                                termsAcceptedAt: new Date().toISOString()
+                            };
+                            await updateUser(updatedUser);
+                            setUser(updatedUser); // Update local state
+                            localStorage.setItem(`lfnm_terms_accepted_${user.id}`, 'true'); // Fallback/Cache
+                        } catch (err) {
+                            console.error("Erro ao salvar aceite de termos:", err);
+                        }
+                    }
+                    modals.closeTermsModal();
+                }}
+                onDecline={() => {
+                    modals.closeTermsModal();
+                    // Opcional: Deslogar se recusar? Por enquanto apenas fecha, mas reaparecerá no refresh.
+                }}
+                user={user}
+            />
+
+            {/* Premium Notice Modal Overlay */}
+            {notice && (
+                <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+                    <div className="bg-white/90 backdrop-blur-xl w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-white/20 animate-slideUp text-center">
+                        <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-3xl shadow-lg ${notice.type === 'error' ? 'bg-red-500 text-white shadow-red-500/30' :
+                            notice.type === 'warning' ? 'bg-amber-500 text-white shadow-amber-500/30' :
+                                'bg-blue-500 text-white shadow-blue-500/30'
+                            }`}>
+                            <i className={`fas ${notice.type === 'error' ? 'fa-exclamation-circle' :
+                                notice.type === 'warning' ? 'fa-exclamation-triangle' :
+                                    'fa-info-circle'
+                                }`}></i>
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2">
+                            {notice.type === 'error' ? 'Ops! Erro' : notice.type === 'warning' ? 'Atenção' : 'Aviso'}
+                        </h3>
+                        <p className="text-gray-500 font-bold text-sm leading-relaxed mb-8">
+                            {notice.message}
+                        </p>
+                        <button
+                            onClick={() => setNotice(null)}
+                            className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all shadow-xl active:scale-95"
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                </div>
             )}
         </>
     );

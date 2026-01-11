@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - components/common/LoadingScreen.tsx is the correct file

@@ -35,8 +35,8 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
 
     useEffect(() => {
         const container = scrollRef.current;
-        if (!container || !canScroll) {return;}
-        
+        if (!container || !canScroll) { return; }
+
         let interval: any;
         if (!isPaused) {
             interval = setInterval(() => {
@@ -62,7 +62,7 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
     return (
         <div className="w-full bg-[#f4f4f7] relative z-40">
             <div className="w-full md:w-[94%] md:max-w-[1550px] mx-auto py-2 md:py-3 shadow-sm relative overflow-hidden border-x border-b border-black/5 group/extramenu">
-                
+
                 {/* Textura Zebrada */}
                 <div className="absolute inset-0" style={{
                     backgroundImage: `repeating-linear-gradient(
@@ -76,12 +76,12 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
 
                 {/* Texto Diagonal */}
                 <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundImage: `url("${menuDiagonalText}")`, backgroundSize: '150px' }}></div>
-                
+
                 {/* SETAS DE NAVEGAÇÃO - POSICIONAMENTO ABSOLUTO NAS LATERAIS */}
                 {canScroll && (
                     <>
                         <div className="absolute left-0 top-0 z-30 h-full w-10 bg-gradient-to-r from-[#f4f4f7] via-[#f4f4f7]/90 to-transparent flex items-center justify-start pl-1 opacity-0 group-hover/extramenu:opacity-100 transition-all pointer-events-none group-hover/extramenu:pointer-events-auto">
-                            <button 
+                            <button
                                 onClick={() => scrollManual('left')}
                                 className="bg-white shadow-md border border-gray-200 rounded-full w-7 h-7 flex items-center justify-center text-red-600 hover:bg-red-600 hover:text-white transition-colors active:scale-90"
                             >
@@ -89,7 +89,7 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
                             </button>
                         </div>
                         <div className="absolute right-0 top-0 z-30 h-full w-10 bg-gradient-to-l from-[#f4f4f7] via-[#f4f4f7]/90 to-transparent flex items-center justify-end pr-1 opacity-0 group-hover/extramenu:opacity-100 transition-all pointer-events-none group-hover/extramenu:pointer-events-auto">
-                            <button 
+                            <button
                                 onClick={() => scrollManual('right')}
                                 className="bg-white shadow-md border border-gray-200 rounded-full w-7 h-7 flex items-center justify-center text-red-600 hover:bg-red-600 hover:text-white transition-colors active:scale-90"
                             >
@@ -99,7 +99,7 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
                     </>
                 )}
 
-                <div 
+                <div
                     ref={scrollRef}
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
@@ -108,8 +108,8 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
                     className={`container mx-auto flex flex-nowrap md:flex-wrap items-center gap-2 md:gap-3 relative z-10 overflow-x-auto scrollbar-hide px-8 md:px-4 ${!canScroll ? 'justify-center' : 'justify-start'}`}
                 >
                     {menuItems.map((item) => (
-                        <button key={item.id} onClick={item.action} className="whitespace-nowrap px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl bg-black text-white hover:bg-white hover:text-black text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all border-2 border-black shadow-sm active:translate-y-1 flex items-center gap-2 group shrink-0">
-                            <i className={`fas ${item.icon} text-[10px] md:text-xs text-yellow-400 group-hover:text-red-600 group-hover:scale-110 transition-transform`}></i>
+                        <button key={item.id} onClick={item.action} className="whitespace-nowrap px-2 py-1 md:px-4 md:py-2 rounded-md md:rounded-xl bg-black text-white hover:bg-white hover:text-black text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all border border-black md:border-2 shadow-sm active:translate-y-1 flex items-center gap-1 md:gap-2 group shrink-0">
+                            <i className={`fas ${item.icon} text-[8px] md:text-xs text-yellow-400 group-hover:text-red-600 group-hover:scale-110 transition-transform`}></i>
                             <span className="md:hidden">{item.shortLabel}</span>
                             <span className="hidden md:inline">{item.label}</span>
                         </button>

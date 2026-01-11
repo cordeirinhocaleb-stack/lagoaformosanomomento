@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { User, Invoice, UserSession, AdPricingConfig } from '../../types';
 import Logo from './Logo';
 import lfnmCoin from '../../src/assets/lfnm_coin.png';
+import { userPurchaseItem } from '../../services/users/userService';
+import { uploadToCloudinary } from '../../services/cloudinaryService';
 
 interface MyAccountModalProps {
   user: User;
@@ -10,10 +12,8 @@ interface MyAccountModalProps {
   onLogout?: () => void;
   onOpenPricing?: () => void;
   adConfig?: AdPricingConfig;
+  onOpenTerms?: () => void;
 }
-
-import { userPurchaseItem } from '../../services/users/userService';
-import { uploadToCloudinary } from '../../services/cloudinaryService';
 
 interface MarketItem {
   id: string;
@@ -223,7 +223,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
   );
 };
 
-const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdateUser, onLogout, onOpenPricing, adConfig }) => {
+const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdateUser, onLogout, onOpenPricing, adConfig, onOpenTerms }) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'professional' | 'security' | 'billing' | 'notifications'>('profile');
   const [formData, setFormData] = useState({ ...user });
   const [isMaximized, setIsMaximized] = useState(false);
@@ -245,7 +245,7 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {return;}
 
     setIsUploadingAvatar(true);
     try {
@@ -257,7 +257,7 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
       alert('Erro ao carregar avatar: ' + err.message);
     } finally {
       setIsUploadingAvatar(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (fileInputRef.current) {fileInputRef.current.value = '';}
     }
   };
 
@@ -353,7 +353,7 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
               <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 space-y-6">
                 <div>
                   <label className="text-[10px] font-black uppercase text-gray-400 mb-2 block tracking-widest">Nome Completo</label>
-                  <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-red-500" />
+                  <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value.toUpperCase() })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-red-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -415,7 +415,30 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
             </div>
           )}
 
-          {activeTab === 'security' && <div className="text-center py-20 text-gray-400 font-bold uppercase text-xs">Módulo de Segurança em Desenvolvimento</div>}
+          {activeTab === 'security' && (
+            <div className="max-w-3xl mx-auto animate-fadeIn">
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-8">Segurança & <span className="text-red-600">Login</span></h1>
+
+              <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 space-y-6">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 uppercase">Termos de Uso e Privacidade</h4>
+                    <p className="text-[10px] text-gray-400 mt-1">Leia as regras e políticas da plataforma.</p>
+                  </div>
+                  <button
+                    onClick={onOpenTerms}
+                    className="bg-gray-200 hover:bg-black hover:text-white text-gray-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                  >
+                    Ler Termos
+                  </button>
+                </div>
+
+                <div className="text-center py-10 border-t border-gray-100">
+                  <p className="text-gray-300 font-bold uppercase text-xs">Mais opções de segurança em breve...</p>
+                </div>
+              </div>
+            </div>
+          )}
           {activeTab === 'billing' && (
             <div className="max-w-4xl mx-auto animate-fadeIn">
               <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-8">Meus <span className="text-red-600">Planos & Loja</span></h1>

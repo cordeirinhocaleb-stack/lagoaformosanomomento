@@ -8,12 +8,13 @@ import { renderItemList } from './renderers/itemList';
  * Orquestra a renderização baseada na variante visual selecionada chamando renderers especializados.
  */
 export const renderTextMode = (
-    variant: string, 
-    perStyle: any, 
-    baseStyles: React.CSSProperties, 
-    Tag: any, 
-    contentRef: any, 
-    handleInput: () => void
+    variant: string,
+    perStyle: any,
+    baseStyles: React.CSSProperties,
+    Tag: any,
+    contentRef: any,
+    handleInput: () => void,
+    settings?: any
 ) => {
     // 1. Grupos de Variantes: Texto Corrido
     if (['newspaper_standard', 'footnote', 'tech_neon'].includes(variant)) {
@@ -26,13 +27,13 @@ export const renderTextMode = (
     }
 
     // 3. Grupos de Variantes: Citações e Estilos Literários
-    if (['impact_quote', 'vintage_letter'].includes(variant)) {
+    if (['impact_quote', 'vintage_letter', 'quote_modern_accent', 'quote_elegant_editorial', 'quote_breaking_card'].includes(variant)) {
         return renderQuoteAspas(variant, perStyle, baseStyles, Tag, contentRef, handleInput);
     }
 
     // 4. Grupos de Variantes: Listas e Resumos
-    if (['checklist_pro', 'executive_summary', 'bullets_clean', 'bullets_square', 'numbered_steps', 'timeline_dots'].includes(variant)) {
-        return renderItemList(variant, perStyle, baseStyles, Tag, contentRef, handleInput);
+    if (['checklist_pro', 'executive_summary', 'bullets_clean', 'bullets_square', 'numbered_steps', 'timeline_dots', 'list_bullets_classic', 'list_check_circle', 'list_numbered_modern', 'list_timeline_vertical', 'list_cards_shadow'].includes(variant)) {
+        return renderItemList(variant, perStyle, baseStyles, Tag, contentRef, handleInput, settings);
     }
 
     // Fallback padrão: Renderiza como texto básico

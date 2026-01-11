@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - components/common/PricingModal.tsx is the correct file

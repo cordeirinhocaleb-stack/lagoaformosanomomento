@@ -223,7 +223,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                                                 <h4 className="font-bold text-white text-sm line-clamp-1 group-hover:text-red-500 transition-colors">{item.title}</h4>
                                                 <p className="text-xs text-gray-500 line-clamp-1">{item.lead}</p>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-[9px] text-gray-600 uppercase font-bold">{new Date(item.createdAt || item.created_at || Date.now()).toLocaleDateString()}</span>
+                                                    <span className="text-[9px] text-gray-600 uppercase font-bold">{new Date(item.createdAt || item.created_at || 0).toLocaleDateString()}</span>
                                                     <span className="text-[9px] text-gray-600">•</span>
                                                     <span className="text-[9px] text-gray-600 font-bold">{item.author}</span>
                                                 </div>
@@ -290,7 +290,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                                             }`}>
                                             {item.status === 'published' ? 'Publicado' : item.status === 'draft' ? 'Rascunho' : 'Revisão'}
                                         </span>
-                                        <span className="text-[10px] text-gray-500">{new Date(item.createdAt || item.created_at || Date.now()).toLocaleDateString()}</span>
+                                        <span className="text-[10px] text-gray-500">{new Date(item.createdAt || item.created_at || 0).toLocaleDateString()}</span>
                                     </div>
                                     <h4 className="font-bold text-white text-sm line-clamp-2">{item.title}</h4>
                                     <p className="text-[10px] text-gray-500 uppercase font-black mt-1">{item.category}</p>

@@ -72,12 +72,12 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
     }, [panelTab]);
 
     const handleManualActivate = async () => {
-        console.log("Tentando ativação manual...");
+        console.log("Tentando ativação manual..."); // eslint-disable-line no-console
         if (!canManageSecurity) {
             alert("Erro: Você não tem permissão para esta ação.");
             return;
         }
-        if (!confirm("Atenção: Você está forçando a ativação manual. O usuário terá acesso imediato sem validar o e-mail. Continuar?")) {return;}
+        if (!confirm("Atenção: Você está forçando a ativação manual. O usuário terá acesso imediato sem validar o e-mail. Continuar?")) { return; }
 
         try {
             // Atualiza localmente
@@ -90,19 +90,19 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
             await logAction(currentUser.id, currentUser.name, 'manual_activation', user.id, `Ativou manualmente a conta de: ${user.name}`);
             showNotification('success', "Usuário ativado com sucesso!");
         } catch (error) {
-            console.error("Erro na ativação manual:", error);
+            console.error("Erro na ativação manual:", error); // eslint-disable-line no-console
             showNotification('error', "Erro ao ativar: " + (error as any).message || 'Desconhecido');
         }
     };
 
     const handleResendActivation = async () => {
-        console.log("Tentando reenviar email...");
-        if (!confirm("Enviar novo e-mail de confirmação para este usuário?")) {return;}
+        console.log("Tentando reenviar email..."); // eslint-disable-line no-console
+        if (!confirm("Enviar novo e-mail de confirmação para este usuário?")) { return; }
 
         try {
             setIsProcessingMail(true);
             const res = await resendActivationEmail(user.email);
-            console.log("Resposta reenvio:", res);
+            console.log("Resposta reenvio:", res); // eslint-disable-line no-console
             setIsProcessingMail(false);
 
             if (res.success) {
@@ -112,20 +112,20 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
                 showNotification('error', "Erro ao enviar: " + res.message);
             }
         } catch (e) {
-            console.error("Erro reenvio:", e);
+            console.error("Erro reenvio:", e); // eslint-disable-line no-console
             setIsProcessingMail(false);
             showNotification('error', "Erro inesperado ao reenviar email.");
         }
     };
 
     const handleTriggerReset = async () => {
-        console.log("Tentando reset senha...");
-        if (!confirm("Deseja enviar um link de redefinição de senha para o e-mail do usuário?")) {return;}
+        console.log("Tentando reset senha..."); // eslint-disable-line no-console
+        if (!confirm("Deseja enviar um link de redefinição de senha para o e-mail do usuário?")) { return; }
 
         try {
             setIsProcessingMail(true);
             const res = await triggerPasswordResetByAdmin(user.email);
-            console.log("Resposta reset:", res);
+            console.log("Resposta reset:", res); // eslint-disable-line no-console
             setIsProcessingMail(false);
 
             if (res.success) {
@@ -135,7 +135,7 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
                 showNotification('error', "Erro ao enviar reset: " + res.message);
             }
         } catch (e) {
-            console.error("Erro reset:", e);
+            console.error("Erro reset:", e); // eslint-disable-line no-console
             setIsProcessingMail(false);
             showNotification('error', "Erro inesperado ao resetar senha.");
         }
@@ -146,7 +146,7 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
     };
 
     const handleExtendSubscription = (days: number) => {
-        if (!canEditPlan) {return;}
+        if (!canEditPlan) { return; }
         const currentEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : new Date();
         const baseDate = currentEnd < new Date() ? new Date() : currentEnd;
         const newEnd = new Date(baseDate);

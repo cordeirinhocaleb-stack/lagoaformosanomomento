@@ -1,5 +1,100 @@
 [
   {
+    "version": "0.0.3",
+    "date": "10/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "Análise Estática (Sonar)",
+        "description": "Implementação do SonarJS e Security plugins para análise profunda de bugs e segurança."
+      },
+      {
+        "category": "fix",
+        "title": "NewsCard & Mobile",
+        "description": "Correção do efeito Teleprompter nas notícias e limpeza de metadados do Capacitor."
+      },
+      {
+        "category": "improvement",
+        "title": "Project Reset",
+        "description": "Sincronização global e reinicialização da versão para 0.0.3 (Build 01)."
+      }
+    ]
+  },
+  {
+    "version": "1.102",
+    "date": "10/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Configuração & Deploy",
+        "description": "Correção definitiva de versionamento, deploy e persistência de termos de uso."
+      },
+      {
+        "category": "security",
+        "title": "Conformidade (50 Regras)",
+        "description": "Auditoria de código, limpeza de logs de debug e rigor na tipagem TypeScript."
+      }
+    ]
+  },
+  {
+    "version": "1.101",
+    "date": "10/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "Estilos de Citação",
+        "description": "Novos presets visuais: G1, Lux e Breaking News para blocos de citação."
+      },
+      {
+        "category": "improvement",
+        "title": "Editor Visual",
+        "description": "Ícones personalizados e fontes exclusivas (Inte/Merriweather) no editor."
+      }
+    ]
+  },
+  {
+    "version": "1.100",
+    "date": "10/01/2026",
+    "items": [
+      {
+        "category": "improvement",
+        "title": "UX Editor",
+        "description": "Bordas sutis (dashed) para melhor visualização de blocos e hover effects refinados."
+      }
+    ]
+  },
+  {
+    "version": "0.0.2",
+    "date": "10/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Layout & Visual",
+        "description": "Correção do alinhamento da Home (centralizado em telas grandes) e animação do letreiro 'Plantão' (loop infinito)."
+      },
+      {
+        "category": "improvement",
+        "title": "Mobile UX",
+        "description": "Menu de 'Vagas/Bicos' otimizado para celulares: botões compactos e melhor espaçamento."
+      },
+      {
+        "category": "feature",
+        "title": "Editor Visual",
+        "description": "Novo seletor de ícones jornalísticos (Polícia, Esporte...), controle de tamanho deslizante (10-100px) e botão 'Logo do Site'."
+      },
+      {
+        "category": "improvement",
+        "title": "Animações",
+        "description": "Efeito 'Coin Spin' 3D ao passar o mouse sobre ícones divisores no editor e no site público."
+      },
+      {
+        "category": "security",
+        "title": "Core Security",
+        "description": "Revisão de segurança no renderizador de blocos e sanitização de inputs."
+      }
+    ]
+  },
+  {
     "version": "0.0.1",
     "date": "07/01/2026",
     "items": [

@@ -4,6 +4,7 @@ import { User } from '../../types';
 import { getSupabase } from '../../services/supabaseService';
 import { startYouTubeAuth, queueYouTubeUpload, VideoMetadata } from '../../services/youtubeService';
 import { storeLocalFile } from '../../services/storage/localStorageService';
+import { uploadToCloudinary } from '../../services/cloudinaryService';
 import YouTubeMetadataForm from './YouTubeMetadataForm';
 import Toast from '../common/Toast';
 
@@ -46,7 +47,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
         return () => {
             // Se onUploadStart foi passado, o pai assume a responsabilidade (ou o risco) do blob
             // para permitir transição suave de UI onde o Uploader desmonta.
-            if (onUploadStart) {return;}
+            if (onUploadStart) { return; }
 
             if (previewUrl && previewUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(previewUrl);
@@ -74,7 +75,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
             setPreviewUrl(objectUrl);
 
             // Notificar pai sobre inicio do upload com preview
-            if (onUploadStart) {onUploadStart(objectUrl);}
+            if (onUploadStart) { onUploadStart(objectUrl); }
 
             // 3. Reset mode se for nova seleção
             if (mediaType === 'image') {
@@ -87,8 +88,9 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
                         await new Promise(r => setTimeout(r, 500));
                         onUploadComplete([localId]);
                         setIsUploading(false);
-                    } catch (e: any) {
-                        onError?.("Erro ao salvar localmente: " + e.message);
+                    } catch (e: unknown) {
+                        const message = e instanceof Error ? e.message : "Erro desconhecido";
+                        onError?.("Erro ao salvar localmente: " + message);
                         setIsUploading(false);
                     }
                 } else {
@@ -115,31 +117,14 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
         setUploadProgress(0);
 
         try {
-            // Naming Convention: [Nome_Remetente]_[Local_Origem]_[Data_Upload].ext
-            const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '');
-            const ext = file.name.split('.').pop();
-            const fileName = `${sanitize(user.name)}_Editor_${new Date().toISOString().replace(/[:.]/g, '-')}.${ext} `;
-            const filePath = `uploads / ${user.id}/${fileName}`;
+            // Usa o serviço centralizado do Cloudinary
+            const url = await uploadToCloudinary(file, 'editor_gallery');
 
-            const supabase = getSupabase();
-            if (!supabase) {throw new Error("Erro de conexão com Cloud Interno (Supabase).");}
-
-            const { data, error } = await supabase.storage
-                .from('site-media') // Bucket Ideal
-                .upload(filePath, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-
-            if (error) {throw error;}
-
-            // Obter URL Pública
-            const { data: { publicUrl } } = supabase.storage.from('site-media').getPublicUrl(filePath);
-
-            onUploadComplete([publicUrl]);
+            onUploadComplete([url]);
             setIsUploading(false);
-        } catch (error: any) {
-            handleError("Erro no upload Cloud: " + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Erro desconhecido";
+            handleError("Erro no upload Cloudinary: " + message);
             setIsUploading(false);
             clearSelection();
         }
@@ -147,7 +132,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
 
     const handleYouTubeFlow = async () => {
         // Validação Limite 1GB
-        if (!selectedFile) {return;}
+        if (!selectedFile) { return; }
         if (selectedFile.size > 1024 * 1024 * 1024) {
             handleError("O arquivo excede o limite de 1GB para YouTube.");
             return;
@@ -158,7 +143,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
     };
 
     const submitYouTubeUpload = async () => {
-        if (!selectedFile || !youTubeMetadata) {return;}
+        if (!selectedFile || !youTubeMetadata) { return; }
 
         setIsUploading(true);
         try {
@@ -177,14 +162,15 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
 
             setIsUploading(false);
             setShowYouTubeForm(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Erro desconhecido";
             // Se erro for de Auth, redirecionar
-            if (error.message.includes('Auth required')) {
+            if (message.includes('Auth required')) {
                 const authUrl = await startYouTubeAuth();
                 window.open(authUrl, '_blank');
                 handleError("Autenticação necessária. Autorize na janela aberta e tente novamente.");
             } else {
-                handleError("Erro no envio para YouTube: " + error.message);
+                handleError("Erro no envio para YouTube: " + message);
             }
             setIsUploading(false);
         }
@@ -199,7 +185,7 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
         setSelectedFile(null);
         setPreviewUrl(null);
         setCurrentUploadMode(null);
-        if (fileInputRef.current) {fileInputRef.current.value = '';}
+        if (fileInputRef.current) { fileInputRef.current.value = ''; }
     };
 
     return (

@@ -15,6 +15,26 @@ const Row: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </div>
 );
 
+interface BtnProps {
+  icon: string;
+  action: string;
+  val?: string;
+  label: string;
+  active?: boolean;
+  color?: string;
+  onAction: (action: string, value?: string) => void;
+}
+
+const Btn: React.FC<BtnProps> = ({ icon, action, val, label, active, color, onAction }) => (
+  <button
+    onClick={() => onAction(action, val)}
+    className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:bg-white/20 ${active ? 'bg-red-600 text-white' : (color || 'text-zinc-400')}`}
+    title={label}
+  >
+    <i className={`fas ${icon} text-xs`}></i>
+  </button>
+);
+
 const EditorContextMenu: React.FC<EditorContextMenuProps> = ({ x, y, onClose, onAction, currentType }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -34,16 +54,6 @@ const EditorContextMenu: React.FC<EditorContextMenuProps> = ({ x, y, onClose, on
     top: Math.min(y, window.innerHeight - 450),
     left: Math.min(x, window.innerWidth - 280),
   };
-
-  const Btn = ({ icon, action, val, label, active, color }: any) => (
-    <button
-      onClick={() => onAction(action, val)}
-      className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:bg-white/20 ${active ? 'bg-red-600 text-white' : (color || 'text-zinc-400')}`}
-      title={label}
-    >
-      <i className={`fas ${icon} text-xs`}></i>
-    </button>
-  );
 
   return (
     <div
@@ -66,38 +76,38 @@ const EditorContextMenu: React.FC<EditorContextMenuProps> = ({ x, y, onClose, on
 
       {/* 1. ESTILO BÁSICO */}
       <Row>
-        <Btn icon="fa-bold" action="format" val="bold" label="Negrito" />
-        <Btn icon="fa-italic" action="format" val="italic" label="Itálico" />
-        <Btn icon="fa-underline" action="format" val="underline" label="Sublinhado" />
-        <Btn icon="fa-strikethrough" action="format" val="strikethrough" label="Riscado" />
-        <Btn icon="fa-eraser" action="format" val="removeFormat" label="Limpar Estilo" color="text-red-400" />
+        <Btn icon="fa-bold" action="format" val="bold" label="Negrito" onAction={onAction} />
+        <Btn icon="fa-italic" action="format" val="italic" label="Itálico" onAction={onAction} />
+        <Btn icon="fa-underline" action="format" val="underline" label="Sublinhado" onAction={onAction} />
+        <Btn icon="fa-strikethrough" action="format" val="strikethrough" label="Riscado" onAction={onAction} />
+        <Btn icon="fa-eraser" action="format" val="removeFormat" label="Limpar Estilo" color="text-red-400" onAction={onAction} />
       </Row>
 
       {/* 2. AVANÇADO & LINKS */}
       <Row>
-        <Btn icon="fa-subscript" action="format" val="subscript" label="Subscrito" />
-        <Btn icon="fa-superscript" action="format" val="superscript" label="Sobrescrito" />
+        <Btn icon="fa-subscript" action="format" val="subscript" label="Subscrito" onAction={onAction} />
+        <Btn icon="fa-superscript" action="format" val="superscript" label="Sobrescrito" onAction={onAction} />
         <div className="w-px h-4 bg-white/10 mx-1"></div>
-        <Btn icon="fa-link" action="link" label="Inserir Link" color="text-blue-400" />
-        <Btn icon="fa-image" action="triggerImage" label="Inserir Imagem" color="text-green-400" />
-        <Btn icon="fa-unlink" action="format" val="unlink" label="Remover Link" />
+        <Btn icon="fa-link" action="link" label="Inserir Link" color="text-blue-400" onAction={onAction} />
+        <Btn icon="fa-image" action="triggerImage" label="Inserir Imagem" color="text-green-400" onAction={onAction} />
+        <Btn icon="fa-unlink" action="format" val="unlink" label="Remover Link" onAction={onAction} />
       </Row>
 
       {/* 3. LISTAS E RECUO */}
       <Row>
-        <Btn icon="fa-list-ul" action="format" val="insertUnorderedList" label="Lista com Marcadores" />
-        <Btn icon="fa-list-ol" action="format" val="insertOrderedList" label="Lista Numerada" />
+        <Btn icon="fa-list-ul" action="format" val="insertUnorderedList" label="Lista com Marcadores" onAction={onAction} />
+        <Btn icon="fa-list-ol" action="format" val="insertOrderedList" label="Lista Numerada" onAction={onAction} />
         <div className="w-px h-4 bg-white/10 mx-1"></div>
-        <Btn icon="fa-indent" action="format" val="indent" label="Aumentar Recuo" />
-        <Btn icon="fa-outdent" action="format" val="outdent" label="Diminuir Recuo" />
+        <Btn icon="fa-indent" action="format" val="indent" label="Aumentar Recuo" onAction={onAction} />
+        <Btn icon="fa-outdent" action="format" val="outdent" label="Diminuir Recuo" onAction={onAction} />
       </Row>
 
       {/* 4. ALINHAMENTO */}
       <Row>
-        <Btn icon="fa-align-left" action="align" val="left" label="Esquerda" />
-        <Btn icon="fa-align-center" action="align" val="center" label="Centro" />
-        <Btn icon="fa-align-right" action="align" val="right" label="Direita" />
-        <Btn icon="fa-align-justify" action="align" val="justify" label="Justificar" />
+        <Btn icon="fa-align-left" action="align" val="left" label="Esquerda" onAction={onAction} />
+        <Btn icon="fa-align-center" action="align" val="center" label="Centro" onAction={onAction} />
+        <Btn icon="fa-align-right" action="align" val="right" label="Direita" onAction={onAction} />
+        <Btn icon="fa-align-justify" action="align" val="justify" label="Justificar" onAction={onAction} />
       </Row>
 
       {/* 5. CORES DE DESTAQUE */}

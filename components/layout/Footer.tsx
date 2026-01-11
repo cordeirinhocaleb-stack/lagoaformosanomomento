@@ -8,10 +8,12 @@ interface FooterProps {
   settings?: SystemSettings;
 }
 
+import SYSTEM_VERSION from '../../src/constants/version';
+
 const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
   const footerData = settings?.footer;
   const social = footerData?.socialLinks;
-  const versionString = `Sistema v${import.meta.env.PACKAGE_VERSION || 'DEV'}`;
+  const versionString = SYSTEM_VERSION.getDisplayString();
 
   if (isSimplified) {
     return (

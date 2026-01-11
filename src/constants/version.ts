@@ -5,12 +5,13 @@
 
 export const SYSTEM_VERSION = {
     major: 0,
-    minor: 1,
-    timestamp: '070120262316',
-    full: '0.0.1',
-    label: 'stable-release',
+    minor: 0,
+    build: 1,
+    timestamp: '100120261835',
+    full: '0.0.3',
+    label: 'reset-milestone',
 
-    getDisplayString: () => `versão 0.0.1 070120262316`,
+    getDisplayString: () => `V 0.0.3 (Build 01)`,
 };
 
 export default SYSTEM_VERSION;

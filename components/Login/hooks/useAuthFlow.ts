@@ -9,7 +9,9 @@ import {
     checkAuthLockout,
     requestPasswordRecovery
 } from '../../../services/supabaseService';
+import { mapDbToUser } from '../../../services/users/userService'; // Import normalization helper
 import { useLoginSecurity } from './useLoginSecurity';
+import { translateAuthError } from '../../../utils/authErrors';
 
 interface AuthFlowProps {
     onLogin: (user: User, remember: boolean) => void;
@@ -69,8 +71,8 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
                     queryParams: { prompt: 'select_account' }
                 }
             });
-            if (error) { setErrorMessage(error.message); }
-        } catch (e: any) { setErrorMessage(e.message); }
+            if (error) { setErrorMessage(translateAuthError(error.message)); }
+        } catch (e: any) { setErrorMessage(translateAuthError(e.message)); }
         finally { setLoading(false); }
     };
 
@@ -104,12 +106,12 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
         } catch (err) { setErrorMessage("Falha ao reenviar."); }
     };
 
-    const handleLoginSubmit = async (identifier: string, password: string) => {
+    const handleLoginSubmit = async (identifier: string, password: string, captchaToken?: string) => {
         if (loading || security.lockoutExpiry) { return; }
         const cleanIdentifier = identifier.trim();
         const cleanPassword = password.trim();
         setLoading(true); setErrorMessage(null); setSuccessMessage(null);
-        DebugLogger.log('[Login] 🟢 Login attempt:', { email: cleanIdentifier });
+        DebugLogger.log('[Login] 🟢 Login attempt:', { email: cleanIdentifier, hasCaptcha: !!captchaToken });
 
         const safetyTimeout = setTimeout(() => {
             if (loading) { setLoading(false); setErrorMessage("Tempo limite excedido."); }
@@ -135,13 +137,22 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
                 }
             } catch (e: any) { if (e.message.includes('Acesso bloqueado')) { throw e; } }
 
-            const { data, error }: any = await supabase.auth.signInWithPassword({ email: finalEmail, password: cleanPassword });
+            const { data, error }: any = await supabase.auth.signInWithPassword({
+                email: finalEmail,
+                password: cleanPassword,
+                options: {
+                    captchaToken
+                }
+            });
             if (error) {
                 const sec = await registerAuthFailure(finalEmail);
                 security.saveSecurityState(sec.lockoutUntil, sec.attempts);
                 if (error.message.includes('Email not confirmed')) { setErrorMessage("CONTA NÃO ATIVADA!"); setShowResendButton(true); }
                 else if (sec.lockoutUntil) { throw new Error(`Tentativas excedidas. Bloqueado.`); }
-                else { throw new Error(`Senha ou usuário incorretos.`); }
+                else if (error.message.includes('invalid login credentials') || error.message.includes('Invalid login credentials')) {
+                    throw new Error(`Senha ou usuário incorretos.`);
+                }
+                else { throw error; }
             } else if (data.user) {
                 localStorage.removeItem('lfnm_login_security');
                 await resetAuthSecurity(finalEmail);
@@ -149,22 +160,27 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
 
                 // Trigger automático agora cria o usuário, apenas verificamos se existe
                 if (profile) {
-                    onLogin(profile, rememberMe);
-                    setTimeout(() => { showWelcomeMessage(profile.name); sessionStorage.removeItem('lfnm_login_temp'); onClose(); }, 300);
+                    const user = mapDbToUser(profile); // Normalize data
+                    onLogin(user, rememberMe);
+                    setTimeout(() => { showWelcomeMessage(user.name); sessionStorage.removeItem('lfnm_login_temp'); onClose(); }, 300);
                 } else {
-                    // Se ainda assim não encontrou (muito raro), mostra erro
-                    throw new Error('Erro ao carregar perfil. Tente novamente.');
+                    // SE O PERFIL NÃO EXISTE MAS O AUTH SIM:
+                    // Enviamos para o RoleSelectionModal em vez de dar erro.
+                    // Isso recupera usuários "zumbis" que saíram antes de terminar o cadastro.
+                    console.warn('⚠️ Perfil não encontrado para conta existente. Redirecionando para completar cadastro.'); // eslint-disable-line no-console
+                    onSignupRequest(finalEmail);
+                    onClose();
                 }
             }
         } catch (error: any) {
-            setErrorMessage(error.message || "Erro na autenticação.");
+            setErrorMessage(translateAuthError(error.message || "Erro na autenticação."));
         } finally {
             clearTimeout(safetyTimeout);
             setLoading(false);
         }
     };
 
-    const handleSignupSubmit = async (email: string) => {
+    const handleSignupSubmit = async (email: string, _captchaToken?: string) => {
         const cleanEmail = email.trim().toLowerCase();
         if (!cleanEmail.includes('@')) { return setErrorMessage("E-mail inválido."); }
         setLoading(true); setErrorMessage(null);
@@ -174,7 +190,7 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
             if (existing) { setErrorMessage("E-MAIL JÁ CADASTRADO!"); setLoading(false); return; }
             onSignupRequest(cleanEmail);
             setTimeout(() => setLoading(false), 2000);
-        } catch (err: any) { setErrorMessage(`Erro: ${err.message}`); setLoading(false); }
+        } catch (err: any) { setErrorMessage(translateAuthError(err.message)); setLoading(false); }
     };
 
     return {

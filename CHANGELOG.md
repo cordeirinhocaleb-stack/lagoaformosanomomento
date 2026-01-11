@@ -1,6 +1,18 @@
 
 # 📝 Registro de Edições e Revisões - LFNM
 
+
+## 0.0.3 (Build 02) - 10/01/2026 23:58
+### 🚀 Refatoração & Segurança (Core)
+- **Remoção Mobile Permanente**: Exclusão da pasta `android` e remoção de todas as dependências do Capacitor. Refatoração de `PlatformService` e `OfflineService` para arquitetura 100% Web.
+- **Segurança (Hardening XSS)**: Implementação de sanitização de HTML via `DOMPurify` em `ArticleContent.tsx`, `NewsCard.tsx` e `SmartBlockRenderer.tsx`, bloqueando vulnerabilidades de injeção.
+- **Modularização Admin**: Desmembramento de grandes componentes (`EngagementEditorBlock`, `GalleryEditorBlock` e `InspectorSidebar`) em sub-componentes especializados, garantindo que nenhum arquivo exceda o limite de 400-500 linhas.
+- **Tipagem Estrita (Folder Audit)**: Auditoria completa na pasta `components/admin` com a remoção de mais de 80 ocorrências de `: any`, substituindo-os por `unknown` ou interfaces específicas.
+- **Acessibilidade**: Implementação de `aria-labels` e atributos `title` em elementos interativos dos novos editores modulares (Gallery, Polls, Sidebar).
+- **Versionamento**: Incremento de Build para `0.0.3 (Build 02)`.
+
+---
+
 ## Alpha 1.105 (06/01/2026 19:00)
 ### 🔄 Remodelado
 - **Sistema de Temas de Widgets**: Remodelação completa do sistema de aplicação de temas. Criado componente dedicado `SmartBlockRenderer` que usa `useEffect` para detectar mudanças em `editorialVariant` e aplicar estilos diretamente ao DOM do widget, garantindo atualização visual imediata.

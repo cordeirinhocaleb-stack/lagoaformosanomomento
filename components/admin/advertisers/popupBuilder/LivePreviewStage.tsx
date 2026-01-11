@@ -12,7 +12,7 @@ interface LivePreviewStageProps {
 const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedItemId, darkMode = false }) => {
     const [device, setDevice] = useState<'phone' | 'desktop'>('phone');
     const [zoom, setZoom] = useState<number>(0.8);
-    const [bgMode, setBgMode] = useState<'light' | 'dark' | 'site'>(darkMode ? 'dark' : 'site');
+    const [bgMode, setBgMode] = useState<'light' | 'dark' | 'site'>(() => darkMode ? 'dark' : 'site');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth < 1024);
 
@@ -32,7 +32,8 @@ const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedI
     }, []);
 
     useEffect(() => {
-        setBgMode(darkMode ? 'dark' : 'site');
+        const target = darkMode ? 'dark' : 'site';
+        setBgMode(prev => prev === target ? prev : target);
     }, [darkMode]);
 
     // Auto-fit logic

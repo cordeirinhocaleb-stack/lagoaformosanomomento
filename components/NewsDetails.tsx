@@ -1,1 +1,0 @@
-// MOVED TO LIXEIRA - pages/news-detail/NewsDetailPage.tsx is the correct file

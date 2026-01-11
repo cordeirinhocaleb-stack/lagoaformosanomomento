@@ -22,7 +22,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     onCancel,
     type = 'warning'
 }) => {
-    if (!isOpen) return null;
+    if (!isOpen) {return null;}
 
     const typeColors = {
         danger: {

@@ -1,39 +1,56 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface SecurityState {
-    lockoutExpiry: number | null;
-    secondsRemaining: number;
-    attemptsMade: number;
-    isShaking: boolean;
-}
+
 
 export const useLoginSecurity = () => {
-    const [lockoutExpiry, setLockoutExpiry] = useState<number | null>(null);
-    const [secondsRemaining, setSecondsRemaining] = useState(0);
-    const [attemptsMade, setAttemptsMade] = useState(0);
-    const [isShaking, setIsShaking] = useState(false);
-
-    // Load State on Mount
-    useEffect(() => {
+    const [lockoutExpiry, setLockoutExpiry] = useState<number | null>(() => {
+        if (typeof window === 'undefined') {return null;}
         const savedSecurity = localStorage.getItem('lfnm_login_security');
         if (savedSecurity) {
             try {
-                const { expiry, attempts } = JSON.parse(savedSecurity);
-                const now = Date.now();
-                if (expiry > now) {
-                    setLockoutExpiry(expiry);
-                    setSecondsRemaining(Math.ceil((expiry - now) / 1000));
-                }
-                if (attempts) {setAttemptsMade(attempts);}
-            } catch (e) {
+                const { expiry } = JSON.parse(savedSecurity);
+                return expiry > Date.now() ? expiry : null;
+            } catch {
                 localStorage.removeItem('lfnm_login_security');
             }
         }
-    }, []);
+        return null;
+    });
+
+    const [secondsRemaining, setSecondsRemaining] = useState(() => {
+        if (typeof window === 'undefined') {return 0;}
+        const savedSecurity = localStorage.getItem('lfnm_login_security');
+        if (savedSecurity) {
+            try {
+                const { expiry } = JSON.parse(savedSecurity);
+                const now = Date.now();
+                return expiry > now ? Math.ceil((expiry - now) / 1000) : 0;
+            } catch {
+                return 0;
+            }
+        }
+        return 0;
+    });
+
+    const [attemptsMade, setAttemptsMade] = useState(() => {
+        if (typeof window === 'undefined') {return 0;}
+        const savedSecurity = localStorage.getItem('lfnm_login_security');
+        if (savedSecurity) {
+            try {
+                const { attempts } = JSON.parse(savedSecurity);
+                return attempts || 0;
+            } catch {
+                return 0;
+            }
+        }
+        return 0;
+    });
+
+    const [isShaking, setIsShaking] = useState(false);
 
     // Timer
     useEffect(() => {
-        if (!secondsRemaining) {return;}
+        if (!secondsRemaining) { return; }
         const timer = setInterval(() => {
             setSecondsRemaining(prev => {
                 if (prev <= 1) {
@@ -64,7 +81,7 @@ export const useLoginSecurity = () => {
         }
 
         setAttemptsMade(attempts);
-        if (attempts > 0) {triggerShake();}
+        if (attempts > 0) { triggerShake(); }
     }, [triggerShake]);
 
     const formatTime = (seconds: number) => {

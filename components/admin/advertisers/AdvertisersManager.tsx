@@ -85,6 +85,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
 
       {viewMode === 'editor' && (
         <AdvertiserEditor
+          key={selectedAdvertiser ? selectedAdvertiser.id : 'new'}
           advertiser={selectedAdvertiser}
           onSave={handleSaveAdvertiser}
           onCancel={handleBackToList}

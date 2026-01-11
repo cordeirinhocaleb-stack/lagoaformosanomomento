@@ -104,7 +104,7 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     // Handle manual trim playback (videoStart/videoEnd)
     useEffect(() => {
         const video = videoRef.current;
-        if (!video || !isReady) return;
+        if (!video || !isReady) {return;}
 
         // If manual trim is set (videoStart and videoEnd provided)
         if (videoStart !== undefined && videoEnd !== undefined && videoEnd > videoStart) {
@@ -131,7 +131,7 @@ export const SmartVideoPlayer: React.FC<SmartVideoPlayerProps> = ({
     useEffect(() => {
         const handleVisibilityChange = () => {
             const video = videoRef.current;
-            if (!video) return;
+            if (!video) {return;}
 
             if (document.visibilityState === 'visible') {
                 // Force layout recalculation

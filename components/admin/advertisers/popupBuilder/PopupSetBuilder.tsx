@@ -13,18 +13,9 @@ interface PopupSetBuilderProps {
 }
 
 const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, darkMode = false }) => {
-    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(() => config.items.length > 0 ? config.items[0].id : null);
     const [mobileTab, setMobileTab] = useState<'config' | 'preview'>('config');
     const [isConfigOpen, setIsConfigOpen] = useState(true);
-
-    useEffect(() => {
-        if (config.items.length > 0 && !selectedItemId) {
-            setSelectedItemId(config.items[0].id);
-        }
-        if (config.items.length === 0 && selectedItemId) {
-            setSelectedItemId(null);
-        }
-    }, [config.items, selectedItemId]);
 
     const handleAdd = () => {
         if (config.items.length >= MAX_ITEMS_PER_SET) { return; }
