@@ -21,3 +21,7 @@ ENTREGA OBRIGATÓRIA:
 - Riscos (P0/P1/P2)
 - Mitigações objetivas com mudanças mínimas
 - Casos de abuso para testar (ex.: payload XSS, link malicioso, upload suspeito)
+
+Sempre que fizer um depoloy atualise somente a em (build +1)
+
+Sempre faça um resumo de cada build do que fizemos e salve as informações

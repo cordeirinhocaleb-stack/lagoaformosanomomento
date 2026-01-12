@@ -39,6 +39,10 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
 
         let interval: any;
         if (!isPaused) {
+            // [NOVO] Desativar scroll automático no mobile (menor que 768px) para melhor UX e controle do usuário
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) { return; }
+
             interval = setInterval(() => {
                 if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 1) {
                     container.scrollTo({ left: 0, behavior: 'auto' });

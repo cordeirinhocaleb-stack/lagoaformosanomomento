@@ -8,40 +8,47 @@ export interface ThemePreset {
 }
 
 const ALL_PRESETS: ThemePreset[] = [
-    { id: 'newspaper_standard', label: 'Padrão Jornal', icon: 'fa-align-left', color: 'bg-zinc-800' },
-    { id: 'breaking_alert', label: 'Breaking News', icon: 'fa-bolt', color: 'bg-red-600' },
-    { id: 'impact_quote', label: 'Citação Impacto', icon: 'fa-quote-left', color: 'bg-zinc-400' },
-    { id: 'hero_headline', label: 'Manchete Hero', icon: 'fa-heading', color: 'bg-zinc-900' },
-    { id: 'police_siren', label: 'Alerta Policial', icon: 'fa-shield-halved', color: 'bg-yellow-500' },
-    { id: 'tech_neon', label: 'Destaque Tech', icon: 'fa-terminal', color: 'bg-emerald-500' },
-    { id: 'executive_summary', label: 'Resumo Exec.', icon: 'fa-list-check', color: 'bg-blue-600' },
-    { id: 'vintage_letter', label: 'Carta Leitor', icon: 'fa-envelope-open-text', color: 'bg-orange-300' },
-    { id: 'footnote', label: 'Rodapé/Nota', icon: 'fa-comment-dots', color: 'bg-zinc-300' },
-    { id: 'checklist_pro', label: 'Lista Check', icon: 'fa-check-double', color: 'bg-green-600' },
-    { id: 'quote_modern_accent', label: 'Citação G1', icon: 'fa-quote-left', color: 'bg-red-700' },
-    { id: 'quote_elegant_editorial', label: 'Editorial Lux', icon: 'fa-feather-pointed', color: 'bg-zinc-800' },
-    { id: 'quote_breaking_card', label: 'Card Breaking', icon: 'fa-bolt-lightning', color: 'bg-amber-600' },
+    // PARAGRAPH / TEXTO
+    { id: 'standard_clean', label: 'Padrão', icon: 'fa-align-left', color: 'bg-zinc-800' },
+    { id: 'editorial_prose', label: 'Análise', icon: 'fa-feather-pointed', color: 'bg-zinc-600' },
+    { id: 'breaking_brief', label: 'Urgente', icon: 'fa-bolt-lightning', color: 'bg-red-700' },
 
-    // LIST TEMAS
-    { id: 'list_bullets_classic', label: 'Bullets Clássico', icon: 'fa-list-ul', color: 'bg-zinc-600' },
-    { id: 'list_check_circle', label: 'Check Circle', icon: 'fa-check-circle', color: 'bg-green-600' },
-    { id: 'list_numbered_modern', label: 'Numerado Modern', icon: 'fa-list-ol', color: 'bg-blue-600' },
-    { id: 'list_timeline_vertical', label: 'Timeline Vertical', icon: 'fa-timeline', color: 'bg-purple-600' },
-    { id: 'list_cards_shadow', label: 'Cards Box', icon: 'fa-layer-group', color: 'bg-orange-500' },
+    // HEADING / TÍTULOS
+    { id: 'hero_headline', label: 'Manchete', icon: 'fa-heading', color: 'bg-zinc-900' },
+    { id: 'sub_classic', label: 'Subtítulo', icon: 'fa-paragraph', color: 'bg-zinc-500' },
+    { id: 'live_update', label: 'Ao Vivo', icon: 'fa-satellite-dish', color: 'bg-red-600' },
+
+    // QUOTE / CITAÇÕES
+    { id: 'impact_quote', label: 'Destaque', icon: 'fa-quote-left', color: 'bg-zinc-700' },
+    { id: 'pull_quote', label: 'Gancho', icon: 'fa-quote-right', color: 'bg-red-500' },
+    { id: 'quote_modern_accent', label: 'Moderno', icon: 'fa-minus', color: 'bg-zinc-400' },
+
+    // LIST / LISTAS
+    { id: 'bullets_clean', label: 'Lista', icon: 'fa-list-ul', color: 'bg-zinc-600' },
+    { id: 'checklist_flow', label: 'Checklist', icon: 'fa-list-check', color: 'bg-green-600' },
+    { id: 'numbered_steps', label: 'Passos', icon: 'fa-list-ol', color: 'bg-blue-600' },
+
+    // SEPARATOR / DIVISORES
+    { id: 'divider_minimal', label: 'Linha', icon: 'fa-minus', color: 'bg-zinc-400' },
+    { id: 'divider_ornamental', label: 'Ornado', icon: 'fa-diamond', color: 'bg-red-500' },
+    { id: 'divider_dots', label: 'Espaço', icon: 'fa-ellipsis-h', color: 'bg-blue-400' },
 ];
 
 export const getThemesForBlock = (blockType: string): ThemePreset[] => {
     return ALL_PRESETS.filter(p => {
         if (blockType === 'quote') {
-            return ['quote_modern_accent', 'quote_elegant_editorial', 'quote_breaking_card', 'impact_quote', 'vintage_letter'].includes(p.id);
+            return ['impact_quote', 'pull_quote', 'quote_modern_accent'].includes(p.id);
         }
         if (blockType === 'heading') {
-            return ['hero_headline', 'breaking_alert', 'police_siren', 'tech_neon'].includes(p.id);
+            return ['hero_headline', 'sub_classic', 'live_update'].includes(p.id);
         }
         if (blockType === 'list') {
-            return ['checklist_pro', 'list_bullets_classic', 'list_check_circle', 'list_numbered_modern', 'list_timeline_vertical', 'list_cards_shadow'].includes(p.id);
+            return ['bullets_clean', 'checklist_flow', 'numbered_steps'].includes(p.id);
+        }
+        if (blockType === 'separator') {
+            return ['divider_minimal', 'divider_ornamental', 'divider_dots'].includes(p.id);
         }
         // Paragraph/Default
-        return ['newspaper_standard', 'executive_summary', 'footnote'].includes(p.id);
+        return ['standard_clean', 'editorial_prose', 'breaking_brief'].includes(p.id);
     });
 };

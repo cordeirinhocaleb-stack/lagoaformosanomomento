@@ -9,6 +9,23 @@
 
 
 
+
+## 0.0.5 (Build 10) - 11/01/2026 23:30
+- **Feature (Navigation Guard)**: Proteção contra perda de dados. O editor agora alerta o usuário ao tentar sair ou fechar a aba com alterações não salvas (`isDirty` tracking).
+- **Fix (Gallery Persistence)**: Corrigido bug crítico onde imagens da galeria não eram salvas no banco. Implementada resolução correta de IDs locais (`local_`) para URLs do Cloudinary.
+- **UX (Editor)**: Preview em tempo real para uploads na galeria.
+- **Admin**: Correção de erros de sintaxe no `EditorTab.tsx` (tags duplicadas).
+
+## 0.0.4 (Build 09) - 11/01/2026 22:20
+- **Admin Editor**: Refatoração do bloco de texto com foco em UX.
+- **Admin Editor**: Removida aba SEO do inspetor de blocos para simplificação.
+- **Admin Editor**: Renomeado 'Estilo Camaleão' para 'Temas' com 3 opções focadas.
+- **Admin Editor**: Implementado grid de layout customizável (25%, 50%, 75%, 100%) com ícones de seleção.
+
+## 0.0.4 (Build 08) - 11/01/2026 22:15
+- **Admin**: Adicionada opção de minimizar o menu lateral dedicado para Desktop (PC).
+- **Core**: Sincronização de versão e Build Number para controle de cache.
+
 ## 0.0.4 (Build 03) - 11/01/2026 00:10
 - **Type Safety**: Corrigidos erros críticos de tipagem em `GalleryPreview`, `InspectorSidebar`, `TicketsModal` e `UserListTable`.
 - **Sync**: Padronização da propriedade `avatar_url` no tipo `User` para sincronia com o schema do banco.

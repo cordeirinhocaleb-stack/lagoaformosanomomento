@@ -14,6 +14,15 @@ import { UseModalsReturn } from '../../hooks/useModals';
  * Isola lógica complexa de cadastro e login do App.tsx principal
  */
 
+interface GoogleUser {
+    id: string;
+    email?: string;
+    user_metadata?: {
+        full_name?: string;
+        avatar_url?: string;
+    };
+}
+
 interface AuthModalsContainerProps {
     modals: UseModalsReturn;
     user: User | null;
@@ -47,7 +56,6 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
         showAccessDenied,
         showSuccessModal,
         showTermsModal,
-        pendingGoogleUser,
         pendingManualEmail,
         accessDeniedConfig,
         successMessage,
@@ -60,20 +68,33 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
         setSuccessMessage,
     } = modals;
 
+    const pendingGoogleUser = modals.pendingGoogleUser as GoogleUser | null;
+
     const [notice, setNotice] = React.useState<{ message: string; type: 'error' | 'warning' | 'info' } | null>(null);
+    const termsAutoOpenRef = React.useRef(false);
+
+    // Reset auto-open ref when user logs out
+    React.useEffect(() => {
+        if (!user) {
+            termsAutoOpenRef.current = false;
+        }
+    }, [user]);
 
     // Check for Terms Acceptance on Login/Load
     React.useEffect(() => {
         if (user) {
-            // Se não aceitou E não está vendo o modal, abre.
-            if (!user.termsAccepted && !showTermsModal) {
+            const userId = user.id;
+            const hasAcceptedLocally = localStorage.getItem(`lfnm_terms_accepted_${userId}`) === 'true';
+
+            if (!user.termsAccepted && !hasAcceptedLocally && !termsAutoOpenRef.current) {
+                termsAutoOpenRef.current = true;
                 const timer = setTimeout(() => {
                     modals.openTermsModal();
                 }, 1500); // Delay visual suave após login
                 return () => clearTimeout(timer);
             }
         }
-    }, [user, showTermsModal, modals]); // Check when user changes
+    }, [user?.id, user?.termsAccepted, modals.openTermsModal]);
 
     // Persistência do email de cadastro entre recarregamentos
     React.useEffect(() => {
@@ -212,7 +233,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     .update(updatedFields)
                     .eq('id', pendingGoogleUser.id);
 
-                if (updateError) {throw updateError;}
+                if (updateError) { throw updateError; }
 
                 // Montar objeto completo do usuário para o estado local
                 const fullUser = {
@@ -396,31 +417,44 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 />
             )}
 
-            {/* Terms of Service Modal */}
             <TermsOfServiceModal
                 visible={modals.showTermsModal}
                 onAccept={async () => {
                     if (user) {
+                        const updatedUser = {
+                            ...user,
+                            termsAccepted: true,
+                            termsAcceptedAt: new Date().toISOString()
+                        };
+
+                        // 1. Atualiza primeiro o estado local e cache para garantir fluidez na UI
+                        // Mesmo que o banco falhe (ex: colunas faltando), o usuário não fica travado
                         try {
-                            const updatedUser = {
-                                ...user,
-                                termsAccepted: true,
-                                termsAcceptedAt: new Date().toISOString()
-                            };
+                            setUser(updatedUser);
+                            localStorage.setItem('lfnm_user', JSON.stringify(updatedUser));
+                            localStorage.setItem(`lfnm_terms_accepted_${user.id}`, 'true');
+                        } catch (cacheErr) {
+                            console.error("Erro ao salvar cache local:", cacheErr);
+                        }
+
+                        // 2. Tenta sincronizar com o banco de dados em background
+                        try {
                             await updateUser(updatedUser);
-                            setUser(updatedUser); // Update local state
-                            localStorage.setItem(`lfnm_terms_accepted_${user.id}`, 'true'); // Fallback/Cache
-                        } catch (err) {
-                            console.error("Erro ao salvar aceite de termos:", err);
+                            console.log("✅ Termos sincronizados com sucesso no banco de dados.");
+                            return true;
+                        } catch (err: any) {
+                            console.error("⚠️ Erro de sincronização:", err);
+                            // Lançamos o erro para que o modal capture e mostre o ErrorAlertModal (padrão do site)
+                            throw err;
                         }
                     }
-                    modals.closeTermsModal();
+                    return false;
                 }}
                 onDecline={() => {
                     modals.closeTermsModal();
-                    // Opcional: Deslogar se recusar? Por enquanto apenas fecha, mas reaparecerá no refresh.
                 }}
                 user={user}
+                onError={triggerErrorModal}
             />
 
             {/* Premium Notice Modal Overlay */}

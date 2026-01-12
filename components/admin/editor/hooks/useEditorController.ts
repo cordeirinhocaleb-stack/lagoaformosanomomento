@@ -65,6 +65,35 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
     const [localPreviews, setLocalPreviews] = useState<Record<string, string>>({});
     const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+    const [isDirty, setIsDirty] = useState(false);
+    const initialLoadRef = useRef(true);
+
+    // Dirty State Tracker
+    useEffect(() => {
+        if (initialLoadRef.current) {
+            initialLoadRef.current = false;
+            return;
+        }
+        setIsDirty(true);
+    }, [
+        title, lead, category, tags, slug, socialCaptions,
+        bannerType, bannerLayout, bannerTransition, bannerDuration,
+        bannerImages, bannerVideoUrl, videoStart, videoEnd,
+        bannerImageLayout, bannerVideoSource, bannerYoutubeVideoId, bannerSmartPlayback, bannerEffects,
+        blocks
+    ]);
+
+    // Browser Navigation Guard
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isDirty]);
 
     // Publication Logic
     const {
@@ -210,6 +239,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             setBannerImages(result.bannerImages || []);
             setBlocks(result.blocks || []);
             setBannerVideoUrl(result.bannerVideoUrl || '');
+            setIsDirty(false); // Reset dirty state
             setToast({ message: "Rascunho salvo com sucesso!", type: 'success' });
         } catch (e: unknown) {
             console.error('Error saving draft:', e);
@@ -227,6 +257,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             setBlocks(result.blocks || []);
             setBannerImages(result.bannerImages || []);
             if (result.imageUrl) { setMainImageUrl(result.imageUrl); }
+            setIsDirty(false); // Reset dirty state
             setToast({ message: isActuallyUpdate ? "Edição salva com sucesso!" : "Notícia publicada com sucesso!", type: 'success' });
         } catch (e: unknown) {
             console.error('Error publishing:', e);
@@ -267,6 +298,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
         selectedBlockId, setSelectedBlockId,
         localPreviews,
         uploadingSlot, setUploadingSlot,
+        isDirty, setIsDirty,
 
         // Handlers
         resolveMedia,

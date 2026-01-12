@@ -6,7 +6,7 @@ import Toast, { ToastType } from '../common/Toast';
 
 import EditorSidebar from './editor/layout/EditorSidebar';
 import InspectorSidebar from './editor/layout/InspectorSidebar';
-import { storeLocalFile } from '../services/storage/localStorageService';
+import { storeLocalFile } from '../../services/storage/localStorageService';
 
 // Custom Hooks
 import { useEditorController } from './editor/hooks/useEditorController';
@@ -35,6 +35,17 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
 
     // Controller Hook
     const ctrl = useEditorController({ user, initialData, onSave, systemSettings, setToast });
+
+    // Internal Navigation Guard
+    const handleCancel = () => {
+        if (ctrl.isDirty) {
+            if (window.confirm("Você tem alterações não salvas. Tem certeza que deseja sair?")) {
+                onCancel();
+            }
+        } else {
+            onCancel();
+        }
+    };
 
     // UI State
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
@@ -126,7 +137,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                         <div className={`shrink-0 border-b z-40 relative ${darkMode ? 'bg-black border-white/5' : 'bg-white border-zinc-200'}`}>
                             <EditorHeader
                                 isPublished={ctrl.isPublished} isHeaderVisible={isHeaderVisible}
-                                initialData={initialData} onCancel={onCancel}
+                                initialData={initialData} onCancel={handleCancel}
                                 onPublish={ctrl.handlePublishLocal} onSaveDraft={ctrl.handleSaveLocal}
                             />
                         </div>
@@ -199,7 +210,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                 {isMobile && (
                     <div className="fixed bottom-4 left-4 right-4 h-16 bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-[2rem] z-[1800] flex justify-between items-center px-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all animate-slideUp">
                         <div className="flex items-center gap-4">
-                            <button onClick={onCancel} className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white"><i className="fas fa-arrow-left"></i></button>
+                            <button onClick={handleCancel} className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white"><i className="fas fa-arrow-left"></i></button>
                             {ctrl.selectedBlockId && <button onClick={() => setShowMobileFormatting(!showMobileFormatting)} className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400"><i className="fas fa-font"></i></button>}
                         </div>
                         <div className="absolute left-1/2 -top-6 -translate-x-1/2">

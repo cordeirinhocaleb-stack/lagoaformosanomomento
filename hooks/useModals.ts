@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 /**
  * Hook para gerenciar todos os estados de modais da aplicação
@@ -98,7 +98,7 @@ export const useModals = () => {
     const openTermsModal = useCallback(() => setShowTermsModal(true), []);
     const closeTermsModal = useCallback(() => setShowTermsModal(false), []);
 
-    return {
+    return useMemo(() => ({
         // Estados
         showLoginModal,
         showProfileModal,
@@ -147,7 +147,16 @@ export const useModals = () => {
         closePricingModal,
         openTermsModal,
         closeTermsModal,
-    };
+    }), [
+        showLoginModal, showProfileModal, showRoleSelector, showAccessDenied,
+        showSuccessModal, showChangelog, showPricingModal, showTermsModal,
+        errorModal, accessDeniedConfig, successMessage, pendingGoogleUser,
+        pendingManualEmail, showError, hideError, showAccessDeniedModal,
+        hideAccessDenied, showSuccess, hideSuccess, openLoginModal,
+        closeLoginModal, openProfileModal, closeProfileModal, openRoleSelector,
+        closeRoleSelector, openChangelog, closeChangelog, openPricingModal,
+        closePricingModal, openTermsModal, closeTermsModal
+    ]);
 };
 
 export type UseModalsReturn = ReturnType<typeof useModals>;

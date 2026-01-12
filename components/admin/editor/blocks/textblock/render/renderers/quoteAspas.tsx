@@ -94,6 +94,12 @@ export const renderQuoteAspas = (variant: string, perStyle: any, baseStyles: Rea
             fontWeight: '800'
         };
         variantPre = <div className="inline-block bg-red-700 text-white px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest mb-3">Citação Direta</div>;
+    } else if (variant === 'pull_quote') {
+        const pq = perStyle.pull_quote || { fontSize: '2rem', color: '#ef4444', borderColor: '#ef4444' };
+        variantStyles = { ...fluidStyles, fontSize: pq.fontSize, fontWeight: '800', color: pq.color, borderTop: `4px solid ${pq.borderColor}`, borderBottom: `4px solid ${pq.borderColor}`, padding: '2rem 0', textAlign: 'center', fontStyle: 'italic', margin: '2rem 0' };
+    } else if (variant === 'tweet_style') {
+        variantStyles = { ...fluidStyles, backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '1rem', padding: '1.5rem', fontFamily: 'sans-serif', color: '#0f172a', fontSize: '1.125rem', lineHeight: '1.6' };
+        variantPre = <div className="flex items-center gap-2 mb-3 text-blue-500 font-bold text-sm"><i className="fab fa-twitter text-lg"></i> <span>Destaque Social</span></div>;
     }
 
     return (

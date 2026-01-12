@@ -175,11 +175,14 @@ export const useAppInitialization = ({
                         // Helper para restaurar perfil do usuário do banco
                         const restoreUserProfile = async (authUser: { id: string }) => {
                             try {
-                                const { data: profile } = await sbClient
+                                DebugLogger.log(`[AUTH] 🔍 Sincronizando perfil para o usuário: ${authUser.id}`);
+                                const { data: profile, error: profileError } = await sbClient
                                     .from('users')
                                     .select('*')
                                     .eq('id', authUser.id)
                                     .maybeSingle();
+
+                                if (profileError) throw profileError;
 
                                 // Verificação de Perfil Completo:
                                 // Um perfil é considerado completo se:
@@ -234,50 +237,26 @@ export const useAppInitialization = ({
                         });
 
                         // Carregamento Inicial (Sessão Existente)
-                        sbClient.auth.getSession().then(({ data: { session } }) => {
-                            if (session?.user) {
-                                DebugLogger.log(`[AUTH] 🔄 Sessão ativa detectada: ${session.user.email}`);
-                                // Forçamos a restauração do perfil para garantir sincronia após login social/redirect
-                                restoreUserProfile(session.user);
-                                loadRemoteData();
-                            }
-                        });
+                        const { data: { session } } = await sbClient.auth.getSession();
+                        if (session?.user) {
+                            DebugLogger.log(`[AUTH] 🔄 Sessão ativa detectada: ${session.user.email}`);
+                            // AQUARDA a sincronização oficial para que a UI não carregue com cache antigo
+                            await restoreUserProfile(session.user);
+                        }
+
+                        // Sempre carrega dados remotos (ou aguarda se prod)
+                        await loadRemoteData();
                     }
                 } catch (supabaseError) {
                     DebugLogger.warn("⚠️ Erro ao inicializar Supabase:", supabaseError);
                 }
 
-                // 4. CRÍTICO: Marca como inicializado
-                // No desenvolvimento, inicializamos após 2s para agilidade (usando mock/cache)
-                // Na produção, aguardamos o loadRemoteData para garantir que o Maintenance Mode seja lido antes da UI aparecer.
-                const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
-
-                if (isLocal) {
-                    setTimeout(() => {
-                        if (isMounted) {
-                            setIsInitialized(true);
-                            setIsLoading(false);
-                            DebugLogger.log("✅ Aplicação inicializada (Modo Local - Otimista).");
-                        }
-                    }, 2000);
+                // 4. Marca como inicializado
+                if (isMounted) {
+                    setIsInitialized(true);
+                    setIsLoading(false);
+                    DebugLogger.log("✅ Aplicação inicializada com sucesso.");
                 }
-
-                // 5. Carregar Dados Remotos em BACKGROUND (ou bloqueante na Prod)
-                DebugLogger.log("🔍 [INIT] Iniciando loadRemoteData...");
-                loadRemoteData().then((settings) => {
-                    DebugLogger.log("🔍 [INIT] loadRemoteData finalizado. Configurações recebidas:", settings?.maintenanceMode);
-                    if (!isLocal && isMounted) {
-                        setIsInitialized(true);
-                        setIsLoading(false);
-                        DebugLogger.log("✅ Aplicação inicializada (PROD - Dados Sincronizados).");
-                    }
-                }).catch((err) => {
-                    DebugLogger.warn("⚠️ Erro ao carregar dados em background:", err);
-                    if (!isLocal && isMounted) {
-                        setIsInitialized(true);
-                        setIsLoading(false);
-                    }
-                });
 
             } catch (initError) {
                 DebugLogger.error("❌ Erro crítico na inicialização:", initError);

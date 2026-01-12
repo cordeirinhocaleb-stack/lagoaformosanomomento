@@ -2,6 +2,13 @@
 # 📝 Registro de Edições e Revisões - LFNM
 
 
+## 0.0.5 (Build 10) - 11/01/2026 23:30
+### 🛡️ Segurança & Persistência
+- **Navigation Guard**: Implementada barreira de proteção no Editor. Impede que o redator perca o trabalho ao clicar acidentalmente em "Voltar" ou fechar o navegador.
+- **Gallery Persistence Fix**: Resolvido problema onde galerias de imagem apareciam vazias após salvar. O sistema de sync agora processa corretamente filas de upload mistas (Capa + Conteúdo + Galeria).
+
+---
+
 ## 0.0.3 (Build 02) - 10/01/2026 23:58
 ### 🚀 Refatoração & Segurança (Core)
 - **Remoção Mobile Permanente**: Exclusão da pasta `android` e remoção de todas as dependências do Capacitor. Refatoração de `PlatformService` e `OfflineService` para arquitetura 100% Web.

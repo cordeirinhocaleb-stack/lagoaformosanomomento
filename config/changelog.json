@@ -1,5 +1,36 @@
 [
   {
+    "version": "0.0.5",
+    "date": "11/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "Navigation Guard",
+        "description": "Proteção contra perda de dados. O editor agora alerta o usuário ao tentar sair ou fechar a aba com alterações não salvas."
+      },
+      {
+        "category": "fix",
+        "title": "Galeria & Preview",
+        "description": "Correção crítica na persistência de imagens da galeria (IDs locais) e implementação de preview em tempo real no editor."
+      },
+      {
+        "category": "improvement",
+        "title": "Cloudinary Multi-Conta",
+        "description": "Suporte a múltiplas contas Cloudinary. Imagens e Vídeos agora usam credenciais distintas para organização e segurança."
+      },
+      {
+        "category": "refactor",
+        "title": "Arquitetura & Tipagem",
+        "description": "Refatoração do `ArticleContent` e `EditorTab` para melhor manutenção. Correção de erros de tipagem e uso de aliases (@) nos imports."
+      },
+      {
+        "category": "fix",
+        "title": "Editor Stability",
+        "description": "Correção de duplicidade de renderização no cabeçalho do editor e na barra de navegação mobile."
+      }
+    ]
+  },
+  {
     "version": "0.0.3",
     "date": "10/01/2026",
     "items": [

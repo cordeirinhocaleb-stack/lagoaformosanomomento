@@ -92,7 +92,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
         );
 
         if (res.success && res.updatedUser) {
-          lastUpdatedUser = res.updatedUser;
+          lastUpdatedUser = { ...lastUpdatedUser, ...res.updatedUser };
           successCount++;
         } else {
           alert(`Erro na compra de ${item.name}: ${res.message}`);
@@ -116,7 +116,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
   const finalBalance = (user.siteCredits || 0) - cartTotal;
 
   return (
-    <div className="flex flex-col md:flex-row gap-6">
+    <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
       <style>{`
             @keyframes coin-flip {
                 0% { transform: rotateY(0deg); }
@@ -133,7 +133,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
       {/* Market Shelf */}
       <div className="flex-1">
         <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3">Serviços Disponíveis</h4>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2 md:gap-3">
           {marketItems.map(item => (
             <div
               key={item.id}
@@ -167,7 +167,7 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
           onDragLeave={() => setIsDragOver(false)}
           onDrop={handleDrop}
           className={`
-                        flex-1 min-h-[250px] border-2 border-dashed rounded-2xl flex flex-col p-4 transition-all relative overflow-hidden bg-white
+                        flex-1 min-h-[180px] md:min-h-[250px] border-2 border-dashed rounded-2xl flex flex-col p-3 md:p-4 transition-all relative overflow-hidden bg-white
                         ${isDragOver ? 'border-green-500 bg-green-50' : 'border-gray-200'}
                     `}
         >
@@ -245,7 +245,7 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {return;}
+    if (!file) { return; }
 
     setIsUploadingAvatar(true);
     try {
@@ -257,31 +257,36 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
       alert('Erro ao carregar avatar: ' + err.message);
     } finally {
       setIsUploadingAvatar(false);
-      if (fileInputRef.current) {fileInputRef.current.value = '';}
+      if (fileInputRef.current) { fileInputRef.current.value = ''; }
     }
   };
 
   const TabButton = ({ id, label, icon }: { id: typeof activeTab, label: string, icon: string }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`w-full text-left px-6 py-4 flex items-center gap-4 transition-all ${activeTab === id ? 'bg-black text-white font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-black font-medium'}`}
+      className={`
+        flex-shrink-0 md:w-full text-left px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-4 transition-all border-b-2 md:border-b-0 md:border-l-4
+        ${activeTab === id
+          ? 'bg-black text-white md:bg-gray-50 md:text-black border-red-600 font-bold'
+          : 'text-gray-500 hover:bg-gray-50 hover:text-black border-transparent font-medium'}
+      `}
     >
-      <i className={`fas ${icon} w-6 text-center ${activeTab === id ? 'text-red-500' : ''}`}></i>
-      <span className="text-sm uppercase tracking-widest">{label}</span>
+      <i className={`fas ${icon} w-5 md:w-6 text-center ${activeTab === id ? 'text-red-500' : ''}`}></i>
+      <span className="text-[10px] md:text-sm uppercase tracking-widest whitespace-nowrap">{label}</span>
     </button>
   );
 
   return (
-    <div className="fixed inset-0 z-[6000] flex items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className={`bg-white transition-all duration-300 overflow-hidden flex flex-col md:flex-row shadow-2xl relative z-10 ${isMaximized ? 'w-full h-full rounded-none' : 'w-full max-w-6xl h-[95vh] md:h-[90vh] rounded-none md:rounded-[2.5rem]'}`}>
+    <div className="fixed inset-0 z-[6000] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+      <div className={`bg-white transition-all duration-300 overflow-hidden flex flex-col md:flex-row shadow-2xl relative z-10 ${isMaximized ? 'w-full h-full rounded-none' : 'w-full max-w-6xl h-[92vh] md:h-[90vh] rounded-t-[2rem] md:rounded-[2.5rem]'}`}>
 
-        <div className="absolute top-4 right-4 md:top-8 md:right-8 z-50 flex gap-2">
+        <div className="absolute top-4 right-4 md:top-8 md:right-8 z-[70] flex gap-2">
           <button
             onClick={() => setIsMaximized(!isMaximized)}
-            className="w-10 h-10 md:w-16 md:h-16 bg-white border border-gray-200 text-gray-400 hover:bg-gray-100 hover:text-black rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg active:scale-95"
+            className="hidden md:flex w-16 h-16 bg-white border border-gray-200 text-gray-400 hover:bg-gray-100 hover:text-black rounded-2xl items-center justify-center transition-all duration-300 shadow-lg active:scale-95"
             title={isMaximized ? "Restaurar" : "Maximizar"}
           >
-            <i className={`fas ${isMaximized ? 'fa-compress' : 'fa-expand'} text-lg md:text-2xl`}></i>
+            <i className={`fas ${isMaximized ? 'fa-compress' : 'fa-expand'} text-2xl`}></i>
           </button>
           <button
             onClick={onClose}
@@ -291,8 +296,25 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
           </button>
         </div>
 
-        <div className="w-full md:w-80 bg-white border-r border-gray-100 flex flex-col">
-          <div className="p-10 flex flex-col items-center border-b border-gray-100 bg-gray-50/50">
+        {/* Sidebar / Top Nav on Mobile */}
+        <div className="w-full md:w-80 bg-white border-b md:border-b-0 md:border-r border-gray-100 flex flex-col">
+          {/* Mobile compact header */}
+          <div className="md:hidden p-4 flex items-center gap-3 border-b border-gray-50">
+            <div className="w-10 h-10 rounded-full bg-gray-900 overflow-hidden border-2 border-white shadow-sm">
+              {formData.avatar ? <img src={formData.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white text-xs font-black">{user.name.charAt(0)}</div>}
+            </div>
+            <div>
+              <h2 className="text-xs font-black text-gray-900 uppercase leading-none">{user.name}</h2>
+              <span className="text-[8px] font-black text-red-600 uppercase tracking-widest">{user.role}</span>
+            </div>
+            <div className="ml-auto bg-gray-900 px-3 py-1.5 rounded-lg flex items-center gap-1.5" onClick={() => setActiveTab('billing')}>
+              <img src={lfnmCoin} className="w-3 h-3 object-contain animate-coin" alt="Coin" />
+              <span className="text-[10px] font-black text-white">{(user.siteCredits || 0).toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Desktop full header */}
+          <div className="hidden md:flex p-10 flex flex-col items-center border-b border-gray-100 bg-gray-50/50">
             <div
               className="w-24 h-24 rounded-full bg-gray-200 mb-4 overflow-hidden border-4 border-white shadow-lg relative group cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
@@ -312,18 +334,10 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
                   {user.name.charAt(0)}
                 </div>
               )}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleAvatarChange}
-                className="hidden"
-                accept="image/*"
-              />
             </div>
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight text-center">{user.name}</h2>
             <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mt-2">{user.role}</span>
 
-            {/* Balance Display in Sidebar */}
             <div className="mt-6 w-full bg-gray-900 rounded-xl p-4 text-center shadow-lg transform transition-all hover:scale-105 cursor-pointer" onClick={() => setActiveTab('billing')}>
               <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1">Seu Saldo</p>
               <h3 className="text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
@@ -333,19 +347,22 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
             </div>
           </div>
 
-          <nav className="flex-1 py-4">
-            <TabButton id="profile" label="Meu Perfil" icon="fa-user-circle" />
-            <TabButton id="professional" label="Identidade Profissional" icon="fa-briefcase" />
-            <TabButton id="security" label="Segurança & Login" icon="fa-shield-alt" />
-            <TabButton id="billing" label="Faturamento" icon="fa-credit-card" />
+          <nav className="flex md:flex-col overflow-x-auto no-scrollbar md:overflow-x-visible md:py-4 bg-white/50 md:bg-transparent">
+            <TabButton id="profile" label="Perfil" icon="fa-user-circle" />
+            <TabButton id="professional" label="Trabalho" icon="fa-briefcase" />
+            <TabButton id="security" label="Segurança" icon="fa-shield-alt" />
+            <TabButton id="billing" label="Loja" icon="fa-credit-card" />
+            <div className="md:hidden flex-shrink-0 flex items-center px-4">
+              {onLogout && <button onClick={onLogout} className="bg-red-50 text-red-600 p-2 rounded-lg text-xs"><i className="fas fa-sign-out-alt"></i></button>}
+            </div>
           </nav>
 
-          <div className="p-6 border-t border-gray-100 text-center">
+          <div className="hidden md:block p-6 border-t border-gray-100 text-center">
             {onLogout && <button onClick={onLogout} className="w-full bg-red-50 text-red-600 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">Sair da Conta</button>}
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-8 md:p-12 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-12 custom-scrollbar">
 
           {activeTab === 'profile' && (
             <div className="max-w-3xl mx-auto animate-fadeIn">

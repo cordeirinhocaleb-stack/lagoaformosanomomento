@@ -3,10 +3,14 @@ import { ContentBlock } from '@/types';
 
 export type EditorialStyle =
   | 'paragraph' | 'heading' | 'quote' | 'list'
-  | 'newspaper_standard' | 'breaking_alert' | 'impact_quote' | 'hero_headline'
-  | 'police_siren' | 'tech_neon' | 'executive_summary' | 'vintage_letter'
+  | 'standard_clean' | 'editorial_prose' | 'breaking_brief'
+  | 'hero_headline' | 'sub_classic' | 'live_update'
+  | 'impact_quote' | 'pull_quote' | 'tweet_style'
+  | 'bullets_clean' | 'checklist_flow' | 'numbered_steps'
+  | 'newspaper_standard' | 'breaking_alert' | 'police_siren' | 'tech_neon' | 'executive_summary' | 'vintage_letter'
   | 'footnote' | 'checklist_pro' | 'quote_modern_accent' | 'quote_elegant_editorial' | 'quote_breaking_card'
-  | 'list_bullets_classic' | 'list_check_circle' | 'list_numbered_modern' | 'list_timeline_vertical' | 'list_cards_shadow';
+  | 'list_bullets_classic' | 'list_check_circle' | 'list_numbered_modern' | 'list_timeline_vertical' | 'list_cards_shadow'
+  | 'divider_minimal' | 'divider_ornamental' | 'divider_dots' | 'separator';
 
 export interface GlobalTextSettings {
   alignment: 'left' | 'center' | 'right' | 'justify';

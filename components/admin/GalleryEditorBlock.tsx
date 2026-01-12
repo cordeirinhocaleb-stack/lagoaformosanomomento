@@ -71,13 +71,21 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, onUpdate }) =
         setUploading(true);
         const files = Array.from(e.target.files);
         const newImageIds: string[] = [];
+        const newPreviews: Record<string, string> = {};
 
         try {
             for (const file of files) {
                 // Store locally and get ID
                 const id = await storeLocalFile(file);
-                newImageIds.push(`local_${id}`);
+                const localKey = `local_${id}`;
+                newImageIds.push(localKey);
+
+                // Immediate preview
+                newPreviews[localKey] = URL.createObjectURL(file);
             }
+
+            // Update previews immediately
+            setImagePreviews(prev => ({ ...prev, ...newPreviews }));
 
             // Update block settings
             const currentImages = (block.settings.images as (string | number)[]) || [];

@@ -4,6 +4,9 @@ import { getLocalFile, removeLocalFile } from './localStorageService';
 import { uploadToCloudinary } from '../cloudinaryService';
 import { queueYouTubeUpload } from '../youtubeService';
 
+const IMG_CONFIG = { cloudName: 'dqrxppg5b', uploadPreset: 'noticias_preset' };
+const VIDEO_CONFIG = { cloudName: 'dlleqjxd7', uploadPreset: 'upload_videos_lagoaformosanomomento' };
+
 export const processPendingUploads = async (newsData: NewsItem, onProgress?: (progress: number, status: string) => void): Promise<NewsItem> => {
     const startTime = Date.now();
     const updatedNews = { ...newsData };
@@ -56,7 +59,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     if (updatedNews.bannerImages && updatedNews.bannerImages.length > 0) {
         const newBannerImages = await Promise.all(updatedNews.bannerImages.map(async (url, idx) => {
             if (typeof url === 'string' && url.startsWith('local_')) {
-                const result = await uploadAndCleanup(url, getFolder('banners'));
+                const result = await uploadAndCleanup(url, getFolder('banners'), IMG_CONFIG);
                 updateProgress(`Imagem do banner ${idx + 1} enviada`);
                 return result;
             }
@@ -77,7 +80,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 
             // Image Blocks
             if (block.type === 'image' && typeof block.content === 'string' && block.content.startsWith('local_')) {
-                newBlock.content = await uploadAndCleanup(block.content, getFolder('content'));
+                newBlock.content = await uploadAndCleanup(block.content, getFolder('content'), IMG_CONFIG);
                 updateProgress("Imagem de conteúdo enviada");
             }
 
@@ -93,7 +96,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 
                     await Promise.all(uniqueLocalIds.map(async (lid) => {
                         try {
-                            const url = await uploadAndCleanup(lid, getFolder('inline'));
+                            const url = await uploadAndCleanup(lid, getFolder('inline'), IMG_CONFIG);
                             urlMap.set(lid, url);
                             updateProgress("Imagem inline enviada");
                         } catch (e) {
@@ -123,7 +126,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                     const newImages = await Promise.all(images.map(async (img: any) => {
                         const url = typeof img === 'string' ? img : img.url;
                         if (url && url.startsWith('local_')) {
-                            const newUrl = await uploadAndCleanup(url, getFolder('gallery'));
+                            const newUrl = await uploadAndCleanup(url, getFolder('gallery'), IMG_CONFIG);
                             updateProgress("Imagem da galeria enviada");
                             return typeof img === 'string' ? newUrl : { ...img, url: newUrl };
                         }
@@ -171,7 +174,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                 // Case B: Cloudinary / Internal Upload (Only if local)
                 else if (isLocal) {
                     try {
-                        const cloudUrl = await uploadAndCleanup(block.content, getFolder('videos'));
+                        const cloudUrl = await uploadAndCleanup(block.content, getFolder('videos'), VIDEO_CONFIG);
                         newBlock.content = cloudUrl;
                         updateProgress("Vídeo do conteúdo enviado");
                     } catch (e) {
@@ -212,7 +215,7 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
         } else {
             // Internal video (Cloudinary or Supabase Storage)
             try {
-                const cloudUrl = await uploadAndCleanup(localId, getFolder('videos'));
+                const cloudUrl = await uploadAndCleanup(localId, getFolder('videos'), VIDEO_CONFIG);
                 updatedNews.bannerVideoUrl = cloudUrl;
                 updateProgress("Vídeo enviado com sucesso");
             } catch (err) {
@@ -291,7 +294,7 @@ export const processConfigUploads = async (config: AdPricingConfig): Promise<AdP
     return updated;
 };
 
-const uploadAndCleanup = async (localId: string, context: string): Promise<string> => {
+const uploadAndCleanup = async (localId: string, context: string, configOverride?: { cloudName: string; uploadPreset: string }): Promise<string> => {
     try {
         const blob = await getLocalFile(localId);
         if (!blob) {
@@ -307,7 +310,7 @@ const uploadAndCleanup = async (localId: string, context: string): Promise<strin
         const file = new File([blob], filename, { type: blob.type });
 
         // Use Cloudinary Service
-        const publicUrl = await uploadToCloudinary(file, context);
+        const publicUrl = await uploadToCloudinary(file, context, 'auto_sync', configOverride);
 
         console.log(`✅ Upload Cloudinary Sucesso (${localId}) -> ${publicUrl}`);
 

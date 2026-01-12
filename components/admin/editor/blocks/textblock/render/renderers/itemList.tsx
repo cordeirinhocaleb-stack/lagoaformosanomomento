@@ -20,11 +20,11 @@ export const renderItemList = (
     // Configurações Específicas do Preset
     const config = perStyle[variant] || {};
 
+    // Configuração de Estilo de Marcador (Pega do tema específico ou do global)
+    const listStyle = config.listStyle || settings?.listStyle || 'bullet';
+
     let variantClasses = "";
     const spacingClass = config.spacing === 'compact' ? 'space-y-1' : config.spacing === 'relaxed' ? 'space-y-4' : 'space-y-2';
-
-    // Configuração de Estilo de Marcador (Novo Seletor)
-    const listStyle = settings?.listStyle || 'bullet';
 
     // Classes Utilitárias Dinâmicas (keeping from original, as they are not redefined in the snippet)
     const colorClass = config.markerColor ? `list-marker-${config.markerColor}` : '';
@@ -56,6 +56,9 @@ export const renderItemList = (
         variantClasses = "pl-6 border-l-[3px] border-purple-400 relative before:content-[''] before:absolute before:left-[-5px] before:top-0 before:w-2 before:h-2 before:rounded-full before:bg-purple-600";
     } else if (variant === 'list_cards_shadow') {
         variantClasses = "shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-orange-100 rounded-2xl p-6 bg-white hover:shadow-lg transition-shadow";
+    } else if (variant === 'checklist_flow') {
+        // Estilo Checklist Fluido: Fundo verde suave, borda verde, itens com check
+        variantClasses = "bg-green-50/30 p-4 rounded-xl border border-green-100 text-zinc-700 space-y-3";
     }
 
     // Ajuste fino para Numeração e Marcadores (Global Overrides)
@@ -76,7 +79,7 @@ export const renderItemList = (
             // Failed State (Red + X)
             "[&_li[data-state='failed']]:before:bg-red-500 [&_li[data-state='failed']]:before:border-red-500 [&_li[data-state='failed']]:before:content-['✕'] [&_li[data-state='failed']]:before:text-white [&_li[data-state='failed']]:before:text-[10px] [&_li[data-state='failed']]:before:flex [&_li[data-state='failed']]:before:items-center [&_li[data-state='failed']]:before:justify-center";
     } else if (listStyle === 'bullet') {
-        if (!variantClasses.includes('list-')) {variantClasses += " list-disc list-inside";}
+        if (!variantClasses.includes('list-')) { variantClasses += " list-disc list-inside"; }
     }
 
     // Combina classes base do variante + classes de configuração
@@ -84,11 +87,11 @@ export const renderItemList = (
 
     // Interatividade para Checklists
     const handleListClick = (e: React.MouseEvent) => {
-        if (listStyle !== 'check' && variant !== 'checklist_pro') {return;}
+        if (listStyle !== 'check' && variant !== 'checklist_pro') { return; }
 
         // Encontra o LI clicado
         const target = (e.target as HTMLElement).closest('li');
-        if (!target) {return;}
+        if (!target) { return; }
 
         // Verifica se clicou no marker (pseudo-elemento) ou próximo
         // Como pseudo-elementos não disparam eventos separados, assumimos click no LI
@@ -100,9 +103,9 @@ export const renderItemList = (
         const currentState = target.getAttribute('data-state');
         let nextState = null;
 
-        if (!currentState) {nextState = 'checked';}
-        else if (currentState === 'checked') {nextState = 'failed';}
-        else if (currentState === 'failed') {nextState = null;}
+        if (!currentState) { nextState = 'checked'; }
+        else if (currentState === 'checked') { nextState = 'failed'; }
+        else if (currentState === 'failed') { nextState = null; }
 
         if (nextState) {
             target.setAttribute('data-state', nextState);

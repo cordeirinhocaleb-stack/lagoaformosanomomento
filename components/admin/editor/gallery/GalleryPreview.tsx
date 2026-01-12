@@ -15,8 +15,8 @@ export const GalleryPreview: React.FC<GalleryPreviewProps> = ({ block, getImgSrc
         settings: {
             ...block.settings,
             // Mock images if empty for preview purposes
-            images: (block.settings.images as unknown[] || []).length > 0
-                ? block.settings.images
+            images: (block.settings.images as string[] | undefined || []).length > 0
+                ? (block.settings.images as string[]).map(img => getImgSrc(img))
                 : [1, 2, 3, 4].map(n => `https://picsum.photos/400/300?random=${n}`)
         }
     } as ContentBlock;

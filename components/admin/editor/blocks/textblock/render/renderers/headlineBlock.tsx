@@ -18,36 +18,36 @@ export const renderHeadlineBlock = (variant: string, perStyle: any, baseStyles: 
 
     if (variant === 'hero_headline') {
         const hh = perStyle.hero_headline || { shadowDepth: 4, weight: 900, width: 'full' };
-        variantStyles = { 
+        variantStyles = {
             ...fluidStyles,
-            fontWeight: hh.weight, 
-            fontSize: hh.width === 'prose' ? '2.5rem' : '4rem', 
-            lineHeight: '0.95', 
-            textTransform: hh.uppercase ? 'uppercase' : 'none', 
-            textShadow: hh.shadowDepth ? `${hh.shadowDepth}px ${hh.shadowDepth}px 0 rgba(0,0,0,0.1)` : 'none' 
+            fontWeight: hh.weight,
+            fontSize: hh.width === 'prose' ? '2.5rem' : '4rem',
+            lineHeight: '0.95',
+            textTransform: hh.uppercase ? 'uppercase' : 'none',
+            textShadow: hh.shadowDepth ? `${hh.shadowDepth}px ${hh.shadowDepth}px 0 rgba(0,0,0,0.1)` : 'none'
         };
-        if (hh.width === 'prose') {variantClasses = "max-w-prose mx-auto";}
-        if (hh.subtitle) {variantPost = <p className="mt-4 text-zinc-400 font-black uppercase tracking-widest text-[10px] italic">{hh.subtitle}</p>;}
-    } 
-    
+        if (hh.width === 'prose') { variantClasses = "max-w-prose mx-auto"; }
+        if (hh.subtitle) { variantPost = <p className="mt-4 text-zinc-400 font-black uppercase tracking-widest text-[10px] italic">{hh.subtitle}</p>; }
+    }
+
     else if (variant === 'breaking_alert') {
         const ba = perStyle.breaking_alert || { bgPreset: 'red', intensity: 'strong', pulseEnabled: true, icon: 'warning', skew: true, animation: 'shimmer' };
-        
+
         // Mapeamento de Cores de Alto Impacto
-        const bgs: Record<string, string[]> = { 
-            red: ['#dc2626', '#ffffff', '#ffffff'], 
-            dark: ['#09090b', '#dc2626', '#ffffff'], 
-            amber: ['#f59e0b', '#000000', '#000000'], 
-            blue: ['#1d4ed8', '#ffffff', '#ffffff']  
+        const bgs: Record<string, string[]> = {
+            red: ['#dc2626', '#ffffff', '#ffffff'],
+            dark: ['#09090b', '#dc2626', '#ffffff'],
+            amber: ['#f59e0b', '#000000', '#000000'],
+            blue: ['#1d4ed8', '#ffffff', '#ffffff']
         };
-        
+
         const [bg, accent, txt] = bgs[ba.bgPreset] || ['#dc2626', '#ffffff', '#ffffff'];
-        
-        variantStyles = { 
+
+        variantStyles = {
             ...fluidStyles,
-            backgroundColor: bg, 
-            color: txt, 
-            fontWeight: '900', 
+            backgroundColor: bg,
+            color: txt,
+            fontWeight: '900',
             padding: ba.intensity === 'strong' ? '40px' : '24px',
             position: 'relative',
             overflow: 'hidden',
@@ -78,14 +78,21 @@ export const renderHeadlineBlock = (variant: string, perStyle: any, baseStyles: 
 
     else if (variant === 'police_siren') {
         const ps = perStyle.police_siren || { mode: 'glow', animate: true, palette: 'redBlue' };
-        variantStyles = { 
+        variantStyles = {
             ...fluidStyles,
-            border: ps.border === 'none' ? 'none' : `4px ${ps.border || 'solid'} ${ps.palette === 'redBlue' ? '#1d4ed8' : '#dc2626'}`, 
-            padding: '20px', 
-            backgroundColor: ps.palette === 'redBlue' ? '#eff6ff' : '#fef2f2', 
-            fontWeight: '800' 
+            border: ps.border === 'none' ? 'none' : `4px ${ps.border || 'solid'} ${ps.palette === 'redBlue' ? '#1d4ed8' : '#dc2626'}`,
+            padding: '20px',
+            backgroundColor: ps.palette === 'redBlue' ? '#eff6ff' : '#fef2f2',
+            fontWeight: '800'
         };
         variantClasses = `${ps.mode === 'glow' ? 'siren-glow' : 'siren-tape'} ${ps.animate ? 'animate-siren' : ''} palette-${ps.palette}`;
+    } else if (variant === 'sub_classic') {
+        const sc = perStyle.sub_classic || { fontSize: '1.5rem', weight: '600', color: '#4b5563' };
+        variantStyles = { ...fluidStyles, fontSize: sc.fontSize, fontWeight: sc.weight, color: sc.color, fontFamily: 'serif', marginTop: '1rem', marginBottom: '1rem' };
+    } else if (variant === 'live_update') {
+        const lu = perStyle.live_update || { fontSize: '2rem', weight: '800', badgeColor: '#dc2626' };
+        variantStyles = { ...fluidStyles, fontSize: lu.fontSize, fontWeight: lu.weight, color: '#1f2937', display: 'flex', alignItems: 'center', gap: '1rem' };
+        variantPre = <span className="px-2 py-1 bg-red-600 text-white text-xs font-black uppercase tracking-wider rounded animate-pulse">AO VIVO</span>;
     }
 
     return (
@@ -93,18 +100,18 @@ export const renderHeadlineBlock = (variant: string, perStyle: any, baseStyles: 
             {overlayEffect}
             <div className={`w-full ${variant === 'breaking_alert' && perStyle.breaking_alert?.skew ? 'skew-x-[6deg]' : ''}`}>
                 {variantPre}
-                <Tag 
-                    ref={contentRef} 
-                    contentEditable 
-                    onInput={handleInput} 
-                    className="focus:outline-none min-h-[1.5em] text-2xl md:text-4xl uppercase italic tracking-tighter leading-[0.95] relative z-10 w-full break-words" 
-                    role="textbox" 
+                <Tag
+                    ref={contentRef}
+                    contentEditable
+                    onInput={handleInput}
+                    className="focus:outline-none min-h-[1.5em] text-2xl md:text-4xl uppercase italic tracking-tighter leading-[0.95] relative z-10 w-full break-words"
+                    role="textbox"
                     aria-multiline="true"
                     data-placeholder="ESCREVA O ALERTA AQUI..."
                 />
                 {variantPost}
             </div>
-            
+
             <style>{`
                 @keyframes shimmer {
                     100% { transform: translateX(100%); }

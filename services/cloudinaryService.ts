@@ -19,7 +19,8 @@ const DEFAULT_UPLOAD_PRESET = 'docs_upload_example_us_preset';
 export const uploadToCloudinary = async (
   file: File,
   folderPath?: string,
-  uploadContext: string = 'geral'
+  uploadContext: string = 'geral',
+  configOverride?: { cloudName: string; uploadPreset: string }
 ): Promise<string> => {
   // 1. Tenta carregar configurações do banco de dados (com fallback para localStorage)
   const cloudinaryConfig = await loadCloudinarySettings();
@@ -38,7 +39,10 @@ export const uploadToCloudinary = async (
   let uploadPreset = DEFAULT_UPLOAD_PRESET;
 
   // Usa configurações do banco se disponíveis
-  if (cloudinaryConfig) {
+  if (configOverride) {
+    cloudName = configOverride.cloudName;
+    uploadPreset = configOverride.uploadPreset;
+  } else if (cloudinaryConfig) {
     if (isVideo && cloudinaryConfig.videos?.cloudName && cloudinaryConfig.videos?.uploadPreset) {
       cloudName = cloudinaryConfig.videos.cloudName;
       uploadPreset = cloudinaryConfig.videos.uploadPreset;

@@ -65,11 +65,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                         : (isSidebarOpen ? 'w-64 translate-x-0' : 'w-20 translate-x-0')
                     }`}
             >
-                {/* Logo Area */}
-                <div className="h-20 flex items-center justify-center border-b border-white/5 relative cursor-pointer" onClick={() => onNavigate('home')}>
-                    <div className={`${isSidebarOpen ? 'scale-75' : 'scale-50'} transition-transform duration-300`}>
-                        <Logo />
+                {/* Logo Area & Local Toggle */}
+                <div className="h-20 flex items-center border-b border-white/5 relative bg-black/20 group/sidebar">
+                    <div
+                        className={`flex-1 flex items-center justify-center cursor-pointer transition-all duration-300 ${isSidebarOpen ? 'px-4' : 'px-0'}`}
+                        onClick={() => onNavigate('home')}
+                    >
+                        <div className={`${isSidebarOpen ? 'scale-75' : 'scale-50'} transition-transform duration-300`}>
+                            <Logo />
+                        </div>
                     </div>
+
+                    {/* Dedicated Toggle Button (Desktop Only) */}
+                    {!isMobile && (
+                        <button
+                            onClick={toggleSidebar}
+                            className={`absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center border-2 border-zinc-950 shadow-lg transition-all duration-300 hover:scale-110 active:scale-90 z-[60] ${!isSidebarOpen && 'rotate-180'}`}
+                            title={isSidebarOpen ? "Minimizar Menu" : "Expandir Menu"}
+                        >
+                            <i className="fas fa-chevron-left text-[10px]"></i>
+                        </button>
+                    )}
                 </div>
 
                 {/* Navigation */}
