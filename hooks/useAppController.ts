@@ -136,8 +136,8 @@ export const useAppController = () => {
         onUserRestored: handleUserRestored,
         onAuthChallenge,
         onSettingsLoaded: setSystemSettings,
-        onError: (e) => {
-            const errorMsg = e.message || '';
+        onError: (e: unknown) => {
+            const errorMsg = e instanceof Error ? e.message : String(e);
             if (errorMsg.includes('Conta não registrada') || errorMsg.includes('Acesso Negado')) {
                 modals.setAccessDeniedConfig({
                     title: 'ACESSO NEGADO',

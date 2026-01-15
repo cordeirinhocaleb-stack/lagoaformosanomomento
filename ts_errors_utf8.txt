@@ -1,0 +1,69 @@
+﻿components/admin/editor/blocks/MediaBlock.tsx(355,38): error TS2304: Cannot find name 'UniversalMediaUploader'.
+components/admin/editor/blocks/MediaBlock.tsx(358,60): error TS7006: Parameter 'urls' implicitly has an 'any' type.
+components/admin/editor/EditorTab.tsx(245,67): error TS2322: Type 'Dispatch<SetStateAction<{ muted: boolean; loop: boolean; autoplay: boolean; effects: BannerEffect; }>>' is not assignable to type '(config: Record<string, any>) => void'.
+  Types of parameters 'value' and 'config' are incompatible.
+    Type 'Record<string, any>' is not assignable to type 'SetStateAction<{ muted: boolean; loop: boolean; autoplay: boolean; effects: BannerEffect; }>'.
+      Type 'Record<string, any>' is missing the following properties from type '{ muted: boolean; loop: boolean; autoplay: boolean; effects: BannerEffect; }': muted, loop, autoplay, effects
+components/admin/editor/EditorTab.tsx(250,26): error TS2741: Property 'user' is missing in type '{ blocks: ContentBlock[]; selectedBlockId: string | null; isMobile: boolean; category: string; setCategory: Dispatch<SetStateAction<string>>; ... 13 more ...; accessToken: string | null; }' but required in type 'EditorContentProps'.
+components/admin/editor/EditorTab.tsx(296,21): error TS2739: Type '{ slug: string; setSlug: Dispatch<SetStateAction<string>>; category: string; setCategory: Dispatch<SetStateAction<string>>; }' is missing the following properties from type '{ slug: string; setSlug: (s: string) => void; category: string; setCategory: (c: string) => void; title: string; lead: string; socialCaptions?: any[] | undefined; setSocialCaptions?: ((s: any[]) => void) | undefined; }': title, lead
+components/admin/editor/EditorTab.tsx(307,25): error TS2739: Type '{ slug: string; setSlug: Dispatch<SetStateAction<string>>; category: string; setCategory: Dispatch<SetStateAction<string>>; }' is missing the following properties from type '{ slug: string; setSlug: (s: string) => void; category: string; setCategory: (c: string) => void; title: string; lead: string; socialCaptions?: any[] | undefined; setSocialCaptions?: ((s: any[]) => void) | undefined; }': title, lead
+components/admin/editor/hooks/usePublishingWorkflow.ts(36,80): error TS2345: Argument of type 'YoutubeMetadata' is not assignable to parameter of type 'VideoMetadata'.
+  Types of property 'madeForKids' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+components/admin/editor/hooks/usePublishingWorkflow.ts(58,78): error TS2345: Argument of type 'YoutubeMetadata' is not assignable to parameter of type 'VideoMetadata'.
+  Types of property 'madeForKids' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+components/admin/editor/layout/EditorBanner.tsx(22,24): error TS2304: Cannot find name 'BannerVideoConfig'.
+components/admin/editor/RichContextMenu.tsx(24,35): error TS2304: Cannot find name 'MobileToolBtnProps'.
+components/admin/users/UserListTable.tsx(106,75): error TS2367: This comparison appears to be unintentional because the types 'UserRole' and '"admin"' have no overlap.
+components/common/PricingModal.tsx(284,66): error TS2345: Argument of type '{ siteCredits: any; activePlans: any; advertiserPlan: any; usageCredits: any; subscriptionEnd: any; }' is not assignable to parameter of type 'User'.
+  Type '{ siteCredits: any; activePlans: any; advertiserPlan: any; usageCredits: any; subscriptionEnd: any; }' is missing the following properties from type 'User': id, name, email, role, status
+components/home/WorldNewsGrid.tsx(25,9): error TS7034: Variable 'visibleCategories' implicitly has type 'any[]' in some locations where its type cannot be determined.
+components/home/WorldNewsGrid.tsx(46,88): error TS7005: Variable 'visibleCategories' implicitly has an 'any[]' type.
+components/layout/header/NewsTicker.tsx(54,23): error TS2345: Argument of type 'RefObject<HTMLDivElement | null>' is not assignable to parameter of type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+components/layout/header/NewsTicker.tsx(55,23): error TS2345: Argument of type 'RefObject<HTMLDivElement | null>' is not assignable to parameter of type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+components/layout/header/NewsTicker.tsx(74,67): error TS2345: Argument of type 'RefObject<HTMLDivElement | null>' is not assignable to parameter of type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+components/layout/header/NewsTicker.tsx(108,67): error TS2345: Argument of type 'RefObject<HTMLDivElement | null>' is not assignable to parameter of type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+components/layout/header/NewsTicker.tsx(120,67): error TS2345: Argument of type 'RefObject<HTMLDivElement | null>' is not assignable to parameter of type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+components/layout/header/NewsTicker.tsx(154,67): error TS2345: Argument of type 'RefObject<HTMLDivElement | null>' is not assignable to parameter of type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+components/Login/hooks/useAuthFlow.ts(164,29): error TS2345: Argument of type 'User | null' is not assignable to parameter of type 'User'.
+  Type 'null' is not assignable to type 'User'.
+components/Login/hooks/useAuthFlow.ts(165,59): error TS18047: 'user' is possibly 'null'.
+components/user/UserSupportSection.tsx(2,47): error TS2305: Module '"../../services/supabaseService"' has no exported member 'SupportTicket'.
+components/user/UserSupportSection.tsx(50,20): error TS2345: Argument of type 'SupportTicket[]' is not assignable to parameter of type 'SetStateAction<SupportTicket[]>'.
+  Type 'import("E:/lagoa-formosa-no-momento-alpha-1.099-060120260930/types/system").SupportTicket[]' is not assignable to type 'SupportTicket[]'.
+    Property 'message' is missing in type 'import("E:/lagoa-formosa-no-momento-alpha-1.099-060120260930/types/system").SupportTicket' but required in type 'SupportTicket'.
+hooks/useAppController.ts(140,30): error TS18046: 'e' is of type 'unknown'.
+services/toastService.ts(17,9): error TS2322: Type '"process"' is not assignable to type 'ActivityKind'.
+supabase/functions/cloudinary-delete/index.ts(2,30): error TS2307: Cannot find module 'https://esm.sh/@supabase/supabase-js@2.38.4' or its corresponding type declarations.
+supabase/functions/cloudinary-delete/index.ts(9,1): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(9,19): error TS7006: Parameter 'req' implicitly has an 'any' type.
+supabase/functions/cloudinary-delete/index.ts(21,25): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(22,28): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(23,42): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(58,53): error TS18046: 'error' is of type 'unknown'.
+temp_sync_old.ts(2,69): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+temp_sync_old.ts(3,47): error TS2307: Cannot find module './localStorageService' or its corresponding type declarations.
+temp_sync_old.ts(4,36): error TS2307: Cannot find module '../cloudinaryService' or its corresponding type declarations.
+temp_sync_old.ts(5,36): error TS2307: Cannot find module '../youtubeService' or its corresponding type declarations.
+temp_sync_old.ts(19,42): error TS7006: Parameter 'url' implicitly has an 'any' type.
+temp_sync_old.ts(23,36): error TS7006: Parameter 'block' implicitly has an 'any' type.
+temp_sync_old.ts(57,87): error TS7006: Parameter 'url' implicitly has an 'any' type.
+temp_sync_old.ts(57,92): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+temp_sync_old.ts(75,75): error TS7006: Parameter 'block' implicitly has an 'any' type.
+temp_sync_old.ts(253,82): error TS7006: Parameter 'banner' implicitly has an 'any' type.
+temp_sync_old.ts(258,82): error TS7006: Parameter 'imgUrl' implicitly has an 'any' type.

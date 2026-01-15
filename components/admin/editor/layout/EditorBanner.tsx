@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { User, BannerLayout, BannerTransition } from '../../../../types';
+import { User, BannerLayout, BannerTransition, BannerVideoConfig } from '../../../../types';
 import UniversalMediaUploader from '../../../media/UniversalMediaUploader';
 
 interface EditorBannerProps {

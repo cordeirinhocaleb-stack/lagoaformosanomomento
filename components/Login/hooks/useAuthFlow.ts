@@ -161,8 +161,12 @@ export const useAuthFlow = ({ onLogin, onSignupRequest, onClose, security }: Aut
                 // Trigger automático agora cria o usuário, apenas verificamos se existe
                 if (profile) {
                     const user = mapDbToUser(profile); // Normalize data
-                    onLogin(user, rememberMe);
-                    setTimeout(() => { showWelcomeMessage(user.name); sessionStorage.removeItem('lfnm_login_temp'); onClose(); }, 300);
+                    if (user) {
+                        onLogin(user, rememberMe);
+                        setTimeout(() => { showWelcomeMessage(user.name); sessionStorage.removeItem('lfnm_login_temp'); onClose(); }, 300);
+                    } else {
+                        setErrorMessage("Falha ao carregar perfil.");
+                    }
                 } else {
                     // SE O PERFIL NÃO EXISTE MAS O AUTH SIM:
                     // Enviamos para o RoleSelectionModal em vez de dar erro.

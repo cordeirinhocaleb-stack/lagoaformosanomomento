@@ -1,0 +1,18 @@
+﻿components/home/WorldNewsGrid.tsx(25,9): error TS7034: Variable 'visibleCategories' implicitly has type 'any[]' in some locations where its type cannot be determined.
+components/home/WorldNewsGrid.tsx(46,88): error TS7005: Variable 'visibleCategories' implicitly has an 'any[]' type.
+components/Login/hooks/useAuthFlow.ts(164,29): error TS2345: Argument of type 'User | null' is not assignable to parameter of type 'User'.
+  Type 'null' is not assignable to type 'User'.
+components/Login/hooks/useAuthFlow.ts(165,59): error TS18047: 'user' is possibly 'null'.
+components/user/UserSupportSection.tsx(2,47): error TS2305: Module '"../../services/supabaseService"' has no exported member 'SupportTicket'.
+components/user/UserSupportSection.tsx(50,20): error TS2345: Argument of type 'SupportTicket[]' is not assignable to parameter of type 'SetStateAction<SupportTicket[]>'.
+  Type 'import("E:/lagoa-formosa-no-momento-alpha-1.099-060120260930/types/system").SupportTicket[]' is not assignable to type 'SupportTicket[]'.
+    Property 'message' is missing in type 'import("E:/lagoa-formosa-no-momento-alpha-1.099-060120260930/types/system").SupportTicket' but required in type 'SupportTicket'.
+hooks/useAppController.ts(140,30): error TS18046: 'e' is of type 'unknown'.
+services/toastService.ts(17,9): error TS2322: Type '"process"' is not assignable to type 'ActivityKind'.
+supabase/functions/cloudinary-delete/index.ts(2,30): error TS2307: Cannot find module 'https://esm.sh/@supabase/supabase-js@2.38.4' or its corresponding type declarations.
+supabase/functions/cloudinary-delete/index.ts(9,1): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(9,19): error TS7006: Parameter 'req' implicitly has an 'any' type.
+supabase/functions/cloudinary-delete/index.ts(21,25): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(22,28): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(23,42): error TS2304: Cannot find name 'Deno'.
+supabase/functions/cloudinary-delete/index.ts(58,53): error TS18046: 'error' is of type 'unknown'.

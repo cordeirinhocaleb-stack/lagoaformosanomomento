@@ -11,6 +11,15 @@ interface RichContextMenuProps {
     onInsertImage?: () => void;
 }
 
+interface MobileToolBtnProps {
+    icon: string;
+    label: string;
+    action: string;
+    val?: string;
+    activeColor?: string;
+    tooltip?: string;
+}
+
 export const RichContextMenu: React.FC<RichContextMenuProps> = ({
     x,
     y,

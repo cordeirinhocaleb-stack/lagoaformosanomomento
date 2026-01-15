@@ -29,6 +29,13 @@ export interface BannerEffect {
     opacity: number;
 }
 
+export interface BannerVideoConfig {
+    muted: boolean;
+    loop: boolean;
+    autoplay: boolean;
+    effects: BannerEffect;
+}
+
 export interface SocialDistribution {
     platform: 'instagram_feed' | 'instagram_stories' | 'facebook' | 'whatsapp' | 'linkedin' | 'tiktok' | 'youtube';
     content: string;

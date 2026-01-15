@@ -34,18 +34,6 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, isUploading, 
             customContent: (
                 <div className="grid grid-cols-1 gap-3 p-1">
                     <button
-                        onClick={() => onAddBlock('gallery', { items: [] }, { style: 'hero_slider', width: 'full' })}
-                        className={`${darkMode ? 'bg-[#1a1a1a] border-white/5 hover:border-blue-500/50' : 'bg-white border-gray-100 hover:border-blue-200'} border rounded-2xl px-4 py-4 flex items-center gap-4 hover:shadow-md transition-all group text-left`}
-                    >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg group-hover:scale-110 transition-transform ${darkMode ? 'bg-blue-900/20 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
-                            <i className="fas fa-images"></i>
-                        </div>
-                        <div>
-                            <span className={`text-[11px] font-black uppercase tracking-widest block mb-0.5 ${darkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>Galeria (Cloud)</span>
-                            <span className={`text-[9px] font-medium ${darkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Fotos somente</span>
-                        </div>
-                    </button>
-                    <button
                         onClick={() => onAddBlock('video', '', { style: 'clean', width: 'full' })}
                         className={`${darkMode ? 'bg-[#1a1a1a] border-white/5 hover:border-red-500/50' : 'bg-white border-gray-100 hover:border-red-200'} border rounded-2xl px-4 py-4 flex items-center gap-4 hover:shadow-md transition-all group text-left`}
                     >
@@ -67,6 +55,18 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, isUploading, 
                         <div>
                             <span className={`text-[11px] font-black uppercase tracking-widest block mb-0.5 ${darkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>Reels (YouTube)</span>
                             <span className={`text-[9px] font-medium ${darkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Vertical / Shorts</span>
+                        </div>
+                    </button>
+                    <button
+                        onClick={() => onAddBlock('gallery', { items: [] }, { galleryStyle: 'grid', width: 'full' })}
+                        className={`${darkMode ? 'bg-[#1a1a1a] border-white/5 hover:border-blue-500/50' : 'bg-white border-gray-100 hover:border-blue-200'} border rounded-2xl px-4 py-4 flex items-center gap-4 hover:shadow-md transition-all group text-left`}
+                    >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg group-hover:scale-110 transition-transform ${darkMode ? 'bg-blue-900/20 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+                            <i className="fas fa-images"></i>
+                        </div>
+                        <div>
+                            <span className={`text-[11px] font-black uppercase tracking-widest block mb-0.5 ${darkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>Galeria (Cloud)</span>
+                            <span className={`text-[9px] font-medium ${darkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Múltiplas imagens</span>
                         </div>
                     </button>
                     {/* Botão Video Linker Restaurado no Estilo Original */}

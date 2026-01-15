@@ -1,14 +1,35 @@
 # Histórico de Versões
 
-> **Política de Versionamento:**
-> - **Versão Pública (SemVer):** Atualizada apenas em lançamentos (agrupamento de correções/features).
-> - **Build Number:** Incrementado a cada edição interna (controle de desenvolvimento).
->
-> Mantenha este arquivo sincronizado com `src/version.ts`.
+> [!IMPORTANT]
+> **PROTOCOLO DE DESENVOLVIMENTO (Obrigatório Ler antes de atualizar):**
+> 1. **Incremento**: Toda modificação exige +0.0.1 (Build +1) ou reset de build conforme instrução.
+> 2. **Sincronização**: Atualizar sempre `App.tsx`, `package.json`, `VERSION.md` e `src/version.ts`.
+> 3. **Limite de Arquivo**: Máximo de **400 linhas** (Hard Limit). >500 = Reestruturar imediatamente.
+> 4. **Segurança**: RLS Ativo (Deny by Default). Proibido `service_role` no front. Sanitização obrigatória.
+> 5. **Tipagem**: Strict Mode. `any` proibido em áreas de domínio. Usar `unknown` + validação.
+> 6. **Relatório**: Notas detalhadas (Data, Categoria, Descrição) para o Modal de Atualizações.
+> 7. **SOT**: Qualquer mudança no banco exige atualização do `.sql` principal e `architecture.md`.
 
+---
 
+## 0.0.6 (Build 03) - 12/01/2026 22:50
+- **Feature (Gallery Slots)**: Refatoração completa do sistema de galeria para o modelo de "Slots" unificado (estilo Banner).
+- **UX**: Botão de Galeria movido para a categoria "Redação" para facilitar o fluxo editorial.
+- **UI**: Upload múltiplo simultâneo e reordenação visual em tempo real dentro do bloco.
+- **Cleanup**: Removido componente de galeria legado do menu lateral cloud.
 
+## 0.0.6 (Build 02) - 13/01/2026 00:30
+- **Feature (Media Cloud)**: Modernização completa do `UniversalMediaUploader` com design jornalístico premium, glassmorphism e micro-animações.
+- **Feature (Efeitos)**: Implementados efeitos jornalísticos e opção de Marca d'água ("Lagoa Formosa no Momento") opcional em uploads de imagens.
+- **Refactor (Gallery)**: `GalleryEditorBlock` agora utiliza o `UniversalMediaUploader` unificado, suportando Cloud/YouTube nativamente.
+- **Type Safety**: Estabilização total do projeto com resolução de todos os erros de build (0 errors).
+- **Maintenance**: Remoção de arquivos legados e redundantes (`temp_sync_old.ts`, `editor/EditorTab.tsx`).
 
+## 0.0.6 (Build 01) - 12/01/2026 22:15
+- **Reset**: Reiniciando contagem de builds para novo ciclo de correções.
+- **Audit**: Preparação do ambiente para correções no módulo Admin News.
+- **Refactor**: Modularização do `NewsManager` em `NewsFilterHeader` e `NewsList` (<400 linhas).
+- **Service**: Separação do `contentService.ts` em serviços de domínio (News, Advertiser, Social).
 
 ## 0.0.5 (Build 10) - 11/01/2026 23:30
 - **Feature (Navigation Guard)**: Proteção contra perda de dados. O editor agora alerta o usuário ao tentar sair ou fechar a aba com alterações não salvas (`isDirty` tracking).

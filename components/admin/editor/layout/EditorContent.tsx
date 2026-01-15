@@ -12,6 +12,7 @@ import { SmartBlockEditor } from '../blocks/SmartBlockEditor';
 import { SmartBlockRenderer } from '../blocks/SmartBlockRenderer';
 
 interface EditorContentProps {
+    user: import('../../../../types').User;
     blocks: ContentBlock[];
     selectedBlockId: string | null;
     isMobile: boolean;
@@ -61,7 +62,7 @@ const getBlockTypeLabel = (type: string) => {
 };
 
 const EditorContent: React.FC<EditorContentProps> = ({
-    blocks, selectedBlockId, isMobile,
+    user, blocks, selectedBlockId, isMobile,
     category, setCategory,
     title, setTitle,
     lead, setLead,
@@ -155,13 +156,27 @@ const EditorContent: React.FC<EditorContentProps> = ({
                                             />
                                         );
                                     case 'image': case 'video':
-                                        return <MediaBlock block={block} isSelected={selectedBlockId === block.id} isUploading={!!uploadingSlot} onSelect={() => handleBlockSelect(block.id)} />;
+                                        return (
+                                            <MediaBlock
+                                                user={user}
+                                                block={block}
+                                                isSelected={selectedBlockId === block.id}
+                                                isUploading={!!uploadingSlot}
+                                                onSelect={() => handleBlockSelect(block.id)}
+                                                onUpdate={(content, settings, extraProps) => handleUpdateBlock({
+                                                    ...block,
+                                                    content: content !== undefined ? content : block.content,
+                                                    settings: settings ? { ...block.settings, ...settings } : block.settings,
+                                                    ...extraProps
+                                                })}
+                                            />
+                                        );
                                     case 'video_link':
                                         return <VideoLinkBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => handleBlockSelect(block.id)} onUpdate={(content) => handleUpdateBlock({ ...block, content })} />;
                                     case 'separator':
                                         return <SeparatorBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => handleBlockSelect(block.id)} />;
                                     case 'gallery':
-                                        return <GalleryEditorBlock block={block} accessToken={accessToken} onUpdate={handleUpdateBlock} />;
+                                        return <GalleryEditorBlock block={block} user={user} accessToken={accessToken} onUpdate={handleUpdateBlock} />;
                                     case 'engagement':
                                         return <EngagementEditorBlock block={block} onUpdate={handleUpdateBlock} />;
                                     case 'smart_block':

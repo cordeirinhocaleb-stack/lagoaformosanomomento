@@ -13,6 +13,7 @@ import { SmartBlockRenderer } from './blocks/SmartBlockRenderer';
 import { ImageUploadBlock } from './blocks/ImageUploadBlock';
 
 interface EditorCanvasProps {
+    user: import('../../../types').User;
     blocks: ContentBlock[];
     selectedBlockId: string | null;
     isMobile: boolean;
@@ -58,7 +59,7 @@ const getBlockTypeLabel = (type: string) => {
 };
 
 export const EditorCanvas: React.FC<EditorCanvasProps> = ({
-    blocks, selectedBlockId, isMobile, uploadingSlot, showMobileFormatting,
+    user, blocks, selectedBlockId, isMobile, uploadingSlot, showMobileFormatting,
     onBlockSelect, onDeleteBlock, onUpdateBlock, onShowInspectorMobile, setShowMobileFormatting, localFileHandler, accessToken, onDuplicateBlock
 }) => {
     return (
@@ -144,6 +145,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
                                     );
                                 case 'video':
                                     return <MediaBlock
+                                        user={user}
                                         block={block}
                                         isSelected={selectedBlockId === block.id}
                                         isUploading={!!uploadingSlot}
@@ -165,7 +167,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
                                 case 'separator':
                                     return <SeparatorBlock block={block} isSelected={selectedBlockId === block.id} onSelect={() => onBlockSelect(block.id)} />;
                                 case 'gallery':
-                                    return <GalleryEditorBlock block={block} accessToken={accessToken} onUpdate={onUpdateBlock} />;
+                                    return <GalleryEditorBlock block={block} user={user} accessToken={accessToken} onUpdate={onUpdateBlock} />;
                                 case 'engagement':
                                     return <EngagementEditorBlock block={block} onUpdate={onUpdateBlock} />;
                                 case 'smart_block':

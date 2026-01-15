@@ -8,9 +8,11 @@ import YouTubeVideoUploader from '../banner/YouTubeVideoUploader';
 import { VideoMetadata } from '../../../../services/youtubeService';
 import { YouTubeVideoMetadata } from '../../../../services/upload/youtubeVideoService';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
+import UniversalMediaUploader from '../../../../components/media/UniversalMediaUploader';
 
 // ... (props interface remains same)
-interface MediaBlockProps {
+export interface MediaBlockProps {
+    user: import('../../../../types').User;
     block: ContentBlock;
     isSelected: boolean;
     isUploading?: boolean;
@@ -19,7 +21,7 @@ interface MediaBlockProps {
 }
 
 
-const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading, onSelect, onUpdate }) => {
+const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUploading, onSelect, onUpdate }) => {
     const [showYouTubeWizard, setShowYouTubeWizard] = useState(false);
     const [pendingYouTubeFile, setPendingYouTubeFile] = useState<File | null>(null);
 
@@ -351,12 +353,16 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ block, isSelected, isUploading,
                                     playsInline
                                 />
                             ) : (
-                                <div className="w-full h-full z-0">
-                                    <MediaUploader
-                                        onMediaSelect={handleMediaSelect}
-                                        // @ts-ignore
-                                        acceptedTypes={['video/*']}
-                                        label={videoSource === 'youtube' ? 'Upload para YouTube (max 1GB)' : 'Upload Interno (max 100MB)'}
+                                <div className="w-full h-full z-0 p-4">
+                                    <UniversalMediaUploader
+                                        user={user}
+                                        mediaType="video"
+                                        onUploadComplete={(urls: string[]) => {
+                                            if (urls.length > 0) {
+                                                onUpdate(urls[0]);
+                                            }
+                                        }}
+                                        variant="mini"
                                     />
                                 </div>
                             )}

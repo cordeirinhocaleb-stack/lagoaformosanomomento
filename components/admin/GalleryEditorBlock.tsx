@@ -1,53 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { ContentBlock } from '../../types';
-import { storeLocalFile, getLocalFile } from '../../services/storage/localStorageService';
+import { ContentBlock, User } from '../../types';
+import { getLocalFile } from '../../services/storage/localStorageService';
 import { GalleryPreview } from './editor/gallery/GalleryPreview';
 import { GalleryGridControls, GALLERY_STYLES } from './editor/gallery/GalleryGridControls';
+import UniversalMediaUploader from '../media/UniversalMediaUploader';
 
 interface GalleryEditorProps {
     block: ContentBlock;
+    user: User; // Requisito para o novo uploader
     accessToken?: string | null;
     onUpdate: (updatedBlock: ContentBlock) => void;
 }
 
-const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, onUpdate }) => {
-    // Local state for image previews (base64 or blob urls)
-    const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
-    const [uploading, setUploading] = useState(false);
+const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, user, onUpdate }) => {
+    const [isDragging, setIsDragging] = useState<number | null>(null);
 
     const currentStyle = (block.settings.galleryStyle as string) || 'grid';
     const images = (block.settings.images as string[]) || [];
-
-    // Load previews for local images
-    useEffect(() => {
-        loadPreviews();
-    }, [block.settings.images]);
-
-    const loadPreviews = async () => {
-        const newPreviews: Record<string, string> = {};
-        const imgs = (block.settings.images as (string | number)[]) || [];
-
-        for (const img of imgs) {
-            if (typeof img === 'string' && img.startsWith('local_')) {
-                // It's a local ID, fetch from local storage
-                const file = await getLocalFile(img);
-                if (file) {
-                    newPreviews[img] = URL.createObjectURL(file);
-                }
-            }
-        }
-        setImagePreviews(prev => ({ ...prev, ...newPreviews }));
-    };
-
-    // Helper to get image src (either URL or Base64 from local)
-    const getImgSrc = (img: string | number) => {
-        const imgStr = typeof img === 'number' ? `local_${img}` : img;
-        if (imgStr.startsWith('local_')) {
-            return imagePreviews[imgStr] || '';
-        }
-        return imgStr;
-    };
-
 
     const updateSetting = (key: string, value: unknown) => {
         onUpdate({
@@ -65,149 +34,159 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, onUpdate }) =
         updateSetting('images', newImages);
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files?.length) return;
-
-        setUploading(true);
-        const files = Array.from(e.target.files);
-        const newImageIds: string[] = [];
-        const newPreviews: Record<string, string> = {};
-
-        try {
-            for (const file of files) {
-                // Store locally and get ID
-                const id = await storeLocalFile(file);
-                const localKey = `local_${id}`;
-                newImageIds.push(localKey);
-
-                // Immediate preview
-                newPreviews[localKey] = URL.createObjectURL(file);
-            }
-
-            // Update previews immediately
-            setImagePreviews(prev => ({ ...prev, ...newPreviews }));
-
-            // Update block settings
-            const currentImages = (block.settings.images as (string | number)[]) || [];
-            updateSetting('images', [...currentImages, ...newImageIds]);
-        } catch (error) {
-            console.error('Error uploading images:', error);
-            alert('Erro ao processar imagens. Tente novamente.');
-        } finally {
-            setUploading(false);
-            if (e.target) e.target.value = ''; // Reset input
-        }
-    };
-
-    const handleUrlAdd = () => {
-        const url = prompt('Cole a URL da imagem:');
-        if (url) {
-            updateSetting('images', [...images, url]);
-        }
+    const handleUploadComplete = (urls: string[]) => {
+        updateSetting('images', [...images, ...urls]);
     };
 
     const styleDef = GALLERY_STYLES.find(s => s.id === currentStyle);
 
     return (
-        <div className="p-6 bg-zinc-50/50 rounded-2xl border border-zinc-100">
-            {/* Header / Instructions */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h3 className="text-sm font-black uppercase text-zinc-600 flex items-center gap-2">
-                        <i className="fas fa-images text-blue-500"></i> Editor de Galeria
-                    </h3>
-                    <p className="text-[10px] text-zinc-400 mt-1">
-                        Estilo atual: <strong className="text-zinc-600">{styleDef?.label}</strong> ({images.length}/{styleDef?.maxItems} fotos)
-                    </p>
+        <div className="w-full relative bg-zinc-950 rounded-[3rem] p-1 shadow-2xl overflow-hidden border border-white/5 ring-1 ring-white/10">
+            {/* 1. DARK PREVIEW AREA */}
+            <div className="relative bg-black rounded-[2.8rem] h-64 md:h-[320px] overflow-hidden group/preview mb-1 border border-white/5">
+                {/* TOOLBAR FLUTUANTE */}
+                <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+                    <div className="bg-black/80 backdrop-blur-xl rounded-2xl px-2 py-1.5 flex gap-1 border border-white/10 shadow-2xl pointer-events-auto">
+                        {GALLERY_STYLES.map(style => {
+                            const isActive = currentStyle === style.id;
+                            return (
+                                <button
+                                    key={style.id}
+                                    onClick={() => updateSetting('galleryStyle', style.id)}
+                                    className={`w-9 h-9 flex flex-col items-center justify-center rounded-xl transition-all ${isActive
+                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                        : 'text-white/40 hover:text-white hover:bg-white/10'}`}
+                                    title={style.label}
+                                >
+                                    <i className={`fas ${style.icon} text-xs`}></i>
+                                    <span className="text-[6px] font-black uppercase mt-0.5 tracking-tighter">{style.id}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
-                <div className="text-right">
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${images.length >= (styleDef?.maxItems || 0) ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                        {images.length} imagens
-                    </span>
+
+                {/* CONTENT PREVIEW */}
+                <div className="w-full h-full relative z-0">
+                    <GalleryPreview
+                        block={block}
+                        getImgSrc={(img) => typeof img === 'string' ? img : ''}
+                    />
                 </div>
-            </div>
 
-            {/* 1. Style Controls Extracted */}
-            <GalleryGridControls
-                currentStyle={currentStyle}
-                onChangeStyle={(id) => updateSetting('galleryStyle', id)}
-            />
-
-            {/* 2. Upload Area (Kept Inline for simplicity as it's small, but separated logic) */}
-            <div className="mb-6 bg-white p-4 rounded-xl border border-dashed border-zinc-300 hover:border-blue-400 transition-colors text-center group">
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                    {uploading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-cloud-upload-alt"></i>}
-                </div>
-                <h4 className="text-xs font-bold text-zinc-700 mb-1">Upload de Fotos</h4>
-                <p className="text-[10px] text-zinc-400 mb-4 px-8">Arraste fotos para cá ou clique para selecionar. Máximo de 5MB por arquivo.</p>
-
-                <div className="flex justify-center gap-3">
-                    <label className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95">
-                        <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleFileUpload}
-                            disabled={uploading}
-                        />
-                        {uploading ? 'Processando...' : 'Selecionar Arquivos'}
-                    </label>
-                    <button
-                        onClick={handleUrlAdd}
-                        className="px-4 py-2 bg-zinc-100 text-zinc-600 rounded-lg text-xs font-bold hover:bg-zinc-200 transition-all"
-                        aria-label="Adicionar imagem via URL"
-                        title="Adicionar via URL"
-                    >
-                        <i className="fas fa-link mr-1"></i> Via URL
-                    </button>
+                {/* OVERLAYS JORNALÍSTICOS */}
+                <div className="absolute top-4 left-4 z-40">
+                    <div className="bg-red-600 text-white px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+                        PREVIEW: {styleDef?.label}
+                    </div>
                 </div>
             </div>
 
-            {/* 3. Image List Management */}
-            {images.length > 0 && (
-                <div className="grid grid-cols-4 gap-3 mb-6 animate-fadeIn">
+            {/* 2. MEDIA MANAGEMENT AREA */}
+            <div className="p-8">
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex flex-col">
+                        <h3 className="text-[12px] font-black uppercase text-white tracking-[0.3em] leading-none mb-1.5">
+                            Mídias Arquivadas
+                        </h3>
+                        <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">
+                            Controle de canais da galeria
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-4 bg-zinc-900/50 px-4 py-2 rounded-2xl border border-white/5">
+                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{images.length}</span>
+                        <div className="w-px h-3 bg-white/10"></div>
+                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{styleDef?.maxItems} MÁX</span>
+                    </div>
+                </div>
+
+                {/* IMAGES GRID */}
+                <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
                     {images.map((img, idx) => (
-                        <div key={idx} className="group relative aspect-square bg-zinc-200 rounded-lg overflow-hidden border border-zinc-200 shadow-sm">
-                            <img
-                                src={getImgSrc(img)}
-                                className="w-full h-full object-cover"
-                                alt={`Galeria ${idx}`}
-                            />
+                        <div key={`cam-${idx}`} className="relative group/cam shrink-0 pb-12">
+                            {/* BOTÃO REMOVER (FORA DA IMAGEM) */}
+                            <button
+                                onClick={() => removeImage(idx)}
+                                className="absolute -top-2 -right-2 z-20 w-8 h-8 rounded-full bg-zinc-900 border border-white/10 text-white flex items-center justify-center hover:bg-red-600 hover:border-red-500 transition-all shadow-xl group-hover/cam:scale-110"
+                                title="Remover Canal"
+                            >
+                                <i className="fas fa-times text-[10px]"></i>
+                            </button>
 
-                            {/* Overlay Actions */}
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
-                                <button
-                                    onClick={() => removeImage(idx)}
-                                    className="w-8 h-8 rounded-full bg-white text-red-500 hover:text-red-600 flex items-center justify-center shadow-lg transform hover:scale-110 transition-all"
-                                    title="Remover Imagem"
-                                    aria-label={`Remover imagem ${idx + 1}`}
-                                >
-                                    <i className="fas fa-trash-alt text-xs"></i>
-                                </button>
-                                <button
-                                    className="w-8 h-8 rounded-full bg-white text-blue-500 hover:text-blue-600 flex items-center justify-center shadow-lg transform hover:scale-110 transition-all"
-                                    title="Mover Imagem"
-                                    aria-label={`Mover imagem ${idx + 1}`}
-                                >
-                                    <i className="fas fa-arrows-alt text-xs"></i>
-                                </button>
+                            <div className={`relative aspect-square w-32 rounded-3xl overflow-hidden border-2 transition-all duration-300 bg-zinc-800/50 backdrop-blur-md shadow-2xl ${isDragging === idx ? 'border-blue-500 scale-105 opacity-50' : 'border-white/5 group-hover/cam:border-white/20'}`}
+                                draggable
+                                onDragStart={() => setIsDragging(idx)}
+                                onDragEnd={() => setIsDragging(null)}
+                            >
+                                <img src={img} className="w-full h-full object-cover" alt="" />
+
+                                {/* CANAL LABEL */}
+                                <div className="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-black/80 text-white text-[8px] font-black border border-white/10 uppercase tracking-tighter shadow-lg backdrop-blur-md">
+                                    CAM {idx + 1}
+                                </div>
                             </div>
 
-                            {/* Number Badge */}
-                            <div className="absolute top-1 left-1 w-5 h-5 rounded-md bg-black/40 text-white text-[9px] font-black flex items-center justify-center backdrop-blur-md">
-                                {idx + 1}
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center w-full">
+                                <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest group-hover/cam:text-zinc-400 transition-colors">Arraste para Mover</p>
                             </div>
                         </div>
                     ))}
                 </div>
-            )}
 
-            {/* 4. Live Preview Extracted */}
-            <GalleryPreview
-                block={block}
-                getImgSrc={getImgSrc}
-            />
+                {/* CENTRAL ADD BUTTON + WATERMARK TOGGLE */}
+                {images.length < (styleDef?.maxItems || 0) && (
+                    <div className="mt-4 flex flex-col items-center gap-4">
+                        {/* TOGGLE: WATERMARK ON UPLOAD */}
+                        <div className="flex items-center gap-4 bg-zinc-900/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/5 shadow-xl">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Marca d'água Física</span>
+                                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-tighter">Inserir nos pixels do arquivo</span>
+                            </div>
+                            <button
+                                onClick={() => updateSetting('bakeWatermark', !block.settings.bakeWatermark)}
+                                className={`w-12 h-6 rounded-full transition-all relative flex items-center px-1 ${block.settings.bakeWatermark ? 'bg-red-600' : 'bg-white/10'}`}
+                            >
+                                <div className={`w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300 ${block.settings.bakeWatermark ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                            </button>
+                        </div>
+
+                        <div className="w-full h-24 relative rounded-[2.5rem] border-2 border-dashed border-white/10 bg-zinc-900/30 hover:bg-zinc-900/50 hover:border-blue-500/50 transition-all group/uploader overflow-hidden">
+                            <UniversalMediaUploader
+                                user={user}
+                                mediaType="image"
+                                maxFiles={(styleDef?.maxItems || 0) - images.length}
+                                onUploadComplete={(urls) => handleUploadComplete(urls)}
+                                variant="mini"
+                                // Passing watermark preference to uploader
+                                bakeWatermark={block.settings.bakeWatermark}
+                            />
+                            <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center gap-2">
+                                <div className="w-10 h-10 rounded-2xl bg-zinc-950 flex items-center justify-center border border-white/5 shadow-xl transition-transform group-hover/uploader:scale-110 group-hover/uploader:rotate-3">
+                                    <i className="fas fa-plus text-blue-500"></i>
+                                </div>
+                                <span className="text-[9px] font-black uppercase text-zinc-500 tracking-[0.2em] group-hover/uploader:text-zinc-300">Adicionar Mídias (Canais)</span>
+                            </div>
+                        </div>
+                        <p className="mt-4 text-[7px] text-zinc-600 font-bold uppercase tracking-[0.4em] italic">Capacidade máxima para este layout: {styleDef?.maxItems} arquivos</p>
+                    </div>
+                )}
+            </div>
+
+            {/* 3. SETTINGS PILL */}
+            <div className="p-4 pt-0 flex justify-center">
+                <div className="bg-zinc-800/40 backdrop-blur-md border border-white/5 rounded-full px-6 py-2 flex items-center gap-8">
+                    <div className="flex items-center gap-2">
+                        <i className="fas fa-expand-alt text-blue-500 text-[10px]"></i>
+                        <span className="text-white/60 text-[8px] font-black uppercase tracking-widest">Width: {block.settings.width || 'Full'}</span>
+                    </div>
+                    <div className="w-px h-3 bg-white/10"></div>
+                    <div className="flex items-center gap-2">
+                        <i className="fas fa-layer-group text-zinc-500 text-[10px]"></i>
+                        <span className="text-white/60 text-[8px] font-black uppercase tracking-widest">{images.length}/{styleDef?.maxItems} Canais</span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

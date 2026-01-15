@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { createSupportTicket, getUserTickets, SupportTicket } from '../../services/supabaseService';
-
-interface SupportTicket {
-    id: string;
-    subject: string;
-    category: string;
-    message: string;
-    status: 'open' | 'in_progress' | 'resolved';
-    created_at: string;
-    updated_at: string;
-}
+import { createSupportTicket, getUserTickets } from '../../services/supabaseService';
+import { SupportTicket } from '../../types';
 
 interface UserSupportSectionProps {
     userId: string;
@@ -29,7 +20,7 @@ const SUPPORT_CATEGORIES = [
     { id: 'other', label: 'Outro', icon: 'fa-question-circle', color: 'gray' }
 ];
 
-const UserSupportSection: React.FC<{ userId: string; userName: string }> = ({
+const UserSupportSection: React.FC<UserSupportSectionProps> = ({
     userId,
     userName
 }) => {

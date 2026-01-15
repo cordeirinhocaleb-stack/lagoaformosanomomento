@@ -32,11 +32,10 @@ const UserListTable: React.FC<UserListTableProps> = ({ users, loading, onEdit, o
 
     const getRoleBadge = (role: string) => {
         const styles: Record<string, string> = {
-            admin: 'bg-red-50 text-red-600 border-red-100',
-            advertiser: 'bg-purple-50 text-purple-600 border-purple-100',
-            employer: 'bg-blue-50 text-blue-600 border-blue-100', // Legacy check
-            candidate: 'bg-green-50 text-green-600 border-green-100',
-            user: 'bg-gray-50 text-gray-600 border-gray-100'
+            'Desenvolvedor': 'bg-red-50 text-red-600 border-red-100',
+            'Anunciante': 'bg-purple-50 text-purple-600 border-purple-100',
+            'Repórter': 'bg-blue-50 text-blue-600 border-blue-100',
+            'Leitor': 'bg-gray-50 text-gray-600 border-gray-100'
         };
         const style = styles[role] || styles['user'];
         return (
@@ -103,7 +102,7 @@ const UserListTable: React.FC<UserListTableProps> = ({ users, loading, onEdit, o
                                             <i className="fas fa-pen text-xs"></i>
                                         </button>
 
-                                        {(currentUserLevel === 'admin' && user.role !== 'admin') && (
+                                        {(currentUserLevel === 'admin' && user.role !== 'Desenvolvedor') && (
                                             <button
                                                 onClick={() => {
                                                     if (window.confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {

@@ -180,6 +180,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                                         tags={ctrl.tags} setTags={ctrl.setTags}
                                     />
                                     <EditorCanvas
+                                        user={user}
                                         blocks={ctrl.blocks} selectedBlockId={ctrl.selectedBlockId} isMobile={isMobile}
                                         uploadingSlot={ctrl.uploadingSlot} showMobileFormatting={showMobileFormatting}
                                         onBlockSelect={(id) => { ctrl.setSelectedBlockId(id); if (isMobile) { setShowLibraryMobile(false); } }}

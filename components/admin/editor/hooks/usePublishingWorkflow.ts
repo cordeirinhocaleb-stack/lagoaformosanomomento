@@ -31,14 +31,18 @@ export const usePublishingWorkflow = ({ accessToken, systemSettings, user }: Use
             // 1. Process Banner Media (Video vs Image)
             if (draft.bannerMediaType === 'video' && draft.bannerVideoSource === 'youtube' && bannerFile) {
                 // FLUXO YOUTUBE BANNER: Enfileira e salva job ID
-                if (draft.bannerYoutubeMetadata) {
-                    try {
-                        const { jobId } = await queueYouTubeUpload(bannerFile, draft.bannerYoutubeMetadata, draft.id);
+                try {
+                    if (draft.bannerYoutubeMetadata && draft.bannerYoutubeMetadata.title) {
+                        const { jobId } = await queueYouTubeUpload(bannerFile, {
+                            ...draft.bannerYoutubeMetadata,
+                            title: draft.bannerYoutubeMetadata.title, // Explicit string
+                            madeForKids: !!draft.bannerYoutubeMetadata.madeForKids
+                        }, draft.id);
                         console.log(`YouTube Banner Upload Queued: Job ${jobId}`);
-                        // Poderíamos atualizar bannerVideoUrl aqui com um placeholder, mas o preview local já deve estar lá
-                    } catch (ytError) {
-                        console.error("Falha ao enfileirar Banner YouTube:", ytError);
                     }
+                    // Poderíamos atualizar bannerVideoUrl aqui com um placeholder, mas o preview local já deve estar lá
+                } catch (ytError) {
+                    console.error("Falha ao enfileirar Banner YouTube:", ytError);
                 }
             } else if (bannerFile && accessToken) {
                 // FLUXO DRIVE (Imagem)
@@ -53,10 +57,15 @@ export const usePublishingWorkflow = ({ accessToken, systemSettings, user }: Use
                 if (block.type === 'video' && block.videoSource === 'youtube' && file) {
                     if (block.youtubeMeta) {
                         // Cast madeForKids to boolean for block metadata
-                        block.youtubeMeta.madeForKids = !!block.youtubeMeta.madeForKids;
                         try {
-                            const { jobId } = await queueYouTubeUpload(file, block.youtubeMeta, draft.id);
-                            console.log(`YouTube Block Upload Queued: Job ${jobId}`);
+                            if (block.youtubeMeta.title) {
+                                const { jobId } = await queueYouTubeUpload(file, {
+                                    ...block.youtubeMeta,
+                                    title: block.youtubeMeta.title, // Explicit string
+                                    madeForKids: !!block.youtubeMeta.madeForKids
+                                }, draft.id);
+                                console.log(`YouTube Block Upload Queued: Job ${jobId}`);
+                            }
                         } catch (ytError) {
                             console.error("Falha ao enfileirar Bloco YouTube:", ytError);
                         }

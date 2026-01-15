@@ -86,6 +86,7 @@ export interface SupportTicket {
     user_id: string;
     category: string;
     subject: string;
+    message?: string;
     status: 'open' | 'in_progress' | 'resolved';
     created_at: string;
     updated_at: string;
@@ -102,11 +103,11 @@ export interface SupportMessage {
 }
 
 export type ActivityStatus = 'pending' | 'success' | 'error' | 'info';
-export type ActivityKind = 'upload' | 'distribution' | 'sync' | 'error';
+export type ActivityKind = 'upload' | 'distribution' | 'sync' | 'error' | 'process';
 
 export const checkPermission = (user: User | null, permission: string): boolean => {
-    if (!user) {return false;}
-    if (user.role === 'Desenvolvedor') {return true;}
+    if (!user) { return false; }
+    if (user.role === 'Desenvolvedor') { return true; }
     return !!user.permissions?.[permission];
 };
 
