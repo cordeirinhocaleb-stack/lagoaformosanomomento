@@ -10,6 +10,14 @@
 > 6. **Relatório**: Notas detalhadas (Data, Categoria, Descrição) para o Modal de Atualizações.
 > 7. **SOT**: Qualquer mudança no banco exige atualização do `.sql` principal e `architecture.md`.
 
+
+## 0.1.0 (Build 01) - 18/01/2026 06:45
+- **Milestone**: Lançamento da Versão 0.1.0.
+- **Admin**: Integração completa do Histórico de Compras (`PurchaseHistoryModal`) no Painel de Assinaturas.
+- **Feature**: Novo componente `ContactInfo` para padronização de contatos.
+- **Refactor**: Auditoria e correções em componentes administrativos e tipagem.
+- **System**: Sincronização de base de código.
+
 ---
 
 ## 0.0.7 (Build 01) - 15/01/2026 22:50
