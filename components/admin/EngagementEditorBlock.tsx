@@ -112,11 +112,12 @@ const EngagementEditorBlock: React.FC<EngagementEditorProps> = ({ block, onUpdat
 
     // Dynamic Color Resolution
     const colorOptions = getEngagementColors(currentType as string);
-    const currentColor = block.settings.engagementColor || colorOptions[0].id;
+    // Prioriza editorialVariant sobre engagementColor
+    const currentColor = block.settings.editorialVariant || block.settings.engagementColor || colorOptions[0].id;
     const currentTheme = colorOptions.find(c => c.id === currentColor) || colorOptions[0];
 
     return (
-        <div className={`p-6 transition-all duration-300 rounded-xl ${currentTheme.classes.wrapper}`}>
+        <div className={`p-4 md:p-6 transition-all duration-300 rounded-xl ${currentTheme.classes.wrapper}`}>
             {/* Header: Tipo de Interativo */}
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-100/10">
                 <div className="flex items-center gap-3">

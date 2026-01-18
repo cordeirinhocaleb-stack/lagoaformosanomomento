@@ -18,7 +18,7 @@ interface SettingsTabProps {
     gapiInited?: boolean;
     gisInited?: boolean;
     currentUser: User | null;
-    onUpdateSettings: (settings: SystemSettings) => void;
+    onUpdateSettings: (settings: SystemSettings) => Promise<void> | void;
     darkMode?: boolean;
 }
 
@@ -102,7 +102,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             if (!result.success) { throw new Error(result.message); }
 
             await onSave(config, settings);
-            onUpdateSettings(settings); // Propagate up
+            await onUpdateSettings(settings); // Propagate up
 
             setNotification({ type: 'success', message: result.message || "Configurações salvas!" });
             setTimeout(() => setNotification(null), 3000);
@@ -143,7 +143,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
         try {
             const result = await saveSystemSettings(newSettings, 'admin');
             if (result.success) {
-                onUpdateSettings(newSettings);
+                await onUpdateSettings(newSettings);
                 setNotification({ type: newValue ? 'success' : 'info', message: `${label} ${newValue ? 'ativado' : 'desativado'}.` });
                 setTimeout(() => setNotification(null), 3000);
                 loadHistory();

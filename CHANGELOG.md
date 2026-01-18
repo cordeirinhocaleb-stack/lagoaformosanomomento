@@ -2,7 +2,15 @@
 # 📝 Registro de Edições e Revisões - LFNM
 
 
-## 0.0.5 (Build 10) - 11/01/2026 23:30
+## 0.0.7 (Build 01) - 15/01/2026 22:50
+### 🎨 Branding & Refatoração (Law #1)
+- **Marca d'água Premium**: Implementação de selo físico com moldura vermelha editorial e tag "2026".
+- **Refactor Core**: Desmembramento de componentes gigantes (Uploader e Galeria) para cumprir a lei de 500 linhas.
+- **Image Intelligence**: Novo processador de imagem via Canvas isolado em service.
+
+---
+
+## 0.0.6 (Build 03) - 12/01/2026 22:50
 ### 🛡️ Segurança & Persistência
 - **Navigation Guard**: Implementada barreira de proteção no Editor. Impede que o redator perca o trabalho ao clicar acidentalmente em "Voltar" ou fechar o navegador.
 - **Gallery Persistence Fix**: Resolvido problema onde galerias de imagem apareciam vazias após salvar. O sistema de sync agora processa corretamente filas de upload mistas (Capa + Conteúdo + Galeria).

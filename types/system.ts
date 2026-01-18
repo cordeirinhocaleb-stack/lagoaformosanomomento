@@ -107,7 +107,18 @@ export type ActivityKind = 'upload' | 'distribution' | 'sync' | 'error' | 'proce
 
 export const checkPermission = (user: User | null, permission: string): boolean => {
     if (!user) { return false; }
-    if (user.role === 'Desenvolvedor') { return true; }
+
+    // Normalização para evitar erros de digitação/hífen
+    const role = (user.role || '').toLowerCase();
+    const isHighPrivilege =
+        role.includes('admin') ||
+        role.includes('chefe') ||
+        role.includes('desenvolvedor') ||
+        role.includes('dev') ||
+        role.includes('editor');
+
+    if (isHighPrivilege) { return true; }
+
     return !!user.permissions?.[permission];
 };
 

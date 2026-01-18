@@ -52,8 +52,12 @@ const PlansEditor: React.FC<PlansEditorProps> = ({ plans, onChange, currentUser,
         setIsCreating(false);
     };
 
-    const handleDelete = (id: string) => {
-        if (!confirm("Tem certeza que deseja excluir este plano?")) { return; }
+    const handleDelete = (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        const plan = plans.find(p => p.id === id);
+        if (!plan) return;
+
+        if (!window.confirm(`Tem certeza que deseja excluir o plano "${plan.name}"?`)) { return; }
         onChange(plans.filter(p => p.id !== id));
     };
 
@@ -144,9 +148,9 @@ const PlansEditor: React.FC<PlansEditorProps> = ({ plans, onChange, currentUser,
                             </button>
                             {canManagePlans && (
                                 <button
-                                    onClick={() => handleDelete(plan.id)}
+                                    onClick={(e) => handleDelete(e, plan.id)}
                                     className={`w-8 h-8 flex items-center justify-center rounded-xl border transition-colors ${isMaster
-                                        ? 'bg-transparent border-white/20 text-white/50 hover:text-red-500 hover:border-red-500'
+                                        ? 'bg-transparent border-white/20 text-white hover:text-red-500 hover:border-red-500'
                                         : (darkMode ? 'bg-transparent border-white/10 text-gray-600 hover:text-red-500 hover:border-red-500' : 'bg-white border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-600')
                                         }`}
                                     title="Excluir"

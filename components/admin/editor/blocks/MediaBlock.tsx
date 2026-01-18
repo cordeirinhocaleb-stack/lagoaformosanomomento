@@ -9,6 +9,7 @@ import { VideoMetadata } from '../../../../services/youtubeService';
 import { YouTubeVideoMetadata } from '../../../../services/upload/youtubeVideoService';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
 import UniversalMediaUploader from '../../../../components/media/UniversalMediaUploader';
+import { VideoPlayer } from '../../../../components/ui/video-thumbnail-player';
 
 // ... (props interface remains same)
 export interface MediaBlockProps {
@@ -218,7 +219,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
         if (!isVideo) { return {}; }
         switch (style) {
             case 'cinema': return { backgroundColor: '#000', padding: '40px 0', width: '100%' };
-            case 'shorts': return { width: '300px', margin: '0 auto', aspectRatio: '9/16' };
+            case 'shorts': return { width: '100%', maxWidth: '300px', margin: '0 auto', aspectRatio: '9/16' };
             case 'news_card': return { backgroundColor: '#fff', padding: '20px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' };
             default: return {};
         }
@@ -262,7 +263,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
     }
 
     return (
-        <div onClick={(e) => { e.stopPropagation(); onSelect(); }} className={`p-4 transition-all duration-300 ${isSelected ? 'z-50' : 'z-0'}`}>
+        <div onClick={(e) => { e.stopPropagation(); onSelect(); }} className={`p-2 sm:p-4 transition-all duration-300 ${isSelected ? 'z-50' : 'z-0'}`}>
             <ConfirmModal
                 isOpen={confirmConfig.isOpen}
                 title={confirmConfig.title}
@@ -321,7 +322,7 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
             )}
 
             <div
-                className={`relative overflow-hidden transition-all ${style === 'polaroid' ? 'p-4 bg-white border border-zinc-200 shadow-md' : 'rounded-3xl'}`}
+                className={`relative overflow-hidden transition-all ${style === 'polaroid' ? 'p-4 bg-white border border-zinc-200 shadow-md' : 'rounded-2xl md:rounded-3xl'}`}
                 style={{ ...getContainerStyles() }}
             >
                 {isVideo ? (
@@ -329,10 +330,6 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
 
                         {/* Render Video/Iframe with Effects */}
                         <div style={{ filter: getFilterString(), width: '100%', height: '100%' }}>
-                            {thumbUrl && !isYouTube && (
-                                <img src={thumbUrl} className="absolute inset-0 w-full h-full object-cover z-10 opacity-60" alt="Capa" />
-                            )}
-
                             {/* PENDING STATE HANDLING */}
                             {(block.settings?.uploadStatus === 'uploading' || (typeof content === 'string' && content.includes('pending_'))) ? (
                                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20 text-center p-6">
@@ -340,17 +337,14 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
                                     <span className="text-white font-black uppercase text-xs tracking-widest mb-1">Processando Vídeo</span>
                                     <span className="text-zinc-500 text-[10px]">Isso pode levar alguns minutos...</span>
                                 </div>
-                            ) : embedUrl ? (
-                                <iframe src={embedUrl} className="w-full h-full pointer-events-none z-0" title="Preview YouTube" allow="autoplay" />
-                            ) : (localVideoUrl || (content && !isYouTube && !content.includes('pending_'))) ? ( // Check localVisualUrl OR content exists and is not youtube/pending
-                                <video
-                                    src={localVideoUrl || content}
-                                    className="w-full h-full object-contain z-0"
-                                    controls={!isAutoplay}
-                                    autoPlay={isAutoplay}
-                                    muted={isMuted}
-                                    loop={isLoop}
-                                    playsInline
+                            ) : (embedUrl || localVideoUrl || (content && !content.includes('pending_'))) ? (
+                                <VideoPlayer
+                                    thumbnailUrl={thumbUrl || (isYouTube ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P")}
+                                    videoUrl={embedUrl || localVideoUrl || (content as string)}
+                                    title={block.settings.videoTitle || (block.settings.caption as string) || "Vídeo em Destaque"}
+                                    description={block.settings.videoTitle ? (block.settings.caption as string) : undefined}
+                                    aspectRatio={style === 'shorts' ? '9/16' as any : '16/9'}
+                                    className="w-full h-full"
                                 />
                             ) : (
                                 <div className="w-full h-full z-0 p-4">

@@ -183,15 +183,15 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
     };
 
     return (
-        <div className={`w-full h-full relative overflow-hidden group transition-all duration-500 rounded-3xl border-2 
+        <div className={`w-full h-full relative overflow-hidden group transition-all duration-500 rounded-2xl md:rounded-3xl border-2 
             ${isMini ? 'bg-[#0a0a0a] border-white/5 hover:border-white/20 border-dashed'
-                : 'min-h-[220px] bg-white border-zinc-200 border-dashed hover:border-red-600 hover:bg-zinc-50/30'} 
+                : 'min-h-[200px] bg-white border-zinc-200 border-dashed hover:border-red-600 hover:bg-zinc-50/30'} 
             ${isUploading ? 'border-solid border-red-600/20' : ''}`}
         >
             <input type="file" ref={fileInputRef} className="hidden" accept={mediaType === 'video' ? 'video/*' : 'image/*'} onChange={handleFileSelect} multiple={mediaType === 'image' && maxFiles > 1} />
 
             {!selectedFile && (
-                <div className={`flex flex-col items-center cursor-pointer w-full h-full justify-center transition-all duration-300 ${isMini ? 'p-1 hover:bg-white/5' : 'p-8'}`} onClick={() => fileInputRef.current?.click()}>
+                <div className={`flex flex-col items-center cursor-pointer w-full h-full justify-center transition-all duration-300 ${isMini ? 'p-1 hover:bg-white/5' : 'p-4 md:p-8'}`} onClick={() => fileInputRef.current?.click()}>
                     <div className={`${isMini ? 'w-full h-full flex flex-col items-center justify-center gap-2' : 'w-24 h-24 mb-6 bg-zinc-950 rounded-full shadow-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all'}`}>
                         <i className={`fas ${mediaType === 'video' ? 'fa-video' : (isMini ? 'fa-plus' : 'fa-camera-retro')} ${isMini ? 'text-xl text-white/10 group-hover:text-blue-500' : 'text-4xl text-white group-hover:text-red-500'}`}></i>
                         {isMini && <span className="text-[7px] font-black uppercase text-white/5 tracking-widest">Upload</span>}
@@ -228,9 +228,9 @@ const UniversalMediaUploader: React.FC<UniversalMediaUploaderProps> = ({
                                 <button onClick={() => validateAndUploadCloud(selectedFile)} className="px-12 py-4 bg-white text-black text-[12px] font-black uppercase tracking-[0.3em] hover:bg-red-600 hover:text-white transition-all shadow-2xl active:scale-95 flex items-center gap-3"><i className="fas fa-check-circle"></i> Confirmar Envio</button>
                             </div>
                         ) : (
-                            <div className="flex gap-4">
-                                <button onClick={() => { setCurrentUploadMode('cloud'); validateAndUploadCloud(selectedFile); }} className="flex flex-col items-center gap-3 p-6 rounded-none bg-black/80 backdrop-blur-md border-l-4 border-blue-500 hover:bg-blue-600 transition-all w-36 shadow-2xl"><i className="fas fa-cloud text-blue-400 text-xl font-bold"></i><span className="text-[10px] font-black uppercase text-white tracking-[0.2em]">Cloud SVR</span></button>
-                                <button onClick={() => { setCurrentUploadMode('youtube'); handleYouTubeFlow(); }} className="flex flex-col items-center gap-3 p-6 rounded-none bg-black/80 backdrop-blur-md border-l-4 border-red-600 hover:bg-red-600 transition-all w-36 shadow-2xl"><i className="fab fa-youtube text-red-500 text-xl"></i><span className="text-[10px] font-black uppercase text-white tracking-[0.2em]">Broadcast</span></button>
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full justify-center px-4">
+                                <button onClick={() => { setCurrentUploadMode('cloud'); validateAndUploadCloud(selectedFile); }} className="flex flex-col items-center gap-3 p-4 sm:p-6 rounded-none bg-black/80 backdrop-blur-md border-l-4 border-blue-500 hover:bg-blue-600 transition-all w-full sm:w-36 shadow-2xl"><i className="fas fa-cloud text-blue-400 text-lg sm:text-xl font-bold"></i><span className="text-[10px] font-black uppercase text-white tracking-[0.2em]">Cloud SVR</span></button>
+                                <button onClick={() => { setCurrentUploadMode('youtube'); handleYouTubeFlow(); }} className="flex flex-col items-center gap-3 p-4 sm:p-6 rounded-none bg-black/80 backdrop-blur-md border-l-4 border-red-600 hover:bg-red-600 transition-all w-full sm:w-36 shadow-2xl"><i className="fab fa-youtube text-red-500 text-lg sm:text-xl"></i><span className="text-[10px] font-black uppercase text-white tracking-[0.2em]">Broadcast</span></button>
                             </div>
                         )}
                         <button onClick={clearSelection} className="mt-12 text-[9px] font-black uppercase text-white/40 hover:text-red-500 tracking-[0.4em] transition-all flex items-center gap-2"><i className="fas fa-undo-alt"></i> Cancelar Captura</button>

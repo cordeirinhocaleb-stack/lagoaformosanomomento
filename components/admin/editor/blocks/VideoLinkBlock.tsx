@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ContentBlock } from '../../../../types';
+import { VideoPlayer } from '../../../../components/ui/video-thumbnail-player';
 
 interface VideoLinkBlockProps {
     block: ContentBlock;
@@ -15,22 +16,22 @@ const VideoLinkBlock: React.FC<VideoLinkBlockProps> = ({ block, isSelected, onSe
     const extractVideoId = (url: string): { platform: 'youtube' | 'vimeo' | 'dailymotion' | null; id: string | null } => {
         // YouTube
         const youtubeMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-        if (youtubeMatch) {return { platform: 'youtube', id: youtubeMatch[1] };}
+        if (youtubeMatch) { return { platform: 'youtube', id: youtubeMatch[1] }; }
 
         // Vimeo
         const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-        if (vimeoMatch) {return { platform: 'vimeo', id: vimeoMatch[1] };}
+        if (vimeoMatch) { return { platform: 'vimeo', id: vimeoMatch[1] }; }
 
         // Dailymotion
         const dailymotionMatch = url.match(/dailymotion\.com\/video\/([^_]+)/);
-        if (dailymotionMatch) {return { platform: 'dailymotion', id: dailymotionMatch[1] };}
+        if (dailymotionMatch) { return { platform: 'dailymotion', id: dailymotionMatch[1] }; }
 
         return { platform: null, id: null };
     };
 
     const getEmbedUrl = (url: string): string | null => {
         const { platform, id } = extractVideoId(url);
-        if (!id) {return null;}
+        if (!id) { return null; }
 
         switch (platform) {
             case 'youtube':
@@ -92,13 +93,17 @@ const VideoLinkBlock: React.FC<VideoLinkBlockProps> = ({ block, isSelected, onSe
                     </div>
                 </div>
             ) : embedUrl ? (
-                <div className="relative group">
+                <div className="relative group h-full">
                     <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-xl bg-black border border-gray-100 dark:border-zinc-800">
-                        <iframe
-                            src={embedUrl}
+                        <VideoPlayer
+                            thumbnailUrl={extractVideoId(block.content!).platform === 'youtube' && extractVideoId(block.content!).id
+                                ? `https://img.youtube.com/vi/${extractVideoId(block.content!).id}/maxresdefault.jpg`
+                                : "https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P"
+                            }
+                            videoUrl={embedUrl}
+                            title={block.settings?.videoTitle || "Vídeo Linkado"}
+                            description={block.settings?.caption || "Clique para assistir"}
                             className="w-full h-full"
-                            allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         />
                     </div>
                     {isSelected && (

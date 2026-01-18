@@ -10,7 +10,7 @@ import SettingsTab from '../../components/admin/SettingsTab';
 import JobsBoard from '../../components/JobsBoard';
 
 interface AdminPanelProps {
-  user: User; // Changed from currentUser to match App.tsx usually, or mapped
+  user: User;
   newsHistory: NewsItem[];
   allUsers: User[];
   advertisers: Advertiser[];
@@ -23,10 +23,11 @@ interface AdminPanelProps {
   onDeleteNews: (id: string) => void;
   onUpdateUser: (user: User) => void;
   onAddUser?: (user: User) => void;
-  onUpdateAdvertiser: (advertiser: Advertiser) => void;
-  // onDeleteAdvertiser removed as it's not in AdvertisersTab
-  onUpdateAdConfig: (config: AdPricingConfig) => void;
-  onUpdateSystemSettings: (settings: SystemSettings) => void;
+  onDeleteUser?: (id: string) => void;
+  onUpdateAdvertiser: (advertiser: Advertiser) => Promise<Advertiser | null>;
+  onDeleteAdvertiser?: (id: string) => void;
+  onUpdateAdConfig: (config: AdPricingConfig) => Promise<void> | void;
+  onUpdateSystemSettings: (settings: SystemSettings) => Promise<void> | void;
   onNavigateHome?: () => void;
   onLogout?: () => void;
   initialNewsToEdit?: NewsItem | null;
@@ -35,11 +36,12 @@ interface AdminPanelProps {
 const Admin: React.FC<AdminPanelProps> = ({
   user, newsHistory, allUsers, advertisers, systemSettings, adConfig, jobs = [], auditLogs = [],
   onAddNews, onUpdateNews, onDeleteNews, onUpdateUser, onAddUser,
-  onUpdateAdvertiser, onUpdateAdConfig, onUpdateSystemSettings,
-  onLogout, onNavigateHome, initialNewsToEdit
+  onUpdateAdvertiser, onDeleteAdvertiser, onUpdateAdConfig, onUpdateSystemSettings,
+  onDeleteUser, onLogout, onNavigateHome, initialNewsToEdit
 }) => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [newsFilter, setNewsFilter] = useState<string | undefined>(undefined);
+  const [isEditorToolsOpen, setIsEditorToolsOpen] = useState(false);
 
   const [isDarkMode, setIsDarkMode] = useState(true);
 
@@ -87,6 +89,7 @@ const Admin: React.FC<AdminPanelProps> = ({
           initialNewsToEdit={initialNewsToEdit}
           initialFilter={newsFilter}
           darkMode={isDarkMode}
+          onEditorToolsChange={setIsEditorToolsOpen}
         />
       );
 
@@ -97,7 +100,10 @@ const Admin: React.FC<AdminPanelProps> = ({
             newsHistory={newsHistory}
             onUpdateUser={onUpdateUser}
             onAddUser={onAddUser}
+            onDeleteUser={onDeleteUser}
             currentUser={user}
+            adConfig={adConfig}
+            systemSettings={systemSettings}
             darkMode={isDarkMode}
           />
         </div>
@@ -115,6 +121,7 @@ const Admin: React.FC<AdminPanelProps> = ({
             advertisers={advertisers}
             adConfig={adConfig}
             onUpdateAdvertiser={onUpdateAdvertiser}
+            onDeleteAdvertiser={onDeleteAdvertiser}
             onUpdateAdConfig={onUpdateAdConfig}
             userPermissions={user}
             darkMode={isDarkMode}
@@ -128,7 +135,6 @@ const Admin: React.FC<AdminPanelProps> = ({
             systemSettings={systemSettings}
             onUpdateSettings={onUpdateSystemSettings}
             currentUser={user}
-            // Optional props to satisfy interface if needed
             onSave={() => { }}
             darkMode={isDarkMode}
           />
@@ -147,6 +153,7 @@ const Admin: React.FC<AdminPanelProps> = ({
       onLogout={onLogout || (() => { })}
       darkMode={isDarkMode}
       onToggleTheme={() => setIsDarkMode(!isDarkMode)}
+      forceMinimized={isEditorToolsOpen}
     >
       {renderView()}
     </AdminLayout>

@@ -1,5 +1,5 @@
 
-import { NewsItem, ContentBlock, Advertiser, AdPricingConfig } from '../../types';
+import { NewsItem, ContentBlock, Advertiser, AdPricingConfig, PromoBanner, PromoPopupItemConfig } from '../../types';
 import { getLocalFile, removeLocalFile } from './localStorageService';
 import { uploadToCloudinary } from '../cloudinaryService';
 import { queueYouTubeUpload } from '../youtubeService';
@@ -247,51 +247,91 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 export const processAdvertiserUploads = async (advertiser: Advertiser): Promise<Advertiser> => {
     const updated = { ...advertiser };
 
-    // 1. Logo
-    if (updated.logoUrl && updated.logoUrl.startsWith('local_')) {
+    // 1. Logo (Individual and Multiple)
+    if (updated.logoUrls && updated.logoUrls.length > 0) {
+        updated.logoUrls = await Promise.all(updated.logoUrls.map(async (url) => {
+            if (url && url.startsWith('local_')) {
+                return await uploadAndCleanup(url, `lfnm_cms/advertisers/${updated.id}/branding`);
+            }
+            return url;
+        }));
+
+        // Backward compatibility: logoUrl always points to the first image
+        if (updated.logoUrls[0]) {
+            updated.logoUrl = updated.logoUrls[0];
+        }
+    } else if (updated.logoUrl && updated.logoUrl.startsWith('local_')) {
         updated.logoUrl = await uploadAndCleanup(updated.logoUrl, `lfnm_cms/advertisers/${updated.id}/branding`);
     }
 
-    // 2. Banner
+    // 2. Video
+    if (updated.videoUrl && updated.videoUrl.startsWith('local_')) {
+        updated.videoUrl = await uploadAndCleanup(updated.videoUrl, `lfnm_cms/advertisers/${updated.id}/branding`, VIDEO_CONFIG);
+    }
+
+    // 3. Banner (Legacy)
     if (updated.bannerUrl && updated.bannerUrl.startsWith('local_')) {
         updated.bannerUrl = await uploadAndCleanup(updated.bannerUrl, `lfnm_cms/advertisers/${updated.id}/branding`);
+    }
+
+    // 3. Products
+    if (updated.internalPage?.products) {
+        updated.internalPage.products = await Promise.all(updated.internalPage.products.map(async (prod) => {
+            if (prod.imageUrl && prod.imageUrl.startsWith('local_')) {
+                return {
+                    ...prod,
+                    imageUrl: await uploadAndCleanup(prod.imageUrl, `lfnm_cms/advertisers/${updated.id}/products`)
+                };
+            }
+            return prod;
+        }));
+    }
+
+    // 4. Coupons (Future proofing if coupons have images)
+    // 5. Banners
+    if (updated.promoBanners && updated.promoBanners.length > 0) {
+        updated.promoBanners = await Promise.all(updated.promoBanners.map(async (banner: PromoBanner) => {
+            const newBanner = { ...banner };
+            if (newBanner.images && newBanner.images.length > 0) {
+                newBanner.images = await Promise.all(newBanner.images.map(async (imgUrl: string) => {
+                    if (imgUrl.startsWith('local_')) {
+                        return await uploadAndCleanup(imgUrl, `lfnm_cms/advertisers/${updated.id}/banners`);
+                    }
+                    return imgUrl;
+                }));
+            }
+            if (newBanner.videoUrl && newBanner.videoUrl.startsWith('local_')) {
+                newBanner.videoUrl = await uploadAndCleanup(newBanner.videoUrl, `lfnm_cms/advertisers/${updated.id}/banners/video`);
+            }
+            return newBanner;
+        }));
+    }
+
+    // 6. Popup
+    if (updated.popupSet?.items && updated.popupSet.items.length > 0) {
+        const updatedItems = await Promise.all(updated.popupSet.items.map(async (item: PromoPopupItemConfig) => {
+            const newItem = { ...item };
+            if (newItem.media?.images && newItem.media.images.length > 0) {
+                newItem.media.images = await Promise.all(newItem.media.images.map(async (imgUrl: string) => {
+                    if (imgUrl.startsWith('local_')) {
+                        return await uploadAndCleanup(imgUrl, `lfnm_cms/advertisers/${updated.id}/popups`);
+                    }
+                    return imgUrl;
+                }));
+            }
+            if (newItem.media?.videoUrl && newItem.media.videoUrl.startsWith('local_')) {
+                newItem.media.videoUrl = await uploadAndCleanup(newItem.media.videoUrl, `lfnm_cms/advertisers/${updated.id}/popups/video`);
+            }
+            return newItem;
+        }));
+        updated.popupSet = { ...updated.popupSet, items: updatedItems };
     }
 
     return updated;
 };
 
 export const processConfigUploads = async (config: AdPricingConfig): Promise<AdPricingConfig> => {
-    const updated = { ...config };
-
-    if (updated.promoBanners && updated.promoBanners.length > 0) {
-        updated.promoBanners = await Promise.all(updated.promoBanners.map(async (banner) => {
-            const newBanner = { ...banner };
-
-            // Banner Images (Array)
-            if (newBanner.images && newBanner.images.length > 0) {
-                newBanner.images = await Promise.all(newBanner.images.map(async (imgUrl) => {
-                    if (imgUrl.startsWith('local_')) {
-                        return await uploadAndCleanup(imgUrl, 'lfnm_cms/banners');
-                    }
-                    return imgUrl;
-                }));
-            }
-
-            // Single Image (Legacy or alternative)
-            if (newBanner.image && newBanner.image.startsWith('local_')) {
-                newBanner.image = await uploadAndCleanup(newBanner.image, 'lfnm_cms/banners');
-            }
-
-            // Video
-            if (newBanner.videoUrl && newBanner.videoUrl.startsWith('local_')) {
-                newBanner.videoUrl = await uploadAndCleanup(newBanner.videoUrl, 'lfnm_cms/banners/video');
-            }
-
-            return newBanner;
-        }));
-    }
-
-    return updated;
+    return { ...config };
 };
 
 const uploadAndCleanup = async (localId: string, context: string, configOverride?: { cloudName: string; uploadPreset: string }): Promise<string> => {
@@ -317,8 +357,14 @@ const uploadAndCleanup = async (localId: string, context: string, configOverride
         await removeLocalFile(localId);
 
         return publicUrl;
-    } catch (e) {
+    } catch (e: any) {
         console.error(`Falha ao fazer upload de ${localId}:`, e);
-        throw new Error(`Falha no upload para Cloudinary (${localId}).`);
+
+        // Tratamento específico para erro de redimensionamento (comum em ICOs ou arquivos corrompidos)
+        if (e.message && e.message.includes("Can't resize")) {
+            throw new Error(`O arquivo enviado não é compatível com o sistema de otimização (possível .ICO ou arquivo corrompido). Tente usar JPG ou PNG.`);
+        }
+
+        throw new Error(`Falha no upload para Cloudinary (${localId}): ${e.message || 'Erro desconhecido'}`);
     }
 };

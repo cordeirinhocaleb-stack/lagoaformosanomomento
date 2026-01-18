@@ -4,14 +4,14 @@ import { Advertiser } from '../../../../types';
 import EditorTabs, { EditorTabId } from './EditorTabs';
 import GeneralSection from './sections/GeneralSection';
 import ShowcaseSection from './sections/ShowcaseSection';
-import ProductsSection from './sections/ProductsSection';
-import CouponsSection from './sections/CouponsSection';
-import AdvertiserPopupSection from './sections/AdvertiserPopupSection';
 import { processAdvertiserUploads } from '../../../../services/storage/syncService';
+
+const BannersPanel = React.lazy(() => import('../config/panels/BannersPanel'));
+const PromoPopupPanel = React.lazy(() => import('../config/panels/PromoPopupPanel'));
 
 interface AdvertiserEditorProps {
     advertiser: Advertiser | null; // null = Criando novo
-    onSave: (advertiser: Advertiser) => void;
+    onSave: (advertiser: Advertiser) => Promise<void> | void;
     onCancel: () => void;
     darkMode?: boolean;
 }
@@ -27,16 +27,23 @@ const DEFAULT_ADVERTISER: Advertiser = {
     isActive: true,
     views: 0,
     clicks: 0,
-    redirectType: 'internal',
+    redirectType: 'external',
     internalPage: {
         description: '',
         products: [],
         whatsapp: '',
         instagram: '',
+        tiktok: '',
+        kwai: '',
+        telegram: '',
         location: ''
     },
     coupons: [],
-    ownerId: ''
+    ownerId: '',
+    logoUrls: [],
+    mediaType: 'image',
+    transitionType: 'fade',
+    displayLocations: ['home_top', 'article_sidebar', 'article_footer']
 };
 
 const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave, onCancel, darkMode = false }) => {
@@ -46,20 +53,27 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
             return {
                 ...DEFAULT_ADVERTISER,
                 ...adv,
+                logoUrls: adv.logoUrls || [],
                 internalPage: {
                     description: adv.internalPage?.description || '',
                     products: adv.internalPage?.products || [],
                     whatsapp: adv.internalPage?.whatsapp || '',
                     instagram: adv.internalPage?.instagram || '',
+                    tiktok: adv.internalPage?.tiktok || '',
+                    kwai: adv.internalPage?.kwai || '',
+                    telegram: adv.internalPage?.telegram || '',
                     location: adv.internalPage?.location || ''
                 },
                 coupons: adv.coupons || [],
-                popup: adv.popup
+                popupSet: adv.popupSet,
+                displayLocations: adv.displayLocations || ['home_top', 'article_sidebar', 'article_footer']
             };
         }
         return {
             ...DEFAULT_ADVERTISER,
-            id: Math.random().toString(36).substr(2, 9)
+            id: (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : `temp-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`
         };
     };
 
@@ -78,7 +92,8 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
             const syncedData = await processAdvertiserUploads(formData);
 
             // 2. Salva (envia para o pai/backend)
-            onSave(syncedData);
+            await onSave(syncedData);
+            setIsSaving(false);
         } catch (e: unknown) {
             console.error(e);
             const message = e instanceof Error ? e.message : 'Erro desconhecido';
@@ -88,7 +103,7 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
     };
 
     return (
-        <div className="animate-fadeIn w-full max-w-5xl mx-auto">
+        <div className="animate-fadeIn w-full max-w-5xl xl:max-w-full mx-auto">
             {/* Header */}
             <div className="flex flex-col md:items-center md:flex-row justify-between gap-6 mb-8">
                 <div>
@@ -125,36 +140,48 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
             <EditorTabs activeTab={activeTab} onChange={setActiveTab} />
 
             {/* Conteúdo das Abas */}
-            <div className={`rounded-3xl md:rounded-[2.5rem] border p-4 md:p-8 shadow-sm min-h-[500px] transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5 text-white' : 'bg-white border-gray-100'}`}>
+            <div className={`rounded-3xl md:rounded-[2.5rem] border p-4 md:p-8 xl:p-10 shadow-sm min-h-[500px] transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5 text-white' : 'bg-white border-gray-100'}`}>
                 {activeTab === 'geral' && (
                     <GeneralSection
                         data={formData}
                         onChange={setFormData}
+                        darkMode={darkMode}
                     />
                 )}
                 {activeTab === 'vitrine' && (
                     <ShowcaseSection
                         data={formData}
                         onChange={setFormData}
+                        darkMode={darkMode}
                     />
                 )}
-                {activeTab === 'produtos' && (
-                    <ProductsSection
-                        data={formData}
-                        onChange={setFormData}
-                    />
-                )}
-                {activeTab === 'cupons' && (
-                    <CouponsSection
-                        data={formData}
-                        onChange={setFormData}
-                    />
+                {activeTab === 'banners' && (
+                    <React.Suspense fallback={<div className="h-48 flex items-center justify-center"><i className="fas fa-spinner fa-spin text-red-500"></i></div>}>
+                        <div className="animate-fadeIn">
+                            <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-6 pb-2 border-b flex items-center gap-2 ${darkMode ? 'text-zinc-500 border-zinc-800' : 'text-zinc-400 border-gray-100'}`}>
+                                <i className="fas fa-panorama"></i> Banners Home vinculados
+                            </h3>
+                            <BannersPanel
+                                config={formData.promoBanners || []}
+                                onChange={(val: any[]) => setFormData(prev => ({ ...prev, promoBanners: val }))}
+                                darkMode={darkMode}
+                            />
+                        </div>
+                    </React.Suspense>
                 )}
                 {activeTab === 'popup' && (
-                    <AdvertiserPopupSection
-                        data={formData}
-                        onChange={setFormData}
-                    />
+                    <React.Suspense fallback={<div className="h-48 flex items-center justify-center"><i className="fas fa-spinner fa-spin text-red-500"></i></div>}>
+                        <div className="animate-fadeIn">
+                            <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-6 pb-2 border-b flex items-center gap-2 ${darkMode ? 'text-zinc-500 border-zinc-800' : 'text-zinc-400 border-gray-100'}`}>
+                                <i className="fas fa-bullhorn"></i> Popup Promocional
+                            </h3>
+                            <PromoPopupPanel
+                                config={formData.popupSet || { items: [] }}
+                                onChange={(val: { items: any[] }) => setFormData(prev => ({ ...prev, popupSet: val }))}
+                                darkMode={darkMode}
+                            />
+                        </div>
+                    </React.Suspense>
                 )}
             </div>
         </div>

@@ -32,6 +32,8 @@ interface HomeProps {
     selectedRegion: RegionFilterType;
     onSelectRegion: (region: RegionFilterType) => void;
 
+    contractBanners?: any[];
+
     // Controle de Scroll vindo do App
     shouldScrollToGrid?: boolean;
     onScrollConsumed?: () => void;
@@ -39,7 +41,8 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({
     news, advertisers, user, onNewsClick, onAdvertiserClick, onAdminClick, onPricingClick, onJobsClick, adConfig, externalCategories = {},
-    selectedCategory, onSelectCategory, selectedRegion, onSelectRegion, shouldScrollToGrid, onScrollConsumed
+    selectedCategory, onSelectCategory, selectedRegion, onSelectRegion, shouldScrollToGrid, onScrollConsumed,
+    contractBanners
 }) => {
     const newsGridRef = useRef<HTMLDivElement>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -136,6 +139,13 @@ const Home: React.FC<HomeProps> = ({
 
         return [...news, ...convertedExternalNews];
     }, [news, externalCategories]);
+
+    // Filtragem de Anunciantes do Topo + Randomização
+    const topAds = useMemo(() => {
+        return advertisers
+            .filter(ad => !ad.displayLocations || ad.displayLocations.includes('home_top'))
+            .sort(() => Math.random() - 0.5);
+    }, [advertisers]);
 
     // --- 2. LÓGICA DE FILTRAGEM UNIFICADA ---
     const filteredNews = useMemo(() => {
@@ -255,20 +265,25 @@ const Home: React.FC<HomeProps> = ({
             {/* 1. Barra de Plantão */}
             <BreakingNewsBar item={breakingNewsItem} onClick={handleSmartClick} />
 
-            {/* Parceiros Comerciais ANTES do Banner */}
-            <PartnersStrip advertisers={advertisers} onAdvertiserClick={onAdvertiserClick} />
+            {/* Parceiros Comerciais (Design Master) */}
+            <PartnersStrip
+                advertisers={topAds}
+                onAdvertiserClick={onAdvertiserClick}
+                onPricingClick={onPricingClick}
+            />
 
             {/* 2. Hero Section (Contém FullWidthPromo e título da seção) */}
             <HeroSection
                 advertisers={advertisers}
                 adConfig={adConfig}
+                contractBanners={contractBanners}
                 onAdvertiserClick={onAdvertiserClick}
                 onPlanRequest={onPricingClick}
             />
 
             {/* 3. Menu de Categorias */}
             <div ref={newsGridRef} className="w-full relative z-10">
-                <div className="max-w-7xl mx-auto px-4">
+                <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
                     <CategoryMenu
                         selectedCategory={selectedCategory}
                         onSelectCategory={handleCategoryClick}
@@ -281,7 +296,7 @@ const Home: React.FC<HomeProps> = ({
             </div>
 
             {/* 4. Grid Principal */}
-            <div className="w-full relative z-20 mt-8 md:mt-14 max-w-7xl mx-auto px-4">
+            <div className="w-full relative z-20 mt-6 md:mt-8 w-full max-w-[1920px] mx-auto px-4 md:px-8">
                 <LazyBlock threshold={0.1} minHeight="800px">
                     <MainNewsGrid
                         news={paginatedNews} // Usa a lista paginada (8, 12 ou 18)
@@ -338,13 +353,13 @@ const Home: React.FC<HomeProps> = ({
 
             {/* 5. Giro Rápido */}
             <LazyBlock threshold={0.1} minHeight="600px">
-                <div className="max-w-7xl mx-auto px-4">
+                <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
                     <WorldNewsGrid externalCategories={externalCategories} />
                 </div>
             </LazyBlock>
 
             {/* 6. Pão Diário */}
-            <div className="mt-8 md:mt-16 max-w-7xl mx-auto px-4">
+            <div className="mt-8 md:mt-16 w-full max-w-[1920px] mx-auto px-4 md:px-8">
                 <DailyBread />
             </div>
 

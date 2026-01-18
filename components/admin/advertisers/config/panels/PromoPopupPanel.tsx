@@ -4,8 +4,8 @@ import PopupSetBuilder from '../../popupBuilder/PopupSetBuilder';
 import { MAX_ITEMS_PER_SET } from '../../../../../utils/popupSafety';
 
 interface PromoPopupPanelProps {
-    config: AdPricingConfig;
-    onChange: (newConfig: AdPricingConfig) => void;
+    config: PromoPopupSetConfig;
+    onChange: (newSet: PromoPopupSetConfig) => void;
     darkMode?: boolean;
 }
 
@@ -14,10 +14,10 @@ const DEFAULT_SET: PromoPopupSetConfig = {
 };
 
 const PromoPopupPanel: React.FC<PromoPopupPanelProps> = ({ config, onChange, darkMode = false }) => {
-    const popupSet = config.popupSet || DEFAULT_SET;
+    const popupSet = config || DEFAULT_SET;
 
     const handleSetChange = (newSet: PromoPopupSetConfig) => {
-        onChange({ ...config, popupSet: newSet });
+        onChange(newSet);
     };
 
     return (

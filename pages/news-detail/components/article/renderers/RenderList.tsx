@@ -4,9 +4,10 @@ import { ContentBlock } from '@/types';
 interface RenderListProps {
     block: ContentBlock;
     fontSizeClass: string;
+    style?: React.CSSProperties;
 }
 
-export const RenderList: React.FC<RenderListProps> = ({ block, fontSizeClass }) => {
+export const RenderList: React.FC<RenderListProps> = ({ block, fontSizeClass, style }) => {
     const variant = block.settings?.editorialVariant || 'bullets_clean';
     const settings = block.settings || {};
     const perStyle = settings.perStyle || {};
@@ -91,5 +92,5 @@ export const RenderList: React.FC<RenderListProps> = ({ block, fontSizeClass }) 
     const finalClasses = `${variantClasses} ${spacingClass} ${colorClass} ${sizeClass} ${weightClass} ${rowClass} mb-8 w-full`;
     const ListTag = isOrdered ? 'ol' : 'ul';
 
-    return <ListTag className={finalClasses} dangerouslySetInnerHTML={{ __html: block.content }} />;
+    return <ListTag className={finalClasses} style={style} dangerouslySetInnerHTML={{ __html: block.content }} />;
 };

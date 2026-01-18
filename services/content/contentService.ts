@@ -1,7 +1,7 @@
 // Content Service - Aggregator for news, advertisers, users, jobs
 import { NewsItem, Advertiser, SiteData, DailyBreadData, SocialPost, SystemSettings, AuditLog } from '../../types';
 import { getSupabase } from '../core/supabaseClient';
-import { mapNewsFromDb } from './contentMappers';
+import { mapNewsFromDb, mapAdvertiserFromDb } from './contentMappers';
 import { logAction, getAuditLogs } from '../admin/auditService';
 import { logger } from '../core/debugLogger';
 
@@ -84,7 +84,7 @@ export const fetchSiteData = async (): Promise<{ source: 'database' | 'mock'; da
             source: 'database',
             data: {
                 news: (newsRes.data || []).map(mapNewsFromDb),
-                advertisers: adsRes.data || [],
+                advertisers: (adsRes.data || []).map(mapAdvertiserFromDb),
                 users: users.map((u: any) => ({ ...u, id: u.id || u.auth_id || u.user_id })),
                 jobs: jobsRes.data || [],
                 auditLogs: auditLogs.map((log: any) => ({

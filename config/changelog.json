@@ -1,5 +1,37 @@
 [
   {
+    "version": "0.0.7",
+    "date": "15/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "Marca d'água Premium 2026",
+        "description": "Novo selo físico jornalístico com moldura vermelha, tag temporal '2026' e barra de URL integrada via Canvas."
+      },
+      {
+        "category": "refactor",
+        "title": "Conformidade Lei #1 (500 Linhas)",
+        "description": "Reestruturação completa dos módulos de Mídia e Galeria em componentes especializados para melhor performance e manutenção."
+      }
+    ]
+  },
+  {
+    "version": "0.0.6",
+    "date": "13/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "Universal Media Uploader",
+        "description": "Nova suíte de upload com suporte a Cloudinary e YouTube nativo em design Glassmorphism."
+      },
+      {
+        "category": "improvement",
+        "title": "Gallery Refactor",
+        "description": "Sistema de galeria unificado com slots inteligentes e reordenação visual."
+      }
+    ]
+  },
+  {
     "version": "0.0.5",
     "date": "11/01/2026",
     "items": [

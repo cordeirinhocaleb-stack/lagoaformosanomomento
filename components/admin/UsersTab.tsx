@@ -13,12 +13,13 @@ interface UsersTabProps {
     currentUser: User;
     onUpdateUser: (user: User) => void;
     onAddUser?: (user: User) => void;
+    onDeleteUser?: (id: string) => void;
     adConfig?: AdPricingConfig;
     systemSettings?: SystemSettings;
     darkMode?: boolean;
 }
 
-const UsersTab: React.FC<UsersTabProps> = ({ allUsers, newsHistory, currentUser, onUpdateUser, onAddUser, adConfig, systemSettings, darkMode = false }) => {
+const UsersTab: React.FC<UsersTabProps> = ({ allUsers, newsHistory, currentUser, onUpdateUser, onAddUser, onDeleteUser, adConfig, systemSettings, darkMode = false }) => {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userSearch, setUserSearch] = useState('');
     const [userRoleFilter, setUserRoleFilter] = useState<string>('all');
@@ -125,6 +126,23 @@ const UsersTab: React.FC<UsersTabProps> = ({ allUsers, newsHistory, currentUser,
         logAction(currentUser.id, currentUser.name, 'change_user_status', selectedUser.id, `Alterou status para: ${newStatus}`);
     };
 
+    const handleDeleteUser = () => {
+        if (!selectedUser) { return; }
+        if (selectedUser.role === 'Desenvolvedor') {
+            alert("Não é possível excluir um desenvolvedor do sistema.");
+            return;
+        }
+
+        if (confirm(`TEM CERTEZA? Esta ação irá remover permanentemente o usuário ${selectedUser.name} e todos os seus dados vinculados. Esta ação NÃO PODE ser desfeita.`)) {
+            if (onDeleteUser) {
+                onDeleteUser(selectedUser.id);
+                logAction(currentUser.id, currentUser.name, 'delete_user', selectedUser.id, `Excluiu o usuário permanentemente: ${selectedUser.name}`);
+                setSelectedUser(null);
+                alert("Usuário removido com sucesso!");
+            }
+        }
+    };
+
     return (
         <div className="animate-fadeIn relative w-full h-full">
             <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
@@ -216,6 +234,7 @@ const UsersTab: React.FC<UsersTabProps> = ({ allUsers, newsHistory, currentUser,
                     onSaveUser={handleSaveUser}
                     onToggleStatus={handleToggleStatus}
                     onSavePermissions={handleSavePermissions}
+                    onDeleteUser={handleDeleteUser}
                     darkMode={darkMode}
                 />
             )}

@@ -17,8 +17,8 @@ const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
 
   if (isSimplified) {
     return (
-      <footer className="bg-white border-t border-zinc-200 py-6 px-10 w-full relative z-10">
-        <div className="max-w-[1500px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <footer className="bg-white border-t border-zinc-200 py-6 w-full relative z-10">
+        <div className="w-full px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col items-center md:items-start">
             <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em]">
               &copy; {new Date().getFullYear()} LAGOA FORMOSA NO MOMENTO • PAINEL ADMINISTRATIVO
@@ -44,7 +44,7 @@ const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
     <footer className="bg-black text-white pt-16 pb-32 md:pb-20 border-t-4 border-red-600 w-full relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-10 relative z-10">
+      <div className="w-full px-6 md:px-12 xl:px-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 lg:gap-12 mb-16 md:mb-24">
           <div className="flex items-start space-y-6 flex-col">
             <div className="w-40 h-28 md:w-48 md:h-32 -ml-4 overflow-visible relative">

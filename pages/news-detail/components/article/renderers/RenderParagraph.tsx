@@ -4,9 +4,10 @@ import { ContentBlock } from '@/types';
 interface RenderParagraphProps {
     block: ContentBlock;
     fontSizeClass: string;
+    style?: React.CSSProperties;
 }
 
-export const RenderParagraph: React.FC<RenderParagraphProps> = ({ block, fontSizeClass }) => {
+export const RenderParagraph: React.FC<RenderParagraphProps> = ({ block, fontSizeClass, style }) => {
     const pVariant = block.settings?.editorialVariant || 'newspaper_standard';
     const settings = block.settings || {};
     const pSettings = settings.perStyle?.[pVariant] || {};
@@ -17,6 +18,7 @@ export const RenderParagraph: React.FC<RenderParagraphProps> = ({ block, fontSiz
             <div className="my-8 py-10 px-6 md:px-12 bg-[#fafaf9] dark:bg-zinc-900/50 border-y border-zinc-200 dark:border-zinc-800 mx-auto max-w-[65ch] shadow-sm rounded-sm">
                 <div
                     className={`${fontSizeClass} font-serif text-[#292524] dark:text-zinc-300 text-justify ${dropCapClass}`}
+                    style={style}
                     dangerouslySetInnerHTML={{ __html: block.content }}
                 />
             </div>
@@ -26,7 +28,7 @@ export const RenderParagraph: React.FC<RenderParagraphProps> = ({ block, fontSiz
     if (pVariant === 'breaking_brief') {
         return (
             <div className="my-6 pl-6 border-l-4 border-red-600">
-                <div className={`${fontSizeClass} font-bold italic text-red-600 dark:text-red-400`} dangerouslySetInnerHTML={{ __html: block.content }} />
+                <div className={`${fontSizeClass} font-bold italic text-red-600 dark:text-red-400`} style={style} dangerouslySetInnerHTML={{ __html: block.content }} />
             </div>
         );
     }
@@ -87,6 +89,7 @@ export const RenderParagraph: React.FC<RenderParagraphProps> = ({ block, fontSiz
     return (
         <div
             className={`${fontSizeClass} text-zinc-800 dark:text-zinc-300 ${gapClass} ${widthClass} ${settings.style === 'serif' ? 'font-serif' : 'font-sans'} ${dropCapClasses} ${alignClass} ${hyphenClass}`}
+            style={style}
             dangerouslySetInnerHTML={{ __html: block.content }}
         />
     );

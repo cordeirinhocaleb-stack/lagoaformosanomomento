@@ -48,7 +48,7 @@ const PlanFeaturesForm: React.FC<PlanFeaturesFormProps> = ({ features, onChange,
             {/* Limites */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label className={`text-[8px] font-bold uppercase mb-1 block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Limite Vídeos/Mês</label>
+                    <label className={`text-[8px] font-bold uppercase mb-1 block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Produção de Vídeo (Qtd Mensal)</label>
                     <input
                         type="number"
                         value={features.videoLimit || 0}
@@ -57,16 +57,7 @@ const PlanFeaturesForm: React.FC<PlanFeaturesFormProps> = ({ features, onChange,
                     />
                 </div>
                 <div>
-                    <label className={`text-[8px] font-bold uppercase mb-1 block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Máx Produtos (0=Ilimitado)</label>
-                    <input
-                        type="number"
-                        value={features.maxProducts}
-                        onChange={e => update('maxProducts', parseInt(e.target.value))}
-                        className={`w-full border rounded-lg p-2 text-sm font-bold outline-none ${darkMode ? 'bg-black/20 border-white/10 text-white focus:border-white/30' : 'bg-white border-gray-200 focus:border-black'}`}
-                    />
-                </div>
-                <div>
-                    <label className={`text-[8px] font-bold uppercase mb-1 block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Frequência Social</label>
+                    <label className={`text-[8px] font-bold uppercase mb-1 block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Divulgação (Frequência Base)</label>
                     <select
                         value={features.socialFrequency}
                         onChange={e => update('socialFrequency', e.target.value)}
@@ -84,7 +75,7 @@ const PlanFeaturesForm: React.FC<PlanFeaturesFormProps> = ({ features, onChange,
             <div>
                 <label className={`text-[9px] font-black uppercase mb-2 block tracking-widest ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Redes Permitidas</label>
                 <div className="flex gap-2 flex-wrap">
-                    {['instagram', 'facebook', 'whatsapp', 'linkedin', 'tiktok', 'youtube'].map(net => {
+                    {['instagram', 'facebook', 'whatsapp', 'tiktok', 'youtube'].map(net => {
                         const active = features.allowedSocialNetworks.includes(net);
                         return (
                             <button

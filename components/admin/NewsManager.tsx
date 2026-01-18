@@ -14,9 +14,10 @@ interface NewsManagerProps {
     initialNewsToEdit?: NewsItem | null;
     initialFilter?: string;
     darkMode?: boolean;
+    onEditorToolsChange?: (isOpen: boolean) => void;
 }
 
-const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpdateNews, onDeleteNews, systemSettings, initialNewsToEdit, initialFilter, darkMode = false }) => {
+const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpdateNews, onDeleteNews, systemSettings, initialNewsToEdit, initialFilter, darkMode = false, onEditorToolsChange }) => {
     const [view, setView] = useState<'list' | 'editor'>('list');
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -111,6 +112,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                     accessToken={null}
                     systemSettings={systemSettings}
                     darkMode={darkMode}
+                    onEditorToolsChange={onEditorToolsChange}
                 />
             </div>
         );

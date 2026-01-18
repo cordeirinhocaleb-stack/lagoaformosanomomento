@@ -10,12 +10,20 @@ interface AdminLayoutProps {
     onLogout: () => void;
     darkMode: boolean;
     onToggleTheme: () => void;
+    forceMinimized?: boolean;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, onNavigate, onLogout, darkMode, onToggleTheme }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, onNavigate, onLogout, darkMode, onToggleTheme, forceMinimized = false }) => {
     // Inicializa fechado em mobile (window.innerWidth < 768) e aberto em desktop
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    // Quando forceMinimized mudar, força o estado
+    React.useEffect(() => {
+        if (!isMobile && forceMinimized) {
+            setIsSidebarOpen(false);
+        }
+    }, [forceMinimized, isMobile]);
 
     React.useEffect(() => {
         const handleResize = () => {

@@ -229,6 +229,10 @@ export interface Advertiser {
     name: string;
     category: string;
     logoUrl?: string;
+    logoUrls?: string[];
+    transitionType?: 'fade' | 'slide' | 'zoom' | 'none';
+    videoUrl?: string;
+    mediaType?: 'image' | 'video' | 'mixed';
     logoIcon?: string;
     bannerUrl?: string;
     plan: string;
@@ -238,19 +242,23 @@ export interface Advertiser {
     isActive: boolean;
     views: number;
     clicks: number;
-    redirectType: 'internal' | 'external';
+    redirectType: 'external' | 'whatsapp' | 'instagram' | 'tiktok' | 'kwai' | 'telegram';
     externalUrl?: string;
     internalPage?: {
         description: string;
         products: AdvertiserProduct[];
         whatsapp: string;
         instagram: string;
+        tiktok?: string;
+        kwai?: string;
+        telegram?: string;
         location: string;
     };
     coupons?: Coupon[];
     ownerId: string;
-    popup?: PromoPopupConfig;
     popupSet?: PromoPopupSetConfig;
+    promoBanners?: PromoBanner[];
+    displayLocations?: string[];
 }
 
 export interface AdPricingConfig {
@@ -258,7 +266,7 @@ export interface AdPricingConfig {
     promoText: string;
     active: boolean;
     promoBanners?: PromoBanner[];
-    popupSet?: PromoPopupSetConfig;
+    boostsValues?: Record<string, number>; // Preços customizáveis dos itens avulsos
 }
 
 export const DEFAULT_THEME_ADVANCED: PopupThemeAdvanced = {

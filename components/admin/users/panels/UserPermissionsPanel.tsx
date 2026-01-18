@@ -1,21 +1,86 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { PERMISSION_SCHEMA } from '../constants';
 
 interface UserPermissionsPanelProps {
     permissions: Record<string, boolean>;
+    userRole?: string;
     onTogglePermission: (key: string) => void;
+    onSetPermissions?: (perms: Record<string, boolean>) => void;
     onSave: () => void;
     darkMode?: boolean;
 }
 
-const UserPermissionsPanel: React.FC<UserPermissionsPanelProps> = ({ permissions, onTogglePermission, onSave, darkMode = false }) => {
+const UserPermissionsPanel: React.FC<UserPermissionsPanelProps> = ({ permissions, userRole, onTogglePermission, onSetPermissions, onSave, darkMode = false }) => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleApplyPreset = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        if (!userRole || !onSetPermissions) return;
+
+        const roleKey = userRole.trim();
+        const roleLower = roleKey.toLowerCase();
+
+        // Mapa com chaves em lowercase para facilitar o match
+        const presets: Record<string, string[]> = {
+            'admin': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'financial_edit', 'plans_edit', 'user_plan_edit', 'users_view', 'users_edit', 'settings_edit', 'logs_view'],
+            'administrador': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'financial_edit', 'plans_edit', 'user_plan_edit', 'users_view', 'users_edit', 'settings_edit', 'logs_view'],
+            'desenvolvedor': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'financial_edit', 'plans_edit', 'user_plan_edit', 'users_view', 'users_edit', 'settings_edit', 'logs_view'],
+            'editor-chefe': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'users_view', 'logs_view'],
+            'editor': ['editorial_view', 'editorial_edit'],
+            'jornalista': ['editorial_view', 'editorial_edit'],
+            'repórter': ['editorial_view', 'editorial_edit'],
+            'reporter': ['editorial_view', 'editorial_edit'], // Fallback sem acento
+            'estagiário': ['editorial_view'],
+            'estagiario': ['editorial_view'], // Fallback sem acento
+            'anunciante': []
+        };
+
+        const targetKeys = presets[roleLower];
+
+        if (!targetKeys) {
+            alert(`Não foi encontrada uma predefinição para o cargo: "${userRole}". Configure as permissões manualmente.`);
+            return;
+        }
+
+        // Aplicação direta sem confirm() para evitar bloqueios de navegador
+        // Como o usuário ainda precisa "Salvar", é seguro.
+
+        const newPerms: Record<string, boolean> = {};
+
+        // Reseta tudo
+        PERMISSION_SCHEMA.flatMap(g => g.actions).forEach(a => {
+            newPerms[a.key] = false;
+        });
+
+        // Aplica as do cargo
+        targetKeys.forEach(k => newPerms[k] = true);
+
+        onSetPermissions(newPerms);
+    };
+
+    const handleSaveClick = () => {
+        setIsSaving(true);
+        onSave();
+        // Feedback visual temporário (já que não temos promise da prop)
+        // Isso garante que o usuário perceba o clique
+        setTimeout(() => setIsSaving(false), 1000);
+    };
+
     return (
-        <div className="space-y-6 animate-fadeIn pb-24">
-            <div className={`border p-4 rounded-xl mb-4 ${darkMode ? 'bg-blue-900/20 border-blue-500/20' : 'bg-blue-50 border-blue-200'}`}>
+        <div className="space-y-6 animate-fadeIn">
+            <div className={`border p-4 rounded-xl mb-4 flex flex-col md:flex-row items-center justify-between gap-4 ${darkMode ? 'bg-blue-900/20 border-blue-500/20' : 'bg-blue-50 border-blue-200'}`}>
                 <p className={`text-[10px] font-bold leading-relaxed ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
-                    <i className="fas fa-info-circle mr-1"></i> Defina exatamente o que este usuário pode acessar no painel. Desenvolvedores têm acesso total automático.
+                    <i className="fas fa-info-circle mr-1"></i> Configure o acesso granular do usuário. Se as permissões estiverem vazias, o usuário pode não conseguir acessar recursos esperados.
                 </p>
+                {userRole && onSetPermissions && (
+                    <button
+                        onClick={handleApplyPreset}
+                        className="whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-black uppercase rounded-lg transition-colors shadow-md flex items-center gap-2"
+                    >
+                        <i className="fas fa-sync-alt"></i> Redefinir para {userRole}
+                    </button>
+                )}
             </div>
 
             {PERMISSION_SCHEMA.map(group => (
@@ -26,9 +91,14 @@ const UserPermissionsPanel: React.FC<UserPermissionsPanelProps> = ({ permissions
                     </h3>
                     <div className="space-y-4">
                         {group.actions.map(action => (
-                            <div key={action.key} className="flex items-center justify-between">
-                                <span className={`text-xs font-bold ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{action.label}</span>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                            <div key={action.key} className="flex items-center justify-between py-1">
+                                <div className="flex flex-col pr-4 max-w-[85%]">
+                                    <span className={`text-xs font-bold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{action.label}</span>
+                                    <span className={`text-[9px] leading-tight mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        {(action as any).description}
+                                    </span>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer shrink-0">
                                     <input
                                         type="checkbox"
                                         className="sr-only peer"
@@ -43,12 +113,20 @@ const UserPermissionsPanel: React.FC<UserPermissionsPanelProps> = ({ permissions
                 </div>
             ))}
 
-            <div className={`absolute bottom-0 left-0 right-0 p-6 border-t shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-20 flex justify-end rounded-b-[inherit] ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
+            <div className={`mt-8 pt-6 border-t flex justify-end ${darkMode ? 'border-white/5' : 'border-gray-200'}`}>
                 <button
-                    onClick={onSave}
-                    className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-colors shadow-lg w-full md:w-auto ${darkMode ? 'bg-white text-black hover:bg-green-500 hover:text-white' : 'bg-black text-white hover:bg-green-600'}`}
+                    onClick={handleSaveClick}
+                    disabled={isSaving}
+                    className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all shadow-lg w-full md:w-auto flex items-center justify-center gap-2 ${darkMode ? 'bg-white text-black hover:bg-green-500 hover:text-white' : 'bg-black text-white hover:bg-green-600'} ${isSaving ? 'opacity-80 scale-95 cursor-wait' : ''}`}
                 >
-                    Salvar Permissões
+                    {isSaving ? (
+                        <>
+                            <i className="fas fa-circle-notch fa-spin text-sm"></i>
+                            <span>Salvando...</span>
+                        </>
+                    ) : (
+                        "Salvar Permissões"
+                    )}
                 </button>
             </div>
         </div>

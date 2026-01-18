@@ -12,11 +12,12 @@ interface UserProfilePanelProps {
     onUpdatePassword: (pass: string) => void;
     onSave: () => void;
     onToggleStatus: () => void;
+    onDelete?: () => void;
     darkMode?: boolean;
 }
 
 const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
-    user, isCreating, newUserPassword, onUpdateUser, onUpdatePassword, onSave, onToggleStatus, darkMode = false
+    user, isCreating, newUserPassword, onUpdateUser, onUpdatePassword, onSave, onToggleStatus, onDelete, darkMode = false
 }) => {
     const [isUploading, setIsUploading] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -141,10 +142,15 @@ const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
             </div>
 
             <div className="space-y-6">
-                <button onClick={onSave} className="w-full bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-green-700 transition-colors shadow-lg">Salvar Dados</button>
+                <button id="save-user-btn" onClick={onSave} className="w-full bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-green-700 transition-colors shadow-lg">Salvar Dados</button>
                 <button onClick={onToggleStatus} className={`w-full py-3 rounded-xl font-black text-xs uppercase text-white shadow-lg transition-all ${user.status === 'active' ? 'bg-red-600/20 text-red-500 border border-red-900/50 hover:bg-red-600 hover:text-white' : 'bg-green-600 text-white'}`}>
                     {user.status === 'active' ? 'Banir Usuário' : 'Reativar Usuário'}
                 </button>
+                {onDelete && !isCreating && (
+                    <button onClick={onDelete} className="w-full py-3 rounded-xl font-black text-xs uppercase text-gray-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2">
+                        <i className="fas fa-trash-alt"></i> Excluir Conta Permanentemente
+                    </button>
+                )}
             </div>
         </div>
     );

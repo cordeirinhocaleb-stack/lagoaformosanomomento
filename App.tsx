@@ -27,7 +27,7 @@ import Jobs from './pages/Jobs';
 import ErrorPage from './pages/ErrorPage';
 
 // Services
-import { createNews, updateNews, deleteNews, updateUser, upsertAdvertiser } from './services/supabaseService';
+import { createNews, updateNews, deleteNews, createUser, updateUser, deleteUser, upsertAdvertiser, deleteAdvertiser } from './services/supabaseService';
 import { useAppController } from './hooks/useAppController';
 
 const App: React.FC = () => {
@@ -113,7 +113,7 @@ const App: React.FC = () => {
                             />
                         )}
 
-                        <PromoPopupHost popupSet={ctrl.adConfig.popupSet} currentContext={ctrl.currentContext} mode="live" />
+                        <PromoPopupHost popupSet={ctrl.contractPopupSet} currentContext={ctrl.currentContext} mode="live" />
                         <ActivityToastHost />
 
                         {(() => {
@@ -164,16 +164,34 @@ const App: React.FC = () => {
                                         onAddNews={async (n) => { ctrl.setNews(p => [n, ...p]); await createNews(n); }}
                                         onUpdateNews={async (n) => { ctrl.setNews(p => p.map(x => x.id === n.id ? n : x)); await updateNews(n); }}
                                         onDeleteNews={async (id) => { ctrl.setNews(p => p.filter(x => x.id !== id)); await deleteNews(id); }}
+                                        onAddUser={async (u) => { ctrl.setUsers(p => [...p, u]); await createUser(u); }}
                                         onUpdateUser={async (u) => { ctrl.setUsers(p => p.map(x => x.id === u.id ? u : x)); await updateUser(u); }}
-                                        onUpdateAdvertiser={async (a) => { ctrl.setAdvertisers(p => p.map(x => x.id === a.id ? a : x)); await upsertAdvertiser(a); }}
-                                        onUpdateAdConfig={(c) => ctrl.setAdConfig(c)}
+                                        onDeleteUser={async (id) => { ctrl.setUsers(p => p.filter(x => x.id !== id)); await deleteUser(id); }}
+                                        onUpdateAdvertiser={async (a) => {
+                                            const updated = await upsertAdvertiser(a);
+                                            if (updated) {
+                                                // Se for novo, substitui o objeto temporário pelo real do banco
+                                                // Se for existente, atualiza
+                                                ctrl.setAdvertisers(p => {
+                                                    const exists = p.find(x => x.id === a.id);
+                                                    if (exists) return p.map(x => x.id === a.id ? updated : x);
+                                                    return [updated, ...p];
+                                                });
+                                            }
+                                            return updated;
+                                        }}
+                                        onDeleteAdvertiser={async (id) => {
+                                            ctrl.setAdvertisers(p => p.filter(x => x.id !== id));
+                                            await deleteAdvertiser(id);
+                                        }}
+                                        onUpdateAdConfig={ctrl.handleUpdateAdConfig}
                                         onUpdateSystemSettings={ctrl.handleUpdateSystemSettings}
                                         onLogout={ctrl.handleLogout}
                                         onNavigateHome={() => ctrl.setView('home')}
                                         initialNewsToEdit={ctrl.adminNewsToEdit}
                                     />
-                                ) : (
-                                    <div className="w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] md:mx-auto relative bg-white border-gray-100 shadow-2xl border-x">
+                                ) : (<>
+                                    <div className="w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] mx-auto self-center relative bg-white border-gray-100 shadow-2xl border-x">
                                         <span className="absolute bottom-2 right-2 text-[10px] font-bold text-gray-500 bg-white/50 px-2 py-1 rounded-full border border-gray-200 backdrop-blur-sm z-10">
                                             V. {ctrl.CURRENT_VERSION}
                                         </span>
@@ -182,11 +200,25 @@ const App: React.FC = () => {
                                                 <Home
                                                     news={ctrl.news} advertisers={ctrl.advertisers} user={ctrl.user}
                                                     onNewsClick={(n) => { ctrl.setSelectedNews(n); ctrl.setView('details'); ctrl.updateHash(`/news/${n.id}`); }}
-                                                    onAdvertiserClick={(ad) => { if (ad.redirectType === 'external') { window.open(ad.externalUrl, '_blank'); } else { ctrl.setSelectedAdvertiser(ad); ctrl.setView('advertiser'); } }}
+                                                    onAdvertiserClick={(ad) => {
+                                                        if (ad.redirectType === 'external' && ad.externalUrl) {
+                                                            window.open(ad.externalUrl, '_blank');
+                                                        } else if (ad.redirectType === 'whatsapp' && ad.internalPage?.whatsapp) {
+                                                            const phone = ad.internalPage.whatsapp.replace(/\D/g, '');
+                                                            window.open(`https://wa.me/55${phone}`, '_blank');
+                                                        } else if (ad.redirectType === 'instagram' && ad.internalPage?.instagram) {
+                                                            const user = ad.internalPage.instagram.replace('@', '').trim();
+                                                            window.open(`https://instagram.com/${user}`, '_blank');
+                                                        } else {
+                                                            ctrl.setSelectedAdvertiser(ad);
+                                                            ctrl.setView('advertiser');
+                                                        }
+                                                    }}
                                                     onAdminClick={() => { if (ctrl.user?.role !== 'Leitor') { ctrl.setView('admin'); } else { modals.setShowProfileModal(true); } }}
                                                     onPricingClick={() => modals.setShowPricingModal(true)}
                                                     onJobsClick={() => { ctrl.setView('jobs'); ctrl.updateHash('/jobs'); }}
                                                     adConfig={ctrl.adConfig} externalCategories={ctrl.externalCategories}
+                                                    contractBanners={ctrl.contractBanners}
                                                     selectedCategory={ctrl.selectedCategory} onSelectCategory={ctrl.handleCategorySelection}
                                                     selectedRegion={ctrl.selectedRegion} onSelectRegion={(r) => { ctrl.setSelectedRegion(r); ctrl.setView('home'); ctrl.setShouldScrollToGrid(true); }}
                                                     shouldScrollToGrid={ctrl.shouldScrollToGrid} onScrollConsumed={() => ctrl.setShouldScrollToGrid(false)}
@@ -202,6 +234,7 @@ const App: React.FC = () => {
                                                     adConfig={ctrl.adConfig} onUpdateUser={ctrl.handleProfileUpdate}
                                                     onPricingClick={() => modals.setShowPricingModal(true)}
                                                     onEditNews={ctrl.handleEditNews}
+                                                    onLogin={() => modals.setShowLoginModal(true)}
                                                 />
                                             )}
                                             {ctrl.view === 'jobs' && <Jobs jobs={ctrl.systemJobs} onBack={() => ctrl.setView('home')} isEnabled={ctrl.systemSettings.jobsModuleEnabled} />}
@@ -216,9 +249,9 @@ const App: React.FC = () => {
                                                 />
                                             )}
                                         </main>
-                                        <Footer settings={ctrl.systemSettings} />
                                     </div>
-                                )}
+                                    <Footer settings={ctrl.systemSettings} />
+                                </>)}
                                 {modals.showProfileModal && ctrl.user && (
                                     <MyAccountModal
                                         user={ctrl.user}

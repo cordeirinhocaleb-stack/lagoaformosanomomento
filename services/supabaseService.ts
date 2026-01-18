@@ -14,7 +14,11 @@ export {
     requestPasswordRecovery,
     resendActivationEmail,
     triggerPasswordResetByAdmin,
-    userPurchaseItem
+    deleteUser,
+
+    userPurchaseItem,
+    getUserByDocument,
+    getUserByName
 } from './users/userService';
 
 // Re-export Content services
@@ -24,6 +28,7 @@ export {
     updateNews,
     deleteNews,
     upsertAdvertiser,
+    deleteAdvertiser,
     saveSystemSetting,
     getSystemSetting,
     fetchDailyBreadWithLookahead,

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { ContentBlock, EngagementType } from '../../types';
 import { recordEngagementVote } from '../../services/supabaseService';
+import { getEngagementColors, ColorTheme } from '../../utils/engagementThemeHelper';
 
 interface EngagementRendererProps {
     block: ContentBlock;
@@ -14,14 +15,26 @@ const EngagementRenderer: React.FC<EngagementRendererProps> = ({ block, newsId }
     const [localData, setLocalData] = useState(block);
 
     const type = block.settings.engagementType as EngagementType;
+
+    const colorOptions = getEngagementColors(type);
+    const currentColor = block.settings.editorialVariant || block.settings.engagementColor || colorOptions[0].id;
+    const currentTheme = colorOptions.find(c => c.id === currentColor) || colorOptions[0];
+
     const {
-        accentColor = '#dc2626',
+        accentColor = currentTheme.id === block.settings.editorialVariant ? null : block.settings.accentColor,
         backgroundColor = '#FFFFFF',
         borderRadius = '3xl',
         customIcon = 'fa-bolt-lightning'
     } = localData.settings;
 
+    const finalAccentColor = accentColor || '#dc2626';
+
     useEffect(() => {
+        setLocalData(block);
+    }, [block]);
+
+    useEffect(() => {
+        if (!newsId) return;
         const saved = localStorage.getItem(`lfnm_voted_${newsId}_${block.id}`);
         if (saved) { setHasVoted(true); setSelectedId(saved); }
     }, [block.id, newsId]);
@@ -52,9 +65,8 @@ const EngagementRenderer: React.FC<EngagementRendererProps> = ({ block, newsId }
 
     return (
         <div
-            className="my-16 md:my-24 p-8 md:p-14 relative overflow-hidden transition-all border border-zinc-100 shadow-2xl"
+            className={`my-16 md:my-24 p-8 md:p-14 relative overflow-hidden transition-all border shadow-2xl ${currentTheme.classes.wrapper}`}
             style={{
-                backgroundColor,
                 borderRadius: borderRadius === 'full' ? '9999px' : '3.5rem'
             }}
         >
@@ -65,7 +77,7 @@ const EngagementRenderer: React.FC<EngagementRendererProps> = ({ block, newsId }
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-400 italic">Interativo LFNM</span>
                 </div>
-                <h3 className="font-[1000] uppercase italic tracking-tighter leading-[0.85] text-4xl md:text-6xl text-zinc-900 max-w-2xl">
+                <h3 className={`font-[1000] uppercase italic tracking-tighter leading-[0.85] text-4xl md:text-6xl max-w-2xl ${currentTheme.classes.text}`}>
                     {localData.content.question}
                 </h3>
             </div>
@@ -85,7 +97,7 @@ const EngagementRenderer: React.FC<EngagementRendererProps> = ({ block, newsId }
                             {hasVoted && (
                                 <div className="flex items-center gap-4 relative z-10">
                                     {isCorrect && <i className="fas fa-check-circle text-emerald-500 text-2xl"></i>}
-                                    <span className="font-black text-2xl" style={{ color: accentColor }}>{percent}%</span>
+                                    <span className={`font-black text-2xl ${currentTheme.classes.text}`}>{percent}%</span>
                                 </div>
                             )}
                         </button>

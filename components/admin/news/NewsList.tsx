@@ -81,7 +81,7 @@ const NewsList: React.FC<NewsListProps> = ({
                                             <i className="fas fa-pen text-xs"></i>
                                         </button>
                                         <button
-                                            onClick={() => onDelete(item.id)}
+                                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
                                             className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all"
                                             title="Excluir"
                                         >
@@ -135,7 +135,7 @@ const NewsList: React.FC<NewsListProps> = ({
                                     Editar
                                 </button>
                                 <button
-                                    onClick={() => onDelete(item.id)}
+                                    onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
                                     className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 text-xs font-bold uppercase"
                                 >
                                     Excluir

@@ -247,7 +247,7 @@ export const StoriesScrollLayout: React.FC<LayoutProps> = ({ items, block, openL
         {items.map((item, idx) => (
             <div
                 key={item.id}
-                className="flex-shrink-0 w-[300px] aspect-[9/16] rounded-[2rem] overflow-hidden snap-start relative group cursor-zoom-in shadow-2xl"
+                className="flex-shrink-0 w-[260px] md:w-[300px] aspect-[9/16] rounded-[2rem] overflow-hidden snap-start relative group cursor-zoom-in shadow-2xl"
                 onClick={() => openLightbox(idx)}
             >
                 <img src={item.url} loading="lazy" className="w-full h-full object-cover transition-all duration-[3000ms] group-hover:scale-110" alt="" />

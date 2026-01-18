@@ -8,13 +8,13 @@ import { BannerMediaTab } from '../banners/BannerMediaTab';
 import { BannerButtonTab } from '../banners/BannerButtonTab';
 
 interface BannersPanelProps {
-    config: AdPricingConfig;
-    onChange: (newConfig: AdPricingConfig) => void;
+    config: PromoBanner[];
+    onChange: (newBanners: PromoBanner[]) => void;
     darkMode?: boolean;
 }
 
 const BannersPanel: React.FC<BannersPanelProps> = ({ config, onChange, darkMode = false }) => {
-    const banners = config.promoBanners || [];
+    const banners = config || [];
     const [editingId, setEditingId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'media' | 'text' | 'button'>('text');
 
@@ -22,20 +22,20 @@ const BannersPanel: React.FC<BannersPanelProps> = ({ config, onChange, darkMode 
 
     const handleAdd = () => {
         const newBanner = { ...DEFAULT_BANNER, id: Math.random().toString(36).substr(2, 9) };
-        onChange({ ...config, promoBanners: [...banners, newBanner] });
+        onChange([...banners, newBanner]);
         setEditingId(newBanner.id);
     };
 
     const handleRemove = (id: string) => {
-        if (!confirm("Remover este banner?")) { return; }
+        // Removido confirmação para fluxo mais ágil
         const updated = banners.filter(b => b.id !== id);
-        onChange({ ...config, promoBanners: updated });
+        onChange(updated);
         if (editingId === id) { setEditingId(null); }
     };
 
     const handleUpdate = (id: string, updates: Partial<PromoBanner>) => {
         const updated = banners.map(b => b.id === id ? { ...b, ...updates } : b);
-        onChange({ ...config, promoBanners: updated });
+        onChange(updated);
     };
 
     return (
@@ -83,8 +83,13 @@ const BannersPanel: React.FC<BannersPanelProps> = ({ config, onChange, darkMode 
                                     </div>
                                 </div>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); handleRemove(banner.id); }}
-                                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 shadow-sm ${darkMode ? 'bg-white/10 text-gray-400 hover:text-red-500 hover:bg-white/20' : 'bg-white text-gray-400 hover:text-red-600 hover:bg-red-50'}`}
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleRemove(banner.id);
+                                    }}
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 shadow-sm relative z-50 ${darkMode ? 'bg-white/10 text-gray-400 hover:text-red-500 hover:bg-white/20' : 'bg-white text-gray-400 hover:text-red-600 hover:bg-red-50'}`}
                                 >
                                     <i className="fas fa-trash text-[10px]"></i>
                                 </button>
@@ -106,6 +111,7 @@ const BannersPanel: React.FC<BannersPanelProps> = ({ config, onChange, darkMode 
                             <FullWidthPromo
                                 banners={[editingBanner]}
                                 customHeight="h-[200px] md:h-[280px]"
+                                forceShow={true}
                             />
                         </div>
 

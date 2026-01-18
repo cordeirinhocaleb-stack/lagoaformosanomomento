@@ -38,12 +38,23 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, user, onUpdat
         updateSetting('images', [...images, ...urls]);
     };
 
+    const handleReorder = (targetIndex: number) => {
+        if (isDragging === null || isDragging === targetIndex) return;
+
+        const newImages = [...images];
+        const [movedImage] = newImages.splice(isDragging, 1);
+        newImages.splice(targetIndex, 0, movedImage);
+
+        setIsDragging(targetIndex);
+        updateSetting('images', newImages);
+    };
+
     const styleDef = GALLERY_STYLES.find(s => s.id === currentStyle);
 
     return (
-        <div className="w-full relative bg-zinc-950 rounded-[3rem] p-1 shadow-2xl overflow-hidden border border-white/5 ring-1 ring-white/10">
+        <div className="w-full relative bg-zinc-950 rounded-[1.5rem] md:rounded-[3rem] p-1 shadow-2xl overflow-hidden border border-white/5 ring-1 ring-white/10">
             {/* 1. DARK PREVIEW AREA */}
-            <div className="relative bg-black rounded-[2.8rem] h-64 md:h-[320px] overflow-hidden group/preview mb-1 border border-white/5">
+            <div className="relative bg-black rounded-[1.3rem] md:rounded-[2.8rem] h-64 md:h-[320px] overflow-hidden group/preview mb-1 border border-white/5">
                 {/* TOOLBAR FLUTUANTE */}
                 <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
                     <div className="bg-black/80 backdrop-blur-xl rounded-2xl px-2 py-1.5 flex gap-1 border border-white/10 shadow-2xl pointer-events-auto">
@@ -84,7 +95,7 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, user, onUpdat
             </div>
 
             {/* 2. MEDIA MANAGEMENT AREA */}
-            <div className="p-8">
+            <div className="p-4 md:p-8">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex flex-col">
                         <h3 className="text-[12px] font-black uppercase text-white tracking-[0.3em] leading-none mb-1.5">
@@ -102,9 +113,16 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, user, onUpdat
                 </div>
 
                 {/* IMAGES GRID */}
-                <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
+                <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
                     {images.map((img, idx) => (
-                        <div key={`cam-${idx}`} className="relative group/cam shrink-0 pb-12">
+                        <div
+                            key={idx}
+                            draggable
+                            onDragStart={() => setIsDragging(idx)}
+                            onDragOver={(e: React.DragEvent) => { e.preventDefault(); handleReorder(idx); }}
+                            onDragEnd={() => setIsDragging(null)}
+                            className="flex flex-col items-center gap-3 group/cam shrink-0"
+                        >
                             {/* BOTÃO REMOVER (FORA DA IMAGEM) */}
                             <button
                                 onClick={() => removeImage(idx)}
@@ -114,11 +132,7 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, user, onUpdat
                                 <i className="fas fa-times text-[10px]"></i>
                             </button>
 
-                            <div className={`relative aspect-square w-32 rounded-3xl overflow-hidden border-2 transition-all duration-300 bg-zinc-800/50 backdrop-blur-md shadow-2xl ${isDragging === idx ? 'border-blue-500 scale-105 opacity-50' : 'border-white/5 group-hover/cam:border-white/20'}`}
-                                draggable
-                                onDragStart={() => setIsDragging(idx)}
-                                onDragEnd={() => setIsDragging(null)}
-                            >
+                            <div className={`relative aspect-square w-24 md:w-32 rounded-2xl md:rounded-3xl overflow-hidden border-2 transition-all duration-300 bg-zinc-800/50 backdrop-blur-md shadow-2xl ${isDragging === idx ? 'border-blue-500 scale-105 opacity-50' : 'border-white/5 group-hover/cam:border-white/20'}`}>
                                 <img src={img} className="w-full h-full object-cover" alt="" />
 
                                 {/* CANAL LABEL */}
@@ -127,8 +141,8 @@ const GalleryEditorBlock: React.FC<GalleryEditorProps> = ({ block, user, onUpdat
                                 </div>
                             </div>
 
-                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center w-full">
-                                <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest group-hover/cam:text-zinc-400 transition-colors">Arraste para Mover</p>
+                            <div className="mt-2 text-center w-full">
+                                <p className="text-[7px] font-black text-zinc-600 uppercase tracking-[0.2em] group-hover/cam:text-blue-500 transition-colors">Arraste para Mover</p>
                             </div>
                         </div>
                     ))}

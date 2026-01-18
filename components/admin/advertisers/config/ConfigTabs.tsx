@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 
-export type ConfigTabId = 'overview' | 'popup' | 'banners' | 'plans' | 'placements' | 'rules' | 'upcoming' | 'reports';
+export type ConfigTabId = 'overview' | 'plans' | 'placements' | 'rules' | 'reports';
 
 interface ConfigTabsProps {
   activeTab: ConfigTabId;
@@ -15,13 +15,10 @@ const ConfigTabs: React.FC<ConfigTabsProps> = ({ activeTab, onChange, darkMode =
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const tabs: { id: ConfigTabId; label: string; icon: string }[] = [
-    { id: 'banners', label: 'Banners Home', icon: 'fa-panorama' },
-    { id: 'popup', label: 'Popup Promo', icon: 'fa-bullhorn' },
     { id: 'overview', label: 'Visão Geral', icon: 'fa-chart-pie' },
     { id: 'plans', label: 'Planos & Preços', icon: 'fa-tags' },
     { id: 'placements', label: 'Inventário', icon: 'fa-map-signs' },
     { id: 'rules', label: 'Regras', icon: 'fa-scale-balanced' },
-    { id: 'upcoming', label: 'Futuro', icon: 'fa-rocket' },
     { id: 'reports', label: 'Relatórios', icon: 'fa-file-invoice-dollar' },
   ];
 

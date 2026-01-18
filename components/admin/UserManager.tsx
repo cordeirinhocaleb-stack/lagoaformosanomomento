@@ -4,6 +4,7 @@ import { User } from '../../types';
 import UserFilterBar from './users/UserFilterBar';
 import UserListTable from './users/UserListTable';
 import UserEditModal from './users/UserEditModal';
+import { mapDbToUser } from '../../services/users/userService';
 
 interface UserManagerProps {
     currentUser: User;
@@ -22,20 +23,25 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser }) => {
     useEffect(() => {
         fetchUsers();
     }, []);
-
     const fetchUsers = async () => {
         setLoading(true);
         try {
             const supabase = getSupabase();
-            if (!supabase) {throw new Error("Supabase não inicializado");}
+            if (!supabase) { throw new Error("Supabase não inicializado"); }
 
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {throw error;}
-            setUsers(data || []);
+            if (error) { throw error; }
+
+            // Map raw DB data to User objects
+            const mappedUsers = (data || [])
+                .map(mapDbToUser)
+                .filter((u): u is User => u !== null);
+
+            setUsers(mappedUsers);
         } catch (error) {
             console.error("Erro ao buscar usuários:", error);
             alert("Erro ao carregar lista de usuários.");
@@ -57,10 +63,10 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser }) => {
     const handleDelete = async (userId: string) => {
         try {
             const supabase = getSupabase();
-            if (!supabase) {throw new Error("Supabase não inicializado");}
+            if (!supabase) { throw new Error("Supabase não inicializado"); }
 
             const { error } = await supabase.from('users').delete().eq('id', userId);
-            if (error) {throw error;}
+            if (error) { throw error; }
 
             setUsers(prev => prev.filter(u => u.id !== userId));
         } catch (error) {
@@ -71,7 +77,7 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser }) => {
 
     const handleSave = async (userId: string | undefined, data: Partial<User>) => {
         const supabase = getSupabase();
-        if (!supabase) {throw new Error("Supabase não inicializado");}
+        if (!supabase) { throw new Error("Supabase não inicializado"); }
 
         try {
             if (userId) {
@@ -81,7 +87,7 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser }) => {
                     .update(data)
                     .eq('id', userId);
 
-                if (error) {throw error;}
+                if (error) { throw error; }
 
                 setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
             } else {
@@ -95,7 +101,7 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser }) => {
                     .select()
                     .single();
 
-                if (error) {throw error;}
+                if (error) { throw error; }
                 setUsers(prev => [newUser, ...prev]);
             }
         } catch (error) {

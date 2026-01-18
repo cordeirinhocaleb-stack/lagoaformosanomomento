@@ -29,9 +29,12 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
     };
 
     const handleDelete = (id: string) => {
-        if (!window.confirm("Tem certeza que deseja excluir este slide?")) { return; }
+        // Removido confirmação para agilizar fluxo e evitar bloqueios
         const newItems = config.items.filter(i => i.id !== id);
+
+        // Forçando atualização de estado
         onChange({ items: newItems });
+
         if (selectedItemId === id) {
             if (newItems.length > 0) { setSelectedItemId(newItems[0].id); }
             else { setSelectedItemId(null); }

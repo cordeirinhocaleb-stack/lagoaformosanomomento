@@ -9,22 +9,17 @@ interface HeroSectionProps {
   adConfig?: AdPricingConfig;
   onAdvertiserClick: (ad: Advertiser) => void;
   onPlanRequest: () => void;
+  contractBanners?: any[];
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ advertisers, adConfig, onAdvertiserClick, onPlanRequest }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ advertisers, adConfig, onAdvertiserClick, onPlanRequest, contractBanners }) => {
   return (
     <section className="flex flex-col gap-0 w-full animate-fadeIn">
-      {/* Faixa de Anunciantes Master */}
-      <AdBanner 
-        advertisers={advertisers} 
-        adConfig={adConfig} 
-        onAdvertiserClick={onAdvertiserClick} 
-        onPlanRequest={onPlanRequest} 
-      />
-      
-      {/* Banner Promocional Rotativo (Carrega da config global) */}
-      <FullWidthPromo banners={adConfig?.promoBanners} />
-      
+      {/* Faixa de Anunciantes Master removida para evitar duplicidade com PartnersStrip */}
+
+      {/* Banner Promocional Rotativo (Carrega dos contratos de anunciantes) */}
+      <FullWidthPromo banners={contractBanners} />
+
       {/* Título Conceitual da Home - Reduzido */}
       <div className="w-full px-4 md:px-8 lg:px-12 mt-4 md:mt-6">
         <div className="flex flex-col md:flex-row md:items-center gap-4">

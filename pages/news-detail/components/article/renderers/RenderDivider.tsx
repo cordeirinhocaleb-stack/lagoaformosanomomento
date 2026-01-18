@@ -6,92 +6,113 @@ interface RenderDividerProps {
 }
 
 export const RenderDivider: React.FC<RenderDividerProps> = ({ block }) => {
-    const sSettings = block.settings || {};
-    const color = sSettings.color || '#e2e8f0'; // Default safe color
-    const thickness = sSettings.thickness || 1;
-    let lineStyle = sSettings.lineStyle || 'solid';
-    let iconName = sSettings.iconName || 'fa-star';
-    const iconPosition = sSettings.iconPosition || 'none';
-    const iconSize = sSettings.iconSize || 14;
-    const opacity = sSettings.opacity !== undefined ? sSettings.opacity : 1;
-    const orientation = sSettings.orientation || 'horizontal';
-    const height = sSettings.height || 60;
-    const width = sSettings.width || 'full';
-    const align = sSettings.align || 'center';
+    const s = block.settings || {};
 
-    const sVariant = block.settings?.editorialVariant || 'divider_minimal';
+    // Mapping keys from DividerPanel.tsx
+    const kind = s.kind || 'solid';
+    const thickness = s.thickness || 1;
+    const width = s.width || 'full';
+    const align = s.align || 'center';
+    const colorType = s.color || 'themeDefault';
+    const opacity = s.opacity !== undefined ? s.opacity : 1;
+    const labelText = s.labelText || '';
+    const iconName = s.iconName || '';
+    const iconPosition = s.iconPosition || 'none';
+    const iconSize = s.iconSize || 14;
 
-    // Apply Defaults based on Variant if specific settings are missing
-    if (sVariant === 'divider_dots' && !block.settings?.lineStyle) lineStyle = 'dotted';
-    if (sVariant === 'divider_ornamental' && !block.settings?.lineStyle) {
-        lineStyle = 'double';
-        if (!sSettings.iconName) iconName = 'fa-diamond';
-    }
+    // Resolve Color
+    const getHexColor = (type: string) => {
+        switch (type) {
+            case 'muted': return '#71717a'; // zinc-500
+            case 'accent': return '#dc2626'; // red-600 (site primary)
+            case 'themeDefault':
+            default: return '#e4e4e7'; // zinc-200
+        }
+    };
+    const finalColor = getHexColor(colorType);
 
     // Width classes
-    const widthClass = width === 'content' ? 'max-w-[66%]' : width === 'short' ? 'max-w-[33%]' : 'max-w-[90%]';
+    const widthClass = width === 'content' ? 'max-w-[66%]' : width === 'short' ? 'max-w-[33%]' : 'w-full';
 
     // Align classes
     const alignClass = align === 'left' ? 'mr-auto ml-0' : align === 'right' ? 'ml-auto mr-0' : 'mx-auto';
 
-    const IconComponent = () => (
-        <div className="flex items-center justify-center shrink-0 transition-transform duration-700 hover:[transform:rotateY(360deg)] px-2 cursor-pointer" style={{ color: color === 'themeDefault' ? '#3f3f46' : color, fontSize: `${iconSize}px`, opacity }}>
-            {iconName === 'site_logo' ? (
-                <img
-                    src="https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P"
-                    alt="Logo"
-                    style={{ width: `${iconSize * 1.5}px`, height: 'auto', display: 'block' }}
-                />
-            ) : (
-                <i className={`fas ${iconName}`}></i>
-            )}
-        </div>
-    );
+    const IconOrLabel = () => {
+        if (iconPosition === 'none' && !labelText) return null;
 
-    if (orientation === 'vertical') {
         return (
-            <div className={`py-6 flex flex-col items-center justify-center w-full`} style={{ height: `${height}px` }}>
-                <div style={{
-                    width: `${thickness}px`,
-                    flex: 1,
-                    backgroundColor: color === 'themeDefault' ? '#e4e4e7' : color,
-                    opacity: opacity,
-                    borderRadius: '999px'
-                }}></div>
-
-                {iconPosition !== 'none' && (
-                    <div className="py-2 transform -rotate-90 md:rotate-0">
-                        <IconComponent />
+            <div className="flex items-center justify-center shrink-0 px-4 gap-2" style={{ opacity }}>
+                {iconName && (
+                    <div className="flex items-center justify-center" style={{ color: finalColor, fontSize: `${iconSize}px` }}>
+                        {iconName === 'site_logo' ? (
+                            <img
+                                src="https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P"
+                                alt="Logo"
+                                style={{ width: `${iconSize * 1.5}px`, height: 'auto', display: 'block' }}
+                            />
+                        ) : (
+                            <i className={`fas ${iconName}`}></i>
+                        )}
                     </div>
                 )}
-
-                <div style={{
-                    width: `${thickness}px`,
-                    flex: 1,
-                    backgroundColor: color === 'themeDefault' ? '#e4e4e7' : color,
-                    opacity: opacity,
-                    borderRadius: '999px'
-                }}></div>
+                {labelText && (
+                    <span className="text-[10px] font-black uppercase tracking-widest italic" style={{ color: finalColor }}>
+                        {labelText}
+                    </span>
+                )}
             </div>
         );
-    }
+    };
 
-    const Line = () => (
-        <div className="flex-1" style={{
-            height: lineStyle === 'double' ? `${thickness * 3}px` : `${thickness}px`,
-            borderBottom: lineStyle !== 'double' ? `${thickness}px ${lineStyle} ${color === 'themeDefault' ? '#e4e4e7' : color}` : 'none',
-            borderTop: lineStyle === 'double' ? `${thickness}px double ${color === 'themeDefault' ? '#e4e4e7' : color}` : 'none',
-            background: sSettings.kind === 'gradient' ? `linear-gradient(to right, transparent, ${color}, transparent)` : 'transparent',
-            opacity, borderRadius: '999px'
-        }}></div>
-    );
+    const Line = () => {
+        if (kind === 'fade') {
+            return (
+                <div className="flex-1 h-[1px]" style={{
+                    background: `linear-gradient(to right, transparent, ${finalColor}, transparent)`,
+                    opacity
+                }}></div>
+            );
+        }
+
+        if (kind === 'gradient') {
+            return (
+                <div className="flex-1 h-[2px]" style={{
+                    background: `linear-gradient(to right, ${finalColor}33, ${finalColor}, ${finalColor}33)`,
+                    opacity
+                }}></div>
+            );
+        }
+
+        const borderStyle = kind === 'double' ? 'double' : kind === 'dashed' ? 'dashed' : kind === 'dotted' ? 'dotted' : 'solid';
+
+        return (
+            <div className="flex-1" style={{
+                height: kind === 'double' ? `${thickness * 3}px` : `${thickness}px`,
+                borderTop: `${thickness}px ${borderStyle} ${finalColor}`,
+                opacity,
+                marginTop: kind === 'double' ? '2px' : '0'
+            }}></div>
+        );
+    };
 
     return (
-        <div className={`py-8 w-full ${widthClass} ${alignClass} flex items-center justify-center`}>
-            {iconPosition === 'left' && <><IconComponent /><Line /></>}
-            {iconPosition === 'right' && <><Line /><IconComponent /></>}
-            {iconPosition === 'center' && <><Line /><IconComponent /><Line /></>}
-            {(iconPosition === 'none' || !iconPosition) && <Line />}
+        <div className={`my-12 py-4 flex items-center ${widthClass} ${alignClass}`}>
+            {(iconPosition === 'left' || (!iconPosition && (iconName || labelText))) && <IconOrLabel />}
+
+            {(iconPosition === 'center' || iconPosition === 'none') && <Line />}
+
+            {(iconPosition === 'center' || (iconPosition === 'none' && (iconName || labelText))) && <IconOrLabel />}
+
+            {(iconPosition === 'center' || iconPosition === 'none') && <Line />}
+
+            {iconPosition === 'right' && <IconOrLabel />}
+
+            {/* Se for apenas uma linha simples */}
+            {iconPosition === 'none' && !iconName && !labelText && (
+                <div className="w-full">
+                    {/* Line ja renderizada acima se iconPosition for none, mas vamos garantir o layout */}
+                </div>
+            )}
         </div>
     );
 };

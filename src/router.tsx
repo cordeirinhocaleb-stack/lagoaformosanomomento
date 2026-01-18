@@ -85,9 +85,14 @@ export const AppRouter: React.FC = () => {
                                     ctrl.setUsers((p) => p.map((x) => (x.id === u.id ? u : x)));
                                 }}
                                 onUpdateAdvertiser={async (a) => {
-                                    ctrl.setAdvertisers((p) => p.map((x) => (x.id === a.id ? a : x)));
+                                    const { upsertAdvertiser } = await import('../services/supabaseService');
+                                    const updated = await upsertAdvertiser(a);
+                                    if (updated) {
+                                        ctrl.setAdvertisers((p) => p.map((x) => (x.id === a.id ? updated : x)));
+                                    }
+                                    return updated;
                                 }}
-                                onUpdateAdConfig={(c) => ctrl.setAdConfig(c)}
+                                onUpdateAdConfig={ctrl.handleUpdateAdConfig}
                                 onUpdateSystemSettings={ctrl.handleUpdateSystemSettings}
                                 onLogout={ctrl.handleLogout}
                                 onNavigateHome={() => ctrl.setView('home')}

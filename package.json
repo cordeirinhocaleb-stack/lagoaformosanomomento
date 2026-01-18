@@ -1,7 +1,7 @@
 {
   "name": "lfnm-v1-105",
   "private": true,
-  "version": "0.0.6",
+  "version": "0.0.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,6 +25,7 @@
     "@vimeo/player": "^2.30.1",
     "@vitejs/plugin-react": "^5.1.2",
     "basic-ftp": "^5.1.0",
+    "clsx": "^2.1.1",
     "dompurify": "^3.3.1",
     "lucide-react": "^0.562.0",
     "path": "^0.12.7",
@@ -32,6 +33,7 @@
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.24.1",
+    "tailwind-merge": "^3.4.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

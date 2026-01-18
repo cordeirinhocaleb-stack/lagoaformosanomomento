@@ -243,6 +243,11 @@ export const useAppController = () => {
         if (dataSource === 'database') { await saveSystemSetting('general_settings', newSettings); }
     };
 
+    const handleUpdateAdConfig = async (newConfig: AdPricingConfig) => {
+        setAdConfig(newConfig);
+        if (dataSource === 'database') { await saveSystemSetting('ad_config', newConfig); }
+    };
+
     const handleProfileUpdate = async (u: User) => {
         setUsers(p => p.map(x => x.id === u.id ? u : x));
         if (user?.id === u.id) {
@@ -274,6 +279,18 @@ export const useAppController = () => {
         if (view === 'details') { return 'news_detail'; }
         return 'home';
     }, [view]);
+
+    // Aggregated Contract Promos
+    const activeAdvertisers = useMemo(() => advertisers.filter(a => a.isActive), [advertisers]);
+
+    const contractBanners = useMemo(() => {
+        return activeAdvertisers.flatMap(a => a.promoBanners || []).filter(b => b.active);
+    }, [activeAdvertisers]);
+
+    const contractPopupSet = useMemo(() => {
+        const items = activeAdvertisers.flatMap(a => a.popupSet?.items || []).filter(i => i.active);
+        return { items };
+    }, [activeAdvertisers]);
 
     // Force auth callback view if hash contains token (fallback)
     useEffect(() => { if (window.location.hash.includes('access_token')) { } }, []);
@@ -307,11 +324,14 @@ export const useAppController = () => {
         handleNetworkReconnect,
         handleLogout,
         handleUpdateSystemSettings,
+        handleUpdateAdConfig,
         handleProfileUpdate,
         handleEditNews,
         handleCategorySelection,
         handleRegionSelection,
         triggerErrorModal,
-        currentContext
+        currentContext,
+        contractBanners,
+        contractPopupSet
     };
 };

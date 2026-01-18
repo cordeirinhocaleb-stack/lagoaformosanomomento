@@ -6,8 +6,9 @@ import AdvertisersManager from './advertisers/AdvertisersManager';
 interface AdvertisersTabProps {
   advertisers: Advertiser[];
   adConfig: AdPricingConfig;
-  onUpdateAdvertiser: (advertiser: Advertiser) => void;
-  onUpdateAdConfig: (config: AdPricingConfig) => void;
+  onUpdateAdvertiser: (advertiser: Advertiser) => Promise<Advertiser | null>;
+  onDeleteAdvertiser?: (id: string) => void;
+  onUpdateAdConfig: (config: AdPricingConfig) => Promise<void> | void;
   userPermissions: User;
   darkMode?: boolean;
 }
@@ -16,6 +17,7 @@ const AdvertisersTab: React.FC<AdvertisersTabProps> = ({
   advertisers,
   adConfig,
   onUpdateAdvertiser,
+  onDeleteAdvertiser,
   onUpdateAdConfig,
   userPermissions,
   darkMode = false
@@ -25,6 +27,7 @@ const AdvertisersTab: React.FC<AdvertisersTabProps> = ({
       advertisers={advertisers}
       adConfig={adConfig}
       onUpdateAdvertiser={onUpdateAdvertiser}
+      onDeleteAdvertiser={onDeleteAdvertiser}
       onUpdateAdConfig={onUpdateAdConfig}
       userPermissions={userPermissions}
       darkMode={darkMode}

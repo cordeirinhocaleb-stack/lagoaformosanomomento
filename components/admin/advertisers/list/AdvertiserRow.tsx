@@ -5,10 +5,11 @@ import { Advertiser } from '../../../../types';
 interface AdvertiserRowProps {
     advertiser: Advertiser;
     onEdit: (advertiser: Advertiser) => void;
+    onDelete?: (id: string) => void;
     darkMode?: boolean;
 }
 
-const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, darkMode = false }) => {
+const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDelete, darkMode = false }) => {
     const startDate = new Date(advertiser.startDate);
     const endDate = new Date(advertiser.endDate);
     const now = new Date();
@@ -104,9 +105,17 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, darkM
                 </div>
             </div>
 
-            <div className={`flex lg:flex pl-4 lg:border-l w-full lg:w-auto ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
+            <div className={`flex lg:flex pl-4 lg:border-l w-full lg:w-auto gap-3 ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
                 <button
-                    className={`w-full lg:w-14 h-14 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center shadow-xl active:scale-95 group/btn ${darkMode ? 'bg-white text-black' : 'bg-black text-white'}`}
+                    className={`w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-lg active:scale-95 group/del`}
+                    onClick={(e) => { e.stopPropagation(); if (confirm(`Tem certeza que deseja excluir o parceiro ${advertiser.name}?`)) onDelete && onDelete(advertiser.id); }}
+                    title="Excluir Parceiro"
+                >
+                    <i className="fas fa-trash-alt text-lg"></i>
+                </button>
+
+                <button
+                    className={`flex-1 lg:w-14 h-14 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center shadow-xl active:scale-95 group/btn ${darkMode ? 'bg-white text-black' : 'bg-black text-white'}`}
                     onClick={(e) => { e.stopPropagation(); onEdit(advertiser); }}
                 >
                     <i className="fas fa-arrow-right md:text-lg group-hover/btn:translate-x-1 transition-transform"></i>

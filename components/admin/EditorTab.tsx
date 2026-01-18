@@ -28,9 +28,10 @@ interface EditorTabProps {
     systemSettings?: SystemSettings;
     onSidebarToggle?: (isOpen: boolean) => void;
     darkMode?: boolean;
+    onEditorToolsChange?: (isOpen: boolean) => void;
 }
 
-const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCreateNew, onCancel, accessToken, systemSettings, darkMode = false }) => {
+const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCreateNew, onCancel, accessToken, systemSettings, darkMode = false, onEditorToolsChange }) => {
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
     // Controller Hook
@@ -64,6 +65,13 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
     useEffect(() => {
         console.log('📡 [GOOGLE AUTH DEBUG] EditorTab Client ID:', googleClientId ? `${googleClientId.substring(0, 10)}...` : 'Vazio/Inexistente'); // eslint-disable-line no-console
     }, [googleClientId]);
+
+    // Notificar quando o sidebar de ferramentas abrir/fechar
+    useEffect(() => {
+        if (onEditorToolsChange && !isMobile) {
+            onEditorToolsChange(isLeftSidebarOpen);
+        }
+    }, [isLeftSidebarOpen, onEditorToolsChange, isMobile]);
 
     // Scroll Handler
     const handleScroll = useCallback(() => {
@@ -113,14 +121,14 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
 
                 <div className="flex-1 flex overflow-hidden relative">
                     {/* DESKTOP LEFT SIDEBAR */}
-                    <aside className={`hidden lg:flex flex-col border-r transition-all duration-300 relative z-20 ${isLeftSidebarOpen ? 'w-60' : 'w-0 overflow-hidden'} ${darkMode ? 'bg-black border-white/5' : 'bg-white border-zinc-200'}`}>
-                        <div className="flex-1 overflow-hidden w-60">
+                    <aside className={`hidden lg:flex flex-col border-r transition-all duration-300 relative z-20 ${isLeftSidebarOpen ? 'w-52 xl:w-60' : 'w-0 overflow-hidden'} ${darkMode ? 'bg-black border-white/5' : 'bg-white border-zinc-200'}`}>
+                        <div className="flex-1 overflow-hidden w-52 xl:w-60">
                             <EditorSidebar onAddBlock={handleAddBlockWrapper} isUploading={!!ctrl.uploadingSlot} darkMode={darkMode} />
                         </div>
                     </aside>
 
                     {/* MAIN CONTENT */}
-                    <div className="flex-1 flex flex-col overflow-hidden relative" onClick={() => { if (isMobile) { setShowInspectorMobile(false); ctrl.setSelectedBlockId(null); setShowMobileFormatting(false); } }}>
+                    <div className="flex-1 flex flex-col overflow-hidden relative min-w-0" onClick={() => { if (isMobile) { setShowInspectorMobile(false); ctrl.setSelectedBlockId(null); setShowMobileFormatting(false); } }}>
                         {/* TOGGLES */}
                         <div className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 z-30">
                             <button onClick={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)} className="bg-black text-white rounded-r-xl p-2 shadow-lg hover:scale-110 transition-all">
@@ -143,8 +151,8 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                         </div>
 
                         {/* CANVAS */}
-                        <div ref={scrollContainerRef} onScroll={handleScroll} className={`flex-1 overflow-y-auto p-4 md:p-10 lg:p-12 custom-scrollbar transition-all duration-300 ${showMobileFormatting ? 'pb-72' : 'pb-28'} md:pb-12 ${darkMode ? 'bg-[#0F0F0F]' : 'bg-[#f4f4f7]'}`}>
-                            <div className={`w-full max-w-[1000px] mx-auto rounded-[3rem] shadow-2xl border-2 ${ctrl.isPublished ? 'border-green-500/30' : 'border-red-600/10'} min-h-full transition-all flex flex-col overflow-hidden relative bg-white`}>
+                        <div ref={scrollContainerRef} onScroll={handleScroll} className={`flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 xl:p-12 custom-scrollbar transition-all duration-300 ${showMobileFormatting ? 'pb-72' : 'pb-28'} md:pb-12 ${darkMode ? 'bg-[#0F0F0F]' : 'bg-[#f4f4f7]'}`}>
+                            <div className={`w-full max-w-[700px] lg:max-w-[600px] xl:max-w-[900px] 2xl:max-w-[1000px] mx-auto rounded-[1.5rem] md:rounded-[3rem] shadow-2xl border-2 ${ctrl.isPublished ? 'border-green-500/30' : 'border-red-600/10'} min-h-full transition-all flex flex-col overflow-hidden relative bg-white`}>
                                 <EditorBanner
                                     user={user}
                                     bannerImages={ctrl.bannerImages} setBannerImages={ctrl.setBannerImages}
@@ -172,7 +180,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                                     }}
                                 />
 
-                                <div className="p-6 md:p-16 lg:p-20" onClick={(e) => e.stopPropagation()}>
+                                <div className="p-4 sm:p-8 md:p-16 lg:p-20" onClick={(e) => e.stopPropagation()}>
                                     <EditorMeta
                                         title={ctrl.title} setTitle={ctrl.setTitle}
                                         lead={ctrl.lead} setLead={ctrl.setLead}
@@ -195,8 +203,8 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                     </div>
 
                     {/* DESKTOP RIGHT SIDEBAR */}
-                    <aside className={`hidden lg:flex flex-col transition-all duration-300 relative z-20 ${isRightSidebarOpen ? 'w-80 md:w-96 border-l' : 'w-0 overflow-hidden border-none'} ${darkMode ? 'bg-black border-white/5' : 'bg-white border-zinc-200'}`}>
-                        <div className="flex-1 overflow-hidden w-80 md:w-96">
+                    <aside className={`hidden lg:flex flex-col transition-all duration-300 relative z-20 ${isRightSidebarOpen ? 'w-64 xl:w-72 2xl:w-80 border-l' : 'w-0 overflow-hidden border-none'} ${darkMode ? 'bg-black border-white/5' : 'bg-white border-zinc-200'}`}>
+                        <div className="flex-1 overflow-hidden w-64 xl:w-72 2xl:w-80">
                             <InspectorSidebar
                                 block={ctrl.blocks.find(b => b.id === ctrl.selectedBlockId) || null}
                                 onUpdate={ctrl.handleUpdateBlock} onDelete={ctrl.handleDeleteBlock}

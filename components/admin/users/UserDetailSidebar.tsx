@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { User, AdPricingConfig, AuditLog, checkPermission } from '../../../types';
+import { User, AdPricingConfig, AuditLog, checkPermission, SystemSettings } from '../../../types';
 import UserProfilePanel from './panels/UserProfilePanel';
 import UserSubscriptionPanel from './panels/UserSubscriptionPanel';
 import UserPermissionsPanel from './panels/UserPermissionsPanel';
@@ -35,11 +35,13 @@ interface UserDetailSidebarProps {
     isCreating: boolean;
     adConfig?: AdPricingConfig;
     onSavePermissions: (perms: Record<string, boolean>) => void;
+    onDeleteUser?: () => void;
+    systemSettings?: SystemSettings;
 }
 
 const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
     user, currentUser, onClose, onUpdateUserLocal, onSaveUser, onToggleStatus, onUpdatePassword,
-    newUserPassword, isCreating, adConfig, onSavePermissions
+    newUserPassword, isCreating, adConfig, onSavePermissions, onDeleteUser, systemSettings
 }) => {
     const [panelTab, setPanelTab] = useState<'control' | 'commercial' | 'permissions' | 'audit'>('control');
     const [permissionsState, setPermissionsState] = useState<Record<string, boolean>>({});
@@ -289,13 +291,13 @@ const UserDetailSidebar: React.FC<UserDetailSidebarProps> = ({
                             <UserStatsPanel user={user} totalPosts={0} totalClicks={0} totalSpent={0} />
                             <UserPostsPanel userId={user.id} posts={[]} />
                             <UserSupportPanel userId={user.id} tickets={[]} onCreateTicket={(s, m) => alert('Ticket: ' + s)} />
-                            <UserProfilePanel user={user} isCreating={isCreating} newUserPassword={newUserPassword} onUpdateUser={onUpdateUserLocal} onUpdatePassword={onUpdatePassword} onSave={onSaveUser} onToggleStatus={onToggleStatus} />
+                            <UserProfilePanel user={user} isCreating={isCreating} newUserPassword={newUserPassword} onUpdateUser={onUpdateUserLocal} onUpdatePassword={onUpdatePassword} onSave={onSaveUser} onToggleStatus={onToggleStatus} onDelete={onDeleteUser} />
                         </>
                     )}
 
                     {panelTab === 'commercial' && (
                         <>
-                            <UserSubscriptionPanel user={user} adConfig={adConfig} onUpdateUser={onUpdateUserLocal} onExtendSubscription={handleExtendSubscription} canEdit={canEditPlan} />
+                            <UserSubscriptionPanel user={user} currentUser={currentUser} adConfig={adConfig} onUpdateUser={onUpdateUserLocal} onExtendSubscription={handleExtendSubscription} canEdit={canEditPlan} systemSettings={systemSettings} />
                             {user.role === 'Anunciante' && <UserFinancialPanel userId={user.id} payments={[]} />}
                         </>
                     )}

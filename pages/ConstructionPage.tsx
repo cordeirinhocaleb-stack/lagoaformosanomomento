@@ -16,7 +16,7 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
     // Assets & Consts
     const brandIconUrl = "https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P";
     const bannerImageUrl = "https://lh3.googleusercontent.com/d/1C1WhdivmBnt1z23xZGOJw0conC1jtq4i";
-    const presenterVideoUrl = "https://vimeo.com/1149429293";
+    const presenterVideoUrl = "https://res.cloudinary.com/dlleqjxd7/video/upload/v1768522256/lfnm_cms/geral/gustavo/kkvtkwlkkdgsnjhafmzr.mp4";
 
     // Get current version from centralized config
     const CURRENT_VERSION = APP_VERSION;
@@ -66,12 +66,12 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
     // --- LANTERN EFFECT LOGIC (From VisualBanner) ---
     useEffect(() => {
         if (isHovering) {
-            if (animationRef.current) {cancelAnimationFrame(animationRef.current);}
+            if (animationRef.current) { cancelAnimationFrame(animationRef.current); }
             return;
         }
         const startTimestamp = performance.now();
         const animate = (time: number) => {
-            if (!containerRef.current) {return;}
+            if (!containerRef.current) { return; }
             const elapsed = time - startTimestamp;
             const width = containerRef.current.offsetWidth;
             const height = containerRef.current.offsetHeight;
@@ -89,11 +89,11 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
             animationRef.current = requestAnimationFrame(animate);
         };
         animationRef.current = requestAnimationFrame(animate);
-        return () => { if (animationRef.current) {cancelAnimationFrame(animationRef.current);} };
+        return () => { if (animationRef.current) { cancelAnimationFrame(animationRef.current); } };
     }, [isHovering]);
 
     const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isHovering) {setIsHovering(true);}
+        if (!isHovering) { setIsHovering(true); }
         if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             containerRef.current.style.setProperty('--x', `${e.clientX - rect.left}px`);

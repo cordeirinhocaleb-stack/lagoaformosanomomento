@@ -49,14 +49,13 @@ export const mapNewsFromDb = (dbNews: Record<string, any>): NewsItem => ({
 export const mapNewsToDb = (news: NewsItem): Record<string, any> => {
     // Mapeia explicitamente para snake_case (padrão Postgres)
     // Removemos os campos camelCase para evitar erro de "coluna não encontrada" no PostgREST
-    return {
-        id: news.id,
+    const payload: any = {
         title: news.title,
         lead: news.lead,
         content: news.content,
         category: news.category,
         status: news.status,
-        author_id: news.authorId,
+        author_id: (news.authorId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(news.authorId)) ? news.authorId : null,
         author: news.author,
         image_url: news.imageUrl,
         image_credits: news.imageCredits,
@@ -88,35 +87,92 @@ export const mapNewsToDb = (news: NewsItem): Record<string, any> => {
         seo: news.seo,
         source: news.source || 'site'
     };
+
+    // Só inclui ID se for um UUID válido (evita erros no INSERT/UPSERT)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (news.id && uuidRegex.test(news.id)) {
+        payload.id = news.id;
+    }
+
+    return payload;
 };
 
-export const mapAdvertiserToDb = (ad: Advertiser): Record<string, any> => ({
-    id: ad.id,
-    company_name: (ad as Record<string, any>).company_name || ad.name,
-    trade_name: (ad as Record<string, any>).trade_name || ad.name,
-    category: ad.category,
-    logo_url: ad.logoUrl,
-    banner_url: ad.bannerUrl,
-    plan: ad.plan,
-    status: ad.isActive ? 'active' : 'inactive',
-    redirect_type: ad.redirectType,
-    external_url: ad.externalUrl,
-    address: ad.internalPage?.location ? { city: ad.internalPage.location } : {},
-    social_links: {
-        instagram: ad.internalPage?.instagram,
-        whatsapp: ad.internalPage?.whatsapp
-    },
-    owner_id: ad.ownerId,
-    popup_set: ad.popupSet
-});
+export const mapAdvertiserFromDb = (dbAd: Record<string, any>): Advertiser => {
+    return {
+        ...dbAd,
+        id: dbAd.id,
+        name: dbAd.name,
+        category: dbAd.category,
+        logoUrl: dbAd.logoUrl || dbAd.logo_url,
+        logoUrls: dbAd.logoUrls || [],
+        displayLocations: dbAd.display_locations || dbAd.displayLocations || ['home_top', 'article_sidebar', 'article_footer'],
+        videoUrl: dbAd.videoUrl,
+        mediaType: dbAd.mediaType || 'image',
+        transitionType: dbAd.transitionType || 'fade',
+        redirectType: dbAd.redirectType || 'external',
+        externalUrl: dbAd.externalUrl,
+        internalPage: dbAd.internalPage || { description: '', products: [], whatsapp: '', instagram: '', location: '' },
+        plan: dbAd.plan,
+        isActive: dbAd.isActive !== false,
+        views: dbAd.views || 0,
+        clicks: dbAd.clicks || 0,
+        ownerId: dbAd.ownerId || dbAd.owner_id
+    } as Advertiser;
+};
 
-export const mapSocialPostToDb = (post: SocialPost): Record<string, any> => ({
-    id: post.id,
-    content: post.content,
-    media_url: post.mediaUrl,
-    media_type: post.mediaType,
-    platform: Array.isArray(post.platforms) ? post.platforms[0] : post.platforms,
-    status: post.status,
-    author_id: post.authorId,
-    created_at: post.createdAt
-});
+export const mapAdvertiserToDb = (ad: Advertiser): Record<string, any> => {
+    const payload: any = {
+        name: ad.name,
+        category: ad.category,
+        logoUrl: ad.logoUrl,
+        logoIcon: ad.logoIcon,
+        bannerUrl: ad.bannerUrl,
+        plan: ad.plan,
+        billingCycle: ad.billingCycle,
+        startDate: ad.startDate,
+        endDate: ad.endDate,
+        isActive: ad.isActive,
+        views: ad.views || 0,
+        clicks: ad.clicks || 0,
+        redirectType: ad.redirectType,
+        externalUrl: ad.externalUrl,
+        internalPage: ad.internalPage,
+        coupons: ad.coupons,
+        ownerId: (ad.ownerId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ad.ownerId)) ? ad.ownerId : null,
+        popupSet: ad.popupSet,
+        promoBanners: ad.promoBanners,
+        logoUrls: ad.logoUrls,
+        display_locations: ad.displayLocations,
+        transitionType: ad.transitionType,
+        videoUrl: ad.videoUrl,
+        mediaType: ad.mediaType
+    };
+
+    // Só inclui ID se ele for um UUID válido.
+    // Se for vazio ou formato inválido, deixamos o Postgres/Supabase gerar um novo UUID.
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (ad.id && uuidRegex.test(ad.id)) {
+        payload.id = ad.id;
+    }
+
+    return payload;
+};
+
+export const mapSocialPostToDb = (post: SocialPost): Record<string, any> => {
+    const payload: any = {
+        content: post.content,
+        media_url: post.mediaUrl,
+        media_type: post.mediaType,
+        platform: Array.isArray(post.platforms) ? post.platforms[0] : post.platforms,
+        status: post.status,
+        author_id: (post.authorId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(post.authorId)) ? post.authorId : null,
+        created_at: post.createdAt
+    };
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (post.id && uuidRegex.test(post.id)) {
+        payload.id = post.id;
+    }
+
+    return payload;
+};

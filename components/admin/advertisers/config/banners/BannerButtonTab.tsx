@@ -54,14 +54,153 @@ export const BannerButtonTab: React.FC<BannerButtonTabProps> = ({ banner, onUpda
                 />
             </div>
 
-            <div>
-                <label className={labelClass}>Link</label>
-                <input
-                    type="text"
-                    value={btnConfig.link || ''}
-                    onChange={e => updateConfig('link', e.target.value)}
-                    className={`${inputClass} ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}
-                />
+            {/* Link Configuration Section */}
+            <div className={`p-4 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                <label className={labelClass}>Destino do Clique</label>
+
+                {/* Type Selector Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+                    <button
+                        onClick={() => updateConfig('link', '')}
+                        className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${!btnConfig.link?.includes('wa.me') && !btnConfig.link?.includes('instagram.com') && !btnConfig.link?.includes('facebook.com') && !btnConfig.link?.includes('tiktok.com') && !btnConfig.link?.includes('kwai.com')
+                                ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
+                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-white' : 'bg-transparent text-gray-400 border-gray-200 hover:text-black')
+                            }`}
+                    >
+                        URL / Site
+                    </button>
+                    <button
+                        onClick={() => updateConfig('link', 'https://wa.me/55')}
+                        className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${btnConfig.link?.includes('wa.me')
+                                ? 'bg-green-500 text-white border-green-500'
+                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-green-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-green-600')
+                            }`}
+                    >
+                        <i className="fab fa-whatsapp mr-1"></i> WhatsApp
+                    </button>
+                    <button
+                        onClick={() => updateConfig('link', 'https://instagram.com/')}
+                        className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${btnConfig.link?.includes('instagram.com')
+                                ? 'bg-pink-600 text-white border-pink-600'
+                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-pink-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-pink-600')
+                            }`}
+                    >
+                        <i className="fab fa-instagram mr-1"></i> Instagram
+                    </button>
+                    <button
+                        onClick={() => updateConfig('link', 'https://facebook.com/')}
+                        className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${btnConfig.link?.includes('facebook.com')
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-blue-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-blue-600')
+                            }`}
+                    >
+                        <i className="fab fa-facebook mr-1"></i> Facebook
+                    </button>
+                    <button
+                        onClick={() => updateConfig('link', 'https://tiktok.com/@')}
+                        className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${btnConfig.link?.includes('tiktok.com')
+                                ? 'bg-black text-white border-black' // TikTok brand is black/white/teal/red
+                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-white' : 'bg-transparent text-gray-400 border-gray-200 hover:text-black')
+                            }`}
+                    >
+                        <i className="fab fa-tiktok mr-1"></i> TikTok
+                    </button>
+                    <button
+                        onClick={() => updateConfig('link', 'https://www.kwai.com/@')}
+                        className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${btnConfig.link?.includes('kwai.com')
+                                ? 'bg-orange-500 text-white border-orange-500'
+                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-orange-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-orange-600')
+                            }`}
+                    >
+                        <i className="fas fa-video mr-1"></i> Kwai
+                    </button>
+                </div>
+
+                {/* Dynamic Input */}
+                <div className="relative">
+                    {btnConfig.link?.includes('wa.me') ? (
+                        <div>
+                            <label className="text-[8px] font-bold text-green-500 mb-1 block uppercase">Número do WhatsApp (DDD + Número)</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">+55</span>
+                                <input
+                                    type="text"
+                                    value={btnConfig.link?.replace('https://wa.me/55', '') || ''}
+                                    onChange={e => updateConfig('link', `https://wa.me/55${e.target.value.replace(/\D/g, '')}`)}
+                                    placeholder="34999999999"
+                                    className={`${inputClass} pl-10`}
+                                />
+                            </div>
+                        </div>
+                    ) : btnConfig.link?.includes('instagram.com') ? (
+                        <div>
+                            <label className="text-[8px] font-bold text-pink-500 mb-1 block uppercase">Usuário do Instagram</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">@</span>
+                                <input
+                                    type="text"
+                                    value={btnConfig.link?.replace('https://instagram.com/', '').replace('/', '') || ''}
+                                    onChange={e => updateConfig('link', `https://instagram.com/${e.target.value.trim()}`)}
+                                    placeholder="seu_perfil"
+                                    className={`${inputClass} pl-8`}
+                                />
+                            </div>
+                        </div>
+                    ) : btnConfig.link?.includes('facebook.com') ? (
+                        <div>
+                            <label className="text-[8px] font-bold text-blue-600 mb-1 block uppercase">Página ou Perfil Facebook</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">/</span>
+                                <input
+                                    type="text"
+                                    value={btnConfig.link?.replace('https://facebook.com/', '') || ''}
+                                    onChange={e => updateConfig('link', `https://facebook.com/${e.target.value.trim()}`)}
+                                    placeholder="sua.pagina"
+                                    className={`${inputClass} pl-6`}
+                                />
+                            </div>
+                        </div>
+                    ) : btnConfig.link?.includes('tiktok.com') ? (
+                        <div>
+                            <label className={`text-[8px] font-bold mb-1 block uppercase ${darkMode ? 'text-white' : 'text-black'}`}>Usuário TikTok</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">@</span>
+                                <input
+                                    type="text"
+                                    value={btnConfig.link?.replace('https://tiktok.com/@', '') || ''}
+                                    onChange={e => updateConfig('link', `https://tiktok.com/@${e.target.value.trim().replace('@', '')}`)}
+                                    placeholder="usuario"
+                                    className={`${inputClass} pl-8`}
+                                />
+                            </div>
+                        </div>
+                    ) : btnConfig.link?.includes('kwai.com') ? (
+                        <div>
+                            <label className="text-[8px] font-bold text-orange-500 mb-1 block uppercase">Usuário Kwai</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">@</span>
+                                <input
+                                    type="text"
+                                    value={btnConfig.link?.replace('https://www.kwai.com/@', '') || ''}
+                                    onChange={e => updateConfig('link', `https://www.kwai.com/@${e.target.value.trim().replace('@', '')}`)}
+                                    placeholder="usuario"
+                                    className={`${inputClass} pl-8`}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <label className={`text-[8px] font-bold mb-1 block uppercase ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Link Externo Completo</label>
+                            <input
+                                type="text"
+                                value={btnConfig.link || ''}
+                                onChange={e => updateConfig('link', e.target.value)}
+                                placeholder="https://..."
+                                className={`${inputClass} ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

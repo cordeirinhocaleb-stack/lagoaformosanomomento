@@ -129,7 +129,7 @@ const SeparatorBlock: React.FC<SeparatorBlockProps> = ({ block, isSelected, onSe
   return (
     <div
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
-      className={`py-10 cursor-pointer transition-all relative group ${isSelected ? 'bg-blue-50/5 ring-2 ring-blue-500/20 rounded-2xl' : 'hover:opacity-80'}`}
+      className={`py-4 sm:py-10 cursor-pointer transition-all relative group ${isSelected ? 'bg-blue-50/5 ring-2 ring-blue-500/20 rounded-2xl' : 'hover:opacity-80'}`}
     >
       <div
         className="mx-auto flex items-center justify-center transition-all duration-300"

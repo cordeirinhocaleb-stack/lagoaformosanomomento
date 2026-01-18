@@ -37,13 +37,15 @@ const sanitizeInput = (input: string | null | undefined, maxLength: number = 500
 const mapUserToDb = (user: User): Record<string, unknown> => ({
     id: user.id,
     name: sanitizeInput(user.name, 100),
-    email: user.email, // Email should be validated elsewhere, not sanitized aggressively here
+    email: user.email,
     role: user.role,
     status: user.status || 'active',
-    avatar: user.avatar, // URLs preserved
+    avatar: user.avatar,
     bio: sanitizeInput(user.bio, 1000),
     birthdate: user.birthDate,
     zipcode: sanitizeInput(user.zipCode, 20),
+    street: sanitizeInput(user.street, 200),
+    number: sanitizeInput(user.number, 20),
     city: sanitizeInput(user.city, 100),
     state: sanitizeInput(user.state, 50),
     phone: sanitizeInput(user.phone, 30),
@@ -51,24 +53,25 @@ const mapUserToDb = (user: User): Record<string, unknown> => ({
     profession: sanitizeInput(user.profession, 100),
     education: sanitizeInput(user.education, 100),
     skills: user.skills ? user.skills.map(s => sanitizeInput(s, 50)).filter(Boolean) : [],
-    "professionalBio": sanitizeInput(user.professionalBio, 2000),
+    professionalBio: sanitizeInput(user.professionalBio, 2000),
     availability: user.availability,
-    "companyName": sanitizeInput(user.companyName, 150),
-    "businessType": sanitizeInput(user.businessType, 100),
-    "whatsappVisible": user.whatsappVisible,
-    "themePreference": user.themePreference,
-    "socialLinks": user.socialLinks, // Object/JSON, preserved
+    companyName: sanitizeInput(user.companyName, 150),
+    businessType: sanitizeInput(user.businessType, 100),
+    whatsappVisible: user.whatsappVisible,
+    themePreference: user.themePreference,
+    socialLinks: user.socialLinks,
     permissions: user.permissions,
     advertiser_plan: user.advertiserPlan,
-    "activePlans": user.activePlans,
-    "subscriptionStart": user.subscriptionStart,
-    "subscriptionEnd": user.subscriptionEnd,
+    active_plans: user.activePlans,
+    subscription_start: user.subscriptionStart,
+    subscription_end: user.subscriptionEnd,
     two_factor_enabled: user.twoFactorEnabled,
-    "usageCredits": user.usageCredits,
-    "siteCredits": user.siteCredits,
+    usage_credits: user.usageCredits,
+    site_credits: user.siteCredits,
     custom_limits: user.customLimits,
     terms_accepted: user.termsAccepted,
-    terms_accepted_at: user.termsAcceptedAt
+    terms_accepted_at: user.termsAcceptedAt,
+    commercial_data: user.commercialData
 });
 
 export const mapDbToUser = (dbUser: any): User | null => {
@@ -83,6 +86,8 @@ export const mapDbToUser = (dbUser: any): User | null => {
         bio: dbUser.bio,
         birthDate: dbUser.birthdate, // Db is birthdate (lowercase)
         zipCode: dbUser.zipcode,
+        street: dbUser.street,
+        number: dbUser.number,
         city: dbUser.city,
         state: dbUser.state,
         phone: dbUser.phone,
@@ -107,7 +112,8 @@ export const mapDbToUser = (dbUser: any): User | null => {
         siteCredits: dbUser.siteCredits || dbUser.site_credits,
         customLimits: dbUser.custom_limits,
         termsAccepted: dbUser.terms_accepted,
-        termsAcceptedAt: dbUser.terms_accepted_at
+        termsAcceptedAt: dbUser.terms_accepted_at,
+        commercialData: dbUser.commercial_data || {}
     };
 };
 
@@ -126,6 +132,46 @@ export const updateUser = async (user: User) => {
     const { error } = await supabase.from('users').update(payload).eq('id', user.id);
     if (error) { throw error; }
 };
+
+export const deleteUser = async (id: string) => {
+    const supabase = getSupabase();
+    if (!supabase) { return; }
+    const { error } = await supabase.from('users').delete().eq('id', id);
+    if (error) { throw error; }
+};
+
+// --- COMMERCIAL DATA SERVICE ---
+/**
+ * Retrieve the commercial_data JSON for a user.
+ */
+export const getCommercialData = async (userId: string): Promise<any> => {
+    const supabase = getSupabase();
+    if (!supabase) { return null; }
+    const { data, error } = await supabase
+        .from('users')
+        .select('commercial_data')
+        .eq('id', userId)
+        .single();
+    if (error) { console.warn('Failed to fetch commercial data:', error.message); return null; }
+    return data?.commercial_data || {};
+};
+
+/**
+ * Update the commercial_data JSON for a user.
+ */
+export const updateCommercialData = async (userId: string, payload: any) => {
+    const supabase = getSupabase();
+    if (!supabase) { throw new Error('Supabase client not available'); }
+    const { data, error } = await supabase
+        .from('users')
+        .update({ commercial_data: payload })
+        .eq('id', userId)
+        .select('commercial_data')
+        .single();
+    if (error) { throw error; }
+    return data?.commercial_data;
+};
+
 
 export const getEmailByUsername = async (username: string): Promise<string | null> => {
     const supabase = getSupabase();
@@ -154,6 +200,50 @@ export const checkEmailExists = async (email: string): Promise<boolean> => {
         return false;
     }
     return !!data;
+};
+
+export const getUserByDocument = async (document: string): Promise<{ id: string, name: string, email: string } | null> => {
+    const supabase = getSupabase();
+    if (!supabase) { return null; }
+
+    // Remove caracteres não numéricos para busca flexível
+    const cleanDoc = document.replace(/\D/g, '');
+
+    // Tenta buscar exato primeiro
+    let { data, error } = await supabase
+        .from('users')
+        .select('id, name, email')
+        .eq('document', document)
+        .maybeSingle();
+
+    if (error || !data) {
+        // Se falhar, tenta buscar pelo limpo se o input também estava sujo no banco? 
+        // Postgres não tem regex simples aqui sem RPC, então vamos assumir busca exata por enquanto
+        // ou buscar todos com document not null e filtrar no js (perigoso se muitos users)
+        // Melhor: assumir que o admin digita exatamente como está no banco por enquanto.
+        return null;
+    }
+
+
+    return data;
+};
+
+export const getUserByName = async (name: string): Promise<{ id: string, name: string, email: string, document?: string }[]> => {
+    const supabase = getSupabase();
+    if (!supabase) { return []; }
+
+    // Busca por nome (case-insensitive, parcial)
+    const { data, error } = await supabase
+        .from('users')
+        .select('id, name, email, document')
+        .ilike('name', `%${name}%`)
+        .limit(10);
+
+    if (error || !data) {
+        return [];
+    }
+
+    return data;
 };
 
 // --- AUTH UTILS ---
@@ -275,7 +365,8 @@ export const userPurchaseItem = async (
     itemId: string,
     cost: number,
     itemName: string,
-    details?: any
+    details?: any,
+    cashbackAmount: number = 0
 ) => {
     const supabase = getSupabase();
     if (!supabase) { return { success: false, message: "Erro de conexão" }; }
@@ -300,7 +391,7 @@ export const userPurchaseItem = async (
         // 2. BUSCAR DADOS DO USUÁRIO
         const { data: user, error: userError } = await supabase
             .from('users')
-            .select('siteCredits, activePlans, advertiserPlan, usageCredits, subscriptionEnd')
+            .select('site_credits, active_plans, advertiser_plan, usage_credits, subscription_end')
             .eq('id', userId)
             .maybeSingle();
 
@@ -310,7 +401,7 @@ export const userPurchaseItem = async (
         }
 
         // 3. VALIDAR SALDO
-        const currentCredits = sanitizeNumber(user.siteCredits, 0);
+        const currentCredits = sanitizeNumber(user.site_credits, 0);
 
         if (currentCredits < sanitizedCost) {
             return {
@@ -321,14 +412,14 @@ export const userPurchaseItem = async (
 
         // 4. PREPARAR ATUALIZAÇÕES
         const updates: Record<string, unknown> = {
-            siteCredits: currentCredits - sanitizedCost
+            site_credits: currentCredits - sanitizedCost + (sanitizeNumber(cashbackAmount, 0))
         };
 
         // 5. PROCESSAR LÓGICA DO ITEM
         if (itemType === 'plan') {
-            const currentPlans = Array.isArray(user.activePlans)
-                ? user.activePlans
-                : (user.advertiserPlan && user.advertiserPlan !== 'free' ? [user.advertiserPlan] : []);
+            const currentPlans = Array.isArray(user.active_plans)
+                ? user.active_plans
+                : (user.advertiser_plan && user.advertiser_plan !== 'free' ? [user.advertiser_plan] : []);
 
             // Validar limite de planos únicos (máximo 3 tipos diferentes)
             const uniquePlans = new Set([...currentPlans, itemId]);
@@ -340,32 +431,31 @@ export const userPurchaseItem = async (
             }
 
             const newPlans = [...currentPlans, itemId];
-            updates.activePlans = newPlans;
-            updates.advertiserPlan = newPlans[0]; // Compatibilidade
+            updates.active_plans = newPlans;
+            updates.advertiser_plan = newPlans[0];
 
             // Gerenciar datas de assinatura
             const now = new Date();
             const endDate = new Date();
-            endDate.setDate(now.getDate() + 30); // 30 dias padrão
+            endDate.setDate(now.getDate() + 30);
 
-            if (!user.subscriptionEnd || new Date(user.subscriptionEnd) < now) {
-                updates.subscriptionStart = now.toISOString();
-                updates.subscriptionEnd = endDate.toISOString();
+            if (!user.subscription_end || new Date(user.subscription_end) < now) {
+                updates.subscription_start = now.toISOString();
+                updates.subscription_end = endDate.toISOString();
             } else {
                 // Estender assinatura existente
-                const currentEnd = new Date(user.subscriptionEnd);
+                const currentEnd = new Date(user.subscription_end);
                 currentEnd.setDate(currentEnd.getDate() + 30);
-                updates.subscriptionEnd = currentEnd.toISOString();
+                updates.subscription_end = currentEnd.toISOString();
             }
 
             // Adicionar limites do plano (se fornecidos)
             if (details && typeof details === 'object') {
-                const currentUsage = user.usageCredits || {};
-                updates.usageCredits = {
+                const currentUsage = user.usage_credits || {};
+                updates.usage_credits = {
+                    ...currentUsage,
                     postsRemaining: sanitizeNumber(currentUsage.postsRemaining, 0) + sanitizeNumber(details.maxProducts, 0),
                     videosRemaining: sanitizeNumber(currentUsage.videosRemaining, 0) + sanitizeNumber(details.videoLimit, 0),
-                    featuredDaysRemaining: sanitizeNumber(currentUsage.featuredDaysRemaining, 0),
-                    clicksBalance: sanitizeNumber(currentUsage.clicksBalance, 0)
                 };
             }
 
@@ -375,8 +465,9 @@ export const userPurchaseItem = async (
                 return { success: false, message: "Detalhes do boost são obrigatórios" };
             }
 
-            const currentUsage = user.usageCredits || {};
-            updates.usageCredits = {
+            const currentUsage = user.usage_credits || {};
+            updates.usage_credits = {
+                ...currentUsage,
                 postsRemaining: sanitizeNumber(currentUsage.postsRemaining, 0) + sanitizeNumber(details.posts, 0),
                 videosRemaining: sanitizeNumber(currentUsage.videosRemaining, 0) + sanitizeNumber(details.videos, 0),
                 featuredDaysRemaining: sanitizeNumber(currentUsage.featuredDaysRemaining, 0) + sanitizeNumber(details.featuredDays, 0),
@@ -384,7 +475,6 @@ export const userPurchaseItem = async (
                 popupsRemaining: sanitizeNumber(currentUsage.popupsRemaining, 0) + sanitizeNumber(details.popups, 0),
                 jobsRemaining: sanitizeNumber(currentUsage.jobsRemaining, 0) + sanitizeNumber(details.jobs, 0),
                 gigsRemaining: sanitizeNumber(currentUsage.gigsRemaining, 0) + sanitizeNumber(details.gigs, 0),
-                clicksBalance: sanitizeNumber(currentUsage.clicksBalance, 0)
             };
         }
 
@@ -405,8 +495,13 @@ export const userPurchaseItem = async (
             "User",
             "purchase_item",
             userId,
-            `Comprou ${itemType} "${itemName}" por C$ ${sanitizedCost.toFixed(2)}`
+            `Comprou ${itemType} "${itemName}" por C$ ${sanitizedCost.toFixed(2)}${cashbackAmount > 0 ? ` (+C$ ${cashbackAmount.toFixed(2)} Cashback)` : ''}`
         );
+
+        // Se houve cashback, logar separadamente para clareza
+        if (cashbackAmount > 0) {
+            await logAction(userId, "User", "cashback_received", userId, `Recebeu C$ ${cashbackAmount.toFixed(2)} de cashback`);
+        }
 
         // 8. RETORNAR SUCESSO
         return {
@@ -422,5 +517,37 @@ export const userPurchaseItem = async (
             success: false,
             message
         };
+    }
+};
+
+export const removeUserItem = async (userId: string, itemType: string, itemId: string) => {
+    const supabase = getSupabase();
+    if (!supabase) return { success: false, message: "Erro de conexão" };
+
+    try {
+        const { data: user, error: fetchError } = await supabase.from('users').select('active_plans').eq('id', userId).single();
+        if (fetchError || !user) throw new Error("Usuário não encontrado");
+
+        if (itemType === 'plan') {
+            const currentPlans = (user.active_plans as string[]) || [];
+            const newPlans = currentPlans.filter(p => p !== itemId);
+
+            const { error: updateError } = await supabase
+                .from('users')
+                .update({
+                    active_plans: newPlans,
+                    activePlans: newPlans
+                })
+                .eq('id', userId);
+
+            if (updateError) throw updateError;
+
+            await logAction(userId, "User", "remove_item", userId, `Removeu item do inventário: ${itemId}`);
+            return { success: true, message: "Item removido com sucesso", updatedPlans: newPlans };
+        }
+
+        return { success: false, message: "Tipo de item não suportado para remoção" };
+    } catch (e: any) {
+        return { success: false, message: e.message };
     }
 };

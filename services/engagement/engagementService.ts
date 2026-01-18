@@ -20,6 +20,7 @@ export type EngagementType =
 export interface InteractionStats {
     total: number;
     distribution: Record<string, number>;
+    average?: number;
 }
 
 // Gera um identificador único simples para o navegador atual (persistente)
@@ -98,7 +99,7 @@ export const getInteractionStats = async (newsId: string, blockId: string): Prom
             .eq('news_id', newsId)
             .eq('block_id', blockId);
 
-        if (error) {throw error;}
+        if (error) { throw error; }
 
         const distribution: Record<string, number> = {};
         let total = 0;
@@ -121,7 +122,7 @@ export const getInteractionStats = async (newsId: string, blockId: string): Prom
 
 export const hasUserInteracted = async (newsId: string, blockId: string): Promise<boolean> => {
     const supabase = getSupabase();
-    if (!supabase) {return false;}
+    if (!supabase) { return false; }
 
     const userIdentifier = getDeviceId();
     const { count } = await supabase

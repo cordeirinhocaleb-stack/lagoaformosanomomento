@@ -1,11 +1,43 @@
 import { Advertiser } from '../../types';
 import { getSupabase } from '../core/supabaseClient';
-import { mapAdvertiserToDb } from './contentMappers';
+import { mapAdvertiserToDb, mapAdvertiserFromDb } from './contentMappers';
 
-export const upsertAdvertiser = async (advertiser: Advertiser) => {
+export const upsertAdvertiser = async (advertiser: Advertiser): Promise<Advertiser | null> => {
     const supabase = getSupabase();
-    if (!supabase) { return; }
+    if (!supabase) { return null; }
     const payload = mapAdvertiserToDb(advertiser);
-    const { error } = await supabase.from('advertisers').upsert(payload);
+    const { data, error } = await supabase.from('advertisers').upsert(payload).select().single();
     if (error) { throw error; }
+    return mapAdvertiserFromDb(data);
+};
+
+export const deleteAdvertiser = async (id: string): Promise<boolean> => {
+    const supabase = getSupabase();
+    if (!supabase) {
+        console.error("❌ Supabase não inicializado para exclusão");
+        return false;
+    }
+    console.log(`📡 Tentando excluir parceiro ID: ${id}`);
+    const { error } = await supabase.from('advertisers').delete().eq('id', id);
+    if (error) {
+        console.error(`❌ Erro Supabase ao excluir parceiro: ${error.message}`, error);
+        throw error;
+    }
+    console.log(`✅ Parceiro ${id} excluído com sucesso do banco.`);
+    return true;
+};
+
+export const getUserAdvertisers = async (userId: string): Promise<Advertiser[]> => {
+    const supabase = getSupabase();
+    if (!supabase) return [];
+
+    // Attempt with both camelCase and snake_case for owner field
+    let { data, error } = await supabase.from('advertisers').select('*').eq('ownerId', userId);
+
+    if (error && error.message.includes('ownerId')) {
+        ({ data, error } = await supabase.from('advertisers').select('*').eq('owner_id', userId));
+    }
+
+    if (error || !data) return [];
+    return data.map(mapAdvertiserFromDb);
 };

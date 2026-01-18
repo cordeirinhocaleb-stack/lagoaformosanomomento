@@ -157,7 +157,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({ onAddBlock, isUploading, 
                                                 }}
                                                 className={`flex flex-col items-center justify-center p-3 rounded-xl border hover:border-red-600 hover:shadow-lg transition-all gap-2 aspect-square group ${darkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-gray-100'}`}
                                             >
-                                                <i className={`fas ${w.icon} text-lg group-hover:text-red-600 transition-colors ${darkMode ? 'text-zinc-600' : 'text-gray-400'}`}></i>
+                                                <i className={`fas ${w.icon} text-lg group-hover:scale-110 transition-transform ${w.color || (darkMode ? 'text-zinc-600' : 'text-gray-400')}`}></i>
                                                 <span className={`text-[9px] font-black uppercase text-center leading-tight line-clamp-1 group-hover:text-red-600 ${darkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>{w.name}</span>
                                             </button>
                                         )) : cat.isCelebrations ? CELEBRATION_BLOCKS.map(celebration => (

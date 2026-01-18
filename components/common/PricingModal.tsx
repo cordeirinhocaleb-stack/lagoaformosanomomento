@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdPricingConfig, AdPlan, User } from '../../types';
 import { userPurchaseItem } from '../../services/supabaseService';
+import lfnmCoin from '../../src/assets/lfnm_coin.png';
 
 interface PricingModalProps {
     config: AdPricingConfig;
@@ -44,39 +45,43 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
 
     return (
         <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-fadeIn">
+            {/* Styles for animations */}
+            <style>{`
+                @keyframes spin-3d {
+                    0% { transform: rotateY(0deg); }
+                    100% { transform: rotateY(360deg); }
+                }
+                .animate-coin {
+                    animation: spin-3d 3s linear infinite;
+                    transform-style: preserve-3d;
+                }
+            `}</style>
+
             {/* Área de clique externa para fechar */}
             <div className="absolute inset-0 cursor-pointer" onClick={onClose}></div>
 
             {/* BOTÃO FECHAR FIXO SUPERIOR */}
             <button
                 onClick={onClose}
-                className="fixed top-6 right-6 md:top-10 md:right-10 z-[7100] w-12 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl border border-white/20 group backdrop-blur-md active:scale-95"
+                className="fixed top-6 right-6 md:top-10 md:right-10 z-[7100] w-10 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl border border-white/20 group backdrop-blur-md active:scale-95"
             >
                 <i className="fas fa-times text-xl md:text-2xl group-hover:rotate-90 transition-transform duration-300"></i>
                 <span className="text-[7px] font-black uppercase tracking-widest mt-1 hidden md:block">Fechar</span>
             </button>
 
             <div className="w-full max-w-7xl h-full max-h-[92vh] overflow-y-auto custom-scrollbar relative z-10 pointer-events-none">
-                <div className="text-center mb-8 pt-12 md:pt-20 pointer-events-auto">
-                    <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-white mb-4">
+                <div className="text-center mb-6 pt-4 md:pt-8 pointer-events-auto">
+                    <h2 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter text-white mb-1">
                         Destaque sua <span className="text-red-600">Marca</span>
                     </h2>
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs md:text-sm max-w-2xl mx-auto px-4">
-                        Escolha o plano ideal para o seu negócio e apareça para milhares de leitores no maior portal da região.
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[9px] md:text-[10px] max-w-2xl mx-auto px-4 leading-tight">
+                        Escolha o plano ideal para o seu negócio e apareça no maior portal da região.
                     </p>
 
-                    {user && (
-                        <div className="mt-4 bg-zinc-800/80 inline-flex items-center gap-3 px-6 py-2 rounded-full border border-zinc-700 backdrop-blur-md">
-                            <i className="fas fa-wallet text-green-500"></i>
-                            <div className="text-left">
-                                <p className="text-[8px] font-black uppercase text-zinc-400">Seu Saldo</p>
-                                <p className="text-sm font-black text-white">C$ {(user.siteCredits || 0).toFixed(2)}</p>
-                            </div>
-                        </div>
-                    )}
 
-                    <div className="mt-8 flex justify-center px-4">
-                        <div className="bg-zinc-900/50 p-1.5 rounded-2xl flex items-center flex-wrap justify-center gap-1 border border-white/5 backdrop-blur-md">
+
+                    <div className="mt-4 flex justify-center px-4">
+                        <div className="bg-zinc-900/50 p-1 rounded-2xl flex items-center flex-wrap justify-center gap-1 border border-white/5 backdrop-blur-md scale-95">
                             <button
                                 onClick={() => setActiveCycle('daily')}
                                 className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeCycle === 'daily' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
@@ -169,13 +174,14 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
 
                                 <div className="mb-8 pb-8 border-b border-dashed border-zinc-200/20">
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-black">R$ {currentPrice}</span>
+                                        <span className="text-sm font-black mr-1">LFNM</span>
+                                        <span className="text-4xl font-black">{currentPrice}</span>
                                         <span className={`font-bold text-xs ${isMaster ? 'text-zinc-500' : 'text-zinc-400'}`}>{periodLabel}</span>
                                     </div>
 
                                     {activeCycle !== 'daily' && (
                                         <div className={`text-[10px] font-bold uppercase mt-1 ${isMaster ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                                            Equivale a R$ {dailyEquivalent.toFixed(2)}/dia
+                                            Equivale a LFNM {dailyEquivalent.toFixed(2)}/dia
                                         </div>
                                     )}
 
@@ -187,7 +193,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
 
                                     {plan.cashbackPercent && plan.cashbackPercent > 0 ? (
                                         <div className={`mt-3 flex items-center gap-2 px-3 py-1 rounded-lg w-fit ${isMaster ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-700'}`}>
-                                            <i className="fas fa-wallet text-xs"></i>
+                                            <img src={(lfnmCoin as any).src || lfnmCoin} className="w-3 h-3 object-contain grayscale opacity-70" alt="Cashback" />
                                             <span className="text-[10px] font-black uppercase">Cashback {plan.cashbackPercent}%</span>
                                         </div>
                                     ) : null}
@@ -261,21 +267,27 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
                                         }
 
                                         if ((user.siteCredits || 0) < currentPrice) {
-                                            alert(`Saldo insuficiente! Você tem C$ ${(user.siteCredits || 0).toFixed(2)} mas este plano custa C$ ${currentPrice.toFixed(2)}.`);
+                                            alert(`Saldo insuficiente! Você tem LFNM ${(user.siteCredits || 0).toFixed(2)} mas este plano custa LFNM ${currentPrice.toFixed(2)}.`);
                                             return;
                                         }
 
-                                        if (!confirm(`Confirmar assinatura do plano ${plan.name} por C$ ${currentPrice.toFixed(2)}? \nIsso descontará do seu saldo na carteira virtual.`)) { return; }
+                                        if (!confirm(`Confirmar assinatura do plano ${plan.name} por LFNM ${currentPrice.toFixed(2)}? \nIsso descontará do seu saldo na carteira virtual.`)) { return; }
 
                                         setIsProcessing(true);
                                         try {
+                                            // Calculate Cashback
+                                            const cashbackValue = (plan.cashbackPercent && plan.cashbackPercent > 0)
+                                                ? (currentPrice * (plan.cashbackPercent / 100))
+                                                : 0;
+
                                             const res = await userPurchaseItem(
                                                 user.id,
                                                 'plan',
                                                 plan.id,
                                                 currentPrice,
                                                 plan.name,
-                                                { maxProducts: plan.features.maxProducts, videoLimit: plan.features.videoLimit }
+                                                { maxProducts: plan.features.maxProducts, videoLimit: plan.features.videoLimit },
+                                                cashbackValue
                                             );
 
                                             if (res.success && res.updatedUser) {

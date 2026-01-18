@@ -6,6 +6,7 @@ export interface EditorWidget {
     icon: string;
     description: string;
     html: string;
+    color?: string;
 }
 
 export const EDITOR_WIDGETS: EditorWidget[] = [
@@ -15,6 +16,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Nota Oficial',
         category: 'editorial',
         icon: 'fa-file-signature',
+        color: 'text-slate-600',
         description: 'Comunicado formal com título e corpo de texto.',
         html: `<div class="widget-root p-8 bg-zinc-50 border-l-4 border-zinc-900">
             <h4 class="text-xs font-black uppercase tracking-widest text-zinc-400 mb-4 lfnm-text" data-key="Chapeu">COMUNICADO OFICIAL</h4>
@@ -23,7 +25,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
                 <p>Insira o texto do comunicado aqui. Este bloco é ideal para notas de esclarecimento, comunicados da prefeitura ou avisos importantes.</p>
             </div>
             <div class="mt-6 pt-6 border-t border-zinc-200 flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-zinc-200"></div>
+                <img src="https://via.placeholder.com/150" class="w-8 h-8 rounded-full border border-zinc-200 object-cover lfnm-img" data-img-key="AutorImg" />
                 <div>
                     <p class="text-xs font-bold text-zinc-900 lfnm-text" data-key="Autor">Assessoria de Imprensa</p>
                     <p class="text-[10px] text-zinc-500 uppercase lfnm-text" data-key="Cargo">Prefeitura Municipal</p>
@@ -36,6 +38,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Plantão Urgente',
         category: 'editorial',
         icon: 'fa-triangle-exclamation',
+        color: 'text-red-600',
         description: 'Alerta de última hora com destaque visual.',
         html: `<div class="widget-root bg-red-600 text-white p-6 rounded-xl shadow-lg animate-pulse">
             <div class="flex items-center gap-3 mb-4">
@@ -51,9 +54,10 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Citação com Foto',
         category: 'editorial',
         icon: 'fa-quote-right',
+        color: 'text-indigo-500',
         description: 'Destaque para fala de autoridade ou entrevistado.',
         html: `<div class="widget-root flex flex-col md:flex-row items-center gap-6 bg-zinc-50 p-8 rounded-2xl">
-            <div class="w-24 h-24 rounded-full bg-zinc-300 flex-shrink-0 shadow-inner"></div>
+            <img src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover lfnm-img flex-shrink-0" data-img-key="Avatar" />
             <div class="flex-1 text-center md:text-left">
                 <i class="fas fa-quote-left text-zinc-300 text-xl mb-2"></i>
                 <blockquote class="text-lg font-serif italic text-zinc-800 mb-4 lfnm-text" data-key="Citacao">
@@ -74,6 +78,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Fato ou Fake',
         category: 'editorial',
         icon: 'fa-check-double',
+        color: 'text-orange-500',
         description: 'Verificação de veracidade de informações.',
         html: `<div class="widget-root flex items-stretch border-2 border-zinc-100 rounded-xl overflow-hidden">
             <div class="bg-red-500 text-white w-24 flex flex-col items-center justify-center p-4">
@@ -92,6 +97,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Número em Destaque',
         category: 'editorial',
         icon: 'fa-7',
+        color: 'text-blue-600',
         description: 'Estatística ou dado numérico impactante.',
         html: `<div class="widget-root text-center p-8 bg-blue-50 rounded-3xl">
             <span class="block text-6xl font-black text-blue-600 mb-2 tracking-tighter lfnm-text" data-key="Numero">85%</span>
@@ -105,6 +111,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Linha do Tempo',
         category: 'editorial',
         icon: 'fa-stream',
+        color: 'text-teal-500',
         description: 'Lista cronológica de eventos.',
         html: `<div class="widget-root relative pl-4 border-l-2 border-zinc-200 py-2 space-y-6">
             <div class="relative">
@@ -130,6 +137,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Prós e Contras',
         category: 'editorial',
         icon: 'fa-balance-scale',
+        color: 'text-emerald-600',
         description: 'Comparativo lado a lado.',
         html: `<div class="widget-root grid grid-cols-2 gap-4">
             <div class="bg-green-50 p-4 rounded-xl">
@@ -155,6 +163,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Definição',
         category: 'editorial',
         icon: 'fa-book',
+        color: 'text-yellow-500',
         description: 'Explicação de termo ou conceito.',
         html: `<div class="widget-root bg-yellow-50 p-6 rounded-none border-l-4 border-yellow-400">
             <div class="flex items-baseline gap-2 mb-2">
@@ -170,15 +179,14 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         name: 'Cartão de Serviço',
         category: 'social',
         icon: 'fa-id-card',
+        color: 'text-cyan-500',
         description: 'Link útil ou contato de serviço.',
         html: `<div class="widget-root bg-white border-2 border-zinc-100 rounded-2xl p-6 flex items-center justify-between hover:border-blue-200 transition-colors group cursor-pointer">
             <div>
                 <h4 class="font-bold text-zinc-900 mb-1 group-hover:text-blue-600 transition-colors lfnm-text" data-key="Nome">Farmácia de Plantão</h4>
                 <p class="text-xs text-zinc-500 lfnm-text" data-key="Descricao">Aberta até as 22h - Rua Principal, 100</p>
             </div>
-            <div class="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                <i class="fas fa-phone"></i>
-            </div>
+            <img src="https://via.placeholder.com/100" class="w-10 h-10 rounded-full bg-white object-cover border border-zinc-100 shadow-sm lfnm-img" data-img-key="IconeImg" />
         </div>`
     }
 ];

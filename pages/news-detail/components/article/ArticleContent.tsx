@@ -14,15 +14,27 @@ import { RenderVideo } from './renderers/RenderVideo';
 
 interface ArticleContentProps {
     news: NewsItem;
-    forcedFontSize?: 'base' | 'lg' | 'xl';
+    fontSizeLevel?: number;
 }
 
-const ArticleContent: React.FC<ArticleContentProps> = ({ news, forcedFontSize = 'lg' }) => {
-    const fontSizeClass = {
-        base: 'text-[16px] md:text-[17px] leading-relaxed',
-        lg: 'text-[18px] md:text-[20px] leading-relaxed',
-        xl: 'text-[24px] md:text-[28px] leading-snug font-medium'
-    }[forcedFontSize];
+const ArticleContent: React.FC<ArticleContentProps> = ({ news, fontSizeLevel = 0 }) => {
+    // Base sizes (from previous 'lg' preset)
+    const baseMobile = 18;
+    const baseDesktop = 20;
+
+    // Calculate final sizes
+    // We add 2px per level
+    const mobileSize = baseMobile + (fontSizeLevel * 2);
+    const desktopSize = baseDesktop + (fontSizeLevel * 2);
+
+    // Limits
+    const finalMobile = Math.max(12, Math.min(48, mobileSize));
+    const finalDesktop = Math.max(14, Math.min(64, desktopSize));
+
+    const fontSizeClass = `leading-relaxed text-zinc-800 dark:text-zinc-200`;
+    const dynamicStyle = {
+        fontSize: `clamp(${finalMobile}px, 1.2vw + ${finalMobile - 4}px, ${finalDesktop}px)`
+    };
 
     // wrapperRef: Controla o espaço físico ocupado na página (empurra footer/scroll)
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -123,9 +135,9 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ news, forcedFontSize = 
                         case 'heading':
                             return <RenderHeading block={block} />;
                         case 'paragraph':
-                            return <RenderParagraph block={block} fontSizeClass={fontSizeClass} />;
+                            return <RenderParagraph block={block} fontSizeClass={fontSizeClass} style={dynamicStyle} />;
                         case 'list':
-                            return <RenderList block={block} fontSizeClass={fontSizeClass} />;
+                            return <RenderList block={block} fontSizeClass={fontSizeClass} style={dynamicStyle} />;
                         case 'image':
                             return (
                                 <figure className="my-10 space-y-4">
@@ -191,7 +203,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ news, forcedFontSize = 
             >
                 {news.blocks && news.blocks.length > 0
                     ? news.blocks.map((block, i) => renderBlock(block, i))
-                    : <div className={fontSizeClass} dangerouslySetInnerHTML={{ __html: news.content }} />
+                    : <div className={fontSizeClass} style={dynamicStyle} dangerouslySetInnerHTML={{ __html: news.content }} />
                 }
             </div>
         </div>

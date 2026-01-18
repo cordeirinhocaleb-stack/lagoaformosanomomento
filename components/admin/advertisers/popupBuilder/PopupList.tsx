@@ -84,8 +84,13 @@ const PopupList: React.FC<PopupListProps> = ({
                             </div>
 
                             <button
-                                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
-                                className="absolute top-2 right-2 z-10 w-6 h-6 bg-white text-red-500 rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white transform hover:scale-110"
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onDelete(item.id);
+                                }}
+                                className="absolute top-2 right-2 z-50 w-6 h-6 bg-white text-red-500 rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white transform hover:scale-110 active:scale-90"
                                 title="Excluir Slide"
                             >
                                 <i className="fas fa-times text-[10px]"></i>

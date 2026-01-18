@@ -10,8 +10,9 @@ import AdvertisersConfigView from './config/AdvertisersConfigView';
 interface AdvertisersManagerProps {
   advertisers: Advertiser[];
   adConfig: AdPricingConfig;
-  onUpdateAdvertiser: (advertiser: Advertiser) => void;
-  onUpdateAdConfig: (config: AdPricingConfig) => void;
+  onUpdateAdvertiser: (advertiser: Advertiser) => Promise<Advertiser | null>;
+  onDeleteAdvertiser?: (id: string) => void;
+  onUpdateAdConfig: (config: AdPricingConfig) => Promise<void> | void;
   userPermissions: User;
   darkMode?: boolean;
 }
@@ -22,6 +23,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
   advertisers,
   adConfig,
   onUpdateAdvertiser,
+  onDeleteAdvertiser,
   onUpdateAdConfig,
   userPermissions,
   darkMode = false
@@ -50,21 +52,25 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
   };
 
   // Handlers de Ação (Persistência)
-  const handleSaveAdvertiser = (advertiser: Advertiser) => {
+  const handleSaveAdvertiser = async (advertiser: Advertiser) => {
     // 1. Envia update para o pai (App.tsx)
-    onUpdateAdvertiser(advertiser);
+    const saved = await onUpdateAdvertiser(advertiser);
 
     // 2. Atualiza o estado local para refletir as mudanças imediatamente na UI do editor
-    setSelectedAdvertiser(advertiser);
-
-    // 3. Feedback visual
-    alert("Anunciante salvo com sucesso!");
+    // Se recebemos um registro salvo (com ID final do banco), usamos ele
+    if (saved) {
+      setSelectedAdvertiser(saved);
+      alert("Anunciante salvo com sucesso!");
+    } else {
+      setSelectedAdvertiser(advertiser);
+      alert("Anunciante enviado (processando...)");
+    }
 
     // NOTA: Não chamamos handleBackToList() para manter o usuário na tela de edição.
   };
 
-  const handleSaveConfig = (newConfig: AdPricingConfig) => {
-    onUpdateAdConfig(newConfig);
+  const handleSaveConfig = async (newConfig: AdPricingConfig) => {
+    await onUpdateAdConfig(newConfig);
     // Não volta para a lista, mantém na config
     alert("Configurações salvas com sucesso!");
   };
@@ -77,6 +83,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
         <AdvertisersListView
           advertisers={advertisers}
           onEdit={handleEdit}
+          onDelete={onDeleteAdvertiser}
           onCreate={handleCreate}
           onConfigClick={handleConfig}
           darkMode={darkMode}
@@ -99,6 +106,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
           onSave={handleSaveConfig}
           onCancel={handleBackToList}
           currentUser={userPermissions}
+          advertisers={advertisers}
           darkMode={darkMode}
         />
       )}

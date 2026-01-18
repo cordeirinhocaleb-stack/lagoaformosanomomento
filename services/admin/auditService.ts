@@ -26,3 +26,25 @@ export const getAuditLogs = async (): Promise<any[]> => {
     const { data } = await supabase.from('audit_log').select('*').order('created_at', { ascending: false }).limit(10);
     return data || [];
 };
+
+export const getUserPurchaseLogs = async (userId: string): Promise<any[]> => {
+    const supabase = getSupabase();
+    if (!supabase) { return []; }
+
+    // Busca logs de "purchase_item" onde o record_id é o ID do usuário (já que logAction usa userId como targetId em compras)
+    // Vimos no step 7516 (userService.ts) que logAction é chamado com:
+    // logAction(userId, "User", "purchase_item", userId, details)
+
+    const { data, error } = await supabase
+        .from('audit_log')
+        .select('*')
+        .in('action', ['purchase_item', 'admin_pos_sale'])
+        .eq('record_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("Error fetching purchase logs:", error);
+        return [];
+    }
+    return data || [];
+};

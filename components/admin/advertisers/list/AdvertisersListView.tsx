@@ -8,6 +8,7 @@ import EmptyState from './EmptyState';
 interface AdvertisersListViewProps {
   advertisers: Advertiser[];
   onEdit: (advertiser: Advertiser) => void;
+  onDelete?: (id: string) => void;
   onCreate: () => void;
   onConfigClick: () => void;
   darkMode?: boolean;
@@ -18,6 +19,7 @@ type FilterStatus = 'all' | 'active' | 'inactive' | 'expiring';
 const AdvertisersListView: React.FC<AdvertisersListViewProps> = ({
   advertisers,
   onEdit,
+  onDelete,
   onCreate,
   onConfigClick,
   darkMode = false
@@ -77,6 +79,7 @@ const AdvertisersListView: React.FC<AdvertisersListViewProps> = ({
               key={ad.id}
               advertiser={ad}
               onEdit={onEdit}
+              onDelete={onDelete}
               darkMode={darkMode}
             />
           ))

@@ -12,6 +12,12 @@
 
 ---
 
+## 0.0.7 (Build 01) - 15/01/2026 22:50
+- **Feature (Branding)**: Novo sistema de marca d'água física "Premium Journalistic" com moldura vermelha, tag temporal (2026) e barra de URL.
+- **Refactor (Law #1)**: Reestruturação completa do `UniversalMediaUploader` e `GalleryRenderer` em sub-componentes (abaixo de 500 linhas).
+- **Architecture**: Extração da lógica de processamento de imagem para `watermarkProcessor.ts`.
+- **Deploy**: Lançamento da Versão 0.0.7.
+
 ## 0.0.6 (Build 03) - 12/01/2026 22:50
 - **Feature (Gallery Slots)**: Refatoração completa do sistema de galeria para o modelo de "Slots" unificado (estilo Banner).
 - **UX**: Botão de Galeria movido para a categoria "Redação" para facilitar o fluxo editorial.

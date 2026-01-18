@@ -55,6 +55,49 @@ const OverviewPanel: React.FC<OverviewPanelProps> = ({ config, onChange, darkMod
                 </div>
             </div>
 
+            {/* Preços de Itens Avulsos (Boosts) */}
+            <div>
+                <h3 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2">
+                    <i className="fas fa-tags"></i> Tabela de Preços (Itens Avulsos)
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                        { key: 'boost_video_30s', label: 'Vídeo Propaganda (30s)', icon: 'fas fa-clapperboard', def: 200 },
+                        { key: 'boost_facebook_6d', label: '1 Vídeo Facebook (6 dias)', icon: 'fab fa-facebook-f', def: 120 },
+                        { key: 'boost_instagram_6d', label: '1 Vídeo Instagram (6 dias)', icon: 'fab fa-instagram', def: 120 },
+                        { key: 'boost_youtube_6d', label: '1 Vídeo Youtube (6 dias)', icon: 'fab fa-youtube', def: 120 },
+                        { key: 'boost_home_banner_7d', label: 'Banner Home (7d)', icon: 'fas fa-window-maximize', def: 150 },
+                        { key: 'boost_article_footer_7d', label: 'Rodapé Artigo (7d)', icon: 'fas fa-chart-simple', def: 100 },
+                        { key: 'boost_article_sidebar_7d', label: 'Sidebar Esq (7d)', icon: 'fas fa-table-columns', def: 100 },
+                        { key: 'boost_home_scroll_7d', label: 'Scroll Topo (7d)', icon: 'fas fa-up-long', def: 150 }
+                    ].map(item => (
+                        <div key={item.key} className={`p-4 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-black/20 border-white/5' : 'bg-white border-gray-100'}`}>
+                            <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${darkMode ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-400'}`}>
+                                    <i className={item.icon.includes(' ') ? item.icon : `fas ${item.icon}`}></i>
+                                </div>
+                                <span className={`text-[10px] font-black uppercase ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{item.label}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xs font-bold ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>R$</span>
+                                <input
+                                    type="number"
+                                    value={config.boostsValues?.[item.key] ?? item.def}
+                                    onChange={(e) => {
+                                        const val = parseFloat(e.target.value);
+                                        onChange({
+                                            ...config,
+                                            boostsValues: { ...config.boostsValues, [item.key]: val }
+                                        });
+                                    }}
+                                    className={`w-20 bg-transparent border-b text-right font-black outline-none ${darkMode ? 'text-white border-white/20 focus:border-white' : 'text-gray-900 border-gray-200 focus:border-black'}`}
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             {/* Estatísticas Rápidas (Estático para Layout) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className={`border p-6 rounded-2xl shadow-sm ${darkMode ? 'bg-black/20 border-white/5' : 'bg-white border-gray-100'}`}>

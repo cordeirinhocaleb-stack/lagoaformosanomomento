@@ -27,6 +27,10 @@ export interface User {
   // Dados Pessoais Estendidos
   birthDate?: string;
   zipCode?: string;
+  street?: string;
+  number?: string;
+  neighborhood?: string;
+  complement?: string;
   city?: string;
   state?: string;
   phone?: string;
@@ -56,6 +60,7 @@ export interface User {
   subscriptionStart?: string;
   subscriptionEnd?: string;
   twoFactorEnabled?: boolean;
+  commercialData?: any; // Armazena cotas comerciais JSON (Contract, Display Locations, Social Quotas)
 
   // Créditos e Limites Customizados (Override do Plano)
   usageCredits?: {

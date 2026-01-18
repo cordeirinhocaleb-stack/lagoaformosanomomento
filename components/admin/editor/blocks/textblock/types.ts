@@ -10,7 +10,12 @@ export type EditorialStyle =
   | 'newspaper_standard' | 'breaking_alert' | 'police_siren' | 'tech_neon' | 'executive_summary' | 'vintage_letter'
   | 'footnote' | 'checklist_pro' | 'quote_modern_accent' | 'quote_elegant_editorial' | 'quote_breaking_card'
   | 'list_bullets_classic' | 'list_check_circle' | 'list_numbered_modern' | 'list_timeline_vertical' | 'list_cards_shadow'
-  | 'divider_minimal' | 'divider_ornamental' | 'divider_dots' | 'separator';
+  | 'divider_minimal' | 'divider_ornamental' | 'divider_dots' | 'separator'
+  | 'poll_classic' | 'poll_modern' | 'poll_minimal'
+  | 'reaction_emoji' | 'reaction_hearts' | 'reaction_stars'
+  | 'counter_button' | 'counter_badge' | 'counter_heart'
+  | 'quiz_educativo' | 'quiz_rapido' | 'quiz_divertido'
+  | 'default_blue' | 'urgent_red' | 'nature_green' | 'royal_purple' | 'dark_mode';
 
 export interface GlobalTextSettings {
   alignment: 'left' | 'center' | 'right' | 'justify';

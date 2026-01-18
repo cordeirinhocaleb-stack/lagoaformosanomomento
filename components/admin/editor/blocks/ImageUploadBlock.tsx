@@ -60,7 +60,7 @@ export const ImageUploadBlock: React.FC<ImageUploadBlockProps> = ({ data, onUpda
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) {return;}
+        if (!file) { return; }
 
         // Preview imediato
         const objectUrl = URL.createObjectURL(file);
@@ -117,23 +117,26 @@ export const ImageUploadBlock: React.FC<ImageUploadBlockProps> = ({ data, onUpda
     }
 
     return (
-        <div className="border-2 border-dashed border-gray-700 bg-gray-900/50 rounded-xl p-4 transition-all hover:border-blue-500/50">
+        <div className="border-2 border-dashed border-zinc-200 bg-zinc-50/30 rounded-xl p-2 sm:p-4 transition-all hover:border-blue-500/50">
             {!previewUrl ? (
                 <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex flex-col items-center justify-center py-12 cursor-pointer hover:bg-gray-800/50 rounded-lg transition-colors"
+                    className="flex flex-col items-center justify-center py-8 sm:py-12 cursor-pointer hover:bg-white rounded-lg transition-colors"
                 >
-                    <i className="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-3"></i>
-                    <p className="text-gray-300 font-medium">Clique para fazer upload da imagem</p>
-                    <p className="text-sm text-gray-500 mt-1">JPG, PNG, WEBP (Max 5MB)</p>
+                    <div className="w-16 h-16 bg-zinc-950 rounded-full flex items-center justify-center mb-4 shadow-xl">
+                        <i className="fas fa-cloud-upload-alt text-2xl text-white"></i>
+                    </div>
+                    <p className="text-zinc-900 font-black uppercase text-[10px] tracking-widest">Upload de Imagem</p>
+                    <p className="text-[8px] text-zinc-500 mt-1 uppercase font-bold tracking-tighter">JPG, PNG, WEBP (Max 5MB)</p>
                 </div>
             ) : (
                 <div className="relative bg-black rounded-lg overflow-hidden group">
-                    <div className="relative w-full h-[400px] bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+                    <div className="relative w-full min-h-[200px] h-auto aspect-video sm:h-[400px] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center">
                         <img
                             src={previewUrl}
                             className={`w-full h-full object-${data.layout || 'cover'} transition-all`}
                             style={{ filter: getFilterString() }}
+                            alt="Preview"
                         />
                         {isUploading && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">

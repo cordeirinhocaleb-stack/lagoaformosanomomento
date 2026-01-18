@@ -6,6 +6,7 @@ import { EDITOR_WIDGETS } from '../../EditorWidgets';
 import { RichContextMenu } from '../RichContextMenu';
 import { CELEBRATION_BLOCKS } from '../CelebrationBlocks';
 import { getEngagementColors } from '../EngagementColors';
+import { uploadToCloudinary } from '../../../../services/cloudinaryService';
 
 interface SmartBlockEditorProps {
     block: ContentBlock;
@@ -16,8 +17,8 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
     // 1. Identify Widget
     const widgetId = block.settings.widgetId;
 
-    // Resolve Color Theme
-    const currentColor = block.settings.engagementColor || 'default_blue';
+    // Resolve Color Theme - Prioriza editorialVariant
+    const currentColor = block.settings.editorialVariant || block.settings.engagementColor || 'default_blue';
     const colorThemes = getEngagementColors('default');
     const activeTheme = colorThemes.find(c => c.id === currentColor) || colorThemes[0];
 
@@ -50,6 +51,8 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
     const [renderHtml, setRenderHtml] = useState<string>('');
     const containerRef = useRef<HTMLDivElement>(null);
     const isEditingRef = useRef(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [activeImgKey, setActiveImgKey] = useState<string | null>(null);
 
     // Context Menu State
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, key: string } | null>(null);
@@ -57,14 +60,14 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // HELPER: Prepare HTML for Editor (Inject contentEditable)
     const prepareHtmlForEditing = useCallback((html: string) => {
-        if (!html) {return '';}
+        if (!html) { return ''; }
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
         // Find all editable keys and make them editable + styled
         const editableElements = doc.querySelectorAll('[data-key]');
 
-        if (editableElements.length === 0) {return html;} // Return original if no keys found
+        if (editableElements.length === 0) { return html; } // Return original if no keys found
 
         editableElements.forEach(el => {
             el.setAttribute('contenteditable', 'true');
@@ -81,7 +84,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // INITIALIZATION & SYNC
     useEffect(() => {
-        if (isEditingRef.current) {return;}
+        if (isEditingRef.current) { return; }
 
         let baseHtml = block.content;
         // Fallback to template if content is empty/corrupt
@@ -107,7 +110,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // SYNC BACK TO PARENT
     const syncContent = () => {
-        if (!containerRef.current || !widgetDef) {return;}
+        if (!containerRef.current || !widgetDef) { return; }
 
         // Clone the container to clean up attributes before saving
         const clone = containerRef.current.cloneNode(true) as HTMLElement;
@@ -118,7 +121,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
         // Clean up: Remove contentEditable and preview classes
         clone.querySelectorAll('[data-key]').forEach((el) => {
             const key = el.getAttribute('data-key');
-            if (key) {newData[key] = el.innerHTML;}
+            if (key) { newData[key] = el.innerHTML; }
 
             el.removeAttribute('contenteditable');
             // We should strip the specific classes we added? 
@@ -138,6 +141,56 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
                 widgetData: newData
             }
         });
+    };
+
+    // HANDLE IMAGE UPLOAD
+    const handleImageClick = (e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const imgKey = target.getAttribute('data-img-key');
+
+        if (imgKey && fileInputRef.current) {
+            e.preventDefault();
+            e.stopPropagation();
+            setActiveImgKey(imgKey);
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !containerRef.current || !activeImgKey) return;
+
+        // Visual Feedback (Loading state)
+        const imgEl = containerRef.current.querySelector(`img[data-img-key="${activeImgKey}"]`) as HTMLImageElement;
+        if (imgEl) {
+            imgEl.style.opacity = '0.5';
+            imgEl.style.filter = 'grayscale(100%)';
+        }
+
+        try {
+            // 1. Upload to Cloudinary
+            const url = await uploadToCloudinary(file, 'smart_widgets');
+
+            // 2. Update Image
+            if (imgEl) {
+                imgEl.src = url;
+                imgEl.style.opacity = '1';
+                imgEl.style.filter = '';
+
+                // 3. Sync changes to block content
+                syncContent();
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Falha no upload da imagem. Tente novamente.');
+            if (imgEl) {
+                imgEl.style.opacity = '1';
+                imgEl.style.filter = '';
+            }
+        } finally {
+            // Reset input
+            e.target.value = '';
+        }
     };
 
     // FORMATTING
@@ -192,7 +245,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
     }, []);
 
 
-    if (!widgetDef) {return <div className="p-4 text-red-500 text-xs">Widget perdido. Recrie o bloco.</div>;}
+    if (!widgetDef) { return <div className="p-4 text-red-500 text-xs">Widget perdido. Recrie o bloco.</div>; }
 
     return (
         <div className={`w-full relative group/editor transition-all duration-300 p-4 rounded-xl ${activeTheme.classes.wrapper}`}>
@@ -211,8 +264,18 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
                 className={`w-full transition-all outline-none ${activeTheme.classes.text}`}
                 dangerouslySetInnerHTML={{ __html: renderHtml }}
                 onContextMenu={handleContainerRightClick}
+                onClick={handleImageClick}
                 onInput={handleInput}
                 onBlurCapture={handleBlur} // Capture blur from children
+            />
+
+            {/* Hidden File Input for Image Uploads */}
+            <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
             />
 
             {/* CONTEXT MENU - Rico com Abas */}
@@ -224,7 +287,7 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
                     onFormat={handleFormat}
                     onInsertLink={() => {
                         const url = prompt('Link URL:', 'https://');
-                        if (url) {handleFormat('createLink', url);}
+                        if (url) { handleFormat('createLink', url); }
                     }}
                 />
             )}
