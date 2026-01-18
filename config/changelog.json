@@ -1,5 +1,26 @@
 [
   {
+    "version": "0.1.0",
+    "date": "18/01/2026",
+    "items": [
+      {
+        "category": "feature",
+        "title": "Integração Histórico de Compras",
+        "description": "Implementação do PurchaseHistoryModal no Painel de Assinaturas, permitindo acompanhar o extrato detalhado de itens e créditos."
+      },
+      {
+        "category": "feature",
+        "title": "Novo Componente ContactInfo",
+        "description": "Padronização das informações de contato em todo o portal para melhor manutenção e visibilidade."
+      },
+      {
+        "category": "maintenance",
+        "title": "Sincronização & Versão 0.1.0",
+        "description": "Atualização consolidada da base de código, sincronização de versão e melhorias estruturais no painel admin."
+      }
+    ]
+  },
+  {
     "version": "0.0.7",
     "date": "15/01/2026",
     "items": [
