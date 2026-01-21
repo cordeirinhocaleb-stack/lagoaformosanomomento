@@ -2,6 +2,15 @@
 # 📝 Registro de Edições e Revisões - LFNM
 
 
+## 0.2.1 (Build 229) - 21/01/2026 02:00
+### 🎨 UI/UX & Admin Dark Mode
+- **Standardized Dark Mode**: Implementada padronização visual em todo o painel administrativo.
+- **Dashboard & Core**: Refatoração de cores e backgrounds no `DashboardTab` e `UsersTab`.
+- **Modals overhauled**: `YouTubeConfigModal` e modais de edição de anunciantes totalmente adaptados para o tema escuro.
+- **Settings module**: Atualizados `FeatureSettings` e `FooterSettings` com toggles e inputs corrigidos.
+
+---
+
 ## 0.0.7 (Build 01) - 15/01/2026 22:50
 ### 🎨 Branding & Refatoração (Law #1)
 - **Marca d'água Premium**: Implementação de selo físico com moldura vermelha editorial e tag "2026".

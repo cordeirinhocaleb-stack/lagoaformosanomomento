@@ -20,6 +20,10 @@
 - [x] Fix: Empty Home Feed (Adjusted Region Filter to show National News v1.104)
 - [x] Feature: Auto-News Rotation (Limit 100 items for external source)
 
+## Admin Panel Refinement
+- [x] Standardize Admin Dark Mode (Dashboard, Settings, YouTube Modal, Advertisers, Users) - Build 229
+
+
 ## Refactoring - Global Law Adherence (Code Quality & Modularity)
 - [x] Refactor `App.tsx` (Reduced from 462 to 171 lines - Container/Presenter Pattern)
 - [x] Refactor `Login.tsx` (Reduced from 616 to 149 lines - Hook-based Logic)

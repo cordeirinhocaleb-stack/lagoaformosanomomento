@@ -11,6 +11,13 @@
 > 7. **SOT**: Qualquer mudança no banco exige atualização do `.sql` principal e `architecture.md`.
 
 
+## 0.2.1 (Build 229) - 21/01/2026 02:00
+- **Admin**: Padronização completa do Modo Escuro (Dashboard, Usuários, Anunciantes, Configurações).
+- **UI/UX**: Refinamento de cores, botões, modais e backgrounds administrativos para 100% Dark Mode.
+- **Sync**: Sincronização completa do sistema .context e task.md.
+
+---
+
 ## 0.2.0 (Build 228) - 20/01/2026 18:26
 - **Milestone**: Integração Completa do Sistema .context
 - **Documentation**: Sistema .context totalmente integrado com task.md
