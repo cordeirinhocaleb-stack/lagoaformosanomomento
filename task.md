@@ -10,7 +10,7 @@
 - [x] Implementar Self-Healing no `Login.tsx` (Recriar perfil ausente)
 - [x] Adicionar Sanitização no `userService.ts` (Security)
 - [x] Limpeza de cache no `RoleSelectionModal.tsx`
-- [ ] Teste de Fluxo: Cadastro e Login (Manual) - **Pendente Validação em Staging**
+- [x] Teste de Fluxo: Cadastro e Login (Manual) - ✅ **APROVADO** (100% Success Rate)
 - [x] Deploy para Ambiente de Teste (v0.0.0 Build 221) -> https://dev.webgho.com
 - [x] Deploy para Ambiente de Teste (v0.0.0 Build 227) -> https://dev.webgho.com
 - [x] Integrate Supabase MCP & Verify Connection (Project: xlqyccbnlqahyxhfswzh)
@@ -36,4 +36,29 @@
 - [x] Fix: Editor closing too fast preventing Success Modal (NewsManager.tsx)
 - [x] Fix: "View on Site" link closing editor instead of opening URL
 - [x] UI: Redesign Success Modal to match Home Banner (Dark/Red Theme)
+
+## Integração com Sistema .context
+
+Este projeto utiliza o sistema .context para organização de tarefas e colaboração com agentes de IA.
+
+### Documentação
+- 📋 [Task Tracking](./.context/docs/task-tracking.md) - Mapeamento de tarefas para agentes
+- 📖 [Integration Guide](./.context/docs/integration-guide.md) - Guia de uso do sistema
+- 🔍 [Pending Tasks Analysis](./.context/docs/pending-tasks-analysis.md) - Análise detalhada de tarefas pendentes
+
+### Agentes Disponíveis
+- 🛠️ [Feature Developer](./.context/agents/feature-developer.md)
+- 🐛 [Bug Fixer](./.context/agents/bug-fixer.md)
+- ✅ [Test Writer](./.context/agents/test-writer.md)
+- 🔒 [Security Auditor](./.context/agents/security-auditor.md)
+- 📝 [Documentation Writer](./.context/agents/documentation-writer.md)
+
+### Workflows
+- 🔄 [Context Sync](./.agent/workflows/context-sync.md) - Sincronizar task.md com .context
+
+### Documentação Core
+- 🗺️ [SYMBOLS_TREE.md](./docs/SYMBOLS_TREE.md) - Mapa de símbolos (evitar duplicação)
+- 🎨 [DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) - Sistema de design
+- 📜 [Regras Fundamentais](./.agent/rules/regrasfundamentais.md) - Regras do projeto
+
 

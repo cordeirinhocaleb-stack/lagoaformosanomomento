@@ -7,7 +7,7 @@ const FONT_MAP: Record<string, string> = {
 };
 
 export const renderCurrentText = (variant: string, perStyle: unknown, baseStyles: React.CSSProperties, Tag: unknown, contentRef: unknown, handleInput: () => void) => {
-    const styles: Record<string, unknown> = perStyle || {};
+    const styles = (perStyle as Record<string, any>) || {};
     const LayoutTag = Tag as React.ElementType;
     let variantStyles: React.CSSProperties = {};
     let variantClasses = "";

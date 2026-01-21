@@ -1,6 +1,6 @@
 import { getSupabase } from '../../core/supabaseClient';
 import { logAction } from '../../admin/auditService';
-import { mapDbToUser, USER_DB_FIELDS } from '../mappers';
+import { mapDbToUser } from '../userService';
 import { logger } from '@/services/core/debugLogger';
 
 export const consumeUserBooster = async (userId: string, boosterKey: string, amount: number = 1, logIds: string[] = []) => {
@@ -69,7 +69,7 @@ export const consumeUserBooster = async (userId: string, boosterKey: string, amo
 
         await logAction(userId, "User", "consume_booster", userId, `Consumiu ${amount} unidade(s) de booster: ${boosterKey}. Logs: ${logIds.join(', ')}`);
 
-        const { data: updatedUser } = await supabase.from('users').select(USER_DB_FIELDS).eq('id', userId).single();
+        const { data: updatedUser } = await supabase.from('users').select('*').eq('id', userId).single();
 
         return {
             success: true,

@@ -1,0 +1,184 @@
+﻿src/app/advertiser/[id]/page.tsx(5,28): error TS2307: Cannot find module '@/pages/Advertiser' or its corresponding type declarations.
+src/app/jobs/page.tsx(5,18): error TS2307: Cannot find module '@/pages/Jobs' or its corresponding type declarations.
+src/app/news/[id]/page.tsx(5,24): error TS2307: Cannot find module '@/pages/news-detail/NewsDetailPage' or its corresponding type declarations.
+src/app/news/[id]/page.tsx(43,27): error TS7006: Parameter 'n' implicitly has an 'any' type.
+src/components/admin/editor/banner/BannerEditorPanel.tsx(17,5): error TS2305: Module '"./components"' has no exported member 'BannerSettingsPanel'.
+src/components/admin/editor/banner/BannerEditorPanel.tsx(18,5): error TS2305: Module '"./components"' has no exported member 'BannerPreview'.
+src/components/admin/editor/banner/BannerEditorPanel.tsx(20,37): error TS2307: Cannot find module './banner-components/RemovalWarningModal' or its corresponding type declarations.
+src/components/admin/editor/banner/BannerEditorPanel.tsx(21,42): error TS2307: Cannot find module './banner-components/GalleryConfirmationModal' or its corresponding type declarations.
+src/components/admin/editor/banner/BannerEditorPanel.tsx(248,39): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/components/admin/editor/banner/YouTubeVideoUploadPanel.tsx(12,37): error TS2307: Cannot find module './banner-components/YouTubeMetadataForm' or its corresponding type declarations.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(28,21): error TS2367: This comparison appears to be unintentional because the types '() => void' and 'string' have no overlap.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(29,26): error TS2367: This comparison appears to be unintentional because the types '() => void' and 'string' have no overlap.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(30,34): error TS2345: Argument of type '() => void' is not assignable to parameter of type 'string'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(77,79): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(78,81): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(79,84): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(80,88): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(84,86): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(85,85): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(86,81): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(87,83): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(120,81): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(121,86): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(122,82): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(123,88): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(127,80): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(128,79): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(133,79): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(139,76): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(140,86): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/text-block-components/TextBlockFormattingPanel.tsx(141,80): error TS2322: Type 'string' is not assignable to type '() => void'.
+src/components/admin/editor/blocks/TextBlock.tsx(6,32): error TS2307: Cannot find module './textblock/render/renderTextMode' or its corresponding type declarations.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(10,11): error TS2322: Type '{}' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(27,28): error TS2339: Property 'color' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(31,28): error TS2339: Property 'borderPosition' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(31,62): error TS2339: Property 'borderWidth' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(32,29): error TS2339: Property 'borderPosition' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(32,64): error TS2339: Property 'borderWidth' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(33,33): error TS2339: Property 'backgroundSubtle' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(37,35): error TS2339: Property 'quoteSize' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(44,16): error TS2339: Property 'bigQuotes' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(45,16): error TS2339: Property 'author' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(45,163): error TS2339: Property 'authorAlign' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(45,211): error TS2339: Property 'author' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(52,31): error TS2339: Property 'borderStyle' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(55,37): error TS2339: Property 'tilt' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(56,27): error TS2339: Property 'paperTexture' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(58,16): error TS2339: Property 'signature' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(58,138): error TS2339: Property 'signature' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(101,56): error TS2339: Property 'fontSize' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(101,95): error TS2339: Property 'color' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(101,129): error TS2339: Property 'borderColor' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/QuoteBlock.tsx(101,174): error TS2339: Property 'borderColor' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(10,11): error TS2322: Type '{}' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(28,26): error TS2339: Property 'columnWidth' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(29,24): error TS2339: Property 'columnWidth' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(30,27): error TS2339: Property 'justify' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(31,25): error TS2339: Property 'hyphenation' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(35,54): error TS2339: Property 'paragraphGap' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(35,73): error TS2339: Property 'dropCap' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(35,104): error TS2339: Property 'dropCapLines' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(38,59): error TS2339: Property 'sizePx' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(38,83): error TS2339: Property 'opacity' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(38,106): error TS2339: Property 'showTopBorder' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(38,205): error TS2339: Property 'italic' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(39,16): error TS2339: Property 'prefix' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(39,135): error TS2339: Property 'prefix' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(42,27): error TS2339: Property 'neonColor' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(44,16): error TS2339: Property 'glow' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(45,21): error TS2339: Property 'glow' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(46,21): error TS2339: Property 'glow' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(47,73): error TS2339: Property 'mono' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(47,147): error TS2339: Property 'panel' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(47,220): error TS2339: Property 'panel' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(47,288): error TS2339: Property 'panel' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(50,56): error TS2339: Property 'fontSize' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(50,81): error TS2339: Property 'lineHeight' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(55,26): error TS2339: Property 'fontSize' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(56,28): error TS2339: Property 'lineHeight' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(69,56): error TS2339: Property 'fontSize' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/renderers/TextBlock.tsx(69,81): error TS2339: Property 'fontWeight' does not exist on type '{}'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(21,11): error TS2322: Type '{}' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type '{}'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(50,54): error TS2339: Property 'kind' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(50,67): error TS2339: Property 'kind' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(51,57): error TS2339: Property 'kind' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(51,72): error TS2339: Property 'kind' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(51,96): error TS2339: Property 'icon' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(52,51): error TS2339: Property 'kind' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/blocks/textblock/render/TextModeRenderBlock.tsx(52,64): error TS2339: Property 'kind' does not exist on type '{ enabled: boolean; }'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(14,17): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(43,17): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(49,17): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(165,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(169,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(176,21): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(192,31): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(196,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(200,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(206,87): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(209,41): error TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type '{}'.
+  Property '0' does not exist on type '{}'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(211,87): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(227,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(231,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(238,27): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementContentEditorsPanel.tsx(239,27): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementQuickMediaUploadPanel.tsx(25,40): error TS18046: 'error' is of type 'unknown'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(16,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(20,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(28,75): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(33,75): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(43,62): error TS2339: Property 'split' does not exist on type '{}'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(50,21): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(80,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(81,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(85,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(86,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(94,101): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(98,101): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(113,24): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(114,24): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(119,81): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(123,80): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(138,31): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(139,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(143,31): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(144,28): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/engagement/EngagementVisualEditorsPanel.tsx(151,21): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(10,29): error TS2488: Type '{}' must have a '[Symbol.iterator]()' method that returns an iterator.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(15,53): error TS2488: Type '{}' must have a '[Symbol.iterator]()' method that returns an iterator.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(16,71): error TS2339: Property 'filter' does not exist on type '{}'.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(31,26): error TS2339: Property 'map' does not exist on type '{}'.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(50,34): error TS2339: Property 'slice' does not exist on type '{}'.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(62,34): error TS2339: Property 'slice' does not exist on type '{}'.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(75,34): error TS2339: Property 'slice' does not exist on type '{}'.
+src/components/admin/editor/engagement/PollQuizEditorPanel.tsx(97,21): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/admin/editor/layout/NewsEditorContentPanel.tsx(146,97): error TS2554: Expected 1-2 arguments, but got 4.
+src/components/admin/editor/layout/NewsEditorContentPanel.tsx(187,50): error TS2304: Cannot find name 'SmartBlockRenderer'.
+src/components/admin/editor/layout/NewsEditorCoverPanel.tsx(85,79): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'BannerLayout'.
+src/components/admin/editor/layout/NewsEditorCoverPanel.tsx(92,88): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'BannerTransition'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(74,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(76,43): error TS2339: Property 'replace' does not exist on type '{}'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(129,53): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(130,53): error TS2322: Type 'unknown' is not assignable to type 'ImageEffects | undefined'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(131,53): error TS2322: Type 'unknown' is not assignable to type '"cover" | "contain" | "fill" | undefined'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(132,53): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(136,62): error TS18046: 'newData' is of type 'unknown'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(139,66): error TS18046: 'newData' is of type 'unknown'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(140,66): error TS18046: 'newData' is of type 'unknown'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(141,65): error TS18046: 'newData' is of type 'unknown'.
+src/components/admin/editor/NewsEditorCanvasPanel.tsx(142,69): error TS18046: 'newData' is of type 'unknown'.
+src/components/admin/settings/FeatureSettingsPanel.tsx(30,64): error TS2307: Cannot find module '@/services/admin/devToolsService' or its corresponding type declarations.
+src/components/admin/settings/FeatureSettingsPanel.tsx(42,34): error TS18046: 'err' is of type 'unknown'.
+src/components/admin/users/hooks/useUserDetails.ts(51,53): error TS2307: Cannot find module '@/services/users/mappers' or its corresponding type declarations.
+src/components/admin/users/panels/pos/POSCartPanel.tsx(2,28): error TS2307: Cannot find module './types' or its corresponding type declarations.
+src/components/admin/users/panels/pos/POSCartPanel.tsx(69,119): error TS2322: Type 'string | StaticImageData' is not assignable to type 'string | Blob | undefined'.
+  Type 'StaticImageData' is not assignable to type 'string | Blob | undefined'.
+src/components/admin/users/panels/pos/POSCartPanel.tsx(93,82): error TS2322: Type 'string | StaticImageData' is not assignable to type 'string | Blob | undefined'.
+  Type 'StaticImageData' is not assignable to type 'string | Blob | undefined'.
+src/components/admin/users/panels/pos/POSCartPanel.tsx(99,86): error TS2322: Type 'string | StaticImageData' is not assignable to type 'string | Blob | undefined'.
+  Type 'StaticImageData' is not assignable to type 'string | Blob | undefined'.
+src/components/admin/users/panels/pos/POSCartPanel.tsx(106,30): error TS2322: Type 'string | StaticImageData' is not assignable to type 'string | Blob | undefined'.
+  Type 'StaticImageData' is not assignable to type 'string | Blob | undefined'.
+src/components/admin/users/panels/pos/POSMarketShelfPanel.tsx(2,28): error TS2307: Cannot find module './types' or its corresponding type declarations.
+src/components/admin/users/panels/pos/POSMarketShelfPanel.tsx(37,135): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/components/admin/users/panels/pos/POSMarketShelfPanel.tsx(51,38): error TS2322: Type 'string | StaticImageData' is not assignable to type 'string | Blob | undefined'.
+  Type 'StaticImageData' is not assignable to type 'string | Blob | undefined'.
+src/components/admin/users/panels/pos/POSModalsPanel.tsx(2,28): error TS2307: Cannot find module './types' or its corresponding type declarations.
+src/components/admin/users/panels/subscription/CreditItemControlPanel.tsx(38,33): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+  No index signature with a parameter of type 'string' was found on type '{}'.
+src/components/admin/users/panels/subscription/CreditItemControlPanel.tsx(61,54): error TS18046: 'err' is of type 'unknown'.
+src/components/common/ErrorPageContent.tsx(2,38): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/components/common/ErrorPageContent.tsx(3,33): error TS2307: Cannot find module '../services/supabaseService' or its corresponding type declarations.
+src/components/common/ErrorPageContent.tsx(4,20): error TS2307: Cannot find module '../components/layout/Header' or its corresponding type declarations.
+src/components/common/ErrorPageContent.tsx(5,20): error TS2307: Cannot find module '../components/layout/Footer' or its corresponding type declarations.
+src/components/common/ErrorPageContent.tsx(6,18): error TS2307: Cannot find module '../components/common/Logo' or its corresponding type declarations.
+src/pages/ConstructionPage.tsx(2,29): error TS2307: Cannot find module '../src/version' or its corresponding type declarations.
+src/pages/ConstructionPage.tsx(4,19): error TS2307: Cannot find module '../components/Login' or its corresponding type declarations.
+src/pages/ConstructionPage_BACKUP.tsx(3,19): error TS2307: Cannot find module '../components/Login' or its corresponding type declarations.
+src/services/users/commercial/purchases.ts(3,29): error TS2307: Cannot find module '../mappers' or its corresponding type declarations.
+src/services/users/commercial/usage.ts(3,45): error TS2307: Cannot find module '../mappers' or its corresponding type declarations.

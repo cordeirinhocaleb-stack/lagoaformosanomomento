@@ -1,7 +1,7 @@
 import React from 'react';
-import { renderCurrentText } from './renderers/TextBlock';
+import { renderCurrentText } from './renderers/CurrentText';
 import { renderHeadlineBlock } from './renderers/HeadlineBlock';
-import { renderQuoteAspas } from './renderers/QuoteBlock';
+import { renderQuoteAspas } from './renderers/QuoteAspas';
 import { renderItemList } from './renderers/ItemList';
 
 import { renderAdvancedDivider } from './renderers/VisualDivider';
@@ -18,7 +18,7 @@ export const renderTextMode = (
     handleInput: () => void,
     settings?: unknown
 ) => {
-    const styles: Record<string, unknown> = perStyle || {};
+    const styles = (perStyle as Record<string, any>) || {};
     const LayoutTag = Tag as React.ElementType;
     // 1. Grupos de Variantes: Texto Corrido
     if (['newspaper_standard', 'footnote', 'tech_neon', 'standard_clean', 'editorial_prose', 'breaking_brief'].includes(variant)) {

@@ -17,8 +17,7 @@ import {
     BannerSettingsPanel,
     BannerPreview
 } from './components';
-import { RemovalWarningModal } from './banner-components/RemovalWarningModal';
-import { GalleryConfirmationModal } from './banner-components/GalleryConfirmationModal';
+import { RemovalWarningModal, GalleryConfirmationModal } from './components/Modals';
 
 // Custom Hooks
 import { useImageUploadQueue } from '../hooks/useImageUploadQueue';

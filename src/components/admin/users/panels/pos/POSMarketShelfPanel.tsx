@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarketItem } from './types';
+import { MarketItem } from '@/components/admin/users/panels/pos/types';
 import lfnmCoin from '@/assets/lfnm_coin.png';
 
 interface MarketShelfProps {
@@ -48,7 +48,7 @@ export const MarketShelf: React.FC<MarketShelfProps> = ({
                             </span>
 
                             <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-black w-fit ${darkMode ? 'bg-white/5 text-gray-300' : 'bg-gray-50 text-gray-600'}`}>
-                                <img src={(typeof lfnmCoin === "object" && lfnmCoin !== null && "src" in lfnmCoin ? lfnmCoin.src : lfnmCoin) || lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" />
+                                <img src={typeof lfnmCoin === 'object' ? lfnmCoin.src : lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" />
                                 {item.cost}
                             </div>
                         </div>

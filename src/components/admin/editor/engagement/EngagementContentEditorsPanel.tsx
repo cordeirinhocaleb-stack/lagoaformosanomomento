@@ -11,7 +11,7 @@ export const RankingEditor = ({ settings, style, theme, onChange }: SubEditorPro
         <div>
             <label className={`block text-[9px] font-black uppercase mb-2 opacity-60 ${activeTheme.classes.text}`}>Itens para Ranquear (separados por vírgula)</label>
             <textarea
-                value={s.rankingItems || 'Item 1, Item 2, Item 3'}
+                value={(s.rankingItems as string) || 'Item 1, Item 2, Item 3'}
                 onChange={e => onChange({ rankingItems: e.target.value })}
                 className={`w-full border-none rounded-lg px-3 py-2 h-20 mb-4 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`}
             />
@@ -40,13 +40,13 @@ export const CountdownEditor = ({ settings, style, theme, onChange }: SubEditorP
             <label className={`block text-[9px] font-black uppercase mb-2 opacity-60 ${activeTheme.classes.text}`}>Data e Hora Alvo</label>
             <input
                 type="datetime-local"
-                value={s.targetDate || ''}
+                value={(s.targetDate as string) || ''}
                 onChange={e => onChange({ targetDate: e.target.value })}
                 className={`w-full border-none rounded-lg px-3 py-2 mb-3 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`}
             />
             <label className={`block text-[9px] font-black uppercase mb-2 opacity-60 ${activeTheme.classes.text}`}>Mensagem Final (Opcional)</label>
             <input
-                value={s.endMessage || 'O evento começou!'}
+                value={(s.endMessage as string) || 'O evento começou!'}
                 onChange={e => onChange({ endMessage: e.target.value })}
                 className={`w-full border-none rounded-lg px-3 py-2 mb-4 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`}
                 placeholder="Ex: O evento começou!"
@@ -162,18 +162,18 @@ export const CTAEditor = ({ settings, style, theme, onChange }: SubEditorProps) 
             <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Texto do Botão</label>
-                    <input value={s.ctaText || 'Clique Aqui'} onChange={e => onChange({ ctaText: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
+                    <input value={(s.ctaText as string) || 'Clique Aqui'} onChange={e => onChange({ ctaText: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
                 </div>
                 <div>
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Link de Destino</label>
-                    <input value={s.ctaLink || ''} onChange={e => onChange({ ctaLink: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} placeholder="https://" />
+                    <input value={(s.ctaLink as string) || ''} onChange={e => onChange({ ctaLink: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} placeholder="https://" />
                 </div>
             </div>
 
             {/* Preview */}
             <div className={`p-6 rounded-xl border ${activeTheme.classes.wrapper} transition-colors flex justify-center`}>
                 <button className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transform hover:scale-105 transition-all text-sm ${activeTheme.classes.accent}`}>
-                    {s.ctaText || 'Clique Aqui'} <i className="fas fa-arrow-right ml-1"></i>
+                    {(s.ctaText as string) || 'Clique Aqui'} <i className="fas fa-arrow-right ml-1"></i>
                 </button>
             </div>
         </div>
@@ -189,26 +189,26 @@ export const TestimonialEditor = ({ settings, style, theme, onChange }: SubEdito
             <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="col-span-2">
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Depoimento</label>
-                    <textarea value={s.testimonialText || '"Incrível!"'} onChange={e => onChange({ testimonialText: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 h-20 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
+                    <textarea value={(s.testimonialText as string) || '"Incrível!"'} onChange={e => onChange({ testimonialText: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 h-20 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
                 </div>
                 <div>
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Autor</label>
-                    <input value={s.authorName || 'Maria S.'} onChange={e => onChange({ authorName: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
+                    <input value={(s.authorName as string) || 'Maria S.'} onChange={e => onChange({ authorName: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
                 </div>
                 <div>
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Foto (URL)</label>
-                    <input value={s.authorImage || ''} onChange={e => onChange({ authorImage: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} placeholder="https://" />
+                    <input value={(s.authorImage as string) || ''} onChange={e => onChange({ authorImage: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} placeholder="https://" />
                 </div>
             </div>
 
             {/* Preview */}
             <div className={`p-6 rounded-xl border ${activeTheme.classes.wrapper} transition-colors text-center italic`}>
-                <p className={`text-lg mb-4 opacity-80 ${activeTheme.classes.text}`}>"{s.testimonialText || 'Incrível!'}"</p>
+                <p className={`text-lg mb-4 opacity-80 ${activeTheme.classes.text}`}>"{(s.testimonialText as string) || 'Incrível!'}"</p>
                 <div className="flex items-center justify-center gap-2 not-italic">
                     <div className={`w-8 h-8 rounded-full ${activeTheme.classes.accent} flex items-center justify-center text-white text-xs font-bold`}>
-                        {s.authorName ? s.authorName[0] : 'M'}
+                        {(s.authorName as string) ? (s.authorName as string)[0] : 'M'}
                     </div>
-                    <span className={`text-xs font-bold ${activeTheme.classes.text}`}>{s.authorName || 'Maria S.'}</span>
+                    <span className={`text-xs font-bold ${activeTheme.classes.text}`}>{(s.authorName as string) || 'Maria S.'}</span>
                 </div>
             </div>
         </div>
@@ -224,19 +224,19 @@ export const CounterEditor = ({ settings, style, theme, onChange }: SubEditorPro
             <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Texto do Botão</label>
-                    <input value={s.buttonText || 'Apoiar'} onChange={e => onChange({ buttonText: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
+                    <input value={(s.buttonText as string) || 'Apoiar'} onChange={e => onChange({ buttonText: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
                 </div>
                 <div>
                     <label className={`block text-[9px] font-black uppercase mb-1 opacity-60 ${activeTheme.classes.text}`}>Emoji ao Clicar</label>
-                    <input value={s.clickEmoji || '💖'} onChange={e => onChange({ clickEmoji: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
+                    <input value={(s.clickEmoji as string) || '💖'} onChange={e => onChange({ clickEmoji: e.target.value })} className={`w-full border-none rounded-lg px-3 py-2 ${activeTheme.classes.secondary.replace('border-', 'bg-').replace('200', '50')} ${activeTheme.classes.text}`} />
                 </div>
             </div>
 
             {/* Preview */}
             <div className={`p-4 rounded-xl border ${activeTheme.classes.wrapper} transition-colors flex justify-center`}>
                 <button className={`px-6 py-2 rounded-full font-bold text-white shadow-lg transform hover:scale-105 transition-all flex items-center gap-2 ${activeTheme.classes.accent}`}>
-                    <span>{s.clickEmoji || '💖'}</span>
-                    <span>{s.buttonText || 'Apoiar'}</span>
+                    <span>{(s.clickEmoji as string) || '💖'}</span>
+                    <span>{(s.buttonText as string) || 'Apoiar'}</span>
                     <span className="bg-white/20 px-1.5 rounded text-[10px] ml-1">128</span>
                 </button>
             </div>

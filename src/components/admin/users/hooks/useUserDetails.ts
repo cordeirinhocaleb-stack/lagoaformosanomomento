@@ -48,14 +48,14 @@ export const useUserDetails = ({
         const fetchFreshUser = async () => {
             const { getSupabase } = await import('@/services/supabaseService');
             const { mapDbToUser } = await import('@/services/users/userService');
-            const { USER_DB_FIELDS } = await import('@/services/users/mappers');
+
 
             const supabase = getSupabase();
             if (!supabase) return;
 
             const { data, error } = await supabase
                 .from('users')
-                .select(USER_DB_FIELDS)
+                .select('*')
                 .eq('id', user.id)
                 .single();
 

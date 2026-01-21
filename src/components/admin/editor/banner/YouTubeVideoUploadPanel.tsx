@@ -9,7 +9,7 @@ import { validateVideo, requiresSmartPlayback } from '@/utils/videoValidator';
 import { storeLocalFile } from '@/services/storage/localStorageService';
 import { YouTubeVideoMetadata, uploadVideoToYouTube } from '@/services/upload/youtubeVideoService';
 import { useGoogleLogin } from '@react-oauth/google';
-import { YouTubeMetadataForm } from './banner-components/YouTubeMetadataForm';
+import YouTubeMetadataForm from '@/components/media/YouTubeMetadataForm';
 import { YouTubeUploadStatus } from './banner-components/YouTubeUploadStatusPanel';
 import { logger } from '@/services/core/debugLogger';
 
@@ -247,18 +247,28 @@ const YouTubeVideoUploaderBase: React.FC<YouTubeVideoUploaderProps> = ({
 
             {/* Metadata Form */}
             {selectedFile && !isUploading && (
-                <YouTubeMetadataForm
-                    selectedFile={selectedFile}
-                    metadata={metadata}
-                    setMetadata={setMetadata}
-                    validationInfo={validationInfo}
-                    error={error}
-                    isUploading={isUploading}
-                    accessToken={accessToken}
-                    onUpload={handleUpload}
-                    onCancel={handleCancel}
-                />
+                <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-xl">
+                    <p className="text-sm text-yellow-800">
+                        <strong>⚠️ Formulário de Metadados do YouTube Temporariamente Desabilitado</strong>
+                        <br />
+                        O componente YouTubeMetadataForm requer refatoração para compatibilidade de props.
+                        <br />
+                        <span className="text-xs">Arquivo: {selectedFile.name}</span>
+                    </p>
+                    <div className="mt-4 flex gap-2">
+                        <button onClick={handleUpload} disabled={!accessToken} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
+                            Fazer Upload Direto
+                        </button>
+                        <button onClick={handleCancel} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
             )}
+            {/* TODO: Refatorar YouTubeMetadataForm para aceitar estas props:
+                selectedFile, metadata, setMetadata, validationInfo, error,
+                isUploading, accessToken, onUpload, onCancel
+            */}
 
             {/* Upload Progress */}
             {isUploading && (

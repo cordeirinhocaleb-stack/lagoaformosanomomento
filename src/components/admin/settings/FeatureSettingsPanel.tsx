@@ -39,7 +39,7 @@ const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle, d
                 }
             } catch (err: unknown) {
                 logger.error("❌ ERRO CRÍTICO no handler:", err);
-                alert(`❌ ERRO: ${err.message || "Falha desconhecida. Verifique o console."}`);
+                alert(`❌ ERRO: ${err instanceof Error ? err.message : "Falha desconhecida. Verifique o console."}`);
                 setResetStatus('idle');
             }
         }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarketItem } from './types';
+import { MarketItem } from '@/components/admin/users/panels/pos/types';
 import { User } from '@/types';
 import lfnmCoin from '@/assets/lfnm_coin.png';
 

@@ -9,7 +9,7 @@ import SeparatorBlock from './blocks/SeparatorBlock';
 import GalleryEditorBlock from '../GalleryEditorBlock';
 import EngagementEditorBlock from '../EngagementEditorBlock';
 import { SmartBlockEditor } from './blocks/SmartBlockEditor';
-import { SmartBlockRenderer } from './blocks/BlockContent';
+import { EditorialBlock } from './blocks/EditorialBlock';
 import { ImageUploadBlock } from './blocks/ImageUploadBlock';
 
 interface EditorCanvasProps {
@@ -71,9 +71,9 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
                         key={block.id}
                         className={`
                 transition-all duration-300
-                ${getWidthClass(s.width, block.type, s.orientation)}
-                ${s.minHeight || ''} 
-                ${s.paddingY ? s.paddingY.replace('py-', 'py-') : 'p-3'}
+                ${getWidthClass((s.width as string) || 'full', block.type, s.orientation as string)}
+                ${(s.minHeight as string) || ''} 
+                ${(s.paddingY as string) ? (s.paddingY as string).replace('py-', 'py-') : 'p-3'}
             `}
                     >
                         <div
@@ -126,22 +126,25 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
                                             <ImageUploadBlock
                                                 data={{
                                                     url: block.content as string,
-                                                    caption: s.caption,
-                                                    effects: s.effects,
-                                                    layout: s.layout,
-                                                    background: s.background
+                                                    caption: s.caption as string | undefined,
+                                                    effects: s.effects as any,
+                                                    layout: s.layout as 'fill' | 'cover' | 'contain' | undefined,
+                                                    background: s.background as boolean | undefined
                                                 }}
-                                                onUpdate={(newData: unknown) => onUpdateBlock({
-                                                    ...block,
-                                                    content: newData.url || block.content,
-                                                    settings: {
-                                                        ...block.settings,
-                                                        caption: newData.caption,
-                                                        effects: newData.effects,
-                                                        layout: newData.layout,
-                                                        background: newData.background
-                                                    }
-                                                })}
+                                                onUpdate={(newData: unknown) => {
+                                                    const data = newData as { url?: string; caption?: unknown; effects?: unknown; layout?: unknown; background?: unknown };
+                                                    onUpdateBlock({
+                                                        ...block,
+                                                        content: data.url || block.content,
+                                                        settings: {
+                                                            ...block.settings,
+                                                            caption: data.caption,
+                                                            effects: data.effects,
+                                                            layout: data.layout,
+                                                            background: data.background
+                                                        }
+                                                    });
+                                                }}
                                                 onUpload={localFileHandler}
                                             />
                                         );

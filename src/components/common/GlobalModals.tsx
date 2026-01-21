@@ -5,8 +5,8 @@ import AuthModalsContainer from './AuthModalsContainer';
 import { WelcomeToast } from './WelcomeToast';
 import ChangelogModal from './ChangelogModal';
 import SessionExpiredModal from './SessionExpiredModal';
-import ConfirmationModal from './ConfirmationModal';
-import { ErrorModal } from './ErrorModal';
+import ConfirmationModal from './ConfirmModal';
+import ErrorModal from './ErrorAlertModal';
 import PricingModal from './PricingModal';
 import MyAccountModal from './MyAccountModal';
 import ActivityToastHost from './ActivityToastHost';
@@ -74,7 +74,12 @@ export default function GlobalModals({
                 triggerErrorModal={triggerErrorModal}
                 onCheckEmail={async () => true}
             />
-            <WelcomeToast />
+            {user && modals.showLoginModal === false && (
+                <WelcomeToast
+                    user={user}
+                    onClose={() => { /* O toast se auto-destrói ou podemos gerenciar via estado se necessário */ }}
+                />
+            )}
 
             {/* Specific Modals */}
             {modals.showChangelog && (
@@ -116,25 +121,31 @@ export default function GlobalModals({
                 />
             )}
 
-            <ConfirmationModal
-                isOpen={confirmationState.isOpen}
-                title={confirmationState.title}
-                message={confirmationState.message}
-                variant={confirmationState.variant}
-                type={confirmationState.type}
-                confirmText={confirmationState.confirmText}
-                cancelText={confirmationState.cancelText}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-            />
+            {confirmationState.isOpen && (
+                <ConfirmationModal
+                    isOpen={confirmationState.isOpen}
+                    title={confirmationState.title}
+                    message={confirmationState.message}
+                    type={confirmationState.type || 'warning'}
+                    confirmText={confirmationState.confirmText}
+                    cancelText={confirmationState.cancelText}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                />
+            )}
 
-            <ErrorModal
-                isOpen={errorModal.open}
-                title={errorModal.context}
-                message={errorModal.error instanceof Error ? errorModal.error.message : String(errorModal.error)}
-                severity={errorModal.severity}
-                onClose={() => setErrorModal((prev: any) => ({ ...prev, open: false }))}
-            />
+            {errorModal.open && (
+                <ErrorModal
+                    error={errorModal.error}
+                    context={errorModal.context}
+                    severity={errorModal.severity}
+                    onClose={() => setErrorModal((prev: any) => ({ ...prev, open: false }))}
+                    onSendReport={async () => {
+                        console.log('Report sent');
+                        // Implementar envio real se houver endpoint
+                    }}
+                />
+            )}
 
             <ActivityToastHost />
         </>

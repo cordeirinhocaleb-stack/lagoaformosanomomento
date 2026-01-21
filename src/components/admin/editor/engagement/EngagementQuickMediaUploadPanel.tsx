@@ -22,7 +22,7 @@ export const QuickUploader: React.FC<QuickUploaderProps> = ({ onUpload, currentU
             onUpload(url);
         } catch (error: unknown) {
             console.error(error);
-            alert('Erro no upload: ' + error.message);
+            alert('Erro no upload: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
         } finally {
             setUploading(false);
             if (fileRef.current) fileRef.current.value = '';

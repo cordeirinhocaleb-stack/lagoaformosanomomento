@@ -4,16 +4,16 @@ import { SubEditorProps } from './EngagementTypes';
 
 export const PollEditor = ({ settings, style, theme, onChange }: SubEditorProps) => {
     const s = settings as Record<string, unknown>;
-    const options = s.options || ['Sim', 'Não'];
+    const options = (s.options as string[]) || ['Sim', 'Não'];
 
     const updateOption = (idx: number, val: string) => {
-        const newOpts = [...options];
+        const newOpts = [...options] as string[];
         newOpts[idx] = val;
         onChange({ options: newOpts });
     };
 
     const addOption = () => onChange({ options: [...options, 'Nova Opção'] });
-    const removeOption = (idx: number) => onChange({ options: options.filter((_val: string, i: number) => i !== idx) });
+    const removeOption = (idx: number) => onChange({ options: (options as string[]).filter((_val: string, i: number) => i !== idx) });
 
     const activeTheme = theme || {
         classes: {
@@ -28,7 +28,7 @@ export const PollEditor = ({ settings, style, theme, onChange }: SubEditorProps)
         <div>
             <label className="block text-[9px] font-black uppercase text-zinc-400 mb-2">Opções de Resposta</label>
             <div className="space-y-2">
-                {options.map((opt: string, idx: number) => (
+                {(options as string[]).map((opt: string, idx: number) => (
                     <div key={idx} className="flex gap-2">
                         <input
                             value={opt}
@@ -47,7 +47,7 @@ export const PollEditor = ({ settings, style, theme, onChange }: SubEditorProps)
 
                 {(!style || style === 'bars') && (
                     <div className="space-y-2 select-none pointer-events-none opacity-90">
-                        {options.slice(0, 3).map((opt: string, i: number) => (
+                        {(options as string[]).slice(0, 3).map((opt: string, i: number) => (
                             <div key={i} className="relative h-8 bg-white/50 rounded-lg overflow-hidden flex items-center px-3 border border-black/5">
                                 <div className={`absolute top-0 bottom-0 left-0 ${activeTheme.classes.accent} opacity-20`} style={{ width: `${60 - (i * 15)}%` }}></div>
                                 <div className={`absolute top-0 bottom-0 left-0 ${activeTheme.classes.accent}`} style={{ width: '4px' }}></div>
@@ -59,7 +59,7 @@ export const PollEditor = ({ settings, style, theme, onChange }: SubEditorProps)
 
                 {style === 'circles' && (
                     <div className="flex justify-center gap-4 py-2 select-none pointer-events-none opacity-90">
-                        {options.slice(0, 3).map((opt: string, i: number) => (
+                        {(options as string[]).slice(0, 3).map((opt: string, i: number) => (
                             <div key={i} className="flex flex-col items-center gap-1">
                                 <div className={`w-12 h-12 rounded-full border-4 ${activeTheme.classes.secondary} border-t-current flex items-center justify-center text-xs font-bold bg-white ${activeTheme.classes.text}`}>
                                     {60 - (i * 15)}%
@@ -72,7 +72,7 @@ export const PollEditor = ({ settings, style, theme, onChange }: SubEditorProps)
 
                 {style === 'cards' && (
                     <div className="grid grid-cols-2 gap-2 select-none pointer-events-none opacity-90">
-                        {options.slice(0, 4).map((opt: string, i: number) => (
+                        {(options as string[]).slice(0, 4).map((opt: string, i: number) => (
                             <div key={i} className={`aspect-video bg-white border ${activeTheme.classes.secondary} rounded-lg flex flex-col items-center justify-center p-2 text-center shadow-sm`}>
                                 <i className={`fas fa-check-circle mb-1 text-xs ${activeTheme.classes.text} opacity-50`}></i>
                                 <span className={`text-[9px] font-bold leading-tight line-clamp-2 ${activeTheme.classes.text}`}>{opt || `Opção ${i + 1}`}</span>
@@ -94,7 +94,7 @@ export const QuizEditor = ({ settings, style, theme, onChange }: SubEditorProps)
                 <label className="block text-[9px] font-black uppercase text-green-600 mb-2">Resposta Correta (Índice 0-Based)</label>
                 <input
                     type="number"
-                    value={s.correctOptionIndex || 0}
+                    value={(s.correctOptionIndex as number) || 0}
                     onChange={(e) => onChange({ correctOptionIndex: parseInt(e.target.value) })}
                     className="w-20 bg-white border border-green-200 rounded-lg px-3 py-2"
                 />

@@ -11,6 +11,18 @@
 > 7. **SOT**: Qualquer mudança no banco exige atualização do `.sql` principal e `architecture.md`.
 
 
+## 0.2.0 (Build 228) - 20/01/2026 18:26
+- **Milestone**: Integração Completa do Sistema .context
+- **Documentation**: Sistema .context totalmente integrado com task.md
+- **Automation**: Script `sync-context.js` para sincronização automatizada
+- **Testing**: Plano de testes de autenticação criado (23 casos de teste)
+- **Agents**: 14 agentes especializados configurados
+- **Skills**: 10 skills reutilizáveis documentadas
+- **Files**: 7 arquivos criados, 5 atualizados (~2.500 linhas de documentação)
+- **Status**: Projeto 96.8% completo (31/32 tarefas concluídas)
+
+---
+
 ## 0.1.0 (Build 01) - 18/01/2026 06:45
 - **Milestone**: Lançamento da Versão 0.1.0.
 - **Admin**: Integração completa do Histórico de Compras (`PurchaseHistoryModal`) no Painel de Assinaturas.

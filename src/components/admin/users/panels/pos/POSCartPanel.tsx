@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarketItem } from './types';
+import { MarketItem } from '@/components/admin/users/panels/pos/types';
 import lfnmCoin from '@/assets/lfnm_coin.png';
 
 interface POSCartProps {
@@ -66,7 +66,7 @@ export const POSCart: React.FC<POSCartProps> = ({
                                 </div>
                                 <div>
                                     <span className={`block text-[10px] font-bold uppercase leading-none ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{item.name}</span>
-                                    <span className="text-[9px] text-gray-400 font-bold flex items-center gap-1"><img src={(typeof lfnmCoin === "object" && lfnmCoin !== null && "src" in lfnmCoin ? lfnmCoin.src : lfnmCoin) || lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {item.cost}</span>
+                                    <span className="text-[9px] text-gray-400 font-bold flex items-center gap-1"><img src={typeof lfnmCoin === 'object' ? lfnmCoin.src : lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {item.cost}</span>
                                 </div>
                             </div>
                             <button
@@ -90,20 +90,20 @@ export const POSCart: React.FC<POSCartProps> = ({
                 {/* Saldo Inicial */}
                 <div className="flex justify-between items-center mb-1 opacity-60 text-[9px] font-bold uppercase text-gray-500">
                     <span>Saldo Atual</span>
-                    <span className="text-gray-700 flex items-center gap-1"><img src={(typeof lfnmCoin === "object" && lfnmCoin !== null && "src" in lfnmCoin ? lfnmCoin.src : lfnmCoin) || lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {currentBalance.toFixed(2)}</span>
+                    <span className="text-gray-700 flex items-center gap-1"><img src={typeof lfnmCoin === 'object' ? lfnmCoin.src : lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {currentBalance.toFixed(2)}</span>
                 </div>
 
                 {/* Total Carrinho */}
                 <div className={`flex justify-between items-center mb-1 text-[10px] font-bold uppercase ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                     <span>Total Carrinho</span>
-                    <span className="text-purple-600 flex items-center gap-1">- <img src={(typeof lfnmCoin === "object" && lfnmCoin !== null && "src" in lfnmCoin ? lfnmCoin.src : lfnmCoin) || lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {cartTotal.toFixed(2)}</span>
+                    <span className="text-purple-600 flex items-center gap-1">- <img src={typeof lfnmCoin === 'object' ? lfnmCoin.src : lfnmCoin} alt="$" className="w-3.5 h-3.5 object-contain animate-coin-sm" /> {cartTotal.toFixed(2)}</span>
                 </div>
 
                 {/* Saldo Final */}
                 <div className={`flex justify-between items-center mb-3 p-2 rounded-lg border ${darkMode ? 'bg-yellow-900/10 border-yellow-500/20' : 'bg-yellow-50 border-yellow-100'}`}>
                     <span className="text-[10px] font-black uppercase text-yellow-800">Saldo Final</span>
                     <span className={`text-[12px] font-black flex items-center gap-1 ${finalBalance < 0 ? 'text-red-500' : 'text-green-600'}`}>
-                        <img src={(typeof lfnmCoin === "object" && lfnmCoin !== null && "src" in lfnmCoin ? lfnmCoin.src : lfnmCoin) || lfnmCoin} alt="$" className="w-5 h-5 object-contain animate-coin-sm" /> {finalBalance.toFixed(2)}
+                        <img src={typeof lfnmCoin === 'object' ? lfnmCoin.src : lfnmCoin} alt="$" className="w-5 h-5 object-contain animate-coin-sm" /> {finalBalance.toFixed(2)}
                     </span>
                 </div>
 

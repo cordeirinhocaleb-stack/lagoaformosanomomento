@@ -1,19 +1,20 @@
 ﻿
 import React from 'react';
-import { ContentBlock } from '@/types';
+import { ContentBlock, User } from '@/types';
 import { ToastType } from '../../../common/Toast';
 import TextBlock from '../blocks/TextBlock';
 import MediaBlock from '../blocks/MediaBlock';
 import VideoLinkBlock from '../blocks/VideoLinkBlock';
 import SeparatorBlock from '../blocks/SeparatorBlock';
-import GalleryEditorBlock from '../../GalleryEditorBlock';
-import EngagementEditorBlock from '../../EngagementEditorBlock';
 import { SmartBlockEditor } from '../blocks/SmartBlockEditor';
-import { SmartBlockRenderer } from '../blocks/BlockContent';
+import { SmartBlockRenderer } from '../blocks/SmartBlockRenderer';
+import { EditorialBlock } from '../blocks/EditorialBlock';
+import GalleryEditorBlock from '@/components/admin/GalleryEditorBlock';
+import EngagementEditorBlock from '@/components/admin/EngagementEditorBlock';
 import { logger } from '@/services/core/debugLogger';
 
 interface EditorContentProps {
-    user: import('../../../../types').User;
+    user: User;
     blocks: ContentBlock[];
     selectedBlockId: string | null;
     isMobile: boolean;
@@ -143,7 +144,7 @@ const EditorContent: React.FC<EditorContentProps> = ({
                             )}
 
                             {(() => {
-                                logger.log('[EditorContent] Rendering block type:', block.type, 'ID:', block.id);
+                                logger.log(`[EditorContent] Rendering block type: ${block.type} ID: ${block.id}`);
                                 switch (block.type) {
                                     case 'paragraph': case 'heading': case 'quote': case 'list':
                                         return (
@@ -181,7 +182,7 @@ const EditorContent: React.FC<EditorContentProps> = ({
                                     case 'engagement':
                                         return <EngagementEditorBlock block={block} onUpdate={handleUpdateBlock} />;
                                     case 'smart_block':
-                                        logger.log('[EditorContent] SMART_BLOCK CASE EXECUTING! Block:', block);
+                                        logger.log(`[EditorContent] SMART_BLOCK CASE EXECUTING! Block ID: ${block.id}`);
                                         return (
                                             <div className="transition-all duration-300">
                                                 <SmartBlockRenderer block={block} />

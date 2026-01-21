@@ -35,7 +35,7 @@ export const CreditItemControl: React.FC<CreditItemControlProps> = ({
         if (amount > 0 && canEdit) {
             setIsSaving(true);
             try {
-                const current = currentUsage?.[field] || 0;
+                const current = (currentUsage as any)?.[field] || 0;
                 const finalValue = mode === 'dar' ? current + amount : Math.max(0, current - amount);
 
                 const updatedUsage = {
@@ -58,7 +58,7 @@ export const CreditItemControl: React.FC<CreditItemControlProps> = ({
                 alert(`${amount} item(s) ${mode === 'dar' ? 'adicionados' : 'removidos'} de "${label}". Salvo no banco.`);
             } catch (err: unknown) {
                 console.error("Erro ao salvar item:", err);
-                alert("Erro ao salvar no banco: " + (err.message || "Tente novamente"));
+                alert("Erro ao salvar no banco: " + (err instanceof Error ? err.message : "Tente novamente"));
             } finally {
                 setIsSaving(false);
             }

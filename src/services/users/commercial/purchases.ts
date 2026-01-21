@@ -1,6 +1,6 @@
 import { getSupabase } from '../../core/supabaseClient';
 import { logAction } from '../../admin/auditService';
-import { mapDbToUser } from '../mappers';
+import { mapDbToUser } from '../userService';
 import { logger } from '@/services/core/debugLogger';
 import { validatePurchaseData, sanitizeNumber, PurchaseDetails } from './validation';
 

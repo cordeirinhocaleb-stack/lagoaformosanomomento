@@ -1,81 +1,109 @@
 # Glossary & Domain Concepts
 
-The **Lagoa Formosa no Momento** platform is a digital media and advertising ecosystem specifically designed for the local context of Lagoa Formosa. The domain model bridges the gap between local journalism (News), community engagement (Engagement Blocks), and a self-service advertising marketplace (Advertisers).
+The **Lagoa Formosa no Momento** platform is a digital media and advertising ecosystem specifically designed for the local context of Lagoa Formosa. The system bridges local journalism (News), community interaction (Engagement Blocks), and a self-service advertising marketplace (Advertisers).
 
-Key entities include:
-*   **News (Notícias):** The core content type, consisting of articles, galleries, and videos.
-*   **Advertisers (Anunciantes):** Business entities that purchase "Plans" to display "Banners" or "Popups" across the site.
-*   **Engagement (Engajamento):** Interactive modules embedded within news articles, such as polls, quizzes, or feedback forms.
-*   **Role Wizard:** A specialized onboarding flow that helps users identify their relationship with the platform (Reader, Advertiser, or Contributor).
+---
 
-## Type Definitions
+## 1. Core Domain Entities
 
-Key interfaces and types used across the system:
+### News (Notícias)
+The primary content type of the platform. News items are modular and composed of various blocks.
+*   **NewsItem:** The root data structure containing metadata (SEO, author, category) and an array of content.
+*   **ContentBlock:** Individual units of content within an article, such as `TextBlock`, `ImageBlock`, `VideoBlock`, or `GalleryBlock`.
+*   **Daily Bread (Pão Diário):** A specialized content segment for daily inspirational or religious messages, managed via `DailyBreadData`.
 
-*   **User Management**
-    *   [`User`](../src/types/users.ts): Core user profile containing identity, role, and status.
-    *   [`UserSession`](../src/types/users.ts): Structure for active authentication sessions and JWT data.
-    *   [`Invoice`](../src/types/users.ts): Billing records for advertisers and subscribers.
-*   **Content & Media**
-    *   [`NewsItem`](../src/types/news.ts): The primary data structure for news articles, including SEO metadata and content blocks.
-    *   [`ContentBlock`](../src/types/news.ts): A union type representing different components within an article (Text, Image, Video, Gallery).
-    *   [`DailyBreadData`](../src/types/news.ts): Specific data structure for daily inspirational or religious content segments.
-*   **Advertising & Marketing**
-    *   [`Advertiser`](../src/types/ads.ts): Profile for businesses, including branding and active products.
-    *   [`AdPlanConfig`](../src/types/ads.ts): Configuration for subscription-based or one-time advertising tiers.
-    *   [`PromoPopupConfig`](../src/types/ads.ts): Detailed settings for the "Pop-up" advertising system, including display triggers and visual themes.
-*   **System & Operations**
-    *   [`AuditLog`](../src/types/system.ts): Records of administrative actions for compliance and debugging.
-    *   [`ErrorReport`](../src/types/system.ts): Standardized structure for tracking runtime exceptions and UI crashes.
+### Advertisers (Anunciantes)
+Businesses or individuals who purchase visibility on the platform.
+*   **Advertiser:** The profile entity containing brand assets, contact info, and linked products.
+*   **Ad Plan:** Tiered subscription models (`BASIC`, `PREMIUM`, etc.) that dictate where and how often ads appear.
+*   **Placement:** The specific location on the site where an ad is displayed (e.g., Sidebar, Mid-Article, Homepage Hero).
 
-## Enumerations
+### Engagement (Engajamento)
+Interactive modules designed to increase user dwell time and gather community feedback.
+*   **Engagement Block:** UI components like Polls (Enquetes), Quizzes, or Feedback forms embedded directly into NewsItems.
+*   **Social Hub:** A centralized view of platform interactions and social distributions.
 
-Values that define the state and behavior of domain entities:
+---
 
-*   **User & Access**
-    *   `UserRole`: `ADMIN`, `ADVERTISER`, `EDITOR`, `USER` (Defines permission levels).
-    *   `UserStatus`: `ACTIVE`, `PENDING`, `SUSPENDED`.
-*   **Content Lifecycle**
-    *   `PublishStatus`: `DRAFT`, `REVIEW`, `PUBLISHED`, `ARCHIVED` (Used in `usePublishingWorkflow.ts`).
-    *   `EngagementType`: `POLL`, `QUIZ`, `FEEDBACK`, `ACTION` (Types of interactive blocks).
-*   **Advertising Logic**
-    *   `AdPlan`: `FREE`, `BASIC`, `PREMIUM`, `ENTERPRISE`.
-    *   `BillingCycle`: `MONTHLY`, `QUARTERLY`, `YEARLY`.
-    *   `BannerLayout`: `HORIZONTAL`, `VERTICAL`, `SQUARE`.
-    *   `PlacementStatus`: `ACTIVE`, `EXPIRED`, `SCHEDULED`.
+## 2. Technical Type Definitions
 
-## Core Terms
+Key interfaces used across the codebase for type safety and data consistency.
 
-*   **Engagement Block:** A reusable UI component that can be injected into any article to drive user interaction (e.g., a "Rate this news" widget).
-*   **Editorial Style:** A set of visual presets (fonts, spacing, colors) defined in the `EditorialTextSettings` used by the CMS to ensure brand consistency.
-*   **Popup Builder:** A specialized tool for advertisers to create high-impact modal advertisements with custom triggers and animations.
-*   **Smart Playback:** A video delivery optimization logic that determines the best quality and segment loading based on network conditions (found in `smartPlaybackGenerator.ts`).
-*   **Role Wizard:** The entry-point experience for new users that steers them toward becoming a reader, an advertiser, or a professional collaborator.
-*   **Chroma Key Video:** Specialized video components supporting transparency or background replacement, primarily used in the "Digital Human" news presentation.
+| Type / Interface | Location | Description |
+| :--- | :--- | :--- |
+| `NewsItem` | `types/news.ts` | The core article structure including `ContentBlocks`. |
+| `Advertiser` | `types/ads.ts` | Profile for business entities and their active products. |
+| `User` | `types/users.ts` | Identity object including `UserRole` and `UserStatus`. |
+| `AdPlanConfig` | `types/ads.ts` | Configuration for pricing, duration, and feature sets of ad plans. |
+| `PromoPopupConfig`| `types/ads.ts` | Settings for high-impact modal advertisements. |
+| `AuditLog` | `types/system.ts` | Records of administrative actions for compliance. |
+| `ContentBlock` | `types/news.ts` | Union type for all possible article components. |
 
-## Acronyms & Abbreviations
+---
 
-*   **CMS:** Content Management System (Refers to the `/admin` area of the application).
-*   **POS:** Point of Sale (Used in the context of user subscription panels and billing).
-*   **TOC:** Table of Contents (Automatically generated for long-form news articles).
-*   **IDB:** IndexedDB (Used by the `OfflineService` to store local drafts).
-*   **SEO:** Search Engine Optimization (Metadata handled within `NewsItem` and `SiteData`).
+## 3. Enumerations & Constants
 
-## Personas / Actors
+### User Access Control
+*   **UserRole:**
+    *   `ADMIN`: Full system access, billing management, and auditing.
+    *   `EDITOR`: Can create, edit, and publish news content.
+    *   `ADVERTISER`: Access to the self-service ad dashboard and popup builder.
+    *   `USER`: Standard reader with engagement privileges.
 
-*   **Local Reader:** Residents of Lagoa Formosa seeking real-time news. They value fast load times, offline access for areas with poor connectivity, and community interaction.
-*   **Local Advertiser:** Small to medium business owners. They need a simple, self-service way to create ads (Popups/Banners) without technical expertise.
-*   **Editor/Journalist:** Staff members responsible for content creation. They require a robust "What You See Is What You Get" (WYSIWYG) editor and media management tools.
-*   **Administrator:** System overseers who manage user permissions, review billing, and audit system logs.
+### Content Lifecycle
+*   **PublishStatus:**
+    *   `DRAFT`: Content in progress, not visible to the public.
+    *   `REVIEW`: Content awaiting editorial approval.
+    *   `PUBLISHED`: Live content accessible to users.
+    *   `ARCHIVED`: Content removed from public view but retained in the DB.
 
-## Domain Rules & Invariants
+### Advertising Logic
+*   **BillingCycle:** `MONTHLY`, `QUARTERLY`, `YEARLY`.
+*   **BannerLayout:** `HORIZONTAL`, `VERTICAL`, `SQUARE`.
 
-*   **Publishing Workflow:** A `NewsItem` cannot be `PUBLISHED` unless it contains at least one `ContentBlock` and a valid `BannerEffect`.
-*   **Ad Exclusivity:** Certain "Premium" ad placements are limited to one active advertiser per category to avoid market saturation.
-*   **Offline Integrity:** Content saved in the `OfflineService` (IndexedDB) must be synchronized with the remote database using a "Last-Write-Wins" strategy unless a version conflict is detected.
-*   **Localization:** All currency displays must follow the `pt-BR` locale (BRL - R$), and timezones are strictly anchored to Brasília Time (GMT-3).
-*   **Media Sanitization:** All user-uploaded media must pass through the `sanitizationService` to strip malicious metadata and ensure format compatibility.
+---
 
-## Related Resources
+## 4. Key Platform Features
 
-*   [Project Overview](./project-overview.md) - For a high-level view of the application architecture.
+### Popup Builder
+A specialized WYSIWYG tool within the Advertiser dashboard. It allows non-technical users to create animated modal ads using `PromoPopupConfig`. It supports custom triggers (on load, on scroll) and visual themes.
+
+### Smart Playback
+Located in `utils/smartPlaybackGenerator.ts`, this logic optimizes video delivery. It determines the best video segments and quality to load based on the user's current network conditions to prevent buffering.
+
+### Role Wizard
+A specialized onboarding flow that greets new users and helps them identify their intent (e.g., "I want to read news" vs "I want to advertise my business"), streamlining the registration process.
+
+### Chroma Key Video
+Advanced video components (found in `components/media/ChromaKeyVideo.tsx`) that support background transparency. These are primarily used for the "Digital Human" news presentation style, allowing presenters to appear overlaid on dynamic content.
+
+### Offline Service
+Managed via `services/offlineService.ts`, this uses **IndexedDB (IDB)** to store local drafts and cached content. This ensures journalists can continue working on articles even with unstable internet connectivity.
+
+---
+
+## 5. Personas / Actors
+
+*   **Local Reader:** Residents of Lagoa Formosa seeking real-time news. They value fast load times and community interaction.
+*   **Local Advertiser:** Small business owners using the self-service tools to reach the local population.
+*   **Journalist/Editor:** The primary content creators who utilize the CMS blocks to build rich news stories.
+*   **System Admin:** Technical overseers who manage the platform health, user permissions, and global settings.
+
+---
+
+## 6. Domain Rules & Invariants
+
+*   **Validation Integrity:** A `NewsItem` cannot be transitioned to `PUBLISHED` status unless it has a valid title, a thumbnail, and at least one `ContentBlock`.
+*   **Ad Exclusivity:** Premium placements are governed by rules preventing market saturation (e.g., only one active "Real Estate" popup per session).
+*   **Media Sanitization:** All uploads must pass through `sanitizationService.ts` to strip potentially malicious metadata and ensure standard file formatting.
+*   **Localization:** The platform is strictly optimized for `pt-BR`. Currency is handled in BRL (R$), and all timestamps default to Brasília Time (GMT-3).
+
+---
+
+## 7. Acronyms & Abbreviations
+
+*   **CMS:** Content Management System (the `/admin` dashboard).
+*   **SEO:** Search Engine Optimization (metadata for Google/Social sharing).
+*   **POS:** Point of Sale (related to subscription billing and user panels).
+*   **TOC:** Table of Contents (dynamic navigation for long articles).
+*   **WYSIWYG:** What You See Is What You Get (the visual editor experience).

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { APP_VERSION } from '@/version';
 import VideoPresenter from '@/components/media/ChromaKeyVideo';
-import Login from '@/components/Login';
+import Login from '@/components/common/Login';
 import { User } from '@/types';
 import AlertBlock from './AlertBlock';
 import ContactInfo from './ContactInfo';

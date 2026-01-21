@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { User, NewsItem, AppView } from '../../types';
+'use client';
 
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { User, NewsItem, AppView } from '@/types';
 
 interface UseAppNavigationProps {
     isInitialized: boolean;
@@ -23,69 +25,57 @@ export const useAppNavigation = ({
     setShowLoginModal,
     setShowProfileModal
 }: UseAppNavigationProps) => {
+    const router = useRouter();
+    const pathname = usePathname();
 
-    const getSafeHash = useCallback(() => {
-        try { return window.location.hash; } catch { return ''; }
-    }, []);
+    const updateHash = useCallback((path: string) => {
+        // Agora 'path' é uma rota real do Next.js
+        router.push(path);
+    }, [router]);
 
-    const updateHash = useCallback((hash: string) => {
-        const target = hash.startsWith('#') ? hash : `#${hash}`;
-        try {
-            if (getSafeHash() !== target) { window.location.hash = target; }
-        } catch { }
-    }, [getSafeHash]);
-
+    // Sincronizar 'view' do controller com o pathname real do Next.js
     useEffect(() => {
-        if (!isInitialized) { return; }
+        if (!isInitialized || !pathname) return;
 
-        const handleHashChange = () => {
-            const hash = getSafeHash();
-            if (!hash) { return; }
-
-            if (hash.includes('access_token')) {
-                setView('auth_callback');
-                return;
-            }
-
-            if (hash === '#/admin') {
-                if (user) {
-                    if (user.role === 'Leitor') {
-                        setView('home');
-                        updateHash('/');
-                        setShowProfileModal(true);
-                    } else {
-                        setView('admin');
-                    }
-                } else {
-                    setShowLoginModal(true);
-                }
-            } else if (hash.startsWith('#/news/')) {
-                const id = hash.split('/').pop();
-                const item = news.find(n => n.id === id);
-                if (item) {
-                    setSelectedNews(item);
-                    setView('details');
-                } else {
+        if (pathname === '/') {
+            setView('home');
+        } else if (pathname === '/admin') {
+            if (user) {
+                if (user.role === 'Leitor') {
                     setView('home');
-                    updateHash('/');
+                    router.push('/');
+                    setShowProfileModal(true);
+                } else {
+                    setView('admin');
                 }
-            } else if (hash === '#/jobs') {
-                setView('jobs');
             } else {
-                setView('home');
+                setShowLoginModal(true);
             }
-        };
-
-        handleHashChange();
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, [news, user, isInitialized, getSafeHash, updateHash, setSelectedNews, setShowLoginModal, setShowProfileModal]);
+        } else if (pathname.startsWith('/news/')) {
+            const id = pathname.split('/').pop();
+            const item = news.find(n => n.id === id);
+            if (item) {
+                setSelectedNews(item);
+                setView('details');
+            }
+            // Não redireciona para home - aguarda notícias carregarem
+        } else if (pathname === '/jobs') {
+            setView('jobs');
+        } else if (pathname.startsWith('/advertiser/')) {
+            setView('advertiser');
+        } else if (pathname.startsWith('/docs')) {
+            // Docs portal handle its own internal state
+        }
+    }, [pathname, isInitialized, user, news, setView, router, setSelectedNews, setShowLoginModal, setShowProfileModal]);
 
     const handleBackToHome = useCallback(() => {
-        setView('home');
         setSelectedNews(null);
-        updateHash('/');
-    }, [setSelectedNews, updateHash]);
+        router.push('/');
+    }, [setSelectedNews, router]);
+
+    const getSafeHash = useCallback(() => {
+        try { return typeof window !== 'undefined' ? window.location.hash : ''; } catch { return ''; }
+    }, []);
 
     return {
         view,

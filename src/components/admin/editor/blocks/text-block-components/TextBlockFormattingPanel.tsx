@@ -21,13 +21,13 @@ export const MobileFormattingToolbar: React.FC<MobileFormattingToolbarProps> = (
 
     if (!isSelected || !isMobileFormattingOpen) return null;
 
-    const MobileToolBtn = ({ icon, label, action, val, activeColor, tooltip }: { icon: string; label: string; action: () => void; val?: string | boolean; activeColor?: string; tooltip?: string }) => (
+    const MobileToolBtn = ({ icon, label, action, val, activeColor, tooltip }: { icon: string; label: string; action: string; val?: string | boolean; activeColor?: string; tooltip?: string }) => (
         <button
             onClick={(e) => {
                 e.stopPropagation();
                 if (action === 'link') insertLink();
                 else if (action === 'triggerImage' && triggerImageUpload) triggerImageUpload();
-                else execCommand(action, val);
+                else execCommand(action, val as string);
             }}
             className={`flex-shrink-0 flex flex-col items-center justify-center w-12 h-11 rounded-xl transition-all border border-zinc-800 hover:border-zinc-600 active:scale-95 group relative ${activeColor ? activeColor : 'bg-zinc-800 text-white'}`}
             title={tooltip || label}

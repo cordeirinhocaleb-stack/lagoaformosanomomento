@@ -79,3 +79,25 @@ Connects services to the React UI tree.
 - [AGENTS.md](../../AGENTS.md) - Overview of all agents in the system.
 - `src/services/core/debugLogger.ts` - Guidance on logging standards.
 - `src/components/admin/editor/README.md` (if exists) - Specifics on editor architecture.
+
+## Task Management Integration
+
+This agent works in conjunction with the project's task management system:
+
+### Task Tracking
+- **Main Task List**: [task.md](../../task.md) - Root task list
+- **Task Tracking**: [.context/docs/task-tracking.md](../docs/task-tracking.md) - Detailed task mapping
+- **Integration Guide**: [.context/docs/integration-guide.md](../docs/integration-guide.md) - How to use .context system
+
+### Before Starting Work
+1. Check [task.md](../../task.md) for assigned tasks
+2. Review [task-tracking.md](../docs/task-tracking.md) for detailed plan
+3. Consult [SYMBOLS_TREE.md](../../docs/SYMBOLS_TREE.md) to avoid duplication
+4. Follow [DESIGN_SYSTEM.md](../../docs/DESIGN_SYSTEM.md) for UI work
+
+### After Completing Work
+1. Mark task as `[x]` in [task.md](../../task.md)
+2. Update [task-tracking.md](../docs/task-tracking.md)
+3. Update [SYMBOLS_TREE.md](../../docs/SYMBOLS_TREE.md) if new symbols created
+4. Increment version in VERSION.md and CHANGELOG.md
+

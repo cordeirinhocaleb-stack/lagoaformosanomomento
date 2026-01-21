@@ -105,3 +105,38 @@ Pure functions and shared logic.
 - [../docs/README.md](./../docs/README.md)
 - [README.md](./README.md)
 - [../../AGENTS.md](./../../AGENTS.md)
+
+## Task Management Integration
+
+This agent has special responsibilities for maintaining the .context system documentation:
+
+### Documentation Maintenance
+- **SYMBOLS_TREE.md**: Update whenever new symbols (classes, interfaces, functions) are created
+- **DESIGN_SYSTEM.md**: Update when new UI patterns, colors, or animations are added
+- **task-tracking.md**: Keep task mappings and statistics current
+- **integration-guide.md**: Update workflow documentation as processes evolve
+
+### Task Tracking
+- **Main Task List**: [task.md](../../task.md) - Root task list
+- **Task Tracking**: [.context/docs/task-tracking.md](../docs/task-tracking.md) - Detailed task mapping
+- **Integration Guide**: [.context/docs/integration-guide.md](../docs/integration-guide.md) - System usage guide
+
+### Before Documenting
+1. Check [task.md](../../task.md) for documentation tasks
+2. Review [SYMBOLS_TREE.md](../../docs/SYMBOLS_TREE.md) for existing symbols
+3. Consult [DESIGN_SYSTEM.md](../../docs/DESIGN_SYSTEM.md) for visual standards
+4. Follow [RULES_MASTER.md](../../docs/RULES_MASTER.md) for project rules
+
+### After Documenting
+1. Update [SYMBOLS_TREE.md](../../docs/SYMBOLS_TREE.md) if documenting new code
+2. Mark documentation tasks as `[x]` in [task.md](../../task.md)
+3. Update [task-tracking.md](../docs/task-tracking.md) statistics
+4. Ensure all cross-references are valid
+
+### Documentation Standards
+- **Language**: Portuguese for user-facing docs, technical terms in English
+- **Format**: Markdown with GitHub Flavored Markdown extensions
+- **Links**: Use relative paths, format as `[text](path)` not `[`text`](path)`
+- **Code**: Use backticks for inline code, triple backticks for blocks
+- **Alerts**: Use `> [!NOTE]`, `> [!IMPORTANT]`, `> [!WARNING]` for callouts
+
