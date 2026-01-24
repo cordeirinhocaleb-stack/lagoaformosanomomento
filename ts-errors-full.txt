@@ -1,0 +1,28 @@
+﻿src/components/admin/editor/blocks/EditorialBlock.tsx(53,64): error TS2551: Property 'class' does not exist on type 'WidgetStyle'. Did you mean 'classes'?
+src/components/common/ErrorPageContent.tsx(46,17): error TS2322: Type '{ onAdminClick: () => void; onHomeClick: () => void; latestNews: never[]; brazilNews: never[]; user: User | null; onOpenProfile: () => void; selectedCategory: string; onSelectCategory: () => void; selectedRegion: "Lagoa Formosa"; onSelectRegion: () => void; }' is not assignable to type 'IntrinsicAttributes & HeaderProps'.
+  Property 'brazilNews' does not exist on type 'IntrinsicAttributes & HeaderProps'.
+src/services/publicationService.ts(141,32): error TS2339: Property 'publishedAt' does not exist on type 'NewsItem'.
+src/services/publicationService.ts(194,15): error TS2339: Property 'summary' does not exist on type 'Partial<NewsItem>'.
+src/services/publicationService.ts(194,31): error TS2339: Property 'summary' does not exist on type 'Partial<NewsItem>'.
+src/services/publicationService.ts(202,15): error TS2339: Property 'filter' does not exist on type 'Partial<NewsItem>'.
+src/services/seo/seoOptimizationService.ts(106,15): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(106,31): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(113,21): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(144,15): error TS2339: Property 'filter' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(191,14): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(191,30): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(191,60): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(213,33): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(213,49): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(214,19): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(215,17): error TS2339: Property 'summary' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(229,29): error TS2339: Property 'publishedAt' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(231,22): error TS2339: Property 'authorName' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(232,23): error TS2339: Property 'filter' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(252,29): error TS2339: Property 'publishedAt' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(256,24): error TS2339: Property 'authorName' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(268,30): error TS2339: Property 'filter' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(300,14): error TS2339: Property 'filter' does not exist on type 'NewsItem'.
+src/services/seo/seoOptimizationService.ts(301,28): error TS2339: Property 'filter' does not exist on type 'NewsItem'.
+src/services/seo/urlGeneratorService.ts(41,44): error TS2339: Property 'publishedAt' does not exist on type 'Partial<NewsItem>'.
+src/services/seo/urlGeneratorService.ts(43,37): error TS2339: Property 'filter' does not exist on type 'Partial<NewsItem>'.

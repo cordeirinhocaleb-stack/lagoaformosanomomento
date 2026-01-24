@@ -11,13 +11,50 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
     const [canScroll, setCanScroll] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
-    // Lista atualizada conforme solicitado - Vagas agora mostra aviso de manutenção
+    // Lista atualizada conforme solicitado
     const menuItems = [
-        { id: 'jobs', label: 'Vagas de Emprego', shortLabel: 'Vagas', icon: 'fa-briefcase', action: onComingSoon || (() => alert("Em breve")) },
-        { id: 'gigs', label: 'Bico', shortLabel: 'Bico', icon: 'fa-hammer', action: onComingSoon || (() => alert("Em breve")) },
-        { id: 'classifieds', label: 'Classificados', shortLabel: 'Vendas', icon: 'fa-store', action: onComingSoon || (() => alert("Em breve")) },
-        { id: 'podcast', label: 'Podcast', shortLabel: 'Cast', icon: 'fa-podcast', action: onComingSoon || (() => alert("Em breve")) },
-        { id: 'groups', label: 'Grupos', shortLabel: 'Grupos', icon: 'fa-users', action: onComingSoon || (() => alert("Em breve")) },
+        {
+            id: 'advertisers',
+            label: 'Catálogo de Parceiros',
+            shortLabel: 'Parceiros',
+            icon: 'fa-store',
+            action: () => window.location.href = '/servicos'
+        },
+        {
+            id: 'jobs',
+            label: 'Vagas de Emprego',
+            shortLabel: 'Vagas',
+            icon: 'fa-briefcase',
+            action: onComingSoon || (() => alert("Em breve"))
+        },
+        {
+            id: 'gigs',
+            label: 'Bico',
+            shortLabel: 'Bico',
+            icon: 'fa-hammer',
+            action: onComingSoon || (() => alert("Em breve"))
+        },
+        {
+            id: 'classifieds',
+            label: 'Classificados',
+            shortLabel: 'Vendas',
+            icon: 'fa-bullhorn',
+            action: onComingSoon || (() => alert("Em breve"))
+        },
+        {
+            id: 'podcast',
+            label: 'Podcast',
+            shortLabel: 'Cast',
+            icon: 'fa-podcast',
+            action: onComingSoon || (() => alert("Em breve"))
+        },
+        {
+            id: 'groups',
+            label: 'Grupos',
+            shortLabel: 'Grupos',
+            icon: 'fa-users',
+            action: onComingSoon || (() => alert("Em breve"))
+        },
     ];
 
     const menuDiagonalText = "data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' fill='%23000' font-family='Arial' font-weight='900' font-size='10' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45 100 100)' opacity='0.03'%3ELAGOA FORMOSA NO MOMENTO%3C/text%3E%3C/svg%3E";
@@ -112,7 +149,10 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
                     className={`container mx-auto flex flex-nowrap md:flex-wrap items-center gap-2 md:gap-3 relative z-10 overflow-x-auto scrollbar-hide px-8 md:px-4 ${!canScroll ? 'justify-center' : 'justify-start'}`}
                 >
                     {menuItems.map((item) => (
-                        <button key={item.id} onClick={item.action} className="whitespace-nowrap px-2 py-1 md:px-4 md:py-2 rounded-md md:rounded-xl bg-black text-white hover:bg-white hover:text-black text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all border border-black md:border-2 shadow-sm active:translate-y-1 flex items-center gap-1 md:gap-2 group shrink-0">
+                        <button key={item.id} onClick={item.action} className={`whitespace-nowrap px-2 py-1 md:px-4 md:py-2 rounded-md md:rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm active:translate-y-1 flex items-center gap-1 md:gap-2 group shrink-0 ${item.id === 'advertisers'
+                                ? 'bg-red-600 text-white hover:bg-white hover:text-red-600 border-red-600'
+                                : 'bg-black text-white hover:bg-white hover:text-black border-black md:border-2'
+                            }`}>
                             <i className={`fas ${item.icon} text-[8px] md:text-xs text-yellow-400 group-hover:text-red-600 group-hover:scale-110 transition-transform`}></i>
                             <span className="md:hidden">{item.shortLabel}</span>
                             <span className="hidden md:inline">{item.label}</span>

@@ -8,6 +8,8 @@ import UserManager from './UserManager';
 import JobManager from './JobManager';
 import AdvertisersTab from './AdvertisersTab';
 import SettingsTab from './SettingsTab';
+import SocialHubTab from './SocialHubTab';
+import WorkflowTab from './WorkflowTab';
 import { User, NewsItem, Advertiser, AdPricingConfig, SystemSettings, Job } from '@/types';
 
 interface AdminMainProps {
@@ -37,6 +39,7 @@ interface AdminMainProps {
 const AdminMain: React.FC<AdminMainProps> = (props) => {
     const [currentView, setCurrentView] = useState('dashboard');
     const [darkMode, setDarkMode] = useState(true);
+    const [newsToEdit, setNewsToEdit] = useState<NewsItem | null>(props.initialNewsToEdit || null);
 
     const renderContent = () => {
         switch (currentView) {
@@ -46,10 +49,18 @@ const AdminMain: React.FC<AdminMainProps> = (props) => {
                         user={props.user}
                         newsHistory={props.newsHistory}
                         advertisers={props.advertisers}
-                        onEditPost={(post) => { /* Logic to open news editor */ }}
-                        onNewPost={() => { setCurrentView('news'); }}
+                        systemSettings={props.systemSettings}
+                        onEditPost={(post) => {
+                            setNewsToEdit(post);
+                            setCurrentView('news');
+                        }}
+                        onNewPost={() => {
+                            setNewsToEdit(null);
+                            setCurrentView('news');
+                        }}
                         onManageAds={() => setCurrentView('advertisers')}
                         onDeletePost={props.onDeleteNews}
+                        onUpdateSystemSettings={props.onUpdateSystemSettings}
                         darkMode={darkMode}
                     />
                 );
@@ -62,7 +73,7 @@ const AdminMain: React.FC<AdminMainProps> = (props) => {
                         onUpdateNews={props.onUpdateNews}
                         onDeleteNews={props.onDeleteNews}
                         systemSettings={props.systemSettings}
-                        initialNewsToEdit={props.initialNewsToEdit}
+                        initialNewsToEdit={newsToEdit}
                         darkMode={darkMode}
                     />
                 );

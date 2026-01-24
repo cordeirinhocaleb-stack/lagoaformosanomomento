@@ -25,6 +25,7 @@ interface ModalsState {
     showChangelog: boolean;
     showPricingModal: boolean;
     showTermsModal: boolean;
+    showComingSoonModal: boolean;
     errorModal: ErrorModalState;
     accessDeniedConfig: AccessDeniedConfig | null;
     successMessage: string;
@@ -41,6 +42,7 @@ export const useModals = () => {
     const [showChangelog, setShowChangelog] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
+    const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
     const [errorModal, setErrorModal] = useState<ErrorModalState>({
         visible: false,
@@ -52,6 +54,23 @@ export const useModals = () => {
     const [pendingGoogleUser, setPendingGoogleUser] = useState<unknown>(null);
     const [pendingManualEmail, setPendingManualEmail] = useState<string | null>(null);
 
+    // Confirmation State
+    const [confirmationState, setConfirmationState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        onCancel?: () => void;
+        type?: 'danger' | 'warning' | 'info';
+        confirmText?: string;
+        cancelText?: string;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+    });
+
     // Funções helper para mostrar modais com configuração
     const showError = useCallback((error: unknown, context: string = 'System Error') => {
         console.error(`🛡️ Capturado:`, error);
@@ -60,6 +79,29 @@ export const useModals = () => {
 
     const hideError = useCallback(() => {
         setErrorModal(prev => ({ ...prev, visible: false }));
+    }, []);
+
+    const showConfirm = useCallback((
+        title: string,
+        message: string,
+        onConfirm: () => void,
+        type: 'danger' | 'warning' | 'info' = 'warning',
+        confirmText = 'Confirmar',
+        cancelText = 'Cancelar'
+    ) => {
+        setConfirmationState({
+            isOpen: true,
+            title,
+            message,
+            onConfirm,
+            type,
+            confirmText,
+            cancelText
+        });
+    }, []);
+
+    const closeConfirm = useCallback(() => {
+        setConfirmationState(prev => ({ ...prev, isOpen: false }));
     }, []);
 
     const showAccessDeniedModal = useCallback((title: string, message: string) => {
@@ -98,6 +140,9 @@ export const useModals = () => {
     const openTermsModal = useCallback(() => setShowTermsModal(true), []);
     const closeTermsModal = useCallback(() => setShowTermsModal(false), []);
 
+    const openComingSoonModal = useCallback(() => setShowComingSoonModal(true), []);
+    const closeComingSoonModal = useCallback(() => setShowComingSoonModal(false), []);
+
     return useMemo(() => ({
         // Estados
         showLoginModal,
@@ -108,11 +153,13 @@ export const useModals = () => {
         showChangelog,
         showPricingModal,
         showTermsModal,
+        showComingSoonModal,
         errorModal,
         accessDeniedConfig,
         successMessage,
         pendingGoogleUser,
         pendingManualEmail,
+        confirmationState, // New
 
         // Setters diretos (para compatibilidade)
         setShowLoginModal,
@@ -122,15 +169,19 @@ export const useModals = () => {
         setShowSuccessModal,
         setShowChangelog,
         setShowPricingModal,
+        setShowComingSoonModal,
         setErrorModal,
         setAccessDeniedConfig,
         setSuccessMessage,
         setPendingGoogleUser,
         setPendingManualEmail,
+        setConfirmationState, // New
 
         // Helper functions
         showError,
         hideError,
+        showConfirm, // New
+        closeConfirm, // New
         showAccessDeniedModal,
         hideAccessDenied,
         showSuccess,
@@ -147,15 +198,19 @@ export const useModals = () => {
         closePricingModal,
         openTermsModal,
         closeTermsModal,
+        openComingSoonModal,
+        closeComingSoonModal
     }), [
         showLoginModal, showProfileModal, showRoleSelector, showAccessDenied,
-        showSuccessModal, showChangelog, showPricingModal, showTermsModal,
+        showSuccessModal, showChangelog, showPricingModal, showTermsModal, showComingSoonModal,
         errorModal, accessDeniedConfig, successMessage, pendingGoogleUser,
-        pendingManualEmail, showError, hideError, showAccessDeniedModal,
+        pendingManualEmail, confirmationState, // New
+        showError, hideError, showConfirm, closeConfirm, showAccessDeniedModal,
         hideAccessDenied, showSuccess, hideSuccess, openLoginModal,
         closeLoginModal, openProfileModal, closeProfileModal, openRoleSelector,
         closeRoleSelector, openChangelog, closeChangelog, openPricingModal,
-        closePricingModal, openTermsModal, closeTermsModal
+        closePricingModal, openTermsModal, closeTermsModal, openComingSoonModal,
+        closeComingSoonModal
     ]);
 };
 

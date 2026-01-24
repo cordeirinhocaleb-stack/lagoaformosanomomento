@@ -1,10 +1,11 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PromoPopupSetConfig, PromoPopupItemConfig, DEFAULT_POPUP_ITEM } from '@/types';
 import { MAX_ITEMS_PER_SET } from '@/utils/popupSafety';
 import PopupList from './PopupList';
 import PopupEditor from './PopupEditor';
 import LivePreviewStage from './AdvertiserPopupLivePreviewPanel';
+import ImageAdjustmentModal from './components/ImageAdjustmentModal';
+import { clearAllFiles } from '../../../../services/storage/localStorageService';
 
 interface PopupSetBuilderProps {
     config: PromoPopupSetConfig;
@@ -16,6 +17,7 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
     const [selectedItemId, setSelectedItemId] = useState<string | null>(() => config.items.length > 0 ? config.items[0].id : null);
     const [mobileTab, setMobileTab] = useState<'config' | 'preview'>('config');
     const [isConfigOpen, setIsConfigOpen] = useState(true);
+    const [isAdjusting, setIsAdjusting] = useState(false);
 
     const handleAdd = () => {
         if (config.items.length >= MAX_ITEMS_PER_SET) { return; }
@@ -29,10 +31,7 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
     };
 
     const handleDelete = (id: string) => {
-        // Removido confirmação para agilizar fluxo e evitar bloqueios
         const newItems = config.items.filter(i => i.id !== id);
-
-        // Forçando atualização de estado
         onChange({ items: newItems });
 
         if (selectedItemId === id) {
@@ -53,7 +52,35 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
         });
     };
 
+    const handleHardReset = async () => {
+        if (!window.confirm("⚠️ ATENÇÃO: Isso apagará todos os arquivos locais (Imagens/Vídeos temporários) e resetará a configuração deste popup. Deseja continuar?")) return;
+
+        try {
+            await clearAllFiles();
+            onChange({ items: [] });
+            setSelectedItemId(null);
+            // Pequeno delay para garantir que DB limpou antes do reload
+            setTimeout(() => window.location.reload(), 500);
+        } catch (err) {
+            console.error("Erro ao resetar memória local:", err);
+            alert("Erro ao limpar arquivos locais.");
+        }
+    };
+
     const selectedItem = config.items.find(i => i.id === selectedItemId);
+
+    const handleAdjustImage = (updates: Partial<any>) => {
+        if (!selectedItemId || !selectedItem) return;
+        handleUpdate(selectedItemId, {
+            media: {
+                ...selectedItem.media,
+                imageStyle: {
+                    ...selectedItem.media.imageStyle,
+                    ...updates
+                }
+            }
+        });
+    };
 
     return (
         <div className={`flex flex-col h-[800px] lg:h-full rounded-3xl lg:rounded-[2.5rem] border shadow-xl overflow-hidden relative ${darkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-gray-100'}`}>
@@ -71,6 +98,7 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
                 isCollapsed={false}
                 onToggleCollapse={() => { }}
                 onClearAll={handleClearAll}
+                onHardReset={handleHardReset}
                 darkMode={darkMode}
             />
 
@@ -107,7 +135,6 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
                     `}
                 >
                     <div className={`flex-1 h-full overflow-hidden relative flex flex-col ${darkMode ? 'bg-zinc-900' : 'bg-white'}`}>
-                        {/* Botão de Expansão removido conforme solicitado */}
                         {selectedItem ? (
                             <PopupEditor
                                 key={selectedItem.id}
@@ -142,9 +169,20 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
                         popupSet={config}
                         selectedItemId={selectedItemId}
                         darkMode={darkMode}
+                        onAdjustImage={() => setIsAdjusting(true)}
                     />
                 </div>
             </div>
+
+            {/* MODAL DE AJUSTE GLOBAL */}
+            {isAdjusting && selectedItem && (
+                <ImageAdjustmentModal
+                    style={selectedItem.media.imageStyle}
+                    onChange={handleAdjustImage}
+                    onClose={() => setIsAdjusting(false)}
+                    darkMode={true}
+                />
+            )}
         </div>
     );
 };

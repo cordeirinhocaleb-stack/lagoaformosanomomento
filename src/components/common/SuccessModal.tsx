@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 interface SuccessModalProps {
@@ -22,6 +22,14 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
     const [show, setShow] = useState(visible);
     const [animating, setAnimating] = useState(false);
 
+    const handleClose = useCallback(() => {
+        setAnimating(false);
+        setTimeout(() => {
+            setShow(false);
+            onClose();
+        }, 300);
+    }, [onClose]);
+
     useEffect(() => {
         if (visible) {
             setShow(true);
@@ -37,17 +45,10 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
             setAnimating(false); // Start exit animation
             setTimeout(() => setShow(false), 300); // Remove from DOM after animation
         }
-    }, [visible, autoClose, duration]);
+    }, [visible, autoClose, duration, handleClose]);
 
-    const handleClose = () => {
-        setAnimating(false);
-        setTimeout(() => {
-            setShow(false);
-            onClose();
-        }, 300);
-    };
 
-    if (!show) {return null;}
+    if (!show) { return null; }
 
     return createPortal(
         <div className={`fixed inset-0 z-[10040] flex items-center justify-center p-4 transition-all duration-300 ${animating ? 'opacity-100' : 'opacity-0'}`}>

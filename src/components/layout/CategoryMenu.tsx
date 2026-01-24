@@ -14,7 +14,7 @@ export const CATEGORIES = [
   { id: 'Economia', name: 'Economia', icon: 'fa-chart-line' },
 ];
 
-export type RegionFilterType = 'Lagoa Formosa' | 'Patos e Região' | 'Brasil' | 'Mundo';
+export type RegionFilterType = 'Lagoa Formosa e Região' | 'Brasil' | 'Mundo';
 
 interface CategoryMenuProps {
   selectedCategory: string;
@@ -35,7 +35,7 @@ const CategoryMenu: React.FC<CategoryMenuProps> = ({
   onSelectRegion,
   onOpenProfile
 }) => {
-  const regions: RegionFilterType[] = ['Lagoa Formosa', 'Patos e Região', 'Brasil', 'Mundo'];
+  const regions: RegionFilterType[] = ['Lagoa Formosa e Região', 'Brasil', 'Mundo'];
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const [isCategoryPaused, setIsCategoryPaused] = useState(false);
   const [manualInteractCategory, setManualInteractCategory] = useState(false);
@@ -44,8 +44,7 @@ const CategoryMenu: React.FC<CategoryMenuProps> = ({
   const getRegionStyle = (region: RegionFilterType, isSelected: boolean) => {
     if (!isSelected) { return 'bg-white text-gray-400 border-transparent hover:bg-gray-50 hover:text-gray-600'; }
     switch (region) {
-      case 'Lagoa Formosa': return 'bg-red-600 text-white border-red-600 shadow-md shadow-red-200';
-      case 'Patos e Região': return 'bg-yellow-400 text-black border-yellow-400 shadow-md shadow-yellow-200';
+      case 'Lagoa Formosa e Região': return 'bg-yellow-400 text-black border-yellow-400 shadow-md shadow-yellow-200';
       case 'Brasil': return 'bg-green-600 text-white border-green-600 shadow-md shadow-green-200';
       case 'Mundo': return 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200';
       default: return 'bg-black text-white border-black';

@@ -12,10 +12,11 @@ interface NewsListProps {
     onPageChange: (page: number) => void;
     onEdit: (news: NewsItem) => void;
     onDelete: (id: string) => void;
+    onToggleHidden: (news: NewsItem) => void;
 }
 
 const NewsList: React.FC<NewsListProps> = ({
-    currentNews, filteredNewsLength, currentPage, itemsPerPage, totalPages, darkMode, onPageChange, onEdit, onDelete
+    currentNews, filteredNewsLength, currentPage, itemsPerPage, totalPages, darkMode, onPageChange, onEdit, onDelete, onToggleHidden
 }) => {
     return (
         <div className={`rounded-2xl border overflow-hidden ${darkMode ? 'bg-black border-white/5' : 'bg-white border-gray-200'}`}>
@@ -74,6 +75,16 @@ const NewsList: React.FC<NewsListProps> = ({
                                 <td className="p-4 text-right">
                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
+                                            onClick={(e) => { e.stopPropagation(); onToggleHidden(item); }}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${item.hidden
+                                                ? 'bg-gray-500/10 text-gray-500 hover:bg-gray-500 hover:text-white'
+                                                : 'bg-green-500/10 text-green-500 hover:bg-green-600 hover:text-white'
+                                                }`}
+                                            title={item.hidden ? "Mostrar notícia" : "Esconder notícia"}
+                                        >
+                                            <i className={`fas ${item.hidden ? 'fa-eye' : 'fa-eye-slash'} text-xs`}></i>
+                                        </button>
+                                        <button
                                             onClick={() => onEdit(item)}
                                             className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all"
                                             title="Editar"
@@ -128,6 +139,15 @@ const NewsList: React.FC<NewsListProps> = ({
                                 <i className="fas fa-eye"></i> {item.views || 0}
                             </div>
                             <div className="flex gap-2">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onToggleHidden(item); }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase ${item.hidden
+                                        ? 'bg-gray-500/10 text-gray-500'
+                                        : 'bg-green-500/10 text-green-500'
+                                        }`}
+                                >
+                                    {item.hidden ? 'Mostrar' : 'Ocultar'}
+                                </button>
                                 <button
                                     onClick={() => onEdit(item)}
                                     className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-bold uppercase"

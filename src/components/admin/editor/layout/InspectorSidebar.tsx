@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ContentBlock } from '@/types';
+import { InspectorPageSettings } from './InspectorPageSettings';
 
 interface InspectorSidebarProps {
     block: ContentBlock | null;
@@ -13,6 +14,13 @@ interface InspectorSidebarProps {
         category: string; setCategory: (c: string) => void;
         title: string;
         lead: string;
+        // SEO Fields
+        seoTitle?: string; setSeoTitle?: (s: string) => void;
+        seoDescription?: string; setSeoDescription?: (s: string) => void;
+        focusKeyword?: string; setFocusKeyword?: (s: string) => void;
+        canonicalUrl?: string; setCanonicalUrl?: (s: string) => void;
+        onRegenerateSEO?: () => void;
+
         socialCaptions?: any[];
         setSocialCaptions?: (s: any[]) => void;
     };
@@ -43,13 +51,24 @@ const InspectorSidebar: React.FC<InspectorSidebarProps> = ({ block, onUpdate, on
     };
 
     if (!block) {
+        // Render Page Settings (SEO) when no block is selected
         return (
-            <aside className={`w-full flex flex-col h-full animate-fadeIn overflow-hidden ${darkMode ? 'bg-black text-white' : 'bg-white text-zinc-900'}`}>
-                <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 text-center opacity-30 max-w-full">
-                    <i className="fas fa-wand-magic-sparkles text-4xl md:text-5xl mb-4 md:mb-6"></i>
-                    <p className="text-[10px] md:text-xs font-black uppercase tracking-wide md:tracking-widest break-words px-2">Selecione um bloco p/ configurar</p>
-                </div>
-            </aside>
+            <InspectorPageSettings
+                slug={newsMetadata.slug}
+                setSlug={newsMetadata.setSlug}
+                seoTitle={newsMetadata.seoTitle || ''}
+                setSeoTitle={newsMetadata.setSeoTitle || (() => { })}
+                seoDescription={newsMetadata.seoDescription || ''}
+                setSeoDescription={newsMetadata.setSeoDescription || (() => { })}
+                focusKeyword={newsMetadata.focusKeyword || ''}
+                setFocusKeyword={newsMetadata.setFocusKeyword || (() => { })}
+                canonicalUrl={newsMetadata.canonicalUrl || ''}
+                setCanonicalUrl={newsMetadata.setCanonicalUrl || (() => { })}
+                category={newsMetadata.category}
+                setCategory={newsMetadata.setCategory}
+                onRegenerate={newsMetadata.onRegenerateSEO}
+                darkMode={darkMode}
+            />
         );
     }
 

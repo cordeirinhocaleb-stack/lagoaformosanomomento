@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Advertiser } from '../../../../../types';
 import MediaUploader from '../../../../media/MediaUploader';
 import { storeLocalFile, getLocalFile } from '../../../../../services/storage/localStorageService';
+import { RedirectButtonConfig } from './showcase/AdvertiserRedirectButtonPanel';
+import ToggleSwitch from '../components/ToggleSwitch';
 
 
 interface ShowcaseSectionProps {
@@ -12,7 +14,13 @@ interface ShowcaseSectionProps {
 }
 
 const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({ data, onChange, darkMode = false }) => {
-    const internal = data.internalPage || { description: '', products: [], whatsapp: '', instagram: '', location: '' };
+    const internal: NonNullable<Advertiser['internalPage']> = data.internalPage || {
+        description: '',
+        products: [],
+        whatsapp: '',
+        instagram: '',
+        location: ''
+    };
     const [localPreviews, setLocalPreviews] = useState<Record<string, string>>({}); // Map local_ID -> BlobURL
     const [previewIndex, setPreviewIndex] = useState(0);
 
@@ -122,6 +130,20 @@ const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({ data, onChange, darkM
 
     return (
         <div className="space-y-8 animate-fadeIn">
+            {/* Toggle de Ativação da Página Interna */}
+            <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-zinc-900/50 border-zinc-800' : 'bg-gray-50 border-gray-200'}`}>
+                <ToggleSwitch
+                    enabled={data.redirectType !== 'external'}
+                    onChange={(enabled) => onChange({ ...data, redirectType: enabled ? 'whatsapp' : 'external' })}
+                    label="Página Interna Ativa"
+                    darkMode={darkMode}
+                    size="lg"
+                />
+                <p className={`text-xs mt-3 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    Quando ativada, o anunciante terá uma página interna com produtos, cupons e informações de contato.
+                </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                 {/* Coluna Esquerda: Mídia */}
@@ -263,10 +285,9 @@ const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({ data, onChange, darkM
                                                     return (
                                                         <img
                                                             key={idx}
-                                                            src={resolveImage(url as string)}
-                                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${isActive ? activeClasses : inactiveClasses
-                                                                }`}
-                                                            alt="Preview"
+                                                            src={resolveImage(url as string) || undefined}
+                                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${isActive ? activeClasses : inactiveClasses}`}
+                                                            alt=""
                                                         />
                                                     );
                                                 });
@@ -280,7 +301,7 @@ const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({ data, onChange, darkM
                                     </div>
 
                                     <div className="flex flex-col items-center p-4 gap-0.5 w-full">
-                                        <h4 className={`text-[11px] font-[1000] uppercase tracking-tight leading-tight text-center w-full truncate px-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        <h4 className={`text - [11px] font - [1000] uppercase tracking-tight leading-tight text-center w-full truncate px-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                                             {data.name || 'Nome do Anunciante'}
                                         </h4>
                                         <div className="flex items-center gap-2 justify-center mt-0.5">
@@ -426,203 +447,72 @@ const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({ data, onChange, darkM
                             value={internal.location || ''}
                             onChange={e => handleInternalChange('location', e.target.value)}
                             className={inputClass}
-                            placeholder="Rua, Número, Bairro - Cidade"
+                            placeholder="Rua, Número, Bairro-Cidade"
                         />
                     </div>
 
-                    <div className={`pt-6 border-t ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
-                        <div className="flex flex-col gap-1 mb-4">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Botão Principal de Destaque (Rede Preferida)</label>
-                            <span className="text-[9px] text-gray-500 font-bold italic">Escolha a rede social que terá o botão grande em destaque no anúncio.</span>
-                        </div>
+                    <RedirectButtonConfig
+                        data={data}
+                        onChange={onChange}
+                        internal={internal}
+                        handleInternalChange={handleInternalChange}
+                        darkMode={darkMode}
+                    />
 
-                        <div className="grid grid-cols-3 gap-2 mb-4">
+
+
+                    <div className={`pt-6 mt-6 border-t ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Locais de Exibição</label>
+                        <div className="space-y-3">
                             {[
-                                { id: 'whatsapp', label: 'WhatsApp', icon: 'fa-whatsapp', color: 'text-green-500' },
-                                { id: 'instagram', label: 'Instagram', icon: 'fa-instagram', color: 'text-pink-500' },
-                                { id: 'tiktok', label: 'TikTok', icon: 'fa-tiktok', color: 'text-black dark:text-white' },
-                                { id: 'kwai', label: 'Kwai', icon: 'fa-video', color: 'text-orange-500' },
-                                { id: 'telegram', label: 'Telegram', icon: 'fa-telegram', color: 'text-blue-400' },
-                                { id: 'external', label: 'Site Externo', icon: 'fa-globe', color: 'text-gray-400' },
-                            ].map((type) => (
-                                <button
-                                    key={type.id}
-                                    type="button"
-                                    onClick={() => onChange({ ...data, redirectType: type.id as any })}
-                                    className={`flex items-center gap-2 px-3 py-3 rounded-xl border text-[9px] font-black uppercase tracking-tight transition-all ${data.redirectType === type.id
-                                        ? 'bg-red-600 border-red-600 text-white shadow-lg'
-                                        : darkMode
-                                            ? 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/10'
-                                            : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <i className={`${type.id === 'external' ? 'fas' : type.id === 'kwai' ? 'fas' : 'fab'} ${type.icon} ${data.redirectType === type.id ? 'text-white' : type.color}`}></i>
-                                    {type.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        {data.redirectType === 'external' && (
-                            <div className="animate-slideUp">
-                                <label className="block text-[9px] font-bold text-blue-500 uppercase mb-2 ml-1">URL do Site</label>
-                                <input
-                                    type="text"
-                                    value={data.externalUrl || ''}
-                                    onChange={e => onChange({ ...data, externalUrl: e.target.value })}
-                                    placeholder="https://www.meusite.com.br"
-                                    className={`w-full border rounded-xl px-4 py-3 text-xs font-bold outline-none transition-all ${darkMode
-                                        ? 'bg-blue-900/20 border-blue-500/30 text-blue-300 placeholder-blue-700 focus:bg-blue-900/40'
-                                        : 'bg-blue-50 border-blue-200 text-blue-800 focus:bg-blue-100'
-                                        }`}
-                                />
-                            </div>
-                        )}
-
-                        {data.redirectType === 'whatsapp' && (
-                            <div className="animate-slideUp">
-                                <label className="block text-[9px] font-bold text-green-500 uppercase mb-2 ml-1">Número do WhatsApp</label>
-                                <input
-                                    type="text"
-                                    value={internal.whatsapp || ''}
-                                    onChange={e => handleInternalChange('whatsapp', e.target.value)}
-                                    placeholder="34999999999 (Apenas números com DDD)"
-                                    className={`w-full border rounded-xl px-4 py-3 text-xs font-bold outline-none transition-all ${darkMode
-                                        ? 'bg-green-900/20 border-green-500/30 text-green-300 placeholder-green-700 focus:bg-green-900/40'
-                                        : 'bg-green-50 border-green-200 text-green-800 focus:bg-green-100'
-                                        }`}
-                                />
-                                <p className="text-[8px] text-gray-400 mt-2 ml-1 font-bold uppercase italic">* O sistema gerará o link de conversa automaticamente.</p>
-                            </div>
-                        )}
-
-                        {data.redirectType === 'instagram' && (
-                            <div className="animate-slideUp">
-                                <label className="block text-[9px] font-bold text-pink-500 uppercase mb-2 ml-1">Usuário do Instagram</label>
-                                <div className="relative">
-                                    <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-black text-xs ${darkMode ? 'text-pink-500/50' : 'text-pink-500/50'}`}>@</span>
-                                    <input
-                                        type="text"
-                                        value={internal.instagram || ''}
-                                        onChange={e => handleInternalChange('instagram', e.target.value.replace('@', ''))}
-                                        placeholder="nomeusuario"
-                                        className={`w-full border rounded-xl pl-8 pr-4 py-3 text-xs font-bold outline-none transition-all ${darkMode
-                                            ? 'bg-pink-900/20 border-pink-500/30 text-pink-300 placeholder-pink-700 focus:bg-pink-900/40'
-                                            : 'bg-pink-50 border-pink-200 text-pink-800 focus:bg-pink-100'
-                                            }`}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {data.redirectType === 'tiktok' && (
-                            <div className="animate-slideUp">
-                                <label className="block text-[9px] font-bold text-black dark:text-white uppercase mb-2 ml-1">Usuário do TikTok</label>
-                                <div className="relative">
-                                    <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-black text-xs opacity-50`}>@</span>
-                                    <input
-                                        type="text"
-                                        value={internal.tiktok || ''}
-                                        onChange={e => handleInternalChange('tiktok', e.target.value.replace('@', ''))}
-                                        placeholder="nomeusuario"
-                                        className={`w-full border rounded-xl pl-8 pr-4 py-3 text-xs font-bold outline-none transition-all ${darkMode
-                                            ? 'bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 focus:bg-zinc-900'
-                                            : 'bg-zinc-100 border-zinc-300 text-black focus:bg-white'
-                                            }`}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {data.redirectType === 'kwai' && (
-                            <div className="animate-slideUp">
-                                <label className="block text-[9px] font-bold text-orange-500 uppercase mb-2 ml-1">Usuário do Kwai</label>
-                                <div className="relative">
-                                    <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-black text-xs opacity-50 text-orange-500`}>@</span>
-                                    <input
-                                        type="text"
-                                        value={internal.kwai || ''}
-                                        onChange={e => handleInternalChange('kwai', e.target.value.replace('@', ''))}
-                                        placeholder="nomeusuario"
-                                        className={`w-full border rounded-xl pl-8 pr-4 py-3 text-xs font-bold outline-none transition-all ${darkMode
-                                            ? 'bg-orange-900/20 border-orange-500/30 text-orange-300 placeholder-orange-700 focus:bg-orange-900/40'
-                                            : 'bg-orange-50 border-orange-200 text-orange-800 focus:bg-orange-100'
-                                            }`}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {data.redirectType === 'telegram' && (
-                            <div className="animate-slideUp">
-                                <label className="block text-[9px] font-bold text-blue-400 uppercase mb-2 ml-1">Usuário do Telegram</label>
-                                <div className="relative">
-                                    <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-black text-xs opacity-50 text-blue-400`}>@</span>
-                                    <input
-                                        type="text"
-                                        value={internal.telegram || ''}
-                                        onChange={e => handleInternalChange('telegram', e.target.value.replace('@', ''))}
-                                        placeholder="nomeusuario"
-                                        className={`w-full border rounded-xl pl-8 pr-4 py-3 text-xs font-bold outline-none transition-all ${darkMode
-                                            ? 'bg-blue-900/20 border-blue-400/30 text-blue-300 placeholder-blue-700 focus:bg-blue-900/40'
-                                            : 'bg-blue-50 border-blue-200 text-blue-800 focus:bg-blue-100'
-                                            }`}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-
-
-                        <div className={`pt-6 mt-6 border-t ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Locais de Exibição</label>
-                            <div className="space-y-3">
-                                {[
-                                    { id: 'home_top', label: 'Topo da Home (Carrossel Parceiros)', icon: 'fa-home' },
-                                    { id: 'article_sidebar', label: 'Barra Lateral dos Artigos', icon: 'fa-columns' },
-                                    { id: 'article_footer', label: 'Rodapé dos Artigos', icon: 'fa-shoe-prints' }
-                                ].map(loc => {
-                                    const isChecked = (data.displayLocations || ['home_top', 'article_sidebar', 'article_footer']).includes(loc.id);
-                                    return (
-                                        <label key={loc.id} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${isChecked
-                                            ? 'bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-900/30'
-                                            : darkMode ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-200 hover:bg-gray-50'
+                                { id: 'home_top', label: 'Topo da Home (Carrossel Parceiros)', icon: 'fa-home' },
+                                { id: 'article_sidebar', label: 'Barra Lateral dos Artigos', icon: 'fa-columns' },
+                                { id: 'article_footer', label: 'Rodapé dos Artigos', icon: 'fa-shoe-prints' }
+                            ].map(loc => {
+                                const isChecked = (data.displayLocations || ['home_top', 'article_sidebar', 'article_footer']).includes(loc.id);
+                                return (
+                                    <label key={loc.id} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${isChecked
+                                        ? 'bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-900/30'
+                                        : darkMode ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-200 hover:bg-gray-50'
+                                        }`}>
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center border ${isChecked
+                                            ? 'bg-red-600 border-red-600 text-white'
+                                            : 'border-gray-300 dark:border-zinc-600'
                                             }`}>
-                                            <div className={`w-5 h-5 rounded flex items-center justify-center border ${isChecked
-                                                ? 'bg-red-600 border-red-600 text-white'
-                                                : 'border-gray-300 dark:border-zinc-600'
-                                                }`}>
-                                                {isChecked && <i className="fas fa-check text-[10px]"></i>}
-                                            </div>
-                                            <input
-                                                type="checkbox"
-                                                className="hidden"
-                                                checked={isChecked}
-                                                onChange={() => {
-                                                    const current = data.displayLocations || ['home_top', 'article_sidebar', 'article_footer'];
-                                                    const newLocs = isChecked
-                                                        ? current.filter(l => l !== loc.id)
-                                                        : [...current, loc.id];
-                                                    onChange({ ...data, displayLocations: newLocs });
-                                                }}
-                                            />
-                                            <i className={`fas ${loc.icon} ${isChecked ? 'text-red-600' : 'text-gray-400'} text-xs w-4 text-center`}></i>
-                                            <span className={`text-[10px] font-bold uppercase tracking-wide ${isChecked ? 'text-red-600 dark:text-red-400' : 'text-gray-500'}`}>
-                                                {loc.label}
-                                            </span>
-                                        </label>
-                                    );
-                                })}
-                            </div>
+                                            {isChecked && <i className="fas fa-check text-[10px]"></i>}
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            className="hidden"
+                                            checked={isChecked}
+                                            onChange={() => {
+                                                const current = data.displayLocations || ['home_top', 'article_sidebar', 'article_footer'];
+                                                const newLocs = isChecked
+                                                    ? current.filter(l => l !== loc.id)
+                                                    : [...current, loc.id];
+                                                onChange({ ...data, displayLocations: newLocs });
+                                            }}
+                                        />
+                                        <i className={`fas ${loc.icon} ${isChecked ? 'text-red-600' : 'text-gray-400'} text-xs w-4 text-center`}></i>
+                                        <span className={`text-[10px] font-bold uppercase tracking-wide ${isChecked ? 'text-red-600 dark:text-red-400' : 'text-gray-500'}`}>
+                                            {loc.label}
+                                        </span>
+                                    </label>
+                                );
+                            })}
                         </div>
-
-
                     </div>
+
+
                 </div>
             </div>
-
-
         </div>
+
+
     );
 };
 
 export default ShowcaseSection;
+
+
+

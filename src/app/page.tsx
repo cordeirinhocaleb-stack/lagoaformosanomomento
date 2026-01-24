@@ -17,11 +17,16 @@ import ErrorReportPanel from '@/components/ErrorReportPanel';
 import PricingModal from '@/components/common/PricingModal';
 import MyAccountModal from '@/components/common/MyAccountModal';
 import ConstructionPage from '@/components/common/ConstructionPage';
-import { updateUser } from '@/services/supabaseService';
+import { updateUser, incrementAdvertiserClick } from '@/services/supabaseService';
+import { trackVisit } from '@/services/stats/siteStatsService';
 
 export default function HomePage() {
     const ctrl = useAppControllerContext();
     const { modals } = ctrl;
+
+    React.useEffect(() => {
+        trackVisit();
+    }, []);
 
     if (ctrl.showLoading) {
         return <LoadingScreen onFinished={() => { }} />;
@@ -53,7 +58,7 @@ export default function HomePage() {
     return (
         <div className="w-full flex flex-col min-h-screen animate-fadeIn">
             <NetworkStatusBanner onReconnect={ctrl.handleNetworkReconnect} />
-            <ChangelogModal isOpen={modals.showChangelog} onClose={ctrl.handleCloseChangelog} />
+            <ChangelogModal isOpen={modals.showChangelog} onClose={ctrl.handleCloseChangelog} user={ctrl.user} />
 
             {ctrl.showSessionExpiredModal && (
                 <SessionExpiredModal onClose={() => { ctrl.setShowSessionExpiredModal(false); ctrl.handleLogout(); }} />
@@ -93,7 +98,8 @@ export default function HomePage() {
             <Header
                 onAdminClick={() => { if (ctrl.user) { if (ctrl.user.role === 'Leitor') { modals.setShowProfileModal(true); } else { ctrl.updateHash('/admin'); } } else { modals.setShowLoginModal(true); } }}
                 onHomeClick={() => ctrl.updateHash('/')}
-                latestNews={ctrl.tickerNews} brazilNews={ctrl.marqueeNews}
+                latestNews={ctrl.tickerNews}
+                externalNews={ctrl.marqueeNews}
                 user={ctrl.user} onOpenProfile={() => modals.setShowProfileModal(true)}
                 selectedCategory={ctrl.selectedCategory} onSelectCategory={ctrl.handleCategorySelection}
                 selectedRegion={ctrl.selectedRegion} onSelectRegion={ctrl.handleRegionSelection}
@@ -106,8 +112,15 @@ export default function HomePage() {
                 <main className="flex-grow w-full">
                     <Home
                         news={ctrl.news} advertisers={ctrl.advertisers} user={ctrl.user}
-                        onNewsClick={(n) => { ctrl.setSelectedNews(n); ctrl.updateHash(`/news/${n.id}`); }}
+                        onNewsClick={(n) => {
+                            ctrl.setSelectedNews(n);
+                            const link = n.seo?.slug || n.slug || n.id;
+                            ctrl.updateHash(`/news/${link}`);
+                        }}
                         onAdvertiserClick={(ad) => {
+                            // Registra o clique sem esperar (fire and forget)
+                            incrementAdvertiserClick(ad.id).catch(console.error);
+
                             if (ad.redirectType === 'external' && ad.externalUrl) {
                                 window.open(ad.externalUrl, '_blank');
                             } else if (ad.redirectType === 'whatsapp' && ad.internalPage?.whatsapp) {
@@ -142,6 +155,7 @@ export default function HomePage() {
                     onUpdateUser={ctrl.handleProfileUpdate}
                     onLogout={ctrl.handleLogout}
                     adConfig={ctrl.adConfig}
+                    systemSettings={ctrl.systemSettings}
                     onOpenTerms={modals.openTermsModal}
                 />
             )}

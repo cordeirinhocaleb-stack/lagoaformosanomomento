@@ -80,8 +80,10 @@ const RoleSelectionModal: React.FC<RoleSelectionModalProps> = ({ onSelect, onCan
         };
     }, []);
 
-    // Salva dados no cache a cada alteração
+    // Salva dados no cache a cada alteração (apenas se tiver iniciado o processo)
     useEffect(() => {
+        if (!role) return;
+
         localStorage.setItem('lfnm_registration_backup', JSON.stringify({
             data: formData,
             role,

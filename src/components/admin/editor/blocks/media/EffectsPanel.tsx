@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { EffectControl } from './EffectControl';
 
 interface EffectsPanelProps {
@@ -36,18 +36,18 @@ export const EffectsPanel: React.FC<EffectsPanelProps> = ({
         });
     };
 
-    const handleDragMove = (e: MouseEvent) => {
+    const handleDragMove = useCallback((e: MouseEvent) => {
         if (isDragging) {
             setPanelPosition({
                 x: e.clientX - dragStart.x,
                 y: e.clientY - dragStart.y
             });
         }
-    };
+    }, [isDragging, dragStart]);
 
-    const handleDragEnd = () => {
+    const handleDragEnd = useCallback(() => {
         setIsDragging(false);
-    };
+    }, []);
 
     useEffect(() => {
         if (isDragging) {
@@ -58,7 +58,7 @@ export const EffectsPanel: React.FC<EffectsPanelProps> = ({
                 window.removeEventListener('mouseup', handleDragEnd);
             };
         }
-    }, [isDragging, dragStart]);
+    }, [isDragging, handleDragMove, handleDragEnd]);
 
     return (
         <div

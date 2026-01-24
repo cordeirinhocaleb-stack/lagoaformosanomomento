@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppControllerProvider } from '@/providers/AppControllerProvider';
-import Script from 'next/script';
 
 export const viewport: Viewport = {
     width: 'device-width',

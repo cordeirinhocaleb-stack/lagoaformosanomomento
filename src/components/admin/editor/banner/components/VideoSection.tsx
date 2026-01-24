@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CloudinaryVideoUploader from '../CloudinaryVideoUploader';
-import YouTubeVideoUploader from '../YouTubeVideoUploader';
+import YouTubeUploadModal from '../../../YouTubeUploadModal';
 import SmartVideoPlayer from '../../../../player/SmartVideoPlayer';
 import VideoTrimSelector from './VideoTrimSelector';
 import { EffectsPanel } from './index';
@@ -251,54 +251,22 @@ export const VideoSection: React.FC<VideoSectionProps> = ({
                 </div>
             )}
 
-            {/* YouTube Upload Modal */}
-            {showYouTubeModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        {/* Modal Header */}
-                        <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                                    <i className="fab fa-youtube"></i>
-                                    Upload para YouTube
-                                </h3>
-                                <p className="text-white/80 text-sm mt-1">
-                                    Preencha os dados do vídeo
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => setShowYouTubeModal(false)}
-                                className="text-white hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
-                            >
-                                <i className="fas fa-times text-xl"></i>
-                            </button>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="p-6">
-                            <YouTubeVideoUploader
-                                onUploadComplete={(youtubeUrl, metadata, videoId) => {
-                                    setBannerVideoUrl(youtubeUrl);
-                                    if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(videoId); }
-                                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('ready'); }
-                                    if (setBannerYoutubeMetadata) { setBannerYoutubeMetadata(metadata); }
-
-                                    console.log('✅ Vídeo enviado com sucesso para YouTube:', { youtubeUrl, videoId, metadata });
-                                    setShowYouTubeModal(false);
-                                }}
-                                onUploadError={(error) => {
-                                    console.error('❌ Erro no upload YouTube:', error);
-                                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('failed'); }
-                                }}
-                                onSmartPlaybackRequired={(duration) => {
-                                    console.log('🎬 Smart Playback será ativado (duração:', duration, 's)');
-                                    setBannerSmartPlayback(true);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <YouTubeUploadModal
+                isOpen={showYouTubeModal}
+                onClose={() => setShowYouTubeModal(false)}
+                onUploadComplete={(youtubeUrl: string, metadata: any, videoId: string) => {
+                    setBannerVideoUrl(youtubeUrl);
+                    if (setBannerYoutubeVideoId) { setBannerYoutubeVideoId(videoId); }
+                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('ready'); }
+                    if (setBannerYoutubeMetadata) { setBannerYoutubeMetadata(metadata); }
+                    console.log('✅ Vídeo enviado com sucesso para YouTube:', { youtubeUrl, videoId, metadata });
+                    setShowYouTubeModal(false);
+                }}
+                onUploadError={(error: string) => {
+                    console.error('❌ Erro no upload YouTube:', error);
+                    if (setBannerYoutubeStatus) { setBannerYoutubeStatus('failed'); }
+                }}
+            />
         </div>
     );
 };

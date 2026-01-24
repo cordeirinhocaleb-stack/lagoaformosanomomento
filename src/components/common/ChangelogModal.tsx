@@ -3,9 +3,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { X, Sparkles, CheckCircle2, ArrowRight, Zap, ShieldCheck, Globe, Info } from 'lucide-react';
 import changelogData from '../../config/changelog.json';
 
+import { User } from '../../types';
+
 interface UpdateItem {
     id: string;
-    category: 'feature' | 'improvement' | 'fix';
+    category: 'feature' | 'improvement' | 'fix' | 'refactor' | 'maintenance' | 'security';
     version: string;
     title: string;
     description: string;
@@ -14,13 +16,18 @@ interface UpdateItem {
 interface ChangelogModalProps {
     isOpen: boolean;
     onClose: () => void;
+    user?: User | null;
 }
 
-const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
+const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose, user }) => {
     const [isVisible, setIsVisible] = useState(false);
 
     // Get current version from Next.js env
     const CURRENT_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || process.env.APP_VERSION || '0.1.0';
+
+    // Roles com acesso técnico completo
+    const TECH_ROLES = ['Desenvolvedor', 'Editor-Chefe'];
+    const isTechUser = user && TECH_ROLES.includes(user.role);
 
     useEffect(() => {
         if (isOpen) {
@@ -36,13 +43,21 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
         let idCounter = 1;
 
         // Parse JSON from backend
-        // Structure: [{ version, date, items: [{ category, title, description }] }]
         (changelogData as any[]).forEach((release) => {
             release.items.forEach((item: any) => {
+                // FILTERING LOGIC
+                // Se não for usuário técnico, esconder categorias internas
+                if (!isTechUser) {
+                    const hiddenCategories = ['refactor', 'maintenance', 'security', 'fix'];
+                    if (hiddenCategories.includes(item.category)) {
+                        return;
+                    }
+                }
+
                 items.push({
                     id: `up-${idCounter++}`,
                     category: item.category as any,
-                    version: release.version, // e.g., 0.1.0
+                    version: release.version,
                     title: item.title,
                     description: item.description
                 });
@@ -50,12 +65,15 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
         });
 
         return items;
-    }, []);
+    }, [isTechUser]);
 
     const categories = {
         feature: { label: 'Novidade', color: 'bg-emerald-500', icon: <Sparkles className="w-3 h-3" /> },
         improvement: { label: 'Melhoria', color: 'bg-blue-500', icon: <Zap className="w-3 h-3" /> },
-        fix: { label: 'Ajuste', color: 'bg-zinc-500', icon: <Info className="w-3 h-3" /> }
+        fix: { label: 'Ajuste', color: 'bg-amber-500', icon: <Info className="w-3 h-3" /> },
+        refactor: { label: 'Refatoração', color: 'bg-purple-500', icon: <Zap className="w-3 h-3" /> },
+        maintenance: { label: 'Manutenção', color: 'bg-zinc-500', icon: <ShieldCheck className="w-3 h-3" /> },
+        security: { label: 'Segurança', color: 'bg-red-500', icon: <ShieldCheck className="w-3 h-3" /> }
     };
 
     if (!isOpen && !isVisible) { return null; }
@@ -98,7 +116,7 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
                     <div className="space-y-6 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar focus:outline-none">
 
                         {/* Status Sections */}
-                        {(['feature', 'improvement', 'fix'] as const).map(catKey => {
+                        {(['feature', 'improvement', 'fix', 'security', 'refactor', 'maintenance'] as const).map(catKey => {
                             const catItems = updates.filter(u => u.category === catKey);
                             if (catItems.length === 0) { return null; }
 
@@ -150,22 +168,7 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ isOpen, onClose }) => {
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #dc2626;
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #b91c1c;
-                }
-            `}} />
+
         </div>
     );
 };

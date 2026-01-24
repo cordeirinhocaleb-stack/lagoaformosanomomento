@@ -9,6 +9,9 @@ interface RichContextMenuProps {
     onFormat: (command: string, value?: string) => void;
     onInsertLink?: () => void;
     onInsertImage?: () => void;
+    themes?: { id: string; label: string; icon: string }[];
+    onThemeSelect?: (themeId: string) => void;
+    activeThemeId?: string;
 }
 
 interface MobileToolBtnProps {
@@ -26,9 +29,12 @@ export const RichContextMenu: React.FC<RichContextMenuProps> = ({
     onClose,
     onFormat,
     onInsertLink,
-    onInsertImage
+    onInsertImage,
+    themes,
+    onThemeSelect,
+    activeThemeId
 }) => {
-    const [activeTab, setActiveTab] = useState<'style' | 'color' | 'layout'>('style');
+    const [activeTab, setActiveTab] = useState<'style' | 'color' | 'layout' | 'themes'>(themes ? 'themes' : 'style');
 
     const MobileToolBtn: React.FC<MobileToolBtnProps> = ({ icon, label, action, val, activeColor, tooltip }) => (
         <button
@@ -72,6 +78,11 @@ export const RichContextMenu: React.FC<RichContextMenuProps> = ({
                     <button onClick={(e) => { e.stopPropagation(); setActiveTab('layout') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'layout' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
                         <i className="fas fa-align-left mr-1"></i> Layout
                     </button>
+                    {themes && (
+                        <button onClick={(e) => { e.stopPropagation(); setActiveTab('themes') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'themes' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                            <i className="fas fa-magic mr-1"></i> Temas
+                        </button>
+                    )}
                     <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="px-4 text-zinc-500 hover:text-red-500 border-l border-white/10">
                         <i className="fas fa-times"></i>
                     </button>
@@ -160,6 +171,28 @@ export const RichContextMenu: React.FC<RichContextMenuProps> = ({
                                 <MobileToolBtn icon="fa-quote-right" label="Citação" action="formatBlock" val="BLOCKQUOTE" activeColor="text-amber-400 border-amber-900 bg-amber-900/20" />
                                 <MobileToolBtn icon="fa-eraser" label="Limpar" action="removeFormat" activeColor="text-red-400 border-red-900 bg-red-900/20" />
                             </div>
+                        </div>
+                    )}
+
+                    {/* ABA 4: TEMAS (NEW) */}
+                    {activeTab === 'themes' && themes && (
+                        <div className="grid grid-cols-2 gap-2">
+                            {themes.map(theme => (
+                                <button
+                                    key={theme.id}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onThemeSelect?.(theme.id);
+                                    }}
+                                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${activeThemeId === theme.id
+                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                        : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-white'
+                                        }`}
+                                >
+                                    <i className={`fas ${theme.icon} text-sm`}></i>
+                                    <span className="text-[10px] font-black uppercase tracking-wider">{theme.label}</span>
+                                </button>
+                            ))}
                         </div>
                     )}
 

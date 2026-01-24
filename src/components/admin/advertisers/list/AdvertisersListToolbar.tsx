@@ -67,14 +67,16 @@ const AdvertisersListToolbar: React.FC<AdvertisersListToolbarProps> = ({
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={onConfigClick}
-            className={`flex-1 sm:flex-none px-6 py-4 md:py-3.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-colors flex items-center justify-center gap-3 border shadow-sm active:scale-95 ${darkMode ? 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10' : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200'}`}
+            title="Configurar planos e preços"
+            className={`flex-1 sm:flex-none px-6 py-4 md:py-3.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-3 border shadow-sm active:scale-95 ${darkMode ? 'bg-blue-900/20 text-blue-400 border-blue-900/30 hover:bg-blue-900/30' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100'}`}
           >
-            <i className="fas fa-cog text-gray-400"></i> Planos
+            <i className="fas fa-cog"></i> Planos
           </button>
 
           <button
             onClick={onCreateClick}
-            className={`flex-1 sm:flex-none px-10 py-5 md:py-3.5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest hover:bg-red-600 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 border-2 border-transparent ${darkMode ? 'bg-white text-black' : 'bg-black text-white'}`}
+            title="Criar novo contrato de anunciante"
+            className={`flex-1 sm:flex-none px-10 py-5 md:py-3.5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 border-2 ${darkMode ? 'bg-green-600 text-white border-green-700 hover:bg-green-700' : 'bg-green-600 text-white border-green-700 hover:bg-green-700'}`}
           >
             <i className="fas fa-plus"></i> <span className="whitespace-nowrap">Novo Contrato</span>
           </button>

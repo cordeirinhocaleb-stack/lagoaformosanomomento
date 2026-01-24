@@ -50,7 +50,7 @@ export const EditorialBlock: React.FC<EditorialBlockProps> = ({ block }) => {
         }
 
         if (rootElement && activeStyle) {
-            rootElement.className = `widget-root ${activeStyle.class}`;
+            rootElement.className = `widget-root ${activeStyle.classes}`;
             (rootElement as HTMLElement).dataset.variant = activeStyle.id;
         } else {
             logger.error('[EditorialBlock] Root element or style not found', {
@@ -61,7 +61,17 @@ export const EditorialBlock: React.FC<EditorialBlockProps> = ({ block }) => {
         }
     }, [block.settings.editorialVariant, block.content, block.settings.widgetId]);
 
+    // Clean up placeholder URLs before rendering
+    const cleanContent = (html: string): string => {
+        return html.replace(
+            /https:\/\/via\.placeholder\.com\/(\d+)/g,
+            (_match: string, size: string) => {
+                return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'%3E%3Crect fill='%23e5e7eb' width='${size}' height='${size}'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='${Math.max(12, parseInt(size) / 10)}' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E${size}x${size}%3C/text%3E%3C/svg%3E`;
+            }
+        );
+    };
+
     return (
-        <div ref={editorialRef} dangerouslySetInnerHTML={{ __html: sanitize(block.content as string) }} className="w-full editorial-canvas" />
+        <div ref={editorialRef} dangerouslySetInnerHTML={{ __html: sanitize(cleanContent(block.content as string)) }} className="w-full editorial-canvas" />
     );
 };

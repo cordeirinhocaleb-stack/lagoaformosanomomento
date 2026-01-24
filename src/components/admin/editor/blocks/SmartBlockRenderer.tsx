@@ -67,7 +67,7 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({ block })
             console.log(`[SmartBlockRenderer] Applying [${activeStyle.id}] to`, rootElement.tagName); // ENABLED LOG
 
             // Força a aplicação das classes
-            rootElement.className = `widget-root ${activeStyle.class}`;
+            rootElement.className = `widget-root ${activeStyle.classes}`;
 
             // Adiciona atributo data para debug CSS
             (rootElement as HTMLElement).dataset.variant = activeStyle.id;
@@ -81,7 +81,17 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({ block })
         }
     }, [block.settings.editorialVariant, block.content, block.settings.widgetId]);
 
+    // Clean up placeholder URLs before rendering
+    const cleanContent = (html: string): string => {
+        return html.replace(
+            /https:\/\/via\.placeholder\.com\/(\d+)/g,
+            (_match: string, size: string) => {
+                return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'%3E%3Crect fill='%23e5e7eb' width='${size}' height='${size}'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='${Math.max(12, parseInt(size) / 10)}' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E${size}x${size}%3C/text%3E%3C/svg%3E`;
+            }
+        );
+    };
+
     return (
-        <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitize(block.content) }} className="w-full" />
+        <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitize(cleanContent(block.content)) }} className="w-full" />
     );
 };

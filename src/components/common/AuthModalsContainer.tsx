@@ -94,7 +94,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 return () => clearTimeout(timer);
             }
         }
-    }, [user?.id, user?.termsAccepted, modals.openTermsModal]);
+    }, [user, modals]);
 
     // Persistência do email de cadastro entre recarregamentos
     React.useEffect(() => {
@@ -110,12 +110,22 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
             } catch (e) { }
         }
 
-        // Auto-retomada de cadastro pendente
-        const registrationBackup = localStorage.getItem('lfnm_registration_backup');
-        if (registrationBackup && !user && !showRoleSelector) {
-            modals.setShowRoleSelector(true);
+        // Auto-retomada de cadastro pendente (apenas se tiver dados válidos e um perfil selecionado)
+        const registrationBackupRaw = localStorage.getItem('lfnm_registration_backup');
+        const isDismissed = sessionStorage.getItem('lfnm_registration_dismissed') === 'true';
+
+        if (registrationBackupRaw && !user && !showRoleSelector && !isDismissed) {
+            try {
+                const backup = JSON.parse(registrationBackupRaw);
+                // Só retoma se já tiver escolhido um papel (role) ou avançado do primeiro passo
+                if (backup.role || (backup.step && backup.step !== 'role')) {
+                    setShowRoleSelector(true);
+                }
+            } catch (e) {
+                localStorage.removeItem('lfnm_registration_backup');
+            }
         }
-    }, []);
+    }, [pendingManualEmail, pendingGoogleUser, user, showRoleSelector, setPendingManualEmail, setPendingGoogleUser, setShowRoleSelector]);
 
     React.useEffect(() => {
         if (pendingManualEmail) {
@@ -378,7 +388,15 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     email={pendingGoogleUser?.email || pendingManualEmail || ''}
                     isSocialLogin={!!pendingGoogleUser}
                     onSelect={handleRoleSelect}
-                    onCancel={() => setShowRoleSelector(false)}
+                    onCancel={() => {
+                        setShowRoleSelector(false);
+                        localStorage.removeItem('lfnm_registration_backup');
+                        localStorage.removeItem('lfnm_pending_email');
+                        localStorage.removeItem('lfnm_pending_google_user');
+                        sessionStorage.setItem('lfnm_registration_dismissed', 'true');
+                        setPendingManualEmail(null);
+                        setPendingGoogleUser(null);
+                    }}
                 />
             )}
 

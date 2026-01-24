@@ -79,8 +79,12 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         }, 300);
     };
 
-    const handleDoubleClick = () => {
-        // Duplo clique também navega (para desktop)
+    const handleDoubleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Duplo clique já é tratado via setTimeout no handleContainerClick no mobile.
+        // Mas no desktop o evento nativo dblclick pode disparar.
+        // Vamos unificar aqui ou ignorar se já disparado o timeout.
         if (clickTimeoutRef.current) {
             clearTimeout(clickTimeoutRef.current);
         }

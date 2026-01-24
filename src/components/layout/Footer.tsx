@@ -107,6 +107,11 @@ const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
                   </a>
                 </li>
               ))}
+              <li>
+                <a href="/utilidade" className="text-[10px] text-gray-400 hover:text-red-500 transition-colors uppercase font-black tracking-widest flex items-center gap-2 group">
+                  <i className="fas fa-chevron-right text-[8px] text-gray-700 group-hover:text-red-600 transition-colors"></i> Utilidade Pública
+                </a>
+              </li>
             </ul>
           </div>
 

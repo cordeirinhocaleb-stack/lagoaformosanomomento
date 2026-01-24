@@ -9,7 +9,7 @@ import MediaUploader from '../media/MediaUploader';
 import SocialDistributionOverlay from './SocialDistributionOverlay';
 import Logo from '../common/Logo';
 import VideoSourcePicker from './editor/media/VideoSourcePicker';
-import YouTubeVideoUploader from './editor/banner/YouTubeVideoUploader';
+import YouTubeUploadModal from './YouTubeUploadModal';
 import { YouTubeVideoMetadata } from '../../services/upload/youtubeVideoService';
 
 interface SocialHubTabProps {
@@ -153,35 +153,27 @@ const SocialHubTab: React.FC<SocialHubTabProps> = ({ user, systemSettings }) => 
                 </div>
             )}
 
-            {showYouTubeWizard && (
-                <div className="fixed inset-0 z-[6000] bg-black/60 backdrop-blur-md overflow-y-auto p-4 md:p-10 flex justify-center animate-fadeIn">
-                    <div className="bg-white rounded-[2rem] max-w-2xl w-full my-auto overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="bg-red-600 p-6 text-white flex justify-between items-center relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                            <h3 className="text-xl font-black uppercase tracking-tight relative z-10"><i className="fab fa-youtube mr-2"></i>Wizard YouTube</h3>
-                            <button onClick={() => { setShowYouTubeWizard(false); setPendingMedia(null); }} className="text-white/50 hover:text-white transition-colors relative z-10"><i className="fas fa-times text-xl"></i></button>
-                        </div>
-                        <div className="p-8">
-                            <YouTubeVideoUploader
-                                initialFile={pendingMedia?.file || null}
-                                onUploadComplete={(url: string, meta: YouTubeVideoMetadata, vid: string) => {
-                                    setYoutubeMeta({ ...meta, videoId: vid } as any);
-                                    setShowYouTubeWizard(false);
-                                    // Update pending media with the real URL for the hub flow
-                                    if (pendingMedia) {
-                                        setPendingMedia({ ...pendingMedia, preview: url }); // Using preview as temp storage for the real url if needed
-                                    }
-                                }}
-                                onUploadError={(err: string) => {
-                                    alert(err);
-                                    setShowYouTubeWizard(false);
-                                }}
-                                isShorts={true} // Social Hub is for Shorts/Reels usually
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <YouTubeUploadModal
+                isOpen={showYouTubeWizard}
+                onClose={() => {
+                    setShowYouTubeWizard(false);
+                    setPendingMedia(null);
+                }}
+                initialFile={pendingMedia?.file || null}
+                onUploadComplete={(url: string, meta: YouTubeVideoMetadata, vid: string) => {
+                    setYoutubeMeta({ ...meta, videoId: vid } as any);
+                    setShowYouTubeWizard(false);
+                    // Update pending media with the real URL for the hub flow
+                    if (pendingMedia) {
+                        setPendingMedia({ ...pendingMedia, preview: url });
+                    }
+                }}
+                onUploadError={(err: string) => {
+                    alert(err);
+                    setShowYouTubeWizard(false);
+                }}
+                isShorts={true}
+            />
 
             <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>

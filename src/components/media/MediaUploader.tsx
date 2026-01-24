@@ -5,16 +5,17 @@ interface MediaUploaderProps {
   onMediaSelect: (file: File | null, previewUrl: string, type: 'image' | 'video') => void;
   label?: string;
   acceptedTypes?: string[];
+  compact?: boolean;
 }
 
-const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect, label, acceptedTypes }) => {
+const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect, label, acceptedTypes, compact = false }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {return;}
+    if (!file) { return; }
 
     setIsProcessing(true);
     const isVideo = file.type.startsWith('video/');
@@ -29,18 +30,18 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect, label, acc
   };
 
   const clearSelection = () => {
-    if (preview) {URL.revokeObjectURL(preview);}
+    if (preview) { URL.revokeObjectURL(preview); }
     setPreview(null);
     onMediaSelect(null, '', 'image');
-    if (fileInputRef.current) {fileInputRef.current.value = '';}
+    if (fileInputRef.current) { fileInputRef.current.value = ''; }
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden w-full h-full">
+    <div className={`${compact ? '' : 'bg-white rounded-2xl border border-gray-100'} overflow-hidden w-full h-full`}>
       <div className="p-0 w-full h-full">
         {preview ? (
           <div className="relative w-full h-full bg-black rounded-xl overflow-hidden group">
-            {preview.includes('blob:') && (preview.match(/video/) || preview.includes('data:video')) ? (
+            {preview.includes('video') || preview.includes('mp4') ? (
               <video src={preview} className="w-full h-full object-contain" controls />
             ) : (
               <img src={preview} alt="Preview" className="w-full h-full object-contain" />
@@ -71,7 +72,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({ onMediaSelect, label, acc
         ) : (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-xl w-full h-full min-h-[100px] flex flex-col items-center justify-center cursor-pointer transition-all ${isProcessing ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-red-400 hover:bg-red-50'}`}
+            className={`border-2 border-dashed rounded-xl w-full h-full ${compact ? 'min-h-[60px]' : 'min-h-[100px]'} flex flex-col items-center justify-center cursor-pointer transition-all ${isProcessing ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-red-400 hover:bg-red-50'}`}
           >
             <input
               type="file"

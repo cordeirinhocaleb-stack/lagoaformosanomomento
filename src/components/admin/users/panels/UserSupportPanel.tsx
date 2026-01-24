@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getUserTickets, addTicketMessage, getTicketMessages, updateTicketStatus } from '../../../../services/supabaseService';
 import { SupportTicket, SupportMessage } from '@/types';
 import { User } from '../../../../types'; // Assuming User type is here or pass current admin user
@@ -20,27 +20,27 @@ const UserSupportPanel: React.FC<UserSupportPanelProps> = ({ userId }) => {
     // mas vamos assumir que quem vê isso é admin)
     const currentAdminId = (JSON.parse(localStorage.getItem('lfnm_user') || '{}') as any).id;
 
+    const loadTickets = useCallback(async () => {
+        setIsLoading(true);
+        const data = await getUserTickets(userId);
+        setTickets(data);
+        setIsLoading(false);
+    }, [userId]);
+
+    const loadMessages = useCallback(async (ticketId: string) => {
+        const msgs = await getTicketMessages(ticketId);
+        setMessages(msgs);
+    }, []);
+
     useEffect(() => {
         loadTickets();
-    }, [userId]);
+    }, [loadTickets]);
 
     useEffect(() => {
         if (selectedTicket) {
             loadMessages(selectedTicket.id);
         }
-    }, [selectedTicket]);
-
-    const loadTickets = async () => {
-        setIsLoading(true);
-        const data = await getUserTickets(userId);
-        setTickets(data);
-        setIsLoading(false);
-    };
-
-    const loadMessages = async (ticketId: string) => {
-        const msgs = await getTicketMessages(ticketId);
-        setMessages(msgs);
-    };
+    }, [selectedTicket, loadMessages]);
 
     const handleSendReply = async () => {
         if (!selectedTicket || !replyText.trim() || !currentAdminId) { return; }

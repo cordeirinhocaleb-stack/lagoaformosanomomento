@@ -188,7 +188,7 @@ const VisualBanner: React.FC<VisualBannerProps> = ({ onHomeClick, currentTime, s
                 </span>
               </div>
               <div className="bg-black/90 backdrop-blur-md px-3 md:px-[1.5vw] py-[0.4vw] border-l-2 border-white/20 skew-x-[-15deg] shadow-lg">
-                <span className={`font-mono text-[10px] md:text-[2.2vw] font-black skew-x-[15deg] tracking-widest block transition-colors duration-200 ${sirenState ? 'text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-blue-600 drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]'}`}>
+                <span suppressHydrationWarning className={`font-mono text-[10px] md:text-[2.2vw] font-black skew-x-[15deg] tracking-widest block transition-colors duration-200 ${sirenState ? 'text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-blue-600 drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]'}`}>
                   {currentTime}
                 </span>
               </div>

@@ -66,12 +66,39 @@ export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
     return (
         <div className={`relative z-20 flex-1 flex flex-col justify-end ${spacingClass} text-${textStyle?.textAlign || 'left'}`}>
             <div className="max-w-xl mx-auto w-full" style={{ marginLeft: textStyle?.textAlign === 'center' ? 'auto' : 0, marginRight: textStyle?.textAlign === 'center' || textStyle?.textAlign === 'right' ? 'auto' : 0 }}>
+
+                {/* Badge Label */}
+                {(item.badgeText || theme.defaults?.headerAccent === 'badge') && (
+                    <div className="inline-block mb-4 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm animate-fadeIn"
+                        style={{ backgroundColor: colors.btnBg, color: colors.btnText }}>
+                        {item.badgeText || 'NEWS'}
+                    </div>
+                )}
+
+                {theme.buttonPosition === 'top' && item.ctaText && (
+                    <button
+                        onClick={handleCtaClick}
+                        disabled={!isCtaSafe}
+                        className={`${btnClasses} mb-6 ${!isCtaSafe ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer'}`}
+                        style={btnStyle}
+                    >
+                        {item.ctaText} {!isCtaSafe && '(Link Inválido)'}
+                    </button>
+                )}
+
                 <h2
-                    className={`leading-[0.9] mb-3 ${titleSizeClass} ${textStyle?.textShadow === 'soft' ? 'drop-shadow-sm' : textStyle?.textShadow === 'strong' ? 'drop-shadow-lg' : ''}`}
+                    className={`leading-[0.9] mb-1 ${titleSizeClass} ${textStyle?.textShadow === 'soft' ? 'drop-shadow-sm' : textStyle?.textShadow === 'strong' ? 'drop-shadow-lg' : ''}`}
                     style={{ ...fontStyle, color: colors.title, fontWeight: textStyle?.titleWeight || '900' }}
                 >
                     {item.title}
                 </h2>
+
+                {item.subtitle && (
+                    <h3 className="text-sm md:text-lg font-bold opacity-80 mb-4 tracking-tight"
+                        style={{ color: colors.title, fontFamily: textStyle?.fontFamily }}>
+                        {item.subtitle}
+                    </h3>
+                )}
 
                 {item.body && (
                     <p
@@ -82,7 +109,7 @@ export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
                     </p>
                 )}
 
-                {item.ctaText && (
+                {theme.buttonPosition !== 'top' && item.ctaText && (
                     <button
                         onClick={handleCtaClick}
                         disabled={!isCtaSafe}
@@ -91,6 +118,13 @@ export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
                     >
                         {item.ctaText} {!isCtaSafe && '(Link Inválido)'}
                     </button>
+                )}
+
+                {item.smallNote && (
+                    <div className="mt-6 text-[10px] font-bold opacity-40 uppercase tracking-widest"
+                        style={{ color: colors.body }}>
+                        — {item.smallNote} —
+                    </div>
                 )}
             </div>
         </div>

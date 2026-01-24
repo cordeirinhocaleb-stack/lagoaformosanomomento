@@ -67,10 +67,21 @@ export interface NewsItem {
         focusKeyword: string;
         canonicalUrl?: string;
     };
+
+    // New SEO fields (optimized system)
+    slug?: string;
+    canonical_url?: string;
+    seo_title?: string;
+    seo_description?: string;
+    seo_keywords?: string[];
+    og_image?: string;
+    structured_data?: any;
+    seo_score?: number;
     city: string;
     tags?: string[]; // Novos Filtros (Max 3)
     region: string;
     views: number;
+    hidden?: boolean;
     blocks?: ContentBlock[];
 
     // ========================================

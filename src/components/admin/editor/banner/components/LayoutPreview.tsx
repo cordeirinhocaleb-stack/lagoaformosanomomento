@@ -21,7 +21,7 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
     getPreviewStyle
 }) => {
     // Only show preview if there are images
-    if (!bannerImages.some(img => img)) {return null;}
+    if (!bannerImages.some(img => img)) { return null; }
 
     return (
         <div className="mt-6 mx-8">
@@ -35,15 +35,19 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                 {/* Carousel / Fade Preview */}
                 {(bannerImageLayout === 'carousel' || bannerImageLayout === 'fade') && (
                     <>
-                        {bannerImages.filter(img => img).map((url, i) => (
-                            <img
-                                key={i}
-                                src={resolveMedia(url)}
-                                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
-                                style={getPreviewStyle(i)}
-                                alt=""
-                            />
-                        ))}
+                        {bannerImages.filter(img => img).map((url, i) => {
+                            const src = resolveMedia(url);
+                            if (!src) return null;
+                            return (
+                                <img
+                                    key={i}
+                                    src={src}
+                                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === 0 ? 'opacity-100' : 'opacity-0'}`}
+                                    style={getPreviewStyle(i)}
+                                    alt=""
+                                />
+                            );
+                        })}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                             {bannerImages.filter(img => img).map((_, i) => (
                                 <div key={i} className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/40'}`} />
@@ -58,15 +62,16 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                 {/* Split Preview (2 Images) */}
                 {bannerImageLayout === 'split' && (
                     <div className="absolute inset-0 grid grid-cols-2 gap-0.5">
-                        {bannerImages.slice(0, 2).map((url, i) => (
-                            url ? (
-                                <img key={i} src={resolveMedia(url)} className="w-full h-full object-cover" style={getPreviewStyle(i)} alt="" />
+                        {bannerImages.slice(0, 2).map((url, i) => {
+                            const src = resolveMedia(url);
+                            return (url && src) ? (
+                                <img key={i} src={src} className="w-full h-full object-cover" style={getPreviewStyle(i)} alt="" />
                             ) : (
                                 <div key={i} className="bg-zinc-800 flex items-center justify-center">
                                     <i className="fas fa-image text-zinc-600 text-2xl"></i>
                                 </div>
-                            )
-                        ))}
+                            );
+                        })}
                         <div className="absolute top-3 left-3 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold">
                             SPLIT
                         </div>
@@ -76,15 +81,16 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                 {/* Grid Preview (4 Images) */}
                 {bannerImageLayout === 'grid' && (
                     <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0.5">
-                        {[0, 1, 2, 3].map((i) => (
-                            bannerImages[i] ? (
-                                <img key={i} src={resolveMedia(bannerImages[i])} className="w-full h-full object-cover" style={getPreviewStyle(i)} alt="" />
+                        {[0, 1, 2, 3].map((i) => {
+                            const src = bannerImages[i] ? resolveMedia(bannerImages[i]) : '';
+                            return (bannerImages[i] && src) ? (
+                                <img key={i} src={src} className="w-full h-full object-cover" style={getPreviewStyle(i)} alt="" />
                             ) : (
                                 <div key={i} className="bg-zinc-800 flex items-center justify-center">
                                     <i className="fas fa-image text-zinc-600 text-xl"></i>
                                 </div>
-                            )
-                        ))}
+                            );
+                        })}
                         <div className="absolute top-3 left-3 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold">
                             GRID
                         </div>
@@ -95,7 +101,7 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                 {bannerImageLayout === 'mosaic' && (
                     <div className="absolute inset-0 grid grid-cols-12 grid-rows-2 gap-0.5">
                         <div className="col-span-8 row-span-2">
-                            {bannerImages[0] ? (
+                            {bannerImages[0] && resolveMedia(bannerImages[0]) ? (
                                 <img src={resolveMedia(bannerImages[0])} className="w-full h-full object-cover" style={getPreviewStyle(0)} alt="" />
                             ) : (
                                 <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
@@ -104,7 +110,7 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                             )}
                         </div>
                         <div className="col-span-4 row-span-1">
-                            {bannerImages[1] ? (
+                            {bannerImages[1] && resolveMedia(bannerImages[1]) ? (
                                 <img src={resolveMedia(bannerImages[1])} className="w-full h-full object-cover" style={getPreviewStyle(1)} alt="" />
                             ) : (
                                 <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
@@ -113,7 +119,7 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                             )}
                         </div>
                         <div className="col-span-4 row-span-1">
-                            {bannerImages[2] ? (
+                            {bannerImages[2] && resolveMedia(bannerImages[2]) ? (
                                 <img src={resolveMedia(bannerImages[2])} className="w-full h-full object-cover" style={getPreviewStyle(2)} alt="" />
                             ) : (
                                 <div className="w-full h-full bg-zinc-800 flex items-center justify-center">

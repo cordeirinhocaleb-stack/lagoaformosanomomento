@@ -22,6 +22,7 @@ export interface SystemSettings {
     maintenanceMode: boolean;
     registrationEnabled: boolean;
     purchasingEnabled?: boolean;
+    tickerMessage?: string;
     footer?: {
         phone?: string;
         email?: string;

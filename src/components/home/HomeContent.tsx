@@ -157,14 +157,15 @@ const Home: React.FC<HomeProps> = ({
             list = list.filter(n => n.status === 'published');
         }
 
-        if (selectedRegion === 'Lagoa Formosa') {
-            // Correção de Filtro: Permite source 'rss_automation' se a cidade for Lagoa Formosa
-            // Considera null/undefined como Lagoa Formosa (default do banco)
+        if (selectedRegion === 'Lagoa Formosa e Região') {
             list = list.filter(n =>
-                (!n.city || n.city === 'Lagoa Formosa' || n.region === 'Lagoa Formosa')
+                !n.city ||
+                n.city === 'Lagoa Formosa' ||
+                n.region === 'Lagoa Formosa' ||
+                n.city === 'Patos de Minas' ||
+                n.region === 'Região' ||
+                n.region === 'Alto Paranaíba'
             );
-        } else if (selectedRegion === 'Patos e Região') {
-            list = list.filter(n => n.city === 'Patos de Minas' || n.region === 'Região' || n.region === 'Alto Paranaíba');
         } else if (selectedRegion === 'Brasil') {
             list = list.filter(n =>
                 n.region === 'Brasil' ||
@@ -199,7 +200,7 @@ const Home: React.FC<HomeProps> = ({
 
             return dateB - dateA;
         });
-    }, [allMixedNews, selectedCategory, selectedRegion]);
+    }, [allMixedNews, selectedCategory, selectedRegion, user]);
 
     // --- 3. LÓGICA DE PAGINAÇÃO E RECORTE ---
     const totalPages = Math.max(1, Math.ceil(filteredNews.length / itemsPerPage));
@@ -354,7 +355,10 @@ const Home: React.FC<HomeProps> = ({
             {/* 5. Giro Rápido */}
             <LazyBlock threshold={0.1} minHeight="600px">
                 <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
-                    <WorldNewsGrid externalCategories={externalCategories} />
+                    <WorldNewsGrid
+                        externalCategories={externalCategories}
+                        selectedCategory={selectedCategory}
+                    />
                 </div>
             </LazyBlock>
 

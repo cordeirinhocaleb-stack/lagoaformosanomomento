@@ -13,10 +13,6 @@ interface SettingsTabProps {
     driveConfig?: { clientId: string; apiKey: string; appId: string }; // Optional to prevent crash if not passed
     systemSettings: SystemSettings;
     onSave: (driveConfig: { clientId: string; apiKey: string; appId: string }, systemSettings: SystemSettings) => Promise<void> | void;
-    onExportDB?: () => void;
-    onExportSchema?: () => void;
-    gapiInited?: boolean;
-    gisInited?: boolean;
     currentUser: User | null;
     onUpdateSettings: (settings: SystemSettings) => Promise<void> | void;
     darkMode?: boolean;
@@ -28,10 +24,6 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
     driveConfig = DEFAULT_DRIVE_CONFIG,
     systemSettings,
     onSave,
-    onExportDB,
-    onExportSchema,
-    gapiInited,
-    gisInited,
     onUpdateSettings,
     darkMode = false
 }) => {
@@ -45,18 +37,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
     const [isSaving, setIsSaving] = useState(false);
     const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
-    const [auditHistory, setAuditHistory] = useState<SettingsAuditItem[]>([]);
 
     useEffect(() => {
         if (driveConfig) { setConfig(driveConfig); }
         setSettings(systemSettings);
-        loadHistory();
     }, [driveConfig, systemSettings]);
 
-    const loadHistory = async () => {
-        const history = await getSettingsHistory();
-        setAuditHistory(history);
-    };
 
     const testConnection = async () => {
         setConnectionStatus('checking');
@@ -104,9 +90,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             await onSave(config, settings);
             await onUpdateSettings(settings); // Propagate up
 
-            setNotification({ type: 'success', message: result.message || "Configurações salvas!" });
             setTimeout(() => setNotification(null), 3000);
-            await loadHistory();
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Erro ao salvar.";
             console.error("Erro ao salvar:", error);
@@ -144,9 +128,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             const result = await saveSystemSettings(newSettings, 'admin');
             if (result.success) {
                 await onUpdateSettings(newSettings);
-                setNotification({ type: newValue ? 'success' : 'info', message: `${label} ${newValue ? 'ativado' : 'desativado'}.` });
                 setTimeout(() => setNotification(null), 3000);
-                loadHistory();
             } else {
                 throw new Error(result.message);
             }

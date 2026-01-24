@@ -18,13 +18,44 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
         advertisers.filter(ad => ad.isActive).map(ad => [ad.name, ad])
     ).values());
 
-    // Lista final: 1 único card por anunciante
-    const loopPartners = activePartners;
+    // Lista final: 12x para garantir scroll infinito seguro em qualquer tela
+    // Isso garante que activePartners * 12 seja sempre maior que a tela + buffer de reset
+    const shouldLoop = activePartners.length >= 1;
+    const loopPartners = shouldLoop
+        ? Array(12).fill(activePartners).flat()
+        : activePartners;
 
     useEffect(() => {
-        // Auto-scroll removido a pedido: "não repita os anuncios"
-        // O usuário agora navega manualmente ou vê a lista estática
-    }, [activePartners.length]);
+        if (!shouldLoop || isPaused) return;
+
+        const container = scrollRef.current;
+        if (!container) return;
+
+        // Reset inicial se estiver no 0, para garantir que podemos ir para a esquerda se quisessemos (não usado aqui, mas bom para consistência)
+        // Mas para o scroll infinito para direita:
+
+        const scrollSpeed = 1;
+        let animationFrameId: number;
+
+        const scroll = () => {
+            if (container) {
+                // Se já rolou o equivalente a UM set (1/12 do total), volta para o início
+                // Tolerância de 1px para garantir
+                const oneSetWidth = container.scrollWidth / 12;
+
+                if (container.scrollLeft >= oneSetWidth - 1) {
+                    container.scrollLeft = 0;
+                } else {
+                    container.scrollLeft += scrollSpeed;
+                }
+            }
+            animationFrameId = requestAnimationFrame(scroll);
+        };
+
+        animationFrameId = requestAnimationFrame(scroll);
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [shouldLoop, isPaused, activePartners.length]);
 
     const scrollManual = (direction: 'left' | 'right') => {
         const container = scrollRef.current;
@@ -35,8 +66,6 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
 
         container.scrollTo({ left: target, behavior: 'smooth' });
     };
-
-    // if (activePartners.length === 0) { return null; } // REMOVIDO: Mostrar CTA mesmo sem parceiros
 
     return (
         <div
@@ -102,7 +131,7 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
                                     key={`${partner.id}-${idx}`}
                                     ad={partner}
                                     onClick={onAdvertiserClick}
-                                    className="w-28 md:w-72 shrink-0 bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5"
+                                    className="w-28 md:w-72 shrink-0 bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 !rounded-lg"
                                 />
                             ))
                         ) : (

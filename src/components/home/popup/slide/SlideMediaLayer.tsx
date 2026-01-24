@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PromoPopupItemConfig } from '@/types';
 import { isSafeUrl } from '@/utils/popupSafety';
@@ -16,7 +15,26 @@ interface SlideMediaLayerProps {
 export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, images }) => {
     const [videoError, setVideoError] = useState(false);
 
-    // --- HELPERS PARA MÍDIA ---
+    // --- ULTRA-DEFENSIVE ACCESSORS ---
+    // We strictly ensure that media, imageStyle and videoSettings are ALWAYS objects.
+    const media = item?.media || { images: [], videoUrl: '', imagePresentation: 'hero_single' };
+
+    const imageStyle = media.imageStyle || {
+        fit: 'cover',
+        focusPoint: 'center',
+        borderRadius: 'none',
+        shadow: 'none',
+        overlayIntensity: 0
+    };
+
+    const videoSettings = media.videoSettings || {
+        fit: 'cover',
+        muted: true,
+        loop: true,
+        autoplay: true,
+        framePreset: 'clean_border'
+    };
+
     const getVisualClasses = (style: any) => {
         if (!style) return 'rounded-none shadow-none border-0 overflow-hidden';
         const radius = style.borderRadius === 'strong' ? 'rounded-3xl' : style.borderRadius === 'soft' ? 'rounded-xl' : 'rounded-none';
@@ -25,9 +43,9 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
         return `${radius} ${shadow} ${border} overflow-hidden`;
     };
 
-    // 1. Renderização de Vídeo
+    // 1. Video Rendering
     const renderVideo = () => {
-        const { videoUrl, videoSettings } = item.media;
+        const videoUrl = media.videoUrl;
 
         if (!videoUrl || !isSafeUrl(videoUrl) || videoError) {
             return (
@@ -38,20 +56,19 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
         }
 
         const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
-        const fitClass = videoSettings?.fit === 'contain' ? 'object-contain' : 'object-cover';
-        const zoomClass = videoSettings?.zoomMotion === 'strong' ? 'animate-kenburns-fast' : videoSettings?.zoomMotion === 'soft' ? 'animate-kenburns' : '';
-        const filterClass = getMediaFilterCss(videoSettings?.filterId, videoSettings?.filterVariant);
-        const frameConfig = getVideoFrameById(videoSettings?.framePreset);
+        const fitClass = videoSettings.fit === 'contain' ? 'object-contain' : 'object-cover';
+        const zoomClass = videoSettings.zoomMotion === 'strong' ? 'animate-kenburns-fast' : videoSettings.zoomMotion === 'soft' ? 'animate-kenburns' : '';
+        const filterClass = getMediaFilterCss(videoSettings.filterId, videoSettings.filterVariant);
+        const frameConfig = getVideoFrameById(videoSettings.framePreset);
         const visualClasses = getVisualClasses(videoSettings);
-        const overlayClass = getOverlayPresetClass(videoSettings?.overlayPreset);
+        const overlayClass = getOverlayPresetClass(videoSettings.overlayPreset);
 
         return (
-            <div className={`w-full h-full p-4 flex items-center justify-center`}>
+            <div className="w-full h-full p-4 flex items-center justify-center">
                 <div className={`relative w-full h-full ${frameConfig.wrapperClass} ${frameConfig.innerClass} ${visualClasses}`}>
                     <div className={`absolute inset-0 z-10 pointer-events-none ${overlayClass}`}></div>
                     {isYouTube ? (
                         mode === 'preview' ? (
-                            // PREVIEW: Placeholder
                             <div className="w-full h-full relative bg-black group cursor-default">
                                 <img
                                     src={`https://img.youtube.com/vi/${videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1] || ''}/hqdefault.jpg`}
@@ -65,7 +82,6 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
                                 </div>
                             </div>
                         ) : (
-                            // LIVE: Iframe (Filtros CSS aplicados via mediaClass no iframe)
                             <iframe
                                 src={`https://www.youtube.com/embed/${videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1] || ''}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1] || ''}`}
                                 className={`w-full h-full object-cover ${filterClass} pointer-events-none`}
@@ -76,11 +92,11 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
                         <video
                             src={videoUrl}
                             className={`w-full h-full ${fitClass} ${zoomClass} ${filterClass} transition-transform duration-700`}
-                            autoPlay={(videoSettings?.autoplay ?? true) && mode === 'live'}
-                            muted={mode === 'preview' ? true : (videoSettings?.muted ?? true)}
-                            loop={videoSettings?.loop ?? true}
+                            autoPlay={(videoSettings.autoplay ?? true) && mode === 'live'}
+                            muted={mode === 'preview' ? true : (videoSettings.muted ?? true)}
+                            loop={videoSettings.loop ?? true}
                             playsInline
-                            controls={mode === 'live' && !(videoSettings?.loop ?? true)}
+                            controls={mode === 'live' && !(videoSettings.loop ?? true)}
                             onError={() => setVideoError(true)}
                         />
                     )}
@@ -89,28 +105,28 @@ export const SlideMediaLayer: React.FC<SlideMediaLayerProps> = ({ item, mode, im
         );
     };
 
-    // 2. Renderização de Imagens
+    // 2. Image Rendering
     const renderImages = () => {
-        const { imagePresentation, imageStyle } = item.media;
+        const imagePresentation = media.imagePresentation || 'hero_single';
         if (!images || images.length === 0) { return null; }
 
         const visualClasses = getVisualClasses(imageStyle);
-        const filterClass = getMediaFilterCss(imageStyle?.filterId, imageStyle?.filterVariant);
-        const overlayClass = getOverlayPresetClass(imageStyle?.overlayPreset);
+        const filterClass = getMediaFilterCss(imageStyle.filterId, imageStyle.filterVariant);
+        const overlayClass = getOverlayPresetClass(imageStyle.overlayPreset);
 
         return (
             <div className={`w-full h-full relative ${visualClasses}`}>
-                <div className={`absolute inset-0 z-10 pointer-events-none ${overlayClass}`} style={{ opacity: imageStyle?.overlayIntensity ? imageStyle.overlayIntensity / 100 : 1 }}></div>
+                <div className={`absolute inset-0 z-10 pointer-events-none ${overlayClass}`} style={{ opacity: (imageStyle.overlayIntensity || 0) / 100 }}></div>
                 <PopupMediaRenderer
                     mode={imagePresentation}
                     images={images}
+                    imageStyle={imageStyle}
                     className={`w-full h-full ${filterClass} ${imageStyle.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
                 />
             </div>
         );
     };
 
-    // Render condicional
-    if (item.media.videoUrl) { return renderVideo(); }
+    if (media.videoUrl) { return renderVideo(); }
     return renderImages();
 };

@@ -38,7 +38,7 @@ export const INITIAL_AD_CONFIG: AdPricingConfig = {
         {
             id: 'master',
             name: 'Master',
-            prices: { daily: 50, weekly: 300, monthly: 1200, quarterly: 3000, semiannual: 5500, yearly: 10000 },
+            prices: { daily: 50, weekly: 300, fortnightly: 600, monthly: 1200, quarterly: 3000, semiannual: 5500, yearly: 10000 },
             description: 'Domínio total do portal',
             cashbackPercent: 15,
             features: {

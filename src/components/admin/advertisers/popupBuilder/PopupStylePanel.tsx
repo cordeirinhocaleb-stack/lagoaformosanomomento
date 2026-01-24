@@ -171,6 +171,33 @@ const PopupStylePanel: React.FC<PopupStylePanelProps> = ({ textStyle, onChange, 
                     </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelClass}>Modo de Cor</label>
+                        <select
+                            value={textStyle.themeColorMode || 'auto'}
+                            onChange={e => onChange({ themeColorMode: e.target.value as any })}
+                            className={selectClass}
+                        >
+                            <option value="auto">Automático (Detecção)</option>
+                            <option value="light">Claro (Light)</option>
+                            <option value="dark">Escuro (Dark)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelClass}>Estilo de Fechar</label>
+                        <select
+                            value={textStyle.buttonStyle || 'x'}
+                            onChange={e => onChange({ buttonStyle: e.target.value as any })}
+                            className={selectClass}
+                        >
+                            <option value="x">Ícone X Simples</option>
+                            <option value="circle">Círculo</option>
+                            <option value="square">Quadrado</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div>
                     <label className={`${labelClass} mb-2`}>Sombra do Texto</label>
                     <div className="flex gap-2">

@@ -13,11 +13,11 @@ const YouTubeFacade: React.FC<{ url: string; videoStart?: number; videoEnd?: num
     const [isPlaying, setIsPlaying] = useState(false);
 
     const getVideoId = (link: string) => {
-        if (!link) {return null;}
+        if (!link) { return null; }
         // 1. Check for pending ID
-        if (link.includes('pending_')) {return link;}
+        if (link.includes('pending_')) { return link; }
         // 2. Already an ID (11+ chars)
-        if (/^[a-zA-Z0-9_-]{11,}$/.test(link)) {return link;}
+        if (/^[a-zA-Z0-9_-]{11,}$/.test(link)) { return link; }
         // 3. Extract from various URL formats
         const match = link.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11,})/);
         return match ? match[1] : null;
@@ -179,7 +179,7 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
                     ? (Array.isArray(news.bannerEffects) ? news.bannerEffects[0] : news.bannerEffects)
                     : news.bannerVideoSettings?.effects;
 
-                if (!news.bannerVideoUrl) {return null;}
+                if (!news.bannerVideoUrl) { return null; }
 
                 return (
                     <div className="absolute inset-0 bg-black">
@@ -296,7 +296,7 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent pointer-events-none z-20"></div>
 
             <div className="absolute bottom-0 left-0 w-full z-30 p-6 md:p-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-wrap items-center gap-2 mb-4 animate-slideUp">
                         <div className="bg-red-600 text-white px-3 py-1 skew-x-[-12deg] shadow-lg">
                             <span className="block skew-x-[12deg] text-[9px] md:text-[11px] font-[1000] uppercase tracking-widest">{news.category}</span>

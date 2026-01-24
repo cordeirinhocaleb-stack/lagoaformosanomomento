@@ -25,7 +25,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
                 <p>Insira o texto do comunicado aqui. Este bloco é ideal para notas de esclarecimento, comunicados da prefeitura ou avisos importantes.</p>
             </div>
             <div class="mt-6 pt-6 border-t border-zinc-200 flex items-center gap-3">
-                <img src="https://via.placeholder.com/150" class="w-8 h-8 rounded-full border border-zinc-200 object-cover lfnm-img" data-img-key="AutorImg" />
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23e5e7eb' width='150' height='150'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='14' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E150x150%3C/text%3E%3C/svg%3E" class="w-8 h-8 rounded-full border border-zinc-200 object-cover lfnm-img" data-img-key="AutorImg" />
                 <div>
                     <p class="text-xs font-bold text-zinc-900 lfnm-text" data-key="Autor">Assessoria de Imprensa</p>
                     <p class="text-[10px] text-zinc-500 uppercase lfnm-text" data-key="Cargo">Prefeitura Municipal</p>
@@ -37,10 +37,10 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         id: 'plantao_urgente',
         name: 'Plantão Urgente',
         category: 'editorial',
-        icon: 'fa-triangle-exclamation',
+        icon: 'fa-bolt',
         color: 'text-red-600',
         description: 'Alerta de última hora com destaque visual.',
-        html: `<div class="widget-root bg-red-600 text-white p-6 rounded-xl shadow-lg animate-pulse">
+        html: `<div class="widget-root bg-red-600 text-white p-6 rounded-xl shadow-lg">
             <div class="flex items-center gap-3 mb-4">
                 <span class="bg-white text-red-600 text-[10px] font-black uppercase px-2 py-1 rounded">URGENTE</span>
                 <span class="text-xs font-medium opacity-80 lfnm-text" data-key="Hora">Agora mesmo</span>
@@ -57,7 +57,7 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         color: 'text-indigo-500',
         description: 'Destaque para fala de autoridade ou entrevistado.',
         html: `<div class="widget-root flex flex-col md:flex-row items-center gap-6 bg-zinc-50 p-8 rounded-2xl">
-            <img src="https://via.placeholder.com/150" class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover lfnm-img flex-shrink-0" data-img-key="Avatar" />
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23e5e7eb' width='150' height='150'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='14' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E150x150%3C/text%3E%3C/svg%3E" class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover lfnm-img flex-shrink-0" data-img-key="Avatar" />
             <div class="flex-1 text-center md:text-left">
                 <i class="fas fa-quote-left text-zinc-300 text-xl mb-2"></i>
                 <blockquote class="text-lg font-serif italic text-zinc-800 mb-4 lfnm-text" data-key="Citacao">
@@ -71,8 +71,6 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         </div>`
     },
 
-    // --- NOVOS WIDGETS ---
-
     {
         id: 'fato_fake',
         name: 'Fato ou Fake',
@@ -80,12 +78,12 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         icon: 'fa-check-double',
         color: 'text-orange-500',
         description: 'Verificação de veracidade de informações.',
-        html: `<div class="widget-root flex items-stretch border-2 border-zinc-100 rounded-xl overflow-hidden">
-            <div class="bg-red-500 text-white w-24 flex flex-col items-center justify-center p-4">
+        html: `<div class="widget-root flex items-stretch border-2 border-zinc-100 rounded-xl overflow-hidden min-h-[100px]">
+            <div class="bg-red-500 text-white w-24 flex flex-col items-center justify-center p-4 flex-shrink-0">
                <i class="fas fa-exclamation-circle text-3xl mb-1"></i>
                <span class="text-[10px] font-black uppercase tracking-wider lfnm-text" data-key="Status">FAKE</span>
             </div>
-            <div class="flex-1 p-4 bg-white">
+            <div class="flex-1 p-4 bg-white flex flex-col justify-center">
                <h4 class="text-xs font-bold text-zinc-400 uppercase mb-1 lfnm-text" data-key="Label">Checagem de Fato</h4>
                <p class="text-sm font-medium text-zinc-800 leading-snug lfnm-text" data-key="Texto">A informação circulando nas redes sociais sobre o cancelamento do evento não procede. A organização confirmou a data.</p>
             </div>
@@ -139,21 +137,21 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         icon: 'fa-balance-scale',
         color: 'text-emerald-600',
         description: 'Comparativo lado a lado.',
-        html: `<div class="widget-root grid grid-cols-2 gap-4">
-            <div class="bg-green-50 p-4 rounded-xl">
+        html: `<div class="widget-root grid grid-cols-2 gap-4 p-2">
+            <div class="bg-green-50 p-4 rounded-xl border border-green-100">
                 <h4 class="flex items-center gap-2 text-green-700 font-bold text-xs uppercase mb-3"><i class="fas fa-plus-circle"></i> Vantagens</h4>
-                <ul class="text-xs text-green-800 space-y-2 list-disc list-inside lfnm-text" data-key="Pros">
-                    <li>Maior agilidade no atendimento</li>
-                    <li>Redução de custos operacionais</li>
-                    <li>Facilidade de acesso</li>
-                </ul>
+                <div class="text-xs text-green-800 space-y-2 lfnm-text prose prose-sm prose-green" data-key="Pros">
+                    <p>• Maior agilidade no atendimento</p>
+                    <p>• Redução de custos operacionais</p>
+                    <p>• Facilidade de acesso</p>
+                </div>
             </div>
-            <div class="bg-red-50 p-4 rounded-xl">
+            <div class="bg-red-50 p-4 rounded-xl border border-red-100">
                 <h4 class="flex items-center gap-2 text-red-700 font-bold text-xs uppercase mb-3"><i class="fas fa-minus-circle"></i> Desvantagens</h4>
-                <ul class="text-xs text-red-800 space-y-2 list-disc list-inside lfnm-text" data-key="Contras">
-                    <li>Necessidade de adaptação</li>
-                    <li>Investimento inicial alto</li>
-                </ul>
+                <div class="text-xs text-red-800 space-y-2 lfnm-text prose prose-sm prose-red" data-key="Contras">
+                    <p>• Necessidade de adaptação</p>
+                    <p>• Investimento inicial alto</p>
+                </div>
             </div>
         </div>`
     },
@@ -182,11 +180,11 @@ export const EDITOR_WIDGETS: EditorWidget[] = [
         color: 'text-cyan-500',
         description: 'Link útil ou contato de serviço.',
         html: `<div class="widget-root bg-white border-2 border-zinc-100 rounded-2xl p-6 flex items-center justify-between hover:border-blue-200 transition-colors group cursor-pointer">
-            <div>
+            <div class="flex-1">
                 <h4 class="font-bold text-zinc-900 mb-1 group-hover:text-blue-600 transition-colors lfnm-text" data-key="Nome">Farmácia de Plantão</h4>
                 <p class="text-xs text-zinc-500 lfnm-text" data-key="Descricao">Aberta até as 22h - Rua Principal, 100</p>
             </div>
-            <img src="https://via.placeholder.com/100" class="w-10 h-10 rounded-full bg-white object-cover border border-zinc-100 shadow-sm lfnm-img" data-img-key="IconeImg" />
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23e5e7eb' width='100' height='100'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='12' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E100x100%3C/text%3E%3C/svg%3E" class="w-10 h-10 rounded-full bg-white object-cover border border-zinc-100 shadow-sm lfnm-img flex-shrink-0 ml-4" data-img-key="IconeImg" />
         </div>`
     }
 ];

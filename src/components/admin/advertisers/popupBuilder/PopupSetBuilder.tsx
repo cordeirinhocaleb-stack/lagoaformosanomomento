@@ -71,6 +71,7 @@ const PopupSetBuilder: React.FC<PopupSetBuilderProps> = ({ config, onChange, dar
                 isCollapsed={false}
                 onToggleCollapse={() => { }}
                 onClearAll={handleClearAll}
+                onHardReset={() => { }}
                 darkMode={darkMode}
             />
 

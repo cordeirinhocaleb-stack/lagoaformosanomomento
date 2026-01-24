@@ -5,6 +5,7 @@ import UserFilterBar from './users/UserFilterBar';
 import UserListTable from './users/UserListTable';
 import UserDetailModal from './users/UserDetailModal';
 import { mapDbToUser, updateUser } from '../../services/users/userService';
+import Toast from '../common/Toast';
 
 interface UserManagerProps {
     currentUser: User;
@@ -16,6 +17,7 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
+    const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
 
     // Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -34,19 +36,29 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
             const supabase = getSupabase();
             if (!supabase) return;
 
-            // Carregar adConfig
-            const { data: adData } = await supabase
-                .from('ad_pricing_config')
-                .select('*')
-                .single();
-            if (adData) setAdConfig(adData as AdPricingConfig);
+            try {
+                // Carregar adConfig
+                const { data: adData, error: adError } = await supabase
+                    .from('ad_pricing_config')
+                    .select('*')
+                    .single();
+                if (adData && !adError) setAdConfig(adData as AdPricingConfig);
+            } catch (error) {
+                // Silently handle if table doesn't exist
+                console.debug('ad_pricing_config not available');
+            }
 
-            // Carregar systemSettings
-            const { data: settingsData } = await supabase
-                .from('system_settings')
-                .select('*')
-                .single();
-            if (settingsData) setSystemSettings(settingsData as SystemSettings);
+            try {
+                // Carregar systemSettings
+                const { data: settingsData, error: settingsError } = await supabase
+                    .from('system_settings')
+                    .select('*')
+                    .single();
+                if (settingsData && !settingsError) setSystemSettings(settingsData as SystemSettings);
+            } catch (error) {
+                // Silently handle if table doesn't exist
+                console.debug('system_settings not available');
+            }
         };
         loadConfigs();
     }, []);
@@ -71,7 +83,7 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
             setUsers(mappedUsers);
         } catch (error) {
             console.error("Erro ao buscar usuários:", error);
-            alert("Erro ao carregar lista de usuários.");
+            setToast({ message: "Erro ao carregar lista de usuários.", type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -98,9 +110,10 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
             if (error) { throw error; }
 
             setUsers(prev => prev.filter(u => u.id !== userId));
+            setToast({ message: "Usuário removido com sucesso.", type: 'success' });
         } catch (error) {
             console.error("Erro ao deletar usuário:", error);
-            alert("Falha ao deletar usuário.");
+            setToast({ message: "Falha ao deletar usuário.", type: 'error' });
         }
     };
 
@@ -143,9 +156,10 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
             await handleSave(selectedUser.id, selectedUser);
             setIsEditModalOpen(false);
             fetchUsers(); // Refresh list
+            setToast({ message: "Usuário salvo com sucesso!", type: 'success' });
         } catch (error) {
             console.error("Erro ao salvar usuário:", error);
-            alert("Erro ao salvar usuário.");
+            setToast({ message: "Erro ao salvar usuário.", type: 'error' });
         }
     };
 
@@ -156,9 +170,10 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
             await handleSave(selectedUser.id, { status: newStatus });
             setSelectedUser({ ...selectedUser, status: newStatus });
             fetchUsers(); // Refresh list
+            setToast({ message: `Status alterado para ${newStatus === 'active' ? 'Ativo' : 'Inativo'}`, type: 'info' });
         } catch (error) {
             console.error("Erro ao alternar status:", error);
-            alert("Erro ao alternar status.");
+            setToast({ message: "Erro ao alternar status.", type: 'error' });
         }
     };
 
@@ -260,6 +275,8 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
                     darkMode={darkMode}
                 />
             )}
+
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>
     );
 };

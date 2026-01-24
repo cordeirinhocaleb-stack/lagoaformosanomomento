@@ -14,7 +14,10 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "checkup": "eslint -c .eslintrc.cjs src --fix",
-    "dup": "npx jscpd src"
+    "dup": "npx jscpd src",
+    "agent": "npx tsx agent-cli.ts",
+    "agents:init": "npx tsx node_modules/wegho-agentes/.agents/init.ts",
+    "task": "npx tsx diagnose_inventory_v2.ts"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.4.1",
@@ -26,6 +29,8 @@
     "basic-ftp": "^5.1.0",
     "clsx": "^2.1.1",
     "dompurify": "^3.3.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.0.0",
     "lucide-react": "^0.562.0",
     "next": "15.5.9",
     "path": "^0.12.7",
@@ -33,7 +38,8 @@
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.4.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "wegho-agentes": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",

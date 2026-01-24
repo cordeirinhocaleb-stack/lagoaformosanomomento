@@ -5,8 +5,7 @@ import { APP_VERSION } from '@/version';
 import VideoPresenter from '@/components/media/ChromaKeyVideo';
 import Login from '@/components/common/Login';
 import { User } from '@/types';
-import AlertBlock from './AlertBlock';
-import ContactInfo from './ContactInfo';
+
 
 interface ConstructionPageProps {
     user?: User | null;
@@ -17,6 +16,9 @@ interface ConstructionPageProps {
 }
 
 const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLogout, onShowLogin, disableSignup }) => {
+    // Login Modal State
+    const [showLoginModal, setShowLoginModal] = useState(false);
+
     // Assets & Consts
     const brandIconUrl = "https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P";
     const bannerImageUrl = "https://lh3.googleusercontent.com/d/1C1WhdivmBnt1z23xZGOJw0conC1jtq4i";
@@ -218,7 +220,7 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
                     </div>
                 ) : (
                     <button
-                        onClick={onShowLogin}
+                        onClick={() => setShowLoginModal(true)}
                         className="group relative flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full hover:bg-white/10 hover:border-red-500/50 transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.4)]"
                     >
                         <span className="w-4 h-4 md:w-5 md:h-5 bg-white/30 rounded-full group-hover:bg-red-500 transition-colors shadow-[0_0_5px_rgba(255,255,255,0.2)] group-hover:shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
@@ -275,14 +277,7 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
                     </div>
                 </div>
 
-                {/* Additional Info Grid (New Content) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                    <AlertBlock
-                        title="Migração de Servidores"
-                        description="Estamos movendo nosso banco de dados para uma infraestrutura mais rápida. Algumas funções podem ficar instáveis."
-                    />
-                    <ContactInfo />
-                </div>
+
             </div>
 
 
@@ -301,6 +296,21 @@ const ConstructionPage: React.FC<ConstructionPageProps> = ({ user, onLogin, onLo
 
             {/* Light Leaks (Global Overlay for Lantern Feel) */}
             <div className="absolute inset-0 z-50 pointer-events-none mix-blend-overlay" style={{ background: 'radial-gradient(circle 300px at var(--x) var(--y), rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 70%)' }}></div>
+
+            {/* Login Modal */}
+            {showLoginModal && (
+                <Login
+                    onLogin={(u) => {
+                        setShowLoginModal(false);
+                        onLogin?.(u);
+                    }}
+                    onSignupRequest={() => {
+                        // Signup is handled within Login component
+                    }}
+                    onClose={() => setShowLoginModal(false)}
+                    disableSignup={disableSignup}
+                />
+            )}
         </div>
     );
 };

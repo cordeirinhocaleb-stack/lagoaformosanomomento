@@ -13,6 +13,7 @@ interface PopupListProps {
     isCollapsed?: boolean;
     onToggleCollapse?: () => void;
     onClearAll: () => void;
+    onHardReset: () => void;
     darkMode?: boolean;
 }
 
@@ -23,6 +24,7 @@ const PopupList: React.FC<PopupListProps> = ({
     onAdd,
     onDelete,
     onClearAll,
+    onHardReset,
     darkMode = false
 }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -129,17 +131,22 @@ const PopupList: React.FC<PopupListProps> = ({
                 <i className="fas fa-chevron-right"></i>
             </button>
 
-            {items.length > 0 && (
-                <div className={`flex-none px-4 border-l h-[120px] flex items-center ${darkMode ? 'border-white/10' : 'border-gray-100'}`}>
-                    <button
-                        onClick={onClearAll}
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                        title="Limpar Tudo"
-                    >
-                        <i className="fas fa-trash-alt text-xs"></i>
-                    </button>
-                </div>
-            )}
+            <div className={`flex-none px-4 border-l h-[120px] flex flex-col items-center justify-center gap-2 ${darkMode ? 'border-white/10' : 'border-gray-100'}`}>
+                <button
+                    onClick={onClearAll}
+                    className="w-8 h-8 rounded-full flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                    title="Limpar Slides"
+                >
+                    <i className="fas fa-trash-alt text-[10px]"></i>
+                </button>
+                <button
+                    onClick={onHardReset}
+                    className="w-8 h-8 rounded-full flex items-center justify-center bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white transition-all shadow-sm"
+                    title="Reiniciar Memória Local (Hard Reset)"
+                >
+                    <i className="fas fa-sync-alt text-[10px]"></i>
+                </button>
+            </div>
 
         </div>
     );

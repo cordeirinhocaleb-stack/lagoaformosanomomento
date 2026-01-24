@@ -11,6 +11,8 @@ interface PublishSuccessModalProps {
     isUpdate: boolean;
     mode?: 'save' | 'publish'; // New prop to distinguish actions
     authorName?: string;       // New prop for personalization
+    totalFiles?: number;
+    currentFileIndex?: number;
 }
 
 const PublishSuccessModal: React.FC<PublishSuccessModalProps> = ({
@@ -23,7 +25,9 @@ const PublishSuccessModal: React.FC<PublishSuccessModalProps> = ({
     onViewNews,
     isUpdate,
     mode = 'publish',
-    authorName = 'Editor'
+    authorName = 'Editor',
+    totalFiles = 0,
+    currentFileIndex = 0
 }) => {
     // Dynamic Text Logic
     const texts = useMemo(() => {
@@ -41,7 +45,7 @@ const PublishSuccessModal: React.FC<PublishSuccessModalProps> = ({
         };
     }, [mode, isUpdate, authorName]);
 
-    if (!isOpen || status === 'idle') {return null;}
+    if (!isOpen || status === 'idle') { return null; }
 
     return (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[#0a0a0a]/95 backdrop-blur-3xl animate-fadeIn">
@@ -69,9 +73,14 @@ const PublishSuccessModal: React.FC<PublishSuccessModalProps> = ({
                             <h3 className="text-sm font-black text-zinc-500 uppercase tracking-[0.3em] mb-6 text-center">{texts.uploadingTitle}</h3>
 
                             <div className="bg-white/5 px-8 py-4 rounded-xl border border-white/5 w-full text-center backdrop-blur-sm">
-                                <p className="text-gray-300 text-xs font-bold animate-pulse tracking-wide">
+                                <p className="text-gray-300 text-xs font-bold animate-pulse tracking-wide mb-1">
                                     {progressMessage || "PROCESSANDO DADOS..."}
                                 </p>
+                                {totalFiles > 0 && (
+                                    <p className="text-[10px] font-black uppercase text-red-500 tracking-[0.2em]">
+                                        ARQUIVO {currentFileIndex} DE {totalFiles}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="w-full bg-white/5 h-1 rounded-full mt-8 overflow-hidden">

@@ -43,7 +43,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, stack, user, systemSetting
                 onAdminClick={() => { }}
                 onHomeClick={onBack}
                 latestNews={[]}
-                brazilNews={[]}
+                externalNews={[]}
                 user={user}
                 onOpenProfile={() => { }}
                 selectedCategory="all"

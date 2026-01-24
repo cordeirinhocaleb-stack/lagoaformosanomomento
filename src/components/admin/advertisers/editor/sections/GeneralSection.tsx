@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Advertiser } from '../../../../../types';
 import { getUserByDocument, getUserByName } from '../../../../../services/supabaseService';
+import ToggleSwitch from '../components/ToggleSwitch';
+import BillingInfoPanel from './BillingInfoPanel';
 
 interface GeneralSectionProps {
     data: Advertiser;
@@ -101,6 +103,20 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
 
     return (
         <div className="animate-fadeIn max-w-6xl mx-auto py-4">
+            {/* Toggle de Ativação */}
+            <div className={`mb-8 p-6 rounded-2xl border ${darkMode ? 'bg-zinc-900/50 border-zinc-800' : 'bg-gray-50 border-gray-200'}`}>
+                <ToggleSwitch
+                    enabled={data.isActive}
+                    onChange={(enabled) => handleChange('isActive', enabled)}
+                    label="Anunciante Ativo"
+                    darkMode={darkMode}
+                    size="lg"
+                />
+                <p className={`text-xs mt-3 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    Quando desativado, este anunciante não aparecerá em nenhum lugar do site.
+                </p>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12 animate-fadeIn">
 
                 {/* --- LADO ESQUERDO: IDENTIDADE PÚBLICA --- */}
@@ -139,6 +155,52 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                                     <i className="fas fa-chevron-down text-xs"></i>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Informações de Contato */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={labelClass}>Telefone/WhatsApp</label>
+                                <input
+                                    type="tel"
+                                    value={data.phone || ''}
+                                    onChange={e => handleChange('phone', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="(38) 99999-9999"
+                                />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Email</label>
+                                <input
+                                    type="email"
+                                    value={data.email || ''}
+                                    onChange={e => handleChange('email', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="contato@empresa.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Endereço Completo</label>
+                            <input
+                                type="text"
+                                value={data.address || ''}
+                                onChange={e => handleChange('address', e.target.value)}
+                                className={inputClass}
+                                placeholder="Rua, número, bairro - Lagoa Formosa/MG"
+                            />
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>CPF/CNPJ</label>
+                            <input
+                                type="text"
+                                value={data.cpfCnpj || ''}
+                                onChange={e => handleChange('cpfCnpj', e.target.value)}
+                                className={inputClass}
+                                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                            />
                         </div>
                     </div>
 
@@ -206,7 +268,45 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                                 </div>
                             </div>
 
-                            {/* Linha 2: Datas */}
+                            {/* Linha 2: Ciclo e Pagamento */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className={labelClass}>Ciclo de Renovação</label>
+                                    <select
+                                        value={data.billingCycle}
+                                        onChange={e => handleChange('billingCycle', e.target.value)}
+                                        className={`${inputClass} py-2.5 text-xs uppercase font-bold`}
+                                    >
+                                        <option value="daily" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Diário</option>
+                                        <option value="weekly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Semanal</option>
+                                        <option value="fortnightly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Quinzenal (15 dias)</option>
+                                        <option value="monthly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Mensal</option>
+                                        <option value="quarterly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Trimestral</option>
+                                        <option value="semiannual" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Semestral</option>
+                                        <option value="yearly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Anual</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className={labelClass}>Status de Pagamento</label>
+                                    <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer group transition-all ${data.isPaid ? 'border-green-500/30 bg-green-500/5' : 'border-orange-500/30 bg-orange-500/5'}`}>
+                                        <span className={`text-xs font-black uppercase ${data.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
+                                            {data.isPaid ? '✓ Pago' : 'Pendente'}
+                                        </span>
+                                        <div className="relative inline-flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={data.isPaid || false}
+                                                onChange={e => handleChange('isPaid', e.target.checked)}
+                                            />
+                                            <div className={`w-9 h-5 rounded-full peer peer-focus:ring-2 peer-focus:ring-green-300 transition-all peer-checked:bg-green-500 bg-orange-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all`}></div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Linha 3: Datas */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className={labelClass}>Início</label>
@@ -240,24 +340,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                                 </div>
                             </div>
 
-                            {/* Ciclo */}
-                            <div>
-                                <label className={labelClass}>Ciclo de Renovação</label>
-                                <div className={`grid grid-cols-3 gap-1 p-1 rounded-lg ${darkMode ? 'bg-zinc-900' : 'bg-white border border-gray-200'}`}>
-                                    {['daily', 'weekly', 'monthly'].map(cycle => (
-                                        <button
-                                            key={cycle}
-                                            onClick={() => handleChange('billingCycle', cycle)}
-                                            className={`py-2 rounded-md text-[9px] font-black uppercase transition-all ${data.billingCycle === cycle
-                                                ? (darkMode ? 'bg-zinc-700 text-white shadow' : 'bg-gray-900 text-white shadow')
-                                                : (darkMode ? 'text-zinc-500 hover:text-white' : 'text-gray-400 hover:text-gray-900')
-                                                }`}
-                                        >
-                                            {cycle === 'daily' ? 'Diário' : cycle === 'weekly' ? 'Semanal' : 'Mensal'}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+
 
                             {/* Vínculo de Usuário */}
                             <div className={`mt-6 pt-6 border-t ${darkMode ? 'border-zinc-800' : 'border-gray-100'}`}>
@@ -381,6 +464,9 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
 
                         </div>
                     </div>
+
+                    <BillingInfoPanel data={data} onChange={onChange} darkMode={darkMode} />
+
                 </div>
             </div>
         </div>

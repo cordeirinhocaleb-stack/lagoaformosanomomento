@@ -1,23 +1,29 @@
-
 import React, { useMemo, useState } from 'react';
-import { User, NewsItem, Advertiser, checkPermission } from '../../types';
+import { User, NewsItem, Advertiser, checkPermission, SystemSettings } from '../../types';
+import Toast from '../common/Toast';
 
 interface DashboardTabProps {
     user: User;
     newsHistory: NewsItem[];
     advertisers: Advertiser[];
+    systemSettings: SystemSettings;
     onEditPost: (post: NewsItem) => void;
     onNewPost: () => void;
     onManageAds: () => void;
     onDeletePost: (id: string) => void;
+    onUpdateSystemSettings: (settings: SystemSettings) => Promise<void> | void;
     darkMode?: boolean;
 }
 
 type ActivityFilter = 'all' | 'site' | 'rss';
 
-const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertisers, onEditPost, onNewPost, onManageAds, onDeletePost, darkMode = true }) => {
+const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertisers, systemSettings, onEditPost, onNewPost, onManageAds, onDeletePost, onUpdateSystemSettings, darkMode = true }) => {
     const [activityFilter, setActivityFilter] = useState<ActivityFilter>('all');
-    const [liveStatusMessage, setLiveStatusMessage] = useState('Acompanhe a cobertura completa em tempo real.');
+    // Inicializa com o valor das configurações do sistema ou fallback
+    const [liveStatusMessage, setLiveStatusMessage] = useState(
+        (systemSettings?.tickerMessage || 'Acompanhe a cobertura completa em tempo real.')
+    );
+    const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
 
     const adMetrics = useMemo(() => {
         const totalViews = advertisers.reduce((acc, ad) => acc + ad.views, 0);
@@ -52,15 +58,29 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
         }
     };
 
-    const handleUpdateLiveStatus = () => {
-        alert(`Status atualizado para: "${liveStatusMessage}"`);
+    const handleUpdateLiveStatus = async () => {
+        if (!liveStatusMessage.trim()) return;
+
+        try {
+            await onUpdateSystemSettings({
+                ...systemSettings,
+                tickerMessage: liveStatusMessage
+            } as SystemSettings);
+
+            setToast({ message: "Status ao vivo atualizado!", type: 'success' });
+        } catch (error) {
+            console.error("Erro ao atualizar status:", error);
+            setToast({ message: "Erro ao salvar status.", type: 'error' });
+        }
     };
 
     const canEdit = checkPermission(user, 'editorial_edit');
     const canDelete = checkPermission(user, 'editorial_delete');
 
     return (
-        <div className="animate-fadeIn w-full max-w-[1600px] mx-auto">
+        <div className="animate-fadeIn w-full max-w-[1600px] mx-auto pb-20">
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
             <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 px-1 md:px-0">
                 <div>
                     <h1 className={`text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -222,8 +242,8 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                     </td>
                                     <td className="p-4 md:p-6">
                                         <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border ${n.status === 'published' ? (darkMode ? 'bg-emerald-900/20 text-emerald-400 border-emerald-900/50' : 'bg-emerald-50 text-emerald-600 border-emerald-100') :
-                                                n.status === 'draft' ? (darkMode ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-50 text-gray-500 border-gray-100') :
-                                                    (darkMode ? 'bg-amber-900/20 text-amber-400 border-amber-900/50' : 'bg-amber-50 text-amber-600 border-amber-100')
+                                            n.status === 'draft' ? (darkMode ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-50 text-gray-500 border-gray-100') :
+                                                (darkMode ? 'bg-amber-900/20 text-amber-400 border-amber-900/50' : 'bg-amber-50 text-amber-600 border-amber-100')
                                             }`}>
                                             {n.status === 'published' ? 'No Ar' : n.status === 'draft' ? 'Rascunho' : 'Revisão'}
                                         </span>

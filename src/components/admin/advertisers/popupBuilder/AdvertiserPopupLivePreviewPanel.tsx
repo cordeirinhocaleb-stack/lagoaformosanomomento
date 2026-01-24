@@ -5,11 +5,12 @@ import { deviceFrame, stageBackground, toolbarBtn, zoomBtn } from '../popup/prev
 
 interface LivePreviewStageProps {
     popupSet: PromoPopupSetConfig;
-    selectedItemId?: string | null; // Nova prop
+    selectedItemId?: string | null;
     darkMode?: boolean;
+    onAdjustImage?: () => void;
 }
 
-const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedItemId, darkMode = false }) => {
+const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedItemId, darkMode = false, onAdjustImage }) => {
     const [device, setDevice] = useState<'phone' | 'desktop'>('phone');
     const [zoom, setZoom] = useState<number>(0.8);
     const [bgMode, setBgMode] = useState<'light' | 'dark' | 'site'>(() => darkMode ? 'dark' : 'site');
@@ -112,6 +113,15 @@ const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedI
 
                 <div className={`flex items-center gap-1 border px-2 py-1 rounded-xl shadow-sm overflow-x-auto scrollbar-hide max-w-[150px] md:max-w-none ${darkMode ? 'bg-black border-white/10' : 'bg-white border-gray-100'}`}>
                     <button onClick={handleFit} className={zoomBtn(false)} title="Ajustar à tela"><i className="fas fa-expand"></i></button>
+                    {activeItem?.media?.images?.length > 0 && onAdjustImage && (
+                        <button
+                            onClick={onAdjustImage}
+                            className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider flex items-center gap-2 transition-all ${darkMode ? 'bg-orange-500/20 text-orange-500' : 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95'}`}
+                            title="Ajustar posição e transparência da imagem"
+                        >
+                            <i className="fas fa-arrows-alt"></i> Ajustar Imagem
+                        </button>
+                    )}
                     {!isFullScreenMobile && [0.25, 0.5, 0.75, 1].map(z => (
                         <button key={z} onClick={() => setZoom(z)} className={zoomBtn(zoom === z)}>{z * 100}%</button>
                     ))}

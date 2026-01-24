@@ -63,7 +63,7 @@ export const mapNewsToDb = (news: NewsItem): Record<string, any> => {
         banner_images: news.bannerImages,
         banner_image_layout: news.bannerImageLayout,
         banner_effects: news.bannerEffects, // Mapped
-        banner_video_source: news.bannerVideoSource,
+        banner_video_source: (news.bannerVideoSource === 'internal' || news.bannerVideoSource === 'youtube') ? news.bannerVideoSource : null,
         banner_video_url: news.bannerVideoUrl,
         banner_youtube_video_id: news.bannerYoutubeVideoId,
         banner_youtube_status: news.bannerYoutubeStatus,
@@ -85,6 +85,7 @@ export const mapNewsToDb = (news: NewsItem): Record<string, any> => {
         blocks: news.blocks,
         social_distribution: news.socialDistribution,
         seo: news.seo,
+        slug: news.slug || (news.seo?.slug || null),
         source: news.source || 'site'
     };
 

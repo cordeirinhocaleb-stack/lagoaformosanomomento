@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createSupportTicket, getUserTickets } from '../../services/supabaseService';
 import { SupportTicket } from '../../types';
 
@@ -34,16 +34,16 @@ const UserSupportSection: React.FC<UserSupportSectionProps> = ({
     const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
-    useEffect(() => {
-        loadTickets();
-    }, [userId]);
-
-    const loadTickets = async () => {
+    const loadTickets = useCallback(async () => {
         setIsLoading(true);
         const data = await getUserTickets(userId);
         setTickets(data);
         setIsLoading(false);
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        loadTickets();
+    }, [loadTickets]);
 
     const handleSubmit = async () => {
         if (!selectedCategory || !subject.trim() || !message.trim()) {

@@ -1,6 +1,6 @@
 
 export type AdPlan = string;
-export type BillingCycle = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
+export type BillingCycle = 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
 
 export interface AdPlanConfig {
     id: string;
@@ -40,6 +40,7 @@ export interface PromoBanner {
     buttonText: string;
     link: string;
     active: boolean;
+    redirectType?: 'external' | 'whatsapp' | 'instagram' | 'tiktok' | 'kwai' | 'telegram';
     textPositionPreset?: BannerTextPositionPreset;
     buttonConfig?: {
         label: string;
@@ -56,6 +57,12 @@ export interface PromoBanner {
         fontFamily: string;
         customColor: string;
     };
+    // Image adjustment properties
+    imagePositionX?: number;
+    imagePositionY?: number;
+    imageScale?: number;
+    imagePosition?: string;
+    fit?: 'cover' | 'contain';
 }
 
 export interface AdvertiserProduct {
@@ -102,6 +109,7 @@ export interface PopupTextStyle {
     textShadow?: 'none' | 'soft' | 'strong';
     buttonRounded?: 'none' | 'md' | 'full';
     buttonStyle?: 'solid' | 'outline' | 'glass';
+    themeColorMode?: 'light' | 'dark' | 'auto';
 }
 
 export interface PopupImageStyle {
@@ -114,6 +122,9 @@ export interface PopupImageStyle {
     overlayIntensity: number;
     filterId: PopupFilterId;
     filterVariant: PopupMediaFilterVariant;
+    posX?: number;
+    posY?: number;
+    scale?: number;
 }
 
 export interface PopupVideoSettings {
@@ -129,6 +140,7 @@ export interface PopupVideoSettings {
     filterId: PopupFilterId;
     filterVariant: PopupMediaFilterVariant;
     framePreset: string;
+    closeButtonStyle?: 'x' | 'circle' | 'square';
 }
 
 export type PopupEffectDirection = 'top_bottom' | 'bottom_top' | 'left_right' | 'right_left' | 'random';
@@ -158,10 +170,9 @@ export interface PopupMediaConfig {
     imageStyle: PopupImageStyle;
     videoUrl: string;
     videoSettings: PopupVideoSettings;
-    videoMuted?: boolean;
-    videoLoop?: boolean;
-    videoFit?: 'cover' | 'contain';
     videoZoom?: boolean;
+    logoUrl?: string;
+    backgroundUrl?: string;
 }
 
 export interface PromoPopupItemConfig {
@@ -180,6 +191,15 @@ export interface PromoPopupItemConfig {
     media: PopupMediaConfig;
     themeAdvanced?: PopupThemeAdvanced;
     effectConfig?: PopupEffectConfig;
+    // New Content Fields
+    subtitle?: string;
+    badgeText?: string;
+    smallNote?: string;
+    // Targeting & Triggering
+    displayMode?: 'onPageLoad' | 'afterSeconds' | 'onScrollPercent' | 'exitIntent' | 'manual';
+    displayDelay?: number; // seconds or percent
+    frequency?: 'once_per_session' | 'once_per_day' | 'always';
+    deviceTarget?: 'mobile' | 'desktop' | 'all';
     // Legacy support
     shape?: any;
     position?: any;
@@ -216,6 +236,13 @@ export interface PromoPopupConfig {
     mediaFilter?: PopupMediaFilter;
     mediaFilterVariant?: PopupMediaFilterVariant;
     imagePresentation?: PopupImagePresentation;
+    subtitle?: string;
+    logoUrl?: string;
+    smallNote?: string;
+    badgeText?: string;
+    textStyle?: PopupTextStyle;
+    closeButtonStyle?: 'x' | 'circle' | 'square';
+    media?: PopupMediaConfig;
     colors?: {
         background: string;
         text: string;
@@ -228,6 +255,12 @@ export interface Advertiser {
     id: string;
     name: string;
     category: string;
+    // Basic contact information
+    address?: string;
+    phone?: string;
+    email?: string;
+    cpfCnpj?: string;
+    // Media
     logoUrl?: string;
     logoUrls?: string[];
     transitionType?: 'fade' | 'slide' | 'zoom' | 'none';
@@ -235,11 +268,21 @@ export interface Advertiser {
     mediaType?: 'image' | 'video' | 'mixed';
     logoIcon?: string;
     bannerUrl?: string;
+    // Contract details
     plan: string;
     billingCycle: BillingCycle;
     startDate: string;
     endDate: string;
     isActive: boolean;
+    isPaid?: boolean; // Payment status
+
+    // Billing Info (boleto simples)
+    billingValue?: number;
+    billingDueDate?: string;
+    billingStatus?: 'pending' | 'paid' | 'overdue' | 'cancelled';
+    billingObs?: string;
+    billingBarCode?: string;
+
     views: number;
     clicks: number;
     redirectType: 'external' | 'whatsapp' | 'instagram' | 'tiktok' | 'kwai' | 'telegram';
@@ -281,13 +324,13 @@ export const DEFAULT_THEME_ADVANCED: PopupThemeAdvanced = {
 export const DEFAULT_POPUP_ITEM: PromoPopupItemConfig = {
     id: '',
     active: true,
-    title: 'Novo Destaque',
+    title: 'Promo Relâmpago',
     body: '',
     ctaText: 'Saiba Mais',
     ctaUrl: '',
     targetPages: ['home', 'news_detail'],
     filterId: 'none',
-    themePresetId: 'classic_default',
+    themePresetId: 'retail_flash_sale',
     popupSizePreset: 'md',
     textStyle: {
         fontFamily: 'Inter',

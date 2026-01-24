@@ -8,9 +8,39 @@ interface OverviewPanelProps {
     darkMode?: boolean;
 }
 
+import { getSiteStats, SiteStats } from '@/services/stats/siteStatsService';
+
+interface OverviewPanelProps {
+    config: AdPricingConfig;
+    onChange: (newConfig: AdPricingConfig) => void;
+    darkMode?: boolean;
+}
+
 const OverviewPanel: React.FC<OverviewPanelProps> = ({ config, onChange, darkMode = false }) => {
+    const [stats, setStats] = React.useState<SiteStats | null>(null);
+
+    React.useEffect(() => {
+        getSiteStats().then(setStats);
+    }, []);
+
     return (
         <div className="max-w-4xl mx-auto space-y-10 animate-fadeIn">
+
+            {/* Analytics Dashboard */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                    { label: 'Visitas Totais', val: stats?.totalVisits || 0, icon: 'fas fa-globe', color: 'text-blue-500' },
+                    { label: 'IPs Únicos', val: stats?.uniqueVisitors || 0, icon: 'fas fa-fingerprint', color: 'text-purple-500' },
+                    { label: 'Mobile', val: stats?.mobileVisits || 0, icon: 'fas fa-mobile-alt', color: 'text-green-500' },
+                    { label: 'Re-entradas', val: stats?.returningVisits || 0, icon: 'fas fa-door-open', color: 'text-orange-500' }
+                ].map((s, i) => (
+                    <div key={i} className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-2 shadow-sm ${darkMode ? 'bg-black/20 border-white/5' : 'bg-white border-gray-100'}`}>
+                        <i className={`${s.icon} text-xl ${s.color}`}></i>
+                        <span className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>{s.val}</span>
+                        <span className={`text-[9px] font-black uppercase tracking-widest ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{s.label}</span>
+                    </div>
+                ))}
+            </div>
 
             {/* Status Geral */}
             <div className={`p-4 md:p-8 rounded-3xl md:rounded-[2rem] border flex flex-col md:flex-row items-center justify-between gap-6 ${darkMode ? 'bg-black/20 border-white/5' : 'bg-gray-50 border-gray-100'}`}>

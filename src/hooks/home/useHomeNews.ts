@@ -79,12 +79,15 @@ export const useHomeNews = ({
             list = list.filter(n => n.status === 'published');
         }
 
-        if (selectedRegion === 'Lagoa Formosa') {
+        if (selectedRegion === 'Lagoa Formosa e Região') {
             list = list.filter(n =>
-                (!n.city || n.city === 'Lagoa Formosa' || n.region === 'Lagoa Formosa')
+                !n.city ||
+                n.city === 'Lagoa Formosa' ||
+                n.region === 'Lagoa Formosa' ||
+                n.city === 'Patos de Minas' ||
+                n.region === 'Região' ||
+                n.region === 'Alto Paranaíba'
             );
-        } else if (selectedRegion === 'Patos e Região') {
-            list = list.filter(n => n.city === 'Patos de Minas' || n.region === 'Região' || n.region === 'Alto Paranaíba');
         } else if (selectedRegion === 'Brasil') {
             list = list.filter(n =>
                 n.region === 'Brasil' ||

@@ -86,6 +86,17 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                 </div>
 
                                 <div>
+                                    <label className={labelClass}>Subtítulo (Opcional)</label>
+                                    <input
+                                        type="text"
+                                        value={item.subtitle || ''}
+                                        onChange={(e) => onChange({ subtitle: e.target.value })}
+                                        className={inputClass}
+                                        placeholder="Ex: Oferta exclusiva para hoje"
+                                    />
+                                </div>
+
+                                <div>
                                     <label className={labelClass}>Texto do Corpo</label>
                                     <textarea
                                         value={item.body}
@@ -106,6 +117,29 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                     />
                                 </div>
 
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className={labelClass}>Texto da Etiqueta (Badge)</label>
+                                        <input
+                                            type="text"
+                                            value={item.badgeText || ''}
+                                            onChange={(e) => onChange({ badgeText: e.target.value })}
+                                            className={inputClass}
+                                            placeholder="Ex: NEWS"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Nota Pequena (Footer)</label>
+                                        <input
+                                            type="text"
+                                            value={item.smallNote || ''}
+                                            onChange={(e) => onChange({ smallNote: e.target.value })}
+                                            className={inputClass}
+                                            placeholder="Ex: Patrocinado"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className={`p-4 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
                                     <label className={labelClass}>Destino do Clique</label>
 
@@ -113,8 +147,8 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                         <button
                                             onClick={() => onChange({ ctaUrl: '' })}
                                             className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${!item.ctaUrl?.includes('wa.me') && !item.ctaUrl?.includes('instagram.com') && !item.ctaUrl?.includes('facebook.com') && !item.ctaUrl?.includes('tiktok.com') && !item.ctaUrl?.includes('kwai.com')
-                                                    ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
-                                                    : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-white' : 'bg-transparent text-gray-400 border-gray-200 hover:text-black')
+                                                ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black')
+                                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-white' : 'bg-transparent text-gray-400 border-gray-200 hover:text-black')
                                                 }`}
                                         >
                                             URL / Site
@@ -122,8 +156,8 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                         <button
                                             onClick={() => onChange({ ctaUrl: 'https://wa.me/55' })}
                                             className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${item.ctaUrl?.includes('wa.me')
-                                                    ? 'bg-green-500 text-white border-green-500'
-                                                    : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-green-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-green-600')
+                                                ? 'bg-green-500 text-white border-green-500'
+                                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-green-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-green-600')
                                                 }`}
                                         >
                                             <i className="fab fa-whatsapp mr-1"></i> WhatsApp
@@ -131,8 +165,8 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                         <button
                                             onClick={() => onChange({ ctaUrl: 'https://instagram.com/' })}
                                             className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${item.ctaUrl?.includes('instagram.com')
-                                                    ? 'bg-pink-600 text-white border-pink-600'
-                                                    : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-pink-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-pink-600')
+                                                ? 'bg-pink-600 text-white border-pink-600'
+                                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-pink-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-pink-600')
                                                 }`}
                                         >
                                             <i className="fab fa-instagram mr-1"></i> Instagram
@@ -140,8 +174,8 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                         <button
                                             onClick={() => onChange({ ctaUrl: 'https://facebook.com/' })}
                                             className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${item.ctaUrl?.includes('facebook.com')
-                                                    ? 'bg-blue-600 text-white border-blue-600'
-                                                    : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-blue-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-blue-600')
+                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-blue-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-blue-600')
                                                 }`}
                                         >
                                             <i className="fab fa-facebook mr-1"></i> Facebook
@@ -149,8 +183,8 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                         <button
                                             onClick={() => onChange({ ctaUrl: 'https://tiktok.com/@' })}
                                             className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${item.ctaUrl?.includes('tiktok.com')
-                                                    ? 'bg-black text-white border-black'
-                                                    : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-white' : 'bg-transparent text-gray-400 border-gray-200 hover:text-black')
+                                                ? 'bg-black text-white border-black'
+                                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-white' : 'bg-transparent text-gray-400 border-gray-200 hover:text-black')
                                                 }`}
                                         >
                                             <i className="fab fa-tiktok mr-1"></i> TikTok
@@ -158,8 +192,8 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                                         <button
                                             onClick={() => onChange({ ctaUrl: 'https://www.kwai.com/@' })}
                                             className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border ${item.ctaUrl?.includes('kwai.com')
-                                                    ? 'bg-orange-500 text-white border-orange-500'
-                                                    : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-orange-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-orange-600')
+                                                ? 'bg-orange-500 text-white border-orange-500'
+                                                : (darkMode ? 'bg-transparent text-gray-500 border-white/10 hover:text-orange-500' : 'bg-transparent text-gray-400 border-gray-200 hover:text-orange-600')
                                                 }`}
                                         >
                                             <i className="fas fa-video mr-1"></i> Kwai
@@ -299,12 +333,77 @@ const PopupEditor: React.FC<PopupEditorProps> = ({ item, onChange, onDelete, dar
                 )}
 
                 {activeTab === 'targeting' && (
-                    <div className="animate-fadeIn space-y-4">
-                        <div className={`p-4 rounded-2xl border ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                            <h4 className={`text-xs font-black uppercase mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Em Breve</h4>
-                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                As regras de exibição (frequência, dias da semana, horários) serão configuradas aqui.
-                            </p>
+                    <div className="animate-fadeIn space-y-6">
+                        <div className={sectionClass}>
+                            <h4 className={`text-xs font-black uppercase mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Gatilhos de Exibição</h4>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className={labelClass}>Modo de Exibição</label>
+                                    <select
+                                        value={item.displayMode || 'onPageLoad'}
+                                        onChange={e => onChange({ displayMode: e.target.value as any })}
+                                        className={inputClass}
+                                    >
+                                        <option value="onPageLoad">Imediato (Ao Carregar)</option>
+                                        <option value="afterSeconds">Apos X Segundos</option>
+                                        <option value="onScrollPercent">Ao Rolar % da Página</option>
+                                        <option value="exitIntent">Intenção de Saída (Sair)</option>
+                                        <option value="manual">Manual (Gatilho customizado)</option>
+                                    </select>
+                                </div>
+
+                                {(item.displayMode === 'afterSeconds' || item.displayMode === 'onScrollPercent') && (
+                                    <div className="animate-fadeIn">
+                                        <label className={labelClass}>
+                                            {item.displayMode === 'afterSeconds' ? 'Aguardar (Segundos)' : 'Rolar até %'}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={item.displayDelay || 0}
+                                            onChange={e => onChange({ displayDelay: parseInt(e.target.value) })}
+                                            className={inputClass}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className={sectionClass}>
+                            <h4 className={`text-xs font-black uppercase mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Frequência & Dispositivos</h4>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className={labelClass}>Frequência de Exibição</label>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {(['always', 'once_per_session', 'once_per_day'] as const).map(freq => (
+                                            <button
+                                                key={freq}
+                                                onClick={() => onChange({ frequency: freq })}
+                                                className={`py-3 px-4 rounded-xl border text-[10px] font-black uppercase tracking-widest text-left flex items-center justify-between transition-all ${item.frequency === freq ? (darkMode ? 'bg-white text-black border-white' : 'bg-black text-white border-black') : (darkMode ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-white text-gray-500 border-gray-200')}`}
+                                            >
+                                                <span>{freq === 'always' ? 'Sempre Exibir' : freq === 'once_per_session' ? 'Uma vez por Sessão' : 'Uma vez por Dia'}</span>
+                                                {item.frequency === freq && <i className="fas fa-check"></i>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className={labelClass}>Dispositivo Alvo</label>
+                                    <div className="flex p-1 rounded-xl bg-gray-100/50">
+                                        {(['all', 'desktop', 'mobile'] as const).map(dev => (
+                                            <button
+                                                key={dev}
+                                                onClick={() => onChange({ deviceTarget: dev })}
+                                                className={`flex-1 py-3 rounded-lg text-[9px] font-black uppercase transition-all ${item.deviceTarget === dev || (!item.deviceTarget && dev === 'all') ? 'bg-white text-black shadow-sm' : 'text-gray-400'}`}
+                                            >
+                                                {dev === 'all' ? 'Todos' : dev === 'desktop' ? 'Desktop' : 'Mobile'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

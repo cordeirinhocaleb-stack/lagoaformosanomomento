@@ -48,8 +48,8 @@ export interface InternalPageData {
     products: unknown[];
     whatsapp: string;
     instagram: string;
-    tiktok: string;
-    kwai: string;
-    telegram: string;
+    tiktok?: string;
+    kwai?: string;
+    telegram?: string;
     location: string;
 }

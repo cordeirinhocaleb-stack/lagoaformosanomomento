@@ -4,28 +4,38 @@ import VerticalNewsColumn from './world/VerticalNewsColumn';
 
 interface WorldNewsGridProps {
     externalCategories: Record<string, any[]>;
+    selectedCategory: string;
 }
 
-const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories }) => {
+const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selectedCategory }) => {
     // Lista completa de categorias para rotação
     const allCategories = ['Política', 'Economia', 'Agro', 'Mundo', 'Tecnologia', 'Esporte', 'Cultura', 'Cotidiano'];
     const [startIndex, setStartIndex] = useState(0);
     const visibleCount = 4; // Exibe 4 colunas por vez
 
-    // Rotação automática dos filtros
+    // Rotação automática dos filtros (apenas quando não há filtro selecionado)
     useEffect(() => {
+        if (selectedCategory !== 'all') return; // Não rotaciona se há filtro ativo
+
         const interval = setInterval(() => {
             setStartIndex((prev) => (prev + 1) % allCategories.length);
         }, 6000); // Muda a cada 6 segundos
 
         return () => clearInterval(interval);
-    }, [allCategories.length]);
+    }, [allCategories.length, selectedCategory]);
 
-    // Calcula as categorias visíveis (circular)
+    // Calcula as categorias visíveis (circular ou filtrada)
     const visibleCategories: string[] = [];
-    for (let i = 0; i < visibleCount; i++) {
-        const idx = (startIndex + i) % allCategories.length;
-        visibleCategories.push(allCategories[idx]);
+
+    if (selectedCategory !== 'all') {
+        // Se há filtro ativo, mostra apenas essa categoria
+        visibleCategories.push(selectedCategory);
+    } else {
+        // Rotação normal de 4 categorias
+        for (let i = 0; i < visibleCount; i++) {
+            const idx = (startIndex + i) % allCategories.length;
+            visibleCategories.push(allCategories[idx]);
+        }
     }
 
     return (
@@ -50,14 +60,23 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories }) => 
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {visibleCategories.map(cat => (
-                        <VerticalNewsColumn
-                            key={cat}
-                            title={cat}
-                            items={(externalCategories[cat] || []).slice(0, 3)}
-                            theme={['Política', 'Agronegócio', 'Esporte'].includes(cat) ? 'green' : 'blue'}
-                        />
-                    ))}
+                    {visibleCategories.map(cat => {
+                        let theme: 'blue' | 'green' | 'orange' | 'purple' = 'blue';
+                        if (['Política', 'Economia'].includes(cat)) theme = 'orange';
+                        if (['Agro', 'Agronegócio'].includes(cat)) theme = 'green';
+                        if (['Tecnologia', 'Mundo'].includes(cat)) theme = 'purple';
+
+                        const items = (externalCategories[cat] || []).slice(0, 3);
+
+                        return (
+                            <VerticalNewsColumn
+                                key={cat}
+                                title={cat}
+                                items={items}
+                                theme={theme}
+                            />
+                        );
+                    })}
                 </div>
             </div>
         </section>

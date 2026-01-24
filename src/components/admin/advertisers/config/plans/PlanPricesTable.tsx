@@ -12,6 +12,7 @@ interface PlanPricesTableProps {
 const CYCLES: { key: BillingCycle; label: string }[] = [
     { key: 'daily', label: 'Diário' },
     { key: 'weekly', label: 'Semanal' },
+    { key: 'fortnightly', label: 'Quinzenal' },
     { key: 'monthly', label: 'Mensal' },
     { key: 'quarterly', label: 'Trimestral' },
     { key: 'semiannual', label: 'Semestral' },
@@ -30,8 +31,8 @@ const PlanPricesTable: React.FC<PlanPricesTableProps> = ({ prices, onChange, rea
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {CYCLES.map(c => (
                     <div key={c.key} className={`p-3 rounded-xl border ${readOnly
-                            ? (darkMode ? 'bg-white/5 border-white/5 opacity-50' : 'border-gray-100 bg-gray-50')
-                            : (darkMode ? 'bg-black/20 border-white/10' : 'bg-white border-gray-200')
+                        ? (darkMode ? 'bg-white/5 border-white/5 opacity-50' : 'border-gray-100 bg-gray-50')
+                        : (darkMode ? 'bg-black/20 border-white/10' : 'bg-white border-gray-200')
                         }`}>
                         <span className={`text-[8px] font-bold uppercase block mb-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{c.label}</span>
                         <input
@@ -41,8 +42,8 @@ const PlanPricesTable: React.FC<PlanPricesTableProps> = ({ prices, onChange, rea
                             disabled={readOnly}
                             step="0.01"
                             className={`w-full font-black text-sm outline-none bg-transparent ${readOnly
-                                    ? (darkMode ? 'text-gray-600' : 'text-gray-500 cursor-not-allowed')
-                                    : (darkMode ? 'text-white' : 'text-gray-900')
+                                ? (darkMode ? 'text-gray-600' : 'text-gray-500 cursor-not-allowed')
+                                : (darkMode ? 'text-white' : 'text-gray-900')
                                 }`}
                         />
                     </div>

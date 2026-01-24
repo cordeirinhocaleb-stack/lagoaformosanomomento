@@ -4,7 +4,7 @@ import { storeLocalFile, getLocalFile } from '../../../../services/storage/local
 import { ContentBlock } from '../../../../types';
 import MediaUploader from '../../../media/MediaUploader';
 import VideoSourcePicker from '../media/VideoSourcePicker';
-import YouTubeVideoUploader from '../banner/YouTubeVideoUploader';
+import YouTubeUploadModal from '../../YouTubeUploadModal';
 import { VideoMetadata } from '../../../../services/youtubeService';
 import { YouTubeVideoMetadata } from '../../../../services/upload/youtubeVideoService';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
@@ -100,6 +100,11 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
     const handleSourceSelect = (source: 'cloudinary' | 'youtube') => {
         if (onUpdate) {
             onUpdate(block.content, { ...block.settings }, { videoSource: source });
+        }
+
+        // Se escolher YouTube, abre o modal de upload
+        if (source === 'youtube') {
+            setShowYouTubeWizard(true);
         }
     };
 
@@ -275,46 +280,23 @@ const MediaBlock: React.FC<MediaBlockProps> = ({ user, block, isSelected, isUplo
                 cancelText="Cancelar"
             />
             {showYouTubeWizard && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[6000] overflow-y-auto p-4 md:p-10 flex justify-center animate-fadeIn">
-                    <div className="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full my-auto overflow-hidden animate-in zoom-in-95 duration-300">
-                        {/* Modal Header */}
-                        <div className="bg-red-600 p-4 md:p-8 text-white flex justify-between items-center relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                            <div className="flex items-center gap-4 relative z-10">
-                                <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-2xl flex items-center justify-center text-red-600 shadow-xl shrink-0">
-                                    <i className="fab fa-youtube text-2xl md:text-3xl"></i>
-                                </div>
-                                <div className="min-w-0">
-                                    <h3 className="text-lg md:text-2xl font-[1000] uppercase italic tracking-tighter truncate">Wizard YouTube</h3>
-                                    <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest opacity-80">Upload Direto & SEO</p>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowYouTubeWizard(false);
-                                    setPendingYouTubeFile(null);
-                                }}
-                                className="text-white/50 hover:text-white transition-colors relative z-10"
-                            >
-                                <i className="fas fa-times text-2xl"></i>
-                            </button>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="p-10">
-                            <YouTubeVideoUploader
-                                initialFile={pendingYouTubeFile}
-                                onUploadComplete={handleYouTubeComplete}
-                                onUploadError={(error) => {
-                                    setUploadError(error);
-                                    setShowYouTubeWizard(false);
-                                }}
-                                isShorts={style === 'shorts'}
-                            />
-                        </div>
-                    </div>
-                </div>
+                <YouTubeUploadModal
+                    isOpen={showYouTubeWizard}
+                    onClose={() => {
+                        setShowYouTubeWizard(false);
+                        setPendingYouTubeFile(null);
+                    }}
+                    initialFile={pendingYouTubeFile}
+                    onUploadComplete={(url: string, metadata: YouTubeVideoMetadata, videoId: string) => {
+                        handleYouTubeComplete(url, metadata, videoId);
+                    }}
+                    onUploadError={(error: string) => {
+                        setUploadError(error);
+                        setShowYouTubeWizard(false);
+                    }}
+                    isShorts={style === 'shorts'}
+                    darkMode={true}
+                />
             )}
 
             {isVideo && style === 'native' && block.settings.videoTitle && (

@@ -8,9 +8,10 @@ import PromoPopup from '@/components/home/PromoPopup'; // Importado Legado
 interface AdvertiserPageProps {
   advertiser: Advertiser;
   onBack: () => void;
+  isModal?: boolean;
 }
 
-const AdvertiserPage: React.FC<AdvertiserPageProps> = ({ advertiser, onBack }) => {
+const AdvertiserPage: React.FC<AdvertiserPageProps> = ({ advertiser, onBack, isModal = false }) => {
   const pageData = advertiser.internalPage;
 
   const contactLink = generateWhatsAppLink(
@@ -28,7 +29,7 @@ const AdvertiserPage: React.FC<AdvertiserPageProps> = ({ advertiser, onBack }) =
   } : undefined;
 
   return (
-    <div className="bg-gray-50 min-h-screen animate-fadeIn pb-24">
+    <div className={`bg-gray-50 animate-fadeIn ${isModal ? 'pb-0 min-h-fit rounded-3xl overflow-hidden' : 'min-h-screen pb-24'}`}>
 
       {/* POPUP EXCLUSIVO DO ANUNCIANTE (SISTEMA DUPLO) */}
       <PromoPopup config={popupConfig} />
@@ -53,9 +54,9 @@ const AdvertiserPage: React.FC<AdvertiserPageProps> = ({ advertiser, onBack }) =
 
         <button
           onClick={onBack}
-          className="absolute top-6 left-4 bg-white/90 backdrop-blur text-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform z-10"
+          className={`absolute bg-white/90 backdrop-blur text-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform z-10 ${isModal ? 'top-4 right-4' : 'top-6 left-4'}`}
         >
-          <i className="fas fa-arrow-left"></i>
+          {isModal ? <i className="fas fa-times"></i> : <i className="fas fa-arrow-left"></i>}
         </button>
 
         <div className="absolute -bottom-12 left-6 md:left-20">
@@ -83,34 +84,57 @@ const AdvertiserPage: React.FC<AdvertiserPageProps> = ({ advertiser, onBack }) =
             <h1 className="text-3xl md:text-6xl font-black uppercase text-gray-900 tracking-tighter mb-4">
               {advertiser.name}
             </h1>
-            {pageData?.location && (
-              <p className="text-gray-500 text-sm font-medium flex items-center gap-2">
-                <i className="fas fa-map-marker-alt text-red-600"></i> {pageData.location}
-              </p>
-            )}
+
+            <div className="flex flex-col gap-2 mt-4">
+              {(pageData?.location || advertiser.address) && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pageData?.location || advertiser.address || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 text-sm font-medium flex items-center gap-2 hover:text-red-600 transition-colors group cursor-pointer w-fit"
+                >
+                  <i className="fas fa-map-marker-alt text-red-600 group-hover:scale-110 transition-transform"></i>
+                  <span className="border-b border-transparent group-hover:border-red-200">{pageData?.location || advertiser.address}</span>
+                </a>
+              )}
+
+              {advertiser.email && (
+                <a href={`mailto:${advertiser.email}`} className="text-gray-500 text-sm font-medium flex items-center gap-2 hover:text-red-600 transition-colors w-fit">
+                  <i className="fas fa-envelope text-red-600"></i> {advertiser.email}
+                </a>
+              )}
+
+              {advertiser.phone && (
+                <a href={`tel:${advertiser.phone.replace(/\D/g, '')}`} className="text-gray-500 text-sm font-medium flex items-center gap-2 hover:text-red-600 transition-colors w-fit">
+                  <i className="fas fa-phone text-red-600"></i> {advertiser.phone}
+                </a>
+              )}
+            </div>
           </div>
 
-          <div className="flex gap-3">
-            {pageData?.whatsapp && (
-              <a
-                href={contactLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-green-500 text-white px-6 py-3 rounded-xl font-bold uppercase text-xs flex items-center gap-2 hover:bg-green-600 transition-all shadow-lg shadow-green-200"
-              >
-                <i className="fab fa-whatsapp text-lg"></i> Chamar
-              </a>
-            )}
-            {pageData?.instagram && (
-              <a
-                href={`https://instagram.com/${pageData.instagram.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-tr from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl font-bold uppercase text-xs flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-pink-200"
-              >
-                <i className="fab fa-instagram text-lg"></i> Perfil
-              </a>
-            )}
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              {pageData?.whatsapp && (
+                <a
+                  href={contactLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-500 text-white px-6 py-3 rounded-xl font-bold uppercase text-xs flex items-center gap-2 hover:bg-green-600 transition-all shadow-lg shadow-green-200"
+                >
+                  <i className="fab fa-whatsapp text-lg"></i> Chamar
+                </a>
+              )}
+              {pageData?.instagram && (
+                <a
+                  href={`https://instagram.com/${pageData.instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-tr from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl font-bold uppercase text-xs flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-pink-200"
+                >
+                  <i className="fab fa-instagram text-lg"></i> Perfil
+                </a>
+              )}
+            </div>
           </div>
         </div>
 

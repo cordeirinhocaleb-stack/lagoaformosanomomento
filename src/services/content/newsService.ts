@@ -12,7 +12,7 @@ export const createNews = async (news: NewsItem) => {
     const { data, error } = await supabase.from('news').insert(payload).select().single();
 
     if (error) {
-        console.error("❌ Erro Create News:", error);
+        console.error("❌ Erro Create News:", JSON.stringify(error, null, 2));
         throw error;
     }
     return data;
@@ -28,7 +28,7 @@ export const updateNews = async (news: NewsItem) => {
     const { error } = await supabase.from('news').update(payload).eq('id', news.id);
 
     if (error) {
-        console.error("❌ Erro Update News:", error);
+        console.error("❌ Erro Update News:", JSON.stringify(error, null, 2));
         throw error;
     }
 };

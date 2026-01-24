@@ -210,3 +210,22 @@ button:not(.ticker-btn):active::after,
     opacity: 1;
     animation: police-sweep 1.2s infinite linear;
 }
+
+/* Custom Scrollbar for specific containers */
+.custom-scrollbar::-webkit-scrollbar {
+    display: block !important;
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #b91c1c;
+}

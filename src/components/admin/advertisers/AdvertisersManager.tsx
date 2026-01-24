@@ -1,6 +1,8 @@
-
 import React, { useState } from 'react';
 import { Advertiser, AdPricingConfig, User } from '../../../types';
+import Toast from '../../common/Toast';
+import Breadcrumb from '../../common/Breadcrumb';
+import LoadingScreen from '../../common/LoadingScreen';
 
 // Sub-módulos
 import AdvertisersListView from './list/AdvertisersListView';
@@ -30,6 +32,10 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedAdvertiser, setSelectedAdvertiser] = useState<Advertiser | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
 
   // Handlers de Navegação
   const handleEdit = (advertiser: Advertiser) => {
@@ -53,31 +59,61 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
 
   // Handlers de Ação (Persistência)
   const handleSaveAdvertiser = async (advertiser: Advertiser) => {
-    // 1. Envia update para o pai (App.tsx)
-    const saved = await onUpdateAdvertiser(advertiser);
+    setIsLoading(true);
+    setLoadingMessage('Salvando anunciante...');
+    try {
+      // 1. Envia update para o pai (App.tsx)
+      const saved = await onUpdateAdvertiser(advertiser);
 
-    // 2. Atualiza o estado local para refletir as mudanças imediatamente na UI do editor
-    // Se recebemos um registro salvo (com ID final do banco), usamos ele
-    if (saved) {
-      setSelectedAdvertiser(saved);
-      alert("Anunciante salvo com sucesso!");
-    } else {
-      setSelectedAdvertiser(advertiser);
-      alert("Anunciante enviado (processando...)");
+      // 2. Atualiza o estado local para refletir as mudanças imediatamente na UI do editor
+      // Se recebemos um registro salvo (com ID final do banco), usamos ele
+      if (saved) {
+        setSelectedAdvertiser(saved);
+        setToast({ message: "Anunciante salvo com sucesso!", type: 'success' });
+      } else {
+        setSelectedAdvertiser(advertiser);
+        setToast({ message: "Anunciante enviado (processando...)", type: 'info' });
+      }
+    } catch (error) {
+      console.error("Erro ao salvar anunciante:", error);
+      setToast({ message: "Erro ao salvar anunciante.", type: 'error' });
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage('');
     }
-
-    // NOTA: Não chamamos handleBackToList() para manter o usuário na tela de edição.
   };
 
   const handleSaveConfig = async (newConfig: AdPricingConfig) => {
-    await onUpdateAdConfig(newConfig);
-    // Não volta para a lista, mantém na config
-    alert("Configurações salvas com sucesso!");
+    setIsLoading(true);
+    setLoadingMessage('Salvando configurações...');
+    try {
+      await onUpdateAdConfig(newConfig);
+      setToast({ message: "Configurações salvas com sucesso!", type: 'success' });
+    } catch (error) {
+      console.error("Erro ao salvar config:", error);
+      setToast({ message: "Erro ao salvar configurações.", type: 'error' });
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage('');
+    }
   };
+
+  // Breadcrumb items baseado no viewMode
+  const breadcrumbItems = [
+    { label: 'Admin' },
+    { label: 'Anunciantes', onClick: viewMode !== 'list' ? handleBackToList : undefined },
+    ...(viewMode === 'editor' ? [{ label: selectedAdvertiser ? 'Editar' : 'Novo' }] : []),
+    ...(viewMode === 'config' ? [{ label: 'Configurações' }] : [])
+  ];
 
   // Renderização Condicional
   return (
     <div className="w-full max-w-7xl mx-auto pb-20">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb items={breadcrumbItems} darkMode={darkMode} />
+
+      {/* Loading Overlay */}
+      {isLoading && <LoadingScreen onFinished={() => { }} />}
 
       {viewMode === 'list' && (
         <AdvertisersListView
@@ -111,6 +147,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
         />
       )}
 
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };

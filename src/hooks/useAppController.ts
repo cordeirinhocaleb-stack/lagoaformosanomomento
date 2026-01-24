@@ -12,6 +12,7 @@ import {
 } from '../types';
 import { RegionFilterType } from '../components/layout/CategoryMenu';
 import { DEFAULT_SETTINGS, INITIAL_AD_CONFIG } from '../config/systemDefaults';
+import { CATEGORIES } from '../components/layout/CategoryMenu';
 
 // Hooks
 import { useAppInitialization } from './useAppInitialization';
@@ -39,7 +40,7 @@ export const useAppController = () => {
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [selectedRegion, setSelectedRegion] = useState<RegionFilterType>('Lagoa Formosa');
+    const [selectedRegion, setSelectedRegion] = useState<RegionFilterType>('Lagoa Formosa e Região');
     const [selectedAdvertiser, setSelectedAdvertiser] = useState<Advertiser | null>(null);
     const [shouldScrollToGrid, setShouldScrollToGrid] = useState(false);
     const [adminNewsToEdit, setAdminNewsToEdit] = useState<NewsItem | null>(null);
@@ -61,6 +62,7 @@ export const useAppController = () => {
 
     const modals = useModals();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleDataLoaded = useCallback(async (response: any) => {
         setNews(response.data.news);
         setAdvertisers(response.data.advertisers);
@@ -74,7 +76,7 @@ export const useAppController = () => {
             if (remoteAdConfig) { setAdConfig({ ...INITIAL_AD_CONFIG, ...remoteAdConfig }); }
         }
         getExternalNews().then(setExternalCategories);
-    }, []);
+    }, []); // Empty deps intentional - setState functions are stable
 
     const handleUserRestored = useCallback((restoredUser: User | null) => {
         setUser(restoredUser);
@@ -87,7 +89,7 @@ export const useAppController = () => {
             const timer = setTimeout(() => modals.setShowChangelog(true), 3000);
             return () => clearTimeout(timer);
         }
-    }, [CURRENT_VERSION, modals.setShowChangelog]);
+    }, [CURRENT_VERSION, modals]);
 
     const handleCloseChangelog = () => {
         modals.setShowChangelog(false);
@@ -162,7 +164,7 @@ export const useAppController = () => {
         setShowProfileModal: modals.setShowProfileModal
     });
 
-    const internalNews = useMemo(() => news.filter(n => n.source === 'site' || !n.source), [news]);
+    const internalNews = useMemo(() => news.filter(n => (n.source === 'site' || !n.source) && !n.hidden), [news]);
     const tickerNews = useMemo(() => {
         return internalNews.filter(n =>
             n.city === 'Lagoa Formosa' ||
@@ -173,12 +175,27 @@ export const useAppController = () => {
     }, [internalNews]);
 
     const marqueeNews = useMemo(() => {
-        const allowedCategories = ['Política', 'Agro', 'Agronegócio', 'Tecnologia'];
-        return Object.entries(externalCategories)
-            .filter(([cat]) => allowedCategories.includes(cat))
-            .flatMap(([_, items]) => items)
-            .sort(() => 0.5 - Math.random()).slice(0, 15);
+        const items = Object.entries(externalCategories)
+            .filter(([cat]) => ['Política', 'Agro', 'Agronegócio', 'Tecnologia', 'Mundo', 'Economia'].includes(cat))
+            .flatMap(([_, items]) => items);
+
+        // Deduplicação final por título (segurança extra)
+        const seen = new Set();
+        return items.filter(item => {
+            const title = item.title?.trim().toLowerCase();
+            if (!title || seen.has(title)) return false;
+            seen.add(title);
+            return true;
+        }).sort(() => 0.5 - Math.random()).slice(0, 15);
     }, [externalCategories]);
+
+    const brazilMarquee = useMemo(() => {
+        return marqueeNews.filter(n => n.region === 'Brasil' || n.city === 'Brasil');
+    }, [marqueeNews]);
+
+    const worldMarquee = useMemo(() => {
+        return marqueeNews.filter(n => n.region === 'Global' || n.city === 'Mundo');
+    }, [marqueeNews]);
 
     useEffect(() => {
         if (user?.themePreference === 'dark') { document.documentElement.classList.add('dark'); }
@@ -293,7 +310,6 @@ export const useAppController = () => {
     }, [activeAdvertisers]);
 
     // Force auth callback view if hash contains token (fallback)
-    useEffect(() => { if (window.location.hash.includes('access_token')) { } }, []);
 
     return {
         user, setUser,
@@ -320,6 +336,7 @@ export const useAppController = () => {
         showLoading, isInitialized,
         view, setView, updateHash, handleBackToHome,
         internalNews, tickerNews, marqueeNews,
+        brazilMarquee, worldMarquee,
         handleCloseChangelog,
         handleNetworkReconnect,
         handleLogout,

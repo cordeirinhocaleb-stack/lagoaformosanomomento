@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthModalsContainer from './AuthModalsContainer';
 import { WelcomeToast } from './WelcomeToast';
 import ChangelogModal from './ChangelogModal';
@@ -10,6 +10,7 @@ import ErrorModal from './ErrorAlertModal';
 import PricingModal from './PricingModal';
 import MyAccountModal from './MyAccountModal';
 import ActivityToastHost from './ActivityToastHost';
+import ComingSoonModal from './ComingSoonModal';
 
 interface GlobalModalsProps {
     modals: any;
@@ -58,6 +59,13 @@ export default function GlobalModals({
     errorModal,
     setErrorModal
 }: GlobalModalsProps) {
+    const [hasShownWelcome, setHasShownWelcome] = React.useState(false);
+
+    // Reset welcome toast when user changes
+    React.useEffect(() => {
+        setHasShownWelcome(false);
+    }, [user?.id]);
+
     return (
         <>
             {/* Global Modals Container */}
@@ -74,10 +82,10 @@ export default function GlobalModals({
                 triggerErrorModal={triggerErrorModal}
                 onCheckEmail={async () => true}
             />
-            {user && modals.showLoginModal === false && (
+            {user && modals.showLoginModal === false && !hasShownWelcome && (
                 <WelcomeToast
                     user={user}
-                    onClose={() => { /* O toast se auto-destrói ou podemos gerenciar via estado se necessário */ }}
+                    onClose={() => setHasShownWelcome(true)}
                 />
             )}
 
@@ -86,6 +94,7 @@ export default function GlobalModals({
                 <ChangelogModal
                     isOpen={modals.showChangelog}
                     onClose={handleCloseChangelog}
+                    user={user}
                 />
             )}
 
@@ -121,16 +130,29 @@ export default function GlobalModals({
                 />
             )}
 
-            {confirmationState.isOpen && (
+            {(modals.confirmationState?.isOpen || confirmationState?.isOpen) && (
                 <ConfirmationModal
-                    isOpen={confirmationState.isOpen}
-                    title={confirmationState.title}
-                    message={confirmationState.message}
-                    type={confirmationState.type || 'warning'}
-                    confirmText={confirmationState.confirmText}
-                    cancelText={confirmationState.cancelText}
-                    onConfirm={handleConfirm}
-                    onCancel={handleCancel}
+                    isOpen={modals.confirmationState?.isOpen ?? confirmationState?.isOpen}
+                    title={modals.confirmationState?.title ?? confirmationState?.title}
+                    message={modals.confirmationState?.message ?? confirmationState?.message}
+                    type={modals.confirmationState?.type ?? confirmationState?.type ?? 'warning'}
+                    confirmText={modals.confirmationState?.confirmText ?? confirmationState?.confirmText}
+                    cancelText={modals.confirmationState?.cancelText ?? confirmationState?.cancelText}
+                    onConfirm={() => {
+                        if (modals.confirmationState?.isOpen) {
+                            modals.confirmationState.onConfirm();
+                            modals.closeConfirm();
+                        } else {
+                            handleConfirm();
+                        }
+                    }}
+                    onCancel={() => {
+                        if (modals.confirmationState?.isOpen) {
+                            modals.closeConfirm();
+                        } else {
+                            handleCancel();
+                        }
+                    }}
                 />
             )}
 
@@ -144,6 +166,13 @@ export default function GlobalModals({
                         console.log('Report sent');
                         // Implementar envio real se houver endpoint
                     }}
+                />
+            )}
+
+            {modals.showComingSoonModal && (
+                <ComingSoonModal
+                    isOpen={modals.showComingSoonModal}
+                    onClose={() => modals.setShowComingSoonModal(false)}
                 />
             )}
 

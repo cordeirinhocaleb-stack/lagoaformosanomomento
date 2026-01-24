@@ -41,3 +41,16 @@ export const getUserAdvertisers = async (userId: string): Promise<Advertiser[]> 
     if (error || !data) return [];
     return data.map(mapAdvertiserFromDb);
 };
+
+export const incrementAdvertiserClick = async (id: string): Promise<void> => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    // RPC call is safer for atomic increments, but for now we'll do a simple update for speed
+    // Ideally: await supabase.rpc('increment_advertiser_click', { row_id: id });
+
+    // Fetch current clicks first (optimistic approach for now without RPC)
+    const { data } = await supabase.from('advertisers').select('clicks').eq('id', id).single();
+    if (data) {
+        await supabase.from('advertisers').update({ clicks: (data.clicks || 0) + 1 }).eq('id', id);
+    }
+};

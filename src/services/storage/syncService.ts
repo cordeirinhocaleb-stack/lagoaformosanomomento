@@ -7,44 +7,47 @@ import { queueYouTubeUpload } from '../youtubeService';
 const IMG_CONFIG = { cloudName: 'dqrxppg5b', uploadPreset: 'noticias_preset' };
 const VIDEO_CONFIG = { cloudName: 'dlleqjxd7', uploadPreset: 'upload_videos_lagoaformosanomomento' };
 
-export const processPendingUploads = async (newsData: NewsItem, onProgress?: (progress: number, status: string) => void): Promise<NewsItem> => {
+export const processPendingUploads = async (newsData: NewsItem, onProgress?: (progress: number, message: string, currentFile?: number, totalFiles?: number) => void): Promise<NewsItem> => {
     const startTime = Date.now();
     const updatedNews = { ...newsData };
 
     // Calculate total operations for progress tracking
-    let totalOps = 0;
-    let completedOps = 0;
+    let totalFiles = 0;
+    let uploadedFiles = 0;
 
     const countLocal = (str: string | undefined) => str && str.startsWith('local_') ? 1 : 0;
 
     // Count Banner Images
     if (updatedNews.bannerImages) {
-        updatedNews.bannerImages.forEach(url => totalOps += countLocal(url));
+        updatedNews.bannerImages.forEach(url => totalFiles += countLocal(url));
     }
     // Count Content Blocks Images
     if (updatedNews.blocks) {
         updatedNews.blocks.forEach(block => {
-            if (block.type === 'image') { totalOps += countLocal(block.content); }
+            if (block.type === 'image') { totalFiles += countLocal(block.content); }
             if (['paragraph', 'heading', 'quote', 'list'].includes(block.type)) {
                 const matches = (block.content.match(/(?:src="|data-local-id=")(local_[^"]+)/g) || []);
-                totalOps += matches.length;
+                totalFiles += matches.length;
             }
             if (block.type === 'gallery' && Array.isArray(block.settings?.images)) {
-                block.settings.images.forEach((img: any) => totalOps += countLocal(typeof img === 'string' ? img : img.url));
+                block.settings.images.forEach((img: any) => totalFiles += countLocal(typeof img === 'string' ? img : img.url));
+            }
+            // Count Video Blocks
+            if (block.type === 'video' && typeof block.content === 'string' && block.content.startsWith('local_')) {
+                totalFiles += 1;
             }
         });
     }
     // Count Banner Video
-    totalOps += countLocal(updatedNews.bannerVideoUrl);
+    totalFiles += countLocal(updatedNews.bannerVideoUrl);
 
-    const updateProgress = (msg: string) => {
-        completedOps++;
-        const percent = totalOps > 0 ? Math.round((completedOps / totalOps) * 100) : 100;
-        if (onProgress) { onProgress(percent, msg); }
+    const reportProgress = (msg: string) => {
+        const percent = totalFiles > 0 ? Math.round((uploadedFiles / totalFiles) * 100) : 100;
+        if (onProgress) { onProgress(percent, msg, uploadedFiles, totalFiles); }
     };
 
-    if (totalOps === 0 && onProgress) {
-        onProgress(100, "Nenhum arquivo pendente.");
+    if (totalFiles === 0 && onProgress) {
+        onProgress(100, "Nenhum arquivo pendente.", 0, 0);
     }
 
     // Helper to generate folder path: User/Context/YYYY-MM-DD
@@ -59,9 +62,9 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     if (updatedNews.bannerImages && updatedNews.bannerImages.length > 0) {
         const newBannerImages = await Promise.all(updatedNews.bannerImages.map(async (url, idx) => {
             if (typeof url === 'string' && url.startsWith('local_')) {
-                const result = await uploadAndCleanup(url, getFolder('banners'), IMG_CONFIG);
-                updateProgress(`Imagem do banner ${idx + 1} enviada`);
-                return result;
+                uploadedFiles++;
+                reportProgress(`Enviando banner ${uploadedFiles}/${totalFiles}...`);
+                return await uploadAndCleanup(url, getFolder('banners'), IMG_CONFIG);
             }
             return url;
         }));
@@ -80,8 +83,9 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 
             // Image Blocks
             if (block.type === 'image' && typeof block.content === 'string' && block.content.startsWith('local_')) {
+                uploadedFiles++;
+                reportProgress(`Enviando imagem de conteúdo ${uploadedFiles}/${totalFiles}...`);
                 newBlock.content = await uploadAndCleanup(block.content, getFolder('content'), IMG_CONFIG);
-                updateProgress("Imagem de conteúdo enviada");
             }
 
             // Text Blocks (HTML Content Parsing)
@@ -94,15 +98,17 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                 if (uniqueLocalIds.length > 0) {
                     const urlMap = new Map<string, string>();
 
-                    await Promise.all(uniqueLocalIds.map(async (lid) => {
+                    // Process sequentially inside blocks to update progress accurately one by one (optional, but safer for tracking)
+                    for (const lid of uniqueLocalIds) {
                         try {
+                            uploadedFiles++;
+                            reportProgress(`Enviando imagem inline ${uploadedFiles}/${totalFiles}...`);
                             const url = await uploadAndCleanup(lid, getFolder('inline'), IMG_CONFIG);
                             urlMap.set(lid, url);
-                            updateProgress("Imagem inline enviada");
                         } catch (e) {
                             console.error(`Falha ao sync imagem de texto ${lid}`, e);
                         }
-                    }));
+                    }
 
                     urlMap.forEach((cloudUrl, localId) => {
                         content = content.replaceAll(`src="blob:${localId}"`, `src="${cloudUrl}"`);
@@ -126,8 +132,9 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                     const newImages = await Promise.all(images.map(async (img: any) => {
                         const url = typeof img === 'string' ? img : img.url;
                         if (url && url.startsWith('local_')) {
+                            uploadedFiles++;
+                            reportProgress(`Enviando galeria ${uploadedFiles}/${totalFiles}...`);
                             const newUrl = await uploadAndCleanup(url, getFolder('gallery'), IMG_CONFIG);
-                            updateProgress("Imagem da galeria enviada");
                             return typeof img === 'string' ? newUrl : { ...img, url: newUrl };
                         }
                         return img;
@@ -156,6 +163,9 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                         const blob = localId ? await getLocalFile(localId) : null;
 
                         if (blob) {
+                            uploadedFiles++;
+                            reportProgress(`Enviando vídeo para YouTube ${uploadedFiles}/${totalFiles}...`);
+
                             const file = new File([blob], `yt_block_${Date.now()}.mp4`, { type: blob.type });
                             const result = await queueYouTubeUpload(file, youtubeMeta as any, updatedNews.id);
 
@@ -164,7 +174,6 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                             newBlock.settings = { ...newBlock.settings, youtubeJobId: result.jobId, uploadStatus: 'uploading' };
 
                             await removeLocalFile(localId!);
-                            updateProgress("Vídeo enviado para fila do YouTube");
                         }
                     } catch (e) {
                         console.error('Falha no upload para YouTube (Bloco):', e);
@@ -174,9 +183,10 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
                 // Case B: Cloudinary / Internal Upload (Only if local)
                 else if (isLocal) {
                     try {
+                        uploadedFiles++;
+                        reportProgress(`Enviando vídeo de conteúdo ${uploadedFiles}/${totalFiles}...`);
                         const cloudUrl = await uploadAndCleanup(block.content, getFolder('videos'), VIDEO_CONFIG);
                         newBlock.content = cloudUrl;
-                        updateProgress("Vídeo do conteúdo enviado");
                     } catch (e) {
                         console.error('Falha no upload de vídeo interno (Bloco):', e);
                     }
@@ -191,6 +201,8 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
     // 3. Process Banner Video
     if (updatedNews.bannerVideoUrl && updatedNews.bannerVideoUrl.startsWith('local_')) {
         const localId = updatedNews.bannerVideoUrl;
+        uploadedFiles++;
+        reportProgress(`Enviando vídeo de capa ${uploadedFiles}/${totalFiles}...`);
 
         if (updatedNews.bannerVideoSource === 'youtube' && updatedNews.bannerYoutubeMetadata) {
             console.log('📺 Syncing video to YouTube:', localId);
@@ -207,7 +219,6 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 
                     // Set a placeholder URL (embed URL will be updated by webhook/backend later)
                     updatedNews.bannerVideoUrl = `https://www.youtube.com/embed/pending_${result.jobId}`;
-                    updateProgress("Vídeo enviado para processamento no YouTube");
                 }
             } catch (e) {
                 console.error('❌ Failed to queue YouTube upload:', e);
@@ -217,7 +228,6 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
             try {
                 const cloudUrl = await uploadAndCleanup(localId, getFolder('videos'), VIDEO_CONFIG);
                 updatedNews.bannerVideoUrl = cloudUrl;
-                updateProgress("Vídeo enviado com sucesso");
             } catch (err) {
                 console.error('❌ Failed to upload video:', err);
                 throw err;
@@ -232,14 +242,14 @@ export const processPendingUploads = async (newsData: NewsItem, onProgress?: (pr
 
     // UX: Ensure minimum duration of 5 seconds
     const elapsed = Date.now() - startTime;
-    const MIN_DURATION = 5000;
+    const MIN_DURATION = 2000; // Reduced to 2s to feel faster
 
     if (elapsed < MIN_DURATION) {
-        if (onProgress) onProgress(99, "Finalizando processamento...");
+        if (onProgress) onProgress(99, "Finalizando processamento...", totalFiles, totalFiles);
         await new Promise(resolve => setTimeout(resolve, MIN_DURATION - elapsed));
     }
 
-    if (onProgress) onProgress(100, "Concluído!");
+    if (onProgress) onProgress(100, "Concluído!", totalFiles, totalFiles);
 
     return updatedNews;
 };

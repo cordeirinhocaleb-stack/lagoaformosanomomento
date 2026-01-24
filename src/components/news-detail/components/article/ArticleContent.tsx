@@ -151,7 +151,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ news, fontSizeLevel = 0
                             return <RenderDivider block={block} />;
                         case 'video':
                             return <RenderVideo block={block} />;
-                        case 'video_link':
+                        case 'video_link': {
                             // This case is largely redundant with 'video' but kept for legacy/specific URL handling not covered by RenderVideo logic yet if distinct
                             // Actually RenderVideo handles youtube/generic detection robustly.
                             // But purely for safety with existing data, we map it to RenderVideo too or simplified embed.
@@ -180,6 +180,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ news, fontSizeLevel = 0
                                     </div>
                                 </div>
                             );
+                        }
                         case 'gallery':
                             return <GalleryRenderer block={block} />;
                         case 'engagement':

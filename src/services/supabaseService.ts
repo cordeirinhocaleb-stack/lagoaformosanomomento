@@ -29,6 +29,7 @@ export {
     deleteNews,
     upsertAdvertiser,
     deleteAdvertiser,
+    incrementAdvertiserClick,
     saveSystemSetting,
     getSystemSetting,
     fetchDailyBreadWithLookahead,

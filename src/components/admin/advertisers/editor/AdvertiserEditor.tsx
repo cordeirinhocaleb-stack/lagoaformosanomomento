@@ -1,13 +1,14 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Advertiser } from '../../../../types';
-import EditorTabs, { EditorTabId } from './EditorTabs';
+import ContractSectionSelector, { ContractSection } from './ContractSectionSelector';
 import GeneralSection from './sections/GeneralSection';
 import ShowcaseSection from './sections/ShowcaseSection';
+import SimpleBannerEditor from './sections/SimpleBannerEditor';
+import PopupSetBuilder from '../popupBuilder/PopupSetBuilderPanel';
 import { processAdvertiserUploads } from '../../../../services/storage/syncService';
-
-const BannersPanel = React.lazy(() => import('../config/panels/BannersPanel'));
-const PromoPopupPanel = React.lazy(() => import('../config/panels/PromoPopupPanel'));
+import ContractPDFButton from '../ContractPDFButton';
 
 interface AdvertiserEditorProps {
     advertiser: Advertiser | null; // null = Criando novo
@@ -77,7 +78,7 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
         };
     };
 
-    const [activeTab, setActiveTab] = useState<EditorTabId>('geral');
+    const [activeTab, setActiveTab] = useState<ContractSection>('basic');
     const [formData, setFormData] = useState<Advertiser>(() => prepareInitialState(advertiser));
     const [isSaving, setIsSaving] = useState(false);
 
@@ -119,6 +120,9 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
                 </div>
 
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                    {advertiser && (
+                        <ContractPDFButton advertiser={formData} darkMode={darkMode} />
+                    )}
                     <button
                         onClick={onCancel}
                         className={`flex-1 md:flex-none px-6 py-3 rounded-xl border font-black uppercase text-[10px] tracking-widest transition-colors ${darkMode ? 'border-white/10 text-gray-400 hover:bg-white/5 hover:text-white' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
@@ -136,52 +140,42 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
                 </div>
             </div>
 
-            {/* Navegação */}
-            <EditorTabs activeTab={activeTab} onChange={setActiveTab} />
+            {/* Navegação por Seções */}
+            <ContractSectionSelector
+                activeSection={activeTab as any}
+                onChange={(section) => setActiveTab(section)}
+                darkMode={darkMode}
+            />
 
-            {/* Conteúdo das Abas */}
+            {/* Conteúdo das Seções */}
             <div className={`rounded-3xl md:rounded-[2.5rem] border p-4 md:p-8 xl:p-10 shadow-sm min-h-[500px] transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5 text-white' : 'bg-white border-gray-100'}`}>
-                {activeTab === 'geral' && (
+                {activeTab === 'basic' && (
                     <GeneralSection
                         data={formData}
                         onChange={setFormData}
                         darkMode={darkMode}
                     />
                 )}
-                {activeTab === 'vitrine' && (
+                {activeTab === 'showcase' && (
                     <ShowcaseSection
                         data={formData}
                         onChange={setFormData}
                         darkMode={darkMode}
                     />
                 )}
-                {activeTab === 'banners' && (
-                    <React.Suspense fallback={<div className="h-48 flex items-center justify-center"><i className="fas fa-spinner fa-spin text-red-500"></i></div>}>
-                        <div className="animate-fadeIn">
-                            <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-6 pb-2 border-b flex items-center gap-2 ${darkMode ? 'text-zinc-500 border-zinc-800' : 'text-zinc-400 border-gray-100'}`}>
-                                <i className="fas fa-panorama"></i> Banners Home vinculados
-                            </h3>
-                            <BannersPanel
-                                config={formData.promoBanners || []}
-                                onChange={(val: any[]) => setFormData(prev => ({ ...prev, promoBanners: val }))}
-                                darkMode={darkMode}
-                            />
-                        </div>
-                    </React.Suspense>
+                {activeTab === 'banner' && (
+                    <SimpleBannerEditor
+                        banners={formData.promoBanners || []}
+                        onChange={(banners) => setFormData(prev => ({ ...prev, promoBanners: banners }))}
+                        darkMode={darkMode}
+                    />
                 )}
                 {activeTab === 'popup' && (
-                    <React.Suspense fallback={<div className="h-48 flex items-center justify-center"><i className="fas fa-spinner fa-spin text-red-500"></i></div>}>
-                        <div className="animate-fadeIn">
-                            <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-6 pb-2 border-b flex items-center gap-2 ${darkMode ? 'text-zinc-500 border-zinc-800' : 'text-zinc-400 border-gray-100'}`}>
-                                <i className="fas fa-bullhorn"></i> Popup Promocional
-                            </h3>
-                            <PromoPopupPanel
-                                config={formData.popupSet || { items: [] }}
-                                onChange={(val: { items: any[] }) => setFormData(prev => ({ ...prev, popupSet: val }))}
-                                darkMode={darkMode}
-                            />
-                        </div>
-                    </React.Suspense>
+                    <PopupSetBuilder
+                        config={formData.popupSet || { items: [] }}
+                        onChange={(popupSet) => setFormData(prev => ({ ...prev, popupSet }))}
+                        darkMode={darkMode}
+                    />
                 )}
             </div>
         </div>

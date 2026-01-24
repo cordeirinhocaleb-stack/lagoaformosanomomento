@@ -22,6 +22,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState(initialFilter || 'Todas');
+    const [showHidden, setShowHidden] = useState(false);
 
     // Deep Linking Effect
     React.useEffect(() => {
@@ -36,6 +37,9 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
     // Filter Logic
     const filteredNews = useMemo(() => {
         return news.filter(item => {
+            // Filter out hidden news unless showHidden is true
+            if (!showHidden && item.hidden) return false;
+
             const matchesSearch = (item.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
                 (item.author?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
@@ -54,7 +58,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
             const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
             return dateB - dateA;
         });
-    }, [news, searchTerm, filterCategory]);
+    }, [news, searchTerm, filterCategory, showHidden]);
 
     // Pagination
     const ITEMS_PER_PAGE = 10;
@@ -66,7 +70,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
     // Reset page when filter changes
     React.useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterCategory]);
+    }, [searchTerm, filterCategory, showHidden]);
 
     const [editorKey, setEditorKey] = useState(0);
 
@@ -99,6 +103,11 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
         }
     };
 
+    const handleToggleHidden = (item: NewsItem) => {
+        const updatedItem = { ...item, hidden: !item.hidden };
+        onUpdateNews(updatedItem);
+    };
+
     if (view === 'editor') {
         return (
             <div className="h-[calc(100vh-5rem)] -m-4 md:-m-8 relative">
@@ -127,6 +136,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                 setFilterCategory={setFilterCategory}
                 categories={categories}
                 darkMode={darkMode}
+                showHidden={showHidden}
+                setShowHidden={setShowHidden}
                 onCreate={handleCreate}
             />
 
@@ -140,6 +151,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                 onPageChange={setCurrentPage}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onToggleHidden={handleToggleHidden}
             />
         </div>
     );

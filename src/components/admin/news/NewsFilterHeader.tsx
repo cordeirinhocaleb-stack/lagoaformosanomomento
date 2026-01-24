@@ -8,11 +8,13 @@ interface NewsFilterHeaderProps {
     setFilterCategory: (category: string) => void;
     categories: string[];
     darkMode: boolean;
+    showHidden: boolean;
+    setShowHidden: (show: boolean) => void;
     onCreate: () => void;
 }
 
 const NewsFilterHeader: React.FC<NewsFilterHeaderProps> = ({
-    searchTerm, setSearchTerm, filterCategory, setFilterCategory, categories, darkMode, onCreate
+    searchTerm, setSearchTerm, filterCategory, setFilterCategory, categories, darkMode, showHidden, setShowHidden, onCreate
 }) => {
     return (
         <div className={`flex flex-col md:flex-row justify-between items-center gap-4 p-4 rounded-2xl border ${darkMode ? 'bg-black border-white/5' : 'bg-white border-gray-200'}`}>
@@ -77,6 +79,18 @@ const NewsFilterHeader: React.FC<NewsFilterHeaderProps> = ({
                     >
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
+
+                    <button
+                        onClick={() => setShowHidden(!showHidden)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${showHidden
+                            ? 'bg-gray-600 text-white shadow-lg'
+                            : (darkMode ? 'bg-black/40 text-gray-400 border border-white/10 hover:bg-white/5' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-white')
+                            }`}
+                        title={showHidden ? "Ocultar notícias escondidas" : "Mostrar notícias escondidas"}
+                    >
+                        <i className={`fas ${showHidden ? 'fa-eye-slash' : 'fa-eye'} mr-1.5`}></i>
+                        {showHidden ? 'Ocultar Escondidas' : 'Ver Escondidas'}
+                    </button>
                 </div>
 
             </div>

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1769269420314-ako43zu6p",
+    "timestamp": "2026-01-24T15:43:40.314Z",
+    "taskDescription": "Inicializar memória do agente",
+    "context": {
+      "files": [],
+      "areas": [
+        "initialization"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Erro ao executar tarefa: EISDIR: illegal operation on a directory, read"
+  },
+  {
+    "id": "1769269447612-bmzbzwlpj",
+    "timestamp": "2026-01-24T15:44:07.612Z",
+    "taskDescription": "Escanear projeto completo",
+    "context": {
+      "files": [],
+      "areas": [
+        "all"
+      ],
+      "complexity": "high"
+    },
+    "result": "failure",
+    "details": "Erro ao executar tarefa: EISDIR: illegal operation on a directory, read"
+  }
+]

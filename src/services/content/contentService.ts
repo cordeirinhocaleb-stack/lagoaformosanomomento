@@ -7,7 +7,8 @@ import { logger } from '../core/debugLogger';
 
 // Re-exports
 export * from './newsService';
-export * from './advertiserService';
+export * from './newsService';
+export * from './advertiserService'; // Now includes incrementAdvertiserClick
 export * from './socialService';
 
 export const fetchSiteData = async (): Promise<{ source: 'database' | 'mock'; data: SiteData } | null> => {
@@ -85,7 +86,7 @@ export const fetchSiteData = async (): Promise<{ source: 'database' | 'mock'; da
             data: {
                 news: (newsRes.data || []).map(mapNewsFromDb).map((news: NewsItem) => {
                     // Filtrar URLs antigas que causam erro
-                    if (news.imageUrl && (news.imageUrl.includes('portal.lagoaformosa.mg.gov.br') || news.imageUrl.includes('via.placeholder.com'))) {
+                    if (news.imageUrl && news.imageUrl.includes('portal.lagoaformosa.mg.gov.br')) {
                         return { ...news, imageUrl: 'https://placehold.co/800x600/000000/FFFFFF?text=LFNM' };
                     }
                     return news;

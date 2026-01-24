@@ -1,6 +1,8 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Advertiser } from '../../../../types';
+import { getLocalFile } from '../../../../services/storage/localStorageService';
+import { useAppControllerContext } from '../../../../providers/AppControllerProvider';
 
 interface AdvertiserRowProps {
     advertiser: Advertiser;
@@ -10,6 +12,30 @@ interface AdvertiserRowProps {
 }
 
 const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDelete, darkMode = false }) => {
+    const ctrl = useAppControllerContext();
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+    // Carregar preview do logo se for um ID local
+    useEffect(() => {
+        const loadLogoPreview = async () => {
+            if (advertiser.logoUrl?.startsWith('local_')) {
+                try {
+                    const blob = await getLocalFile(advertiser.logoUrl);
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        setLogoPreview(url);
+                        return () => URL.revokeObjectURL(url);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar preview do logo:', error);
+                }
+            } else {
+                setLogoPreview(null);
+            }
+        };
+        loadLogoPreview();
+    }, [advertiser.logoUrl]);
+
     const startDate = new Date(advertiser.startDate);
     const endDate = new Date(advertiser.endDate);
     const now = new Date();
@@ -40,6 +66,9 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDel
 
     const ctr = advertiser.views > 0 ? ((advertiser.clicks / advertiser.views) * 100).toFixed(1) : '0';
 
+    // Resolver URL do logo (local preview ou URL normal)
+    const resolvedLogoUrl = logoPreview || advertiser.logoUrl;
+
     return (
         <div
             onClick={() => onEdit(advertiser)}
@@ -48,8 +77,8 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDel
             <div className={`absolute left-0 top-0 bottom-0 w-2 ${advertiser.isActive && !isExpired ? 'bg-green-500 shadow-[2px_0_10px_rgba(34,197,94,0.3)]' : (darkMode ? 'bg-white/10' : 'bg-gray-200')} group-hover:bg-red-600 transition-colors`}></div>
 
             <div className={`w-20 h-20 rounded-3xl border flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-105 transition-transform shadow-inner ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                {advertiser.logoUrl ? (
-                    <img src={advertiser.logoUrl} alt={advertiser.name} className="w-full h-full object-cover" />
+                {resolvedLogoUrl ? (
+                    <img src={resolvedLogoUrl} alt={advertiser.name} className="w-full h-full object-cover" />
                 ) : (
                     <i className={`fas ${advertiser.logoIcon || 'fa-store'} text-3xl transition-colors ${darkMode ? 'text-gray-600 group-hover:text-red-500' : 'text-gray-300 group-hover:text-red-500'}`}></i>
                 )}
@@ -75,11 +104,18 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDel
                 <div>
                     <div className="flex justify-between text-[9px] font-black uppercase text-gray-400 mb-2 tracking-widest">
                         <span>Contrato</span>
-                        <span className={daysLeft < 5 ? 'text-red-600 animate-pulse' : ''}>{daysLeft > 0 ? `${daysLeft} dias restantes` : 'Finalizado'}</span>
+                        <span className={daysLeft <= 7 ? 'text-red-600 animate-pulse font-extrabold' : ''}>
+                            {daysLeft > 0 ? (
+                                <>
+                                    {daysLeft <= 7 && <i className="fas fa-exclamation-triangle mr-1"></i>}
+                                    {daysLeft} dias restantes
+                                </>
+                            ) : 'Finalizado'}
+                        </span>
                     </div>
                     <div className={`w-full h-2.5 rounded-full overflow-hidden shadow-inner ${darkMode ? 'bg-black/40' : 'bg-gray-100'}`}>
                         <div
-                            className={`h-full rounded-full ${isExpired ? 'bg-red-500' : 'bg-green-500'} transition-all duration-1000 ease-out`}
+                            className={`h-full rounded-full ${isExpired ? 'bg-red-500' : (daysLeft <= 7 ? 'bg-amber-500' : 'bg-green-500')} transition-all duration-1000 ease-out`}
                             style={{ width: `${progress}%` }}
                         ></div>
                     </div>
@@ -108,7 +144,16 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDel
             <div className={`flex lg:flex pl-4 lg:border-l w-full lg:w-auto gap-3 ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
                 <button
                     className={`w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-lg active:scale-95 group/del`}
-                    onClick={(e) => { e.stopPropagation(); if (confirm(`Tem certeza que deseja excluir o parceiro ${advertiser.name}?`)) onDelete && onDelete(advertiser.id); }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        ctrl.modals.showConfirm(
+                            'Excluir Parceiro',
+                            `Tem certeza que deseja excluir o parceiro ${advertiser.name}?`,
+                            () => onDelete && onDelete(advertiser.id),
+                            'danger',
+                            'Excluir'
+                        );
+                    }}
                     title="Excluir Parceiro"
                 >
                     <i className="fas fa-trash-alt text-lg"></i>

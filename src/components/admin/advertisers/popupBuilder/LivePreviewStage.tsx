@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PromoPopupSetConfig } from '../../../../types';
 import PromoPopupCarousel from '../../../home/popup/PromoPopupCarousel';
 import { deviceFrame, stageBackground, toolbarBtn, zoomBtn } from '../popup/previewStageStyles';
@@ -37,7 +37,7 @@ const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedI
     }, [darkMode]);
 
     // Auto-fit logic
-    const handleFit = () => {
+    const handleFit = useCallback(() => {
         if (scrollContainerRef.current) {
             const { clientWidth, clientHeight } = scrollContainerRef.current;
             const targetWidth = parseInt(frameStyle.width);
@@ -53,14 +53,14 @@ const LivePreviewStage: React.FC<LivePreviewStageProps> = ({ popupSet, selectedI
             const fitScale = Math.min(scaleX, scaleY, 1);
             setZoom(Math.max(0.25, parseFloat(fitScale.toFixed(2))));
         }
-    };
+    }, [device, frameStyle.height, frameStyle.width, isMobileView]);
 
     // Ajusta zoom ao trocar device
     useEffect(() => {
         // Pequeno timeout para garantir que o layout renderizou
         const timer = setTimeout(handleFit, 50);
         return () => clearTimeout(timer);
-    }, [device, isMobileView]);
+    }, [handleFit]);
 
     // Se estiver em mobile real e visualizando phone, remove as bordas e ocupa 100%
     const isFullScreenMobile = isMobileView && device === 'phone';

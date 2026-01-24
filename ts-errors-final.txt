@@ -1,0 +1,1 @@
+﻿src/components/admin/editor/blocks/EditorialBlock.tsx(53,64): error TS2551: Property 'class' does not exist on type 'WidgetStyle'. Did you mean 'classes'?

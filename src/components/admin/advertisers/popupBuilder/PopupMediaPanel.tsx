@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { PopupMediaConfig, PopupImagePresentation, PopupVideoSettings, PopupImageStyle } from '../../../../types';
+import { PopupMediaConfig, PopupImagePresentation, PopupVideoSettings, PopupImageStyle } from '@/types/ads';
 import MediaUploader from '../../../media/MediaUploader';
 
 interface PopupMediaPanelProps {
@@ -34,7 +33,7 @@ const OverlaySelector = ({ value, onChange, darkMode }: { value: string, onChang
 
     return (
         <select
-            value={value}
+            value={value || 'none'}
             onChange={e => onChange(e.target.value)}
             className={selectClass}
         >
@@ -52,141 +51,135 @@ const OverlaySelector = ({ value, onChange, darkMode }: { value: string, onChang
 const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, darkMode = false }) => {
     const [activeSubTab, setActiveSubTab] = useState<MediaSubTab>('source');
 
+    // Safe accessors with defaults
+    const imageStyle = media.imageStyle || {
+        fit: 'cover',
+        focusPoint: 'center',
+        borderRadius: 'none',
+        borderStyle: 'none',
+        shadow: 'none',
+        overlayPreset: 'none',
+        overlayIntensity: 0,
+        filterId: 'none',
+        filterVariant: 'soft'
+    };
+
+    const videoSettings = media.videoSettings || {
+        muted: true,
+        loop: true,
+        autoplay: true,
+        fit: 'cover',
+        zoomMotion: 'off',
+        borderRadius: 'none',
+        borderStyle: 'none',
+        shadow: 'none',
+        overlayPreset: 'none',
+        filterId: 'none',
+        filterVariant: 'soft',
+        framePreset: 'clean_border'
+    };
+
     // Determine active media type
     const hasVideo = !!media.videoUrl;
-    const hasImages = media.images && media.images.length > 0;
     const mediaType = hasVideo ? 'video' : 'image';
 
     const handleMediaAdd = (_file: File | null, preview: string, type: 'image' | 'video') => {
         if (type === 'video') {
-            // Se for vídeo, limpa imagens e seta o vídeo (Apenas 1 vídeo permitido)
             onChange({ videoUrl: preview, images: [] });
         } else {
-            // Se for imagem, limpa vídeo e adiciona imagem (Máximo 3)
-            const currentImages = media.images || [];
-            if (currentImages.length >= 3) {
-                alert("Máximo de 3 imagens atingido. Remova uma para adicionar outra.");
-                return;
-            }
-            const newImages = [...currentImages, preview];
-            onChange({ images: newImages, videoUrl: '' });
+            onChange({ images: [preview], videoUrl: '' });
         }
     };
 
-    const removeImage = (index: number) => {
-        const newImages = [...(media.images || [])];
-        newImages.splice(index, 1);
-        onChange({ images: newImages });
-    };
-
     const updateImageStyle = (updates: Partial<PopupImageStyle>) => {
-        onChange({ imageStyle: { ...(media.imageStyle || {}), ...updates } as PopupImageStyle });
+        onChange({ imageStyle: { ...imageStyle, ...updates } });
     };
 
     const updateVideoSettings = (updates: Partial<PopupVideoSettings>) => {
-        onChange({ videoSettings: { ...(media.videoSettings || {}), ...updates } as PopupVideoSettings });
+        onChange({ videoSettings: { ...videoSettings, ...updates } });
     };
 
-    const tabClass = (isActive: boolean) => `flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${isActive ? (darkMode ? 'bg-white shadow-sm text-black' : 'bg-white shadow-sm text-black') : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-600')}`;
-    // Helper Components for Reusable Controls
-    const selectClass = `w-full border rounded-lg p-2 text-[10px] font-bold uppercase outline-none ${darkMode ? 'bg-black/20 border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-black'}`;
     const labelClass = `block text-[9px] font-bold uppercase mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`;
+    const headerTabClass = (tab: MediaSubTab) => `px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeSubTab === tab ? (darkMode ? 'bg-white/10 text-white' : 'bg-white text-black shadow-sm') : (darkMode ? 'text-gray-500 hover:text-white' : 'text-gray-400 hover:text-gray-600')}`;
+    const selectClass = `w-full border rounded-lg p-2 text-[10px] font-bold uppercase outline-none ${darkMode ? 'bg-black/20 border-white/10 text-white focus:border-white/30' : 'bg-white border-gray-200 text-black focus:border-black'}`;
 
     return (
         <div className="space-y-6">
-            {/* SUB-TABS */}
-            <div className={`flex p-1 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-                {['source', 'layout', 'style', 'filters'].map(tab => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveSubTab(tab as MediaSubTab)}
-                        className={tabClass(activeSubTab === tab)}
-                    >
-                        {tab === 'source' ? 'Fonte' : tab === 'layout' ? (mediaType === 'video' ? 'Playback' : 'Layout') : tab === 'style' ? 'Visual' : 'Efeitos'}
-                    </button>
-                ))}
+            {/* SUB-TABS INTERNAS */}
+            <div className={`p-1 rounded-xl flex items-center justify-between gap-1 overflow-x-auto scrollbar-hide ${darkMode ? 'bg-white/5' : 'bg-gray-100/50'}`}>
+                <div className="flex gap-1">
+                    {(['source', 'layout', 'style', 'filters'] as const).map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveSubTab(tab)}
+                            className={headerTabClass(tab)}
+                        >
+                            {tab === 'source' ? 'Arquivo' : tab === 'layout' ? 'Layout' : tab === 'style' ? 'Aparência' : 'Filtros'}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            {/* TAB CONTENT: SOURCE */}
+            {/* TAB CONTENT: SOURCE (Upload) */}
             {activeSubTab === 'source' && (
                 <div className="space-y-6 animate-fadeIn">
-                    <MediaUploader onMediaSelect={handleMediaAdd} />
+                    <MediaUploader
+                        onMediaSelect={handleMediaAdd}
+                        compact={false}
+                    />
 
-                    {hasVideo ? (
-                        <div className={`rounded-xl overflow-hidden relative group aspect-video border ${darkMode ? 'bg-black border-white/10' : 'bg-black border-gray-200'}`}>
-                            <iframe
-                                src={media.videoUrl?.replace('watch?v=', 'embed/')}
-                                className="w-full h-full pointer-events-none opacity-50"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => onChange({ videoUrl: '' })}
-                                    className="bg-red-600 text-white px-4 py-2 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
-                                >
-                                    <i className="fas fa-trash"></i> Remover Vídeo
-                                </button>
+                    {/* Quick Config based on type */}
+                    {hasVideo && (
+                        <div className={`p-4 rounded-2xl border ${darkMode ? 'bg-black/20 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+                            <label className={labelClass}>Configuração do Vídeo</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={videoSettings.autoplay || false}
+                                        onChange={e => updateVideoSettings({ autoplay: e.target.checked })}
+                                        className="w-4 h-4 accent-black"
+                                    />
+                                    <span className="text-[10px] font-bold uppercase text-gray-500">Auto Play</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={videoSettings.muted || false}
+                                        onChange={e => updateVideoSettings({ muted: e.target.checked })}
+                                        className="w-4 h-4 accent-black"
+                                    />
+                                    <span className="text-[10px] font-bold uppercase text-gray-500">Mudo (Muted)</span>
+                                </div>
                             </div>
-                            <div className="absolute top-2 left-2 bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded uppercase shadow-sm">Vídeo Ativo</div>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className="flex gap-3 overflow-x-auto pb-2 items-center">
-                                {media.images?.map((img, idx) => (
-                                    <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 group border-2 border-gray-100 hover:border-red-500 transition-colors bg-gray-50 shadow-sm">
-                                        <img src={img} className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <button
-                                                onClick={() => removeImage(idx)}
-                                                className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                                title="Remover Imagem"
-                                            >
-                                                <i className="fas fa-trash text-xs"></i>
-                                            </button>
-                                        </div>
-                                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[8px] font-black text-center py-0.5 backdrop-blur-sm">
-                                            IMG {idx + 1}
-                                        </div>
-                                    </div>
-                                ))}
-                                {(!media.images || media.images.length < 3) && (
-                                    <div className={`w-24 h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center ${darkMode ? 'border-white/10 bg-white/5 text-gray-500' : 'border-gray-200 bg-gray-50/50 text-gray-300'}`}>
-                                        <i className="fas fa-image text-xl mb-1"></i>
-                                        <span className="text-[8px] font-bold uppercase">Vazio</span>
-                                    </div>
-                                )}
-                            </div>
-                            <p className="text-[9px] text-gray-400 text-center font-medium bg-yellow-50 text-yellow-700 py-2 rounded-lg border border-yellow-100">
-                                <i className="fas fa-info-circle mr-1"></i>
-                                Máximo 3 imagens (Galeria) OU 1 Vídeo. Adicionar um tipo remove o outro.
-                            </p>
                         </div>
                     )}
                 </div>
             )}
 
-            {/* TAB CONTENT: LAYOUT / PLAYBACK */}
+            {/* TAB CONTENT: LAYOUT (Positioning) */}
             {activeSubTab === 'layout' && (
                 <div className="space-y-6 animate-fadeIn">
-                    {mediaType === 'video' ? (
+                    {hasVideo ? (
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className={labelClass}>Som</label>
                                 <div className={`flex p-1 rounded-lg ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                                    <button onClick={() => updateVideoSettings({ muted: true })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${media.videoSettings.muted ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Mudo</button>
-                                    <button onClick={() => updateVideoSettings({ muted: false })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${!media.videoSettings.muted ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Som</button>
+                                    <button onClick={() => updateVideoSettings({ muted: true })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${videoSettings.muted ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Mudo</button>
+                                    <button onClick={() => updateVideoSettings({ muted: false })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${!videoSettings.muted ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Som</button>
                                 </div>
                             </div>
                             <div>
                                 <label className={labelClass}>Loop</label>
                                 <div className={`flex p-1 rounded-lg ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                                    <button onClick={() => updateVideoSettings({ loop: true })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${media.videoSettings.loop ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Sim</button>
-                                    <button onClick={() => updateVideoSettings({ loop: false })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${!media.videoSettings.loop ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Não</button>
+                                    <button onClick={() => updateVideoSettings({ loop: true })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${videoSettings.loop ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Sim</button>
+                                    <button onClick={() => updateVideoSettings({ loop: false })} className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${!videoSettings.loop ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'}`}>Não</button>
                                 </div>
                             </div>
                             <div>
                                 <label className={labelClass}>Ajuste (Fit)</label>
                                 <select
-                                    value={media.videoSettings.fit}
+                                    value={videoSettings.fit || 'cover'}
                                     onChange={e => updateVideoSettings({ fit: e.target.value as PopupVideoSettings['fit'] })}
                                     className={selectClass}
                                 >
@@ -197,7 +190,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                             <div>
                                 <label className={labelClass}>Zoom Motion</label>
                                 <select
-                                    value={media.videoSettings.zoomMotion}
+                                    value={videoSettings.zoomMotion || 'off'}
                                     onChange={e => updateVideoSettings({ zoomMotion: e.target.value as PopupVideoSettings['zoomMotion'] })}
                                     className={selectClass}
                                 >
@@ -230,7 +223,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 <div>
                                     <label className={labelClass}>Ajuste (Fit)</label>
                                     <select
-                                        value={media.imageStyle.fit}
+                                        value={imageStyle.fit || 'cover'}
                                         onChange={e => updateImageStyle({ fit: e.target.value as PopupImageStyle['fit'] })}
                                         className={selectClass}
                                     >
@@ -241,7 +234,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 <div>
                                     <label className={labelClass}>Foco</label>
                                     <select
-                                        value={media.imageStyle.focusPoint}
+                                        value={imageStyle.focusPoint || 'center'}
                                         onChange={e => updateImageStyle({ focusPoint: e.target.value as PopupImageStyle['focusPoint'] })}
                                         className={selectClass}
                                     >
@@ -253,6 +246,20 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                     </select>
                                 </div>
                             </div>
+
+                            {/* PREVIEW SIMPLES */}
+                            {media.images && media.images.length > 0 && (
+                                <div className={`relative aspect-video rounded-[2rem] overflow-hidden border group ${darkMode ? 'bg-black border-white/10' : 'bg-gray-100 border-gray-200 shadow-inner'}`}>
+                                    <img
+                                        src={media.images[0]}
+                                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 opacity-80"
+                                        style={{
+                                            transform: `translate(${imageStyle.posX || 0}%, ${imageStyle.posY || 0}%) scale(${imageStyle.scale || 1})`,
+                                            objectPosition: imageStyle.focusPoint || 'center'
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -269,7 +276,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                     <button
                                         key={r}
                                         onClick={() => mediaType === 'video' ? updateVideoSettings({ borderRadius: r as PopupVideoSettings['borderRadius'] }) : updateImageStyle({ borderRadius: r as PopupImageStyle['borderRadius'] })}
-                                        className={`flex-1 py-2 rounded text-[8px] font-bold uppercase ${(mediaType === 'video' ? media.videoSettings.borderRadius : media.imageStyle.borderRadius) === r ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
+                                        className={`flex-1 py-2 rounded text-[8px] font-bold uppercase ${(mediaType === 'video' ? videoSettings.borderRadius : imageStyle.borderRadius) === r ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
                                             }`}
                                     >
                                         {r}
@@ -284,7 +291,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                     <button
                                         key={s}
                                         onClick={() => mediaType === 'video' ? updateVideoSettings({ shadow: s as PopupVideoSettings['shadow'] }) : updateImageStyle({ shadow: s as PopupImageStyle['shadow'] })}
-                                        className={`flex-1 py-2 rounded text-[8px] font-bold uppercase ${(mediaType === 'video' ? media.videoSettings.shadow : media.imageStyle.shadow) === s ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
+                                        className={`flex-1 py-2 rounded text-[8px] font-bold uppercase ${(mediaType === 'video' ? videoSettings.shadow : imageStyle.shadow) === s ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
                                             }`}
                                     >
                                         {s}
@@ -297,7 +304,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                     <div>
                         <label className={labelClass}>Overlay (Sobreposição)</label>
                         <OverlaySelector
-                            value={mediaType === 'video' ? media.videoSettings.overlayPreset : media.imageStyle.overlayPreset}
+                            value={mediaType === 'video' ? videoSettings.overlayPreset : imageStyle.overlayPreset}
                             onChange={v => mediaType === 'video' ? updateVideoSettings({ overlayPreset: v as PopupVideoSettings['overlayPreset'] }) : updateImageStyle({ overlayPreset: v as PopupImageStyle['overlayPreset'] })}
                             darkMode={darkMode}
                         />
@@ -307,7 +314,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                         <div>
                             <label className={labelClass}>Frame Preset</label>
                             <select
-                                value={media.videoSettings.framePreset}
+                                value={videoSettings.framePreset || 'clean_border'}
                                 onChange={e => updateVideoSettings({ framePreset: e.target.value as PopupVideoSettings['framePreset'] })}
                                 className={selectClass}
                             >
@@ -327,7 +334,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                     <div>
                         <label className={labelClass}>Tipo de Filtro</label>
                         <FilterSelector
-                            value={mediaType === 'video' ? media.videoSettings.filterId : media.imageStyle.filterId}
+                            value={mediaType === 'video' ? videoSettings.filterId : imageStyle.filterId}
                             onChange={v => mediaType === 'video' ? updateVideoSettings({ filterId: v as PopupVideoSettings['filterId'] }) : updateImageStyle({ filterId: v as PopupImageStyle['filterId'] })}
                             darkMode={darkMode}
                         />
@@ -340,7 +347,7 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
                                 <button
                                     key={v}
                                     onClick={() => mediaType === 'video' ? updateVideoSettings({ filterVariant: v as PopupVideoSettings['filterVariant'] }) : updateImageStyle({ filterVariant: v as PopupImageStyle['filterVariant'] })}
-                                    className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${(mediaType === 'video' ? media.videoSettings.filterVariant : media.imageStyle.filterVariant) === v ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
+                                    className={`flex-1 py-2 rounded text-[9px] font-bold uppercase ${(mediaType === 'video' ? videoSettings.filterVariant : imageStyle.filterVariant) === v ? (darkMode ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-black') : 'text-gray-400'
                                         }`}
                                 >
                                     {v === 'soft' ? 'Suave' : 'Forte'}
@@ -351,11 +358,11 @@ const PopupMediaPanel: React.FC<PopupMediaPanelProps> = ({ media, onChange, dark
 
                     {!hasVideo && (
                         <div>
-                            <label className={labelClass}>Opacidade do Overlay ({media.imageStyle.overlayIntensity || 0}%)</label>
+                            <label className={labelClass}>Opacidade do Overlay ({imageStyle.overlayIntensity || 0}%)</label>
                             <input
                                 type="range"
                                 min="0" max="100"
-                                value={media.imageStyle.overlayIntensity || 0}
+                                value={imageStyle.overlayIntensity || 0}
                                 onChange={e => updateImageStyle({ overlayIntensity: parseInt(e.target.value) })}
                                 className="w-full accent-black"
                             />

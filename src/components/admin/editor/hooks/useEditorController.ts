@@ -68,6 +68,13 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
     const [isDirty, setIsDirty] = useState(false);
     const initialLoadRef = useRef(true);
 
+
+    // SEO State
+    const [seoTitle, setSeoTitle] = useState(initialData?.seo?.metaTitle || '');
+    const [seoDescription, setSeoDescription] = useState(initialData?.seo?.metaDescription || '');
+    const [focusKeyword, setFocusKeyword] = useState(initialData?.seo?.focusKeyword || '');
+    const [canonicalUrl, setCanonicalUrl] = useState(initialData?.seo?.canonicalUrl || '');
+
     // Dirty State Tracker
     useEffect(() => {
         if (initialLoadRef.current) {
@@ -77,6 +84,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
         setIsDirty(true);
     }, [
         title, lead, category, tags, slug, socialCaptions,
+        seoTitle, seoDescription, focusKeyword, canonicalUrl,
         bannerType, bannerLayout, bannerTransition, bannerDuration,
         bannerImages, bannerVideoUrl, videoStart, videoEnd,
         bannerImageLayout, bannerVideoSource, bannerYoutubeVideoId, bannerSmartPlayback, bannerEffects,
@@ -98,7 +106,8 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
     // Publication Logic
     const {
         publishStatus, publishMode, uploadProgress, progressMessage,
-        saveDraft, publishNews, resetStatus
+        saveDraft, publishNews, resetStatus,
+        totalFiles, currentFileIndex
     } = useNewsPublication({ user, onSave, systemSettings, setToast });
 
     const requiredSlots = useMemo(() => {
@@ -200,11 +209,21 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             createdAt: initialData?.createdAt || new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             seo: {
-                slug: (slug || title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, '-'))
-                    + '-' + new Date().toLocaleDateString('pt-BR').replace(/\//g, '-'),
-                metaTitle: title,
-                metaDescription: lead,
-                focusKeyword: ''
+                slug: (slug || (() => {
+                    // Generate Slug: [short_title]-[date]-[city]-[filter/category]
+                    const sanitize = (text: string) => text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, '-').replace(/-+/g, '-');
+
+                    const shortTitle = sanitize(title.split(' ').slice(0, 6).join(' ')); // Max 6 words
+                    const dateStr = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+                    const cityStr = sanitize(initialData?.city || tags.find(t => ['Lagoa Formosa', 'Patos de Minas'].includes(t)) || 'Lagoa Formosa');
+                    const categoryStr = sanitize(category);
+
+                    return `${shortTitle}-${dateStr}-${cityStr}-${categoryStr}`;
+                })()),
+                metaTitle: seoTitle || title,
+                metaDescription: seoDescription || lead,
+                focusKeyword: focusKeyword,
+                canonicalUrl: canonicalUrl
             },
             socialDistribution: socialCaptions,
             bannerLayout, bannerImageLayout, bannerTransition, bannerDuration,
@@ -224,6 +243,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             mediaType: bannerType,
             region: initialData?.region || 'Região',
             city: initialData?.city || tags.find(t => ['Lagoa Formosa', 'Patos de Minas'].includes(t)) || 'Lagoa Formosa',
+            bannerVideoSource, // Added missed field
             bannerYoutubeVideoId, bannerYoutubeStatus,
             bannerSmartPlayback,
             isBannerAnimated: bannerImages.length > 1,
@@ -251,6 +271,12 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
     const handlePublishLocal = async (isUpdate: boolean = false, forceSocial: boolean = false) => {
         if (!title || !lead) { setToast({ message: "Título e Resumo são obrigatórios.", type: 'warning' }); return; }
         const newsData = buildNewsItem('published');
+
+        // Race Condition Fix: Ensure slug state is set BEFORE success modal appears
+        if (!slug && newsData.seo?.slug) {
+            setSlug(newsData.seo.slug);
+        }
+
         try {
             const isActuallyUpdate = isUpdate || !!initialData?.id;
             const result = await publishNews(newsData, isActuallyUpdate, forceSocial);
@@ -258,13 +284,45 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
             setBannerImages(result.bannerImages || []);
             if (result.imageUrl) { setMainImageUrl(result.imageUrl); }
             setIsDirty(false); // Reset dirty state
-            setToast({ message: isActuallyUpdate ? "Edição salva com sucesso!" : "Notícia publicada com sucesso!", type: 'success' });
+            // Success handled by PublishSuccessModal
+            setSlug(result.seo?.slug || result.slug || slug || ''); // Update slug
+            if (result.id) {
+                // If it was a new article (no initialData.id), we might need to handle ID update
+                // But usually initialData is fixed props. 
+            }
+            // Update SEO fields too if needed
+            if (result.seo) {
+                setSeoTitle(result.seo.metaTitle || '');
+                setSeoDescription(result.seo.metaDescription || '');
+            }
         } catch (e: unknown) {
             console.error('Error publishing:', e);
             const message = e instanceof Error ? e.message : String(e);
             setToast({ message: `Erro ao publicar: ${message}`, type: 'error' });
         }
     };
+
+    const handleRegenerateSEO = useCallback(() => {
+        if (!title) { setToast({ message: "Preencha o título antes de gerar o SEO.", type: 'warning' }); return; }
+
+        // Generate Slug
+        const sanitize = (text: string) => text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, '-').replace(/-+/g, '-');
+        const shortTitle = sanitize(title.split(' ').slice(0, 6).join(' '));
+        const dateStr = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+        const cityStr = sanitize(initialData?.city || tags.find(t => ['Lagoa Formosa', 'Patos de Minas'].includes(t)) || 'Lagoa Formosa');
+        const categoryStr = sanitize(category);
+
+        const newSlug = `${shortTitle}-${dateStr}-${cityStr}-${categoryStr}`;
+
+        setSlug(newSlug);
+        setSeoTitle(title);
+        setSeoDescription(lead);
+        // We don't overwrite keyword or canonical URL as those might be manually fine-tuned, or we can clear them?
+        // Let's keep them as is or maybe set canonical to empty to force auto-gen?
+        // setCanonicalUrl(''); 
+
+        setToast({ message: "SEO e Slug regenerados com base no conteúdo!", type: 'success' });
+    }, [title, lead, category, tags, initialData, setToast]);
 
     return {
         // State
@@ -274,6 +332,10 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
         tags, setTags,
         slug, setSlug,
         socialCaptions, setSocialCaptions,
+        seoTitle, setSeoTitle,
+        seoDescription, setSeoDescription,
+        focusKeyword, setFocusKeyword,
+        canonicalUrl, setCanonicalUrl,
 
         bannerType, setBannerType,
         bannerLayout, setBannerLayout,
@@ -308,6 +370,7 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
         handleDuplicateBlock,
         handleSaveLocal,
         handlePublishLocal,
+        handleRegenerateSEO,
 
         // Publication State (EXPOSED NOW)
         publishStatus,
@@ -315,6 +378,8 @@ export const useEditorController = ({ user, initialData, onSave, systemSettings,
         uploadProgress,
         progressMessage,
         resetStatus,
+        totalFiles,
+        currentFileIndex,
 
         // Computed
         isPublished,

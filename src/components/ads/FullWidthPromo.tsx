@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { PromoBanner, BannerTextPositionPreset } from '../../types';
+import { sanitize } from '@/utils/sanitizer';
 
 interface FullWidthPromoProps {
     banners?: PromoBanner[];
@@ -161,7 +162,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, 
                     color: textConfig.customColor || (isDarkBg ? '#111827' : '#ffffff'),
                     fontFamily: textConfig.fontFamily ? `${textConfig.fontFamily}, sans-serif` : 'inherit'
                 }}
-                dangerouslySetInnerHTML={{ __html: currentBanner.title }}
+                dangerouslySetInnerHTML={{ __html: sanitize(currentBanner.title) }}
             />
             {textConfig.descriptionVisible && (
                 <p className={`${isDarkBg ? 'text-gray-600' : 'text-gray-300'} text-xs md:text-base font-medium max-w-lg mb-6 leading-relaxed animate-fadeInUp delay-100 line-clamp-2 md:line-clamp-3 ${currentBanner.align === 'center' ? 'mx-auto' : ''}`}>
@@ -171,8 +172,13 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, 
             <div className={`flex flex-wrap gap-4 animate-fadeInUp delay-200 ${currentBanner.align === 'center' ? 'justify-center' : currentBanner.align === 'right' ? 'justify-end' : ''}`}>
                 <a href={buttonConfig.link} target="_blank" rel="noopener noreferrer" className={`${getButtonClasses()} group/btn`} onClick={(e) => { if (buttonConfig.link === '#') { e.preventDefault(); } }}>
                     <span className={buttonConfig.rounded === 'none' ? 'skew-x-[10deg]' : ''}>
-                        {buttonConfig.link.includes('instagram') && <i className="fab fa-instagram text-sm mr-2"></i>}
-                        {buttonConfig.link.includes('whatsapp') && <i className="fab fa-whatsapp text-sm mr-2"></i>}
+                        {/* Ícones baseados no redirectType ou URL */}
+                        {(currentBanner.redirectType === 'instagram' || buttonConfig.link.includes('instagram')) && <i className="fab fa-instagram text-sm"></i>}
+                        {(currentBanner.redirectType === 'whatsapp' || buttonConfig.link.includes('whatsapp')) && <i className="fab fa-whatsapp text-sm"></i>}
+                        {(currentBanner.redirectType === 'tiktok' || buttonConfig.link.includes('tiktok')) && <i className="fab fa-tiktok text-sm"></i>}
+                        {(currentBanner.redirectType === 'telegram' || buttonConfig.link.includes('telegram') || buttonConfig.link.includes('t.me')) && <i className="fab fa-telegram text-sm"></i>}
+                        {(currentBanner.redirectType === 'kwai' || buttonConfig.link.includes('kwai')) && <i className="fas fa-video text-sm"></i>}
+                        {(currentBanner.redirectType === 'external' && !buttonConfig.link.includes('instagram') && !buttonConfig.link.includes('whatsapp') && !buttonConfig.link.includes('tiktok') && !buttonConfig.link.includes('telegram') && !buttonConfig.link.includes('kwai')) && <i className="fas fa-external-link-alt text-sm"></i>}
                         {buttonConfig.label}
                     </span>
                     {buttonConfig.effect === 'shine' && (
@@ -247,7 +253,7 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, 
                                     <div className="bg-red-600 text-white px-2 py-0.5 text-[8px] font-black uppercase italic animate-pulse">BREAKING</div>
                                     <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">{currentBanner.tag}</span>
                                 </div>
-                                <h2 className="text-white text-xl md:text-3xl font-[1000] uppercase italic tracking-tighter leading-none" style={{ fontFamily: textConfig.fontFamily }} dangerouslySetInnerHTML={{ __html: currentBanner.title }} />
+                                <h2 className="text-white text-xl md:text-3xl font-[1000] uppercase italic tracking-tighter leading-none" style={{ fontFamily: textConfig.fontFamily }} dangerouslySetInnerHTML={{ __html: sanitize(currentBanner.title) }} />
                             </div>
                             <div className="shrink-0"><a href={buttonConfig.link} className={getButtonClasses()}>{buttonConfig.label}</a></div>
                         </div>
@@ -292,25 +298,56 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, 
         }
         return currentImages.map((img, idx) => (
             <div key={`${currentBanner.id}-bg-${idx}`} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === backgroundIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                <img src={img || 'https://placehold.co/1600x600/111111/333333?text=Lagoa+Formosa+no+Momento'} className="w-full h-full object-cover object-center" alt="" />
+                <img
+                    src={img || 'https://placehold.co/1600x600/111111/333333?text=Lagoa+Formosa+no+Momento'}
+                    className={`w-full h-full ${currentBanner.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
+                    alt=""
+                    style={{
+                        objectPosition: `${currentBanner.imagePositionX ?? 50}% ${currentBanner.imagePositionY ?? 50}%`,
+                        transform: `scale(${currentBanner.imageScale ?? 1})`
+                    }}
+                />
             </div>
         ));
     };
 
     return (
-        <section className={`w-full bg-black relative overflow-hidden group shadow-2xl border-b border-gray-800 ${customHeight || 'h-[350px] md:h-[500px]'}`}>
+        <section className={`w-full bg-black relative overflow-hidden group shadow-2xl border-b border-gray-800 ${customHeight || 'h-[350px] md:h-[500px] 2xl:h-[650px] 3xl:h-[800px]'}`}>
             <div className="absolute inset-0 z-0">
                 {renderBackgroundMedia()}
                 <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: `rgba(0,0,0, ${currentBanner.overlayOpacity ? currentBanner.overlayOpacity / 100 : 0})` }}></div>
             </div>
             {['floating_box_top_left', 'hero_centered_clean', 'floating_bottom_right', 'newspaper_clipping', 'vertical_sidebar_left', 'full_overlay_impact', 'tv_news_bottom_bar'].includes(currentBanner.textPositionPreset || '') ? renderContentWrapper(null) : renderContentWrapper(renderInnerContent(false))}
+
+            {/* CONTROLS */}
             {slidesToRender.length > 1 && (
                 <>
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-2">
-                        {slidesToRender.map((_, index) => (<button key={index} onClick={() => setCurrentSlide(index)} className={`h-1 transition-all rounded-none ${index === currentSlide ? 'w-8 bg-red-600' : 'w-3 bg-white/30 hover:bg-white/50'}`} />))}
+                    {/* Navigation Arrows - Using flex wrapper for better centering */}
+                    <div className="absolute inset-y-0 left-0 right-0 z-40 pointer-events-none flex items-center justify-between px-4">
+                        <button
+                            onClick={() => setCurrentSlide((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length)}
+                            className="w-10 h-10 flex items-center justify-center text-white bg-black/20 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 pointer-events-auto"
+                        >
+                            <i className="fas fa-chevron-left"></i>
+                        </button>
+                        <button
+                            onClick={() => setCurrentSlide((prev) => (prev + 1) % slidesToRender.length)}
+                            className="w-10 h-10 flex items-center justify-center text-white bg-black/20 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 pointer-events-auto"
+                        >
+                            <i className="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <button onClick={() => setCurrentSlide((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length)} className="absolute left-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 flex items-center justify-center text-white bg-black/20 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600"><i className="fas fa-chevron-left"></i></button>
-                    <button onClick={() => setCurrentSlide((prev) => (prev + 1) % slidesToRender.length)} className="absolute right-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 flex items-center justify-center text-white bg-black/20 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600"><i className="fas fa-chevron-right"></i></button>
+
+                    {/* Dots */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-2">
+                        {slidesToRender.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentSlide(index)}
+                                className={`h-1 transition-all rounded-none ${index === currentSlide ? 'w-8 bg-red-600' : 'w-3 bg-white/30 hover:bg-white/50'}`}
+                            />
+                        ))}
+                    </div>
                 </>
             )}
             <div className="absolute top-0 right-6 hidden lg:flex flex-col items-end z-40">

@@ -19,29 +19,32 @@ const LazyBlock: React.FC<LazyBlockProps> = ({ children, threshold = 0.01, minHe
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect(); 
+          observer.disconnect();
         }
       },
-      { 
+      {
         threshold,
         rootMargin: '300px 0px' // Carrega 300px antes de entrar na tela
       }
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observer.observe(currentElement);
     }
 
     return () => {
-      if (elementRef.current) {observer.unobserve(elementRef.current);}
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
     };
   }, [threshold]);
 
   return (
-    <div 
-      ref={elementRef} 
+    <div
+      ref={elementRef}
       className={`transition-opacity duration-500 ${className} ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-      style={{ 
+      style={{
         minHeight: isVisible ? 'auto' : minHeight,
         containIntrinsicSize: isVisible ? 'auto' : `100% ${minHeight}`,
         contentVisibility: 'auto'
@@ -49,7 +52,7 @@ const LazyBlock: React.FC<LazyBlockProps> = ({ children, threshold = 0.01, minHe
     >
       {isVisible ? children : (
         <div className="w-full h-full min-h-inherit flex items-center justify-center bg-gray-50/30 rounded-[3rem] border border-dashed border-gray-100">
-           <img src="https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P" className="w-8 h-8 animate-coin opacity-20" alt="Loading" />
+          <img src="https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P" className="w-8 h-8 animate-coin opacity-20" alt="Loading" />
         </div>
       )}
     </div>

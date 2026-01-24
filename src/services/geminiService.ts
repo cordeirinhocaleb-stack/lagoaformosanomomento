@@ -31,7 +31,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
 export const getExternalNews = async () => {
     const supabase = getSupabase();
     const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+    const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
 
     // 1. Tenta buscar do Banco de Dados (Supabase) primeiro
     if (supabase) {
@@ -40,20 +40,30 @@ export const getExternalNews = async () => {
                 .from('news')
                 .select('*')
                 .eq('source', 'rss_automation')
-                .gte('createdAt', oneHourAgo);
+                .gte('createdAt', fortyEightHoursAgo)
+                .order('createdAt', { ascending: false });
 
             if (dbNews && dbNews.length > 0) {
-                console.log("📰 [News] Carregado do cache DB.");
+                console.log(`📰 [News] Carregado ${dbNews.length} itens do cache DB.`);
                 const grouped: Record<string, any[]> = {};
+                const seenTitles = new Set<string>();
 
                 dbNews.forEach((row: any) => {
+                    const normalizedTitle = row.title.trim().toLowerCase();
+                    if (seenTitles.has(normalizedTitle)) return;
+                    seenTitles.add(normalizedTitle);
+
                     if (!grouped[row.category]) { grouped[row.category] = []; }
                     grouped[row.category].push({
+                        id: row.id,
                         title: row.title,
                         sourceName: row.author || 'RSS',
                         sourceUrl: row.seo?.canonicalUrl || '#',
-                        imageUrl: row.image_url || row.imageUrl, // Fix: mapping snake_case from DB
+                        imageUrl: row.image_url || row.imageUrl,
                         category: row.category,
+                        region: row.region,
+                        city: row.city,
+                        createdAt: row.createdAt,
                         theme: ['Política', 'Agronegócio', 'Esporte'].includes(row.category) ? 'green' : 'blue'
                     });
                 });

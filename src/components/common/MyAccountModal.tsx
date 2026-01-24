@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Invoice, UserSession, AdPricingConfig, Advertiser } from '../../types';
+import { User, Invoice, UserSession, AdPricingConfig, Advertiser, SystemSettings } from '../../types';
 import Logo from './Logo';
 import lfnmCoin from '@/assets/lfnm_coin.png';
 import { userPurchaseItem, removeUserItem } from '../../services/users/userService';
@@ -14,6 +14,7 @@ interface MyAccountModalProps {
   onLogout?: () => void;
   onOpenPricing?: () => void;
   adConfig?: AdPricingConfig;
+  systemSettings?: SystemSettings;
   onOpenTerms?: () => void;
 }
 
@@ -365,8 +366,11 @@ const UserStorePOS: React.FC<{ user: User, adConfig?: AdPricingConfig, onUpdateU
   );
 };
 
-const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdateUser, onLogout, onOpenPricing, adConfig, onOpenTerms }) => {
+const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdateUser, onLogout, onOpenPricing, adConfig, systemSettings, onOpenTerms }) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'professional' | 'security' | 'billing' | 'support'>('profile');
+
+  // Logic to hide billing if purchasing is enabled (as per user request: "ativada -> sumir")
+  const showBilling = !systemSettings?.purchasingEnabled;
   const [formData, setFormData] = useState({ ...user });
   const [isMaximized, setIsMaximized] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -507,20 +511,22 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight text-center">{user.name}</h2>
             <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mt-2">{user.role}</span>
 
-            <div className="mt-6 w-full bg-gray-900 rounded-xl p-4 text-center shadow-lg transform transition-all hover:scale-105 cursor-pointer" onClick={() => setActiveTab('billing')}>
-              <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1">Seu Saldo</p>
-              <h3 className="text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
-                <img src={lfnmCoin.src} className="w-6 h-6 object-contain animate-coin grayscale" alt="LFNM Coin" /> {(user.siteCredits || 0).toFixed(2)}
-              </h3>
-              <p className="text-[8px] text-gray-500 font-bold uppercase mt-1">Clique para recarregar</p>
-            </div>
+            {showBilling && (
+              <div className="mt-6 w-full bg-gray-900 rounded-xl p-4 text-center shadow-lg transform transition-all hover:scale-105 cursor-pointer" onClick={() => setActiveTab('billing')}>
+                <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1">Seu Saldo</p>
+                <h3 className="text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
+                  <img src={lfnmCoin.src} className="w-6 h-6 object-contain animate-coin grayscale" alt="LFNM Coin" /> {(user.siteCredits || 0).toFixed(2)}
+                </h3>
+                <p className="text-[8px] text-gray-500 font-bold uppercase mt-1">Clique para recarregar</p>
+              </div>
+            )}
           </div>
 
           <nav className="flex md:flex-col overflow-x-auto no-scrollbar md:overflow-x-visible md:py-4 bg-white/50 md:bg-transparent">
             <TabButton id="profile" label="Perfil" icon="fa-user-circle" />
             <TabButton id="professional" label="Trabalho" icon="fa-briefcase" />
             <TabButton id="security" label="Segurança" icon="fa-shield-alt" />
-            <TabButton id="billing" label="Loja" icon="fa-credit-card" />
+            {showBilling && <TabButton id="billing" label="Loja" icon="fa-credit-card" />}
             <TabButton id="support" label="Suporte" icon="fa-headset" />
             <div className="md:hidden flex-shrink-0 flex items-center px-4">
               {onLogout && <button onClick={onLogout} className="bg-red-50 text-red-600 p-2 rounded-lg text-xs"><i className="fas fa-sign-out-alt"></i></button>}
@@ -711,42 +717,99 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
               </div>
             </div>
           )}
-          {activeTab === 'billing' && (
+          {activeTab === 'billing' && showBilling && (
             <div className="max-w-4xl mx-auto animate-fadeIn">
-              <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-8">Meus <span className="text-red-600">Planos & Loja</span></h1>
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter mb-2">
+                    Minha <span className="text-red-600">Loja</span>
+                  </h1>
+                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                    Gerencie suas assinaturas e créditos
+                  </p>
+                </div>
+                <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+                  <img src={lfnmCoin.src} className="w-6 h-6 object-contain" />
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase text-gray-400 tracking-widest leading-none">Saldo Atual</span>
+                    <span className="text-lg font-black text-gray-900 leading-none">{(user.siteCredits || 0).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
 
-              <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 space-y-6">
-                {/* Carteira Virtual */}
-                <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-3xl text-white relative overflow-hidden shadow-2xl">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                  <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Saldo em Carteira</p>
-                      <h2 className="text-4xl md:text-5xl font-black tracking-tight flex items-center gap-3">
-                        <img src={lfnmCoin.src} className="w-10 h-10 md:w-12 md:h-12 object-contain animate-coin grayscale" alt="LFNM Coin" />
-                        {(user.siteCredits || 0).toFixed(2)}
-                      </h2>
-                      <p className="text-[10px] text-gray-500 mt-2 font-bold max-w-xs">Use seus créditos para adquirir destaques e planos comerciais.</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="bg-white text-black px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-green-400 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        <i className="fas fa-plus mr-2"></i> Recarregar
-                      </button>
+              <div className="grid grid-cols-1 gap-8">
+                {/* PLANOS */}
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50 rounded-full -mr-32 -mt-32 transition-transform group-hover:scale-150 duration-700"></div>
+                  <div className="relative">
+                    <h2 className="text-xl font-black uppercase mb-6 flex items-center gap-3">
+                      <i className="fas fa-crown text-yellow-400 text-2xl"></i>
+                      Planos Disponíveis
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {adConfig?.plans?.map((plan) => (
+                        <div key={plan.id} className="relative bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-black transition-all group/plan">
+                          {plan.isPopular && (
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-lg">
+                              Mais Popular
+                            </div>
+                          )}
+                          <h3 className="text-lg font-black uppercase mb-1">{plan.name}</h3>
+                          <div className="text-3xl font-black mb-4">
+                            R$ {(plan.prices?.monthly || 0).toFixed(0)}<span className="text-sm text-gray-400 font-bold">/mês</span>
+                          </div>
+                          <ul className="space-y-2 mb-6">
+                            {Object.entries(plan.features || {}).map(([key, value]) => {
+                              if (key === 'placements') return null;
+                              return (
+                                <li key={key} className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                                  <i className="fas fa-check text-green-500"></i>
+                                  {key === 'socialVideoAd' ? 'Vídeo nas Redes' : key}
+                                </li>
+                              )
+                            })}
+                          </ul>
+                          <button onClick={onOpenPricing} className="w-full bg-black text-white py-3 rounded-xl font-black uppercase text-xs hover:bg-gray-800 transition-colors">
+                            Ver Detalhes
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                {/* MEU INVENTÁRIO (Planos Comprados) */}
-                <div className="mt-8 relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Planos de Adesão</h4>
-                    <span className="text-[9px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-bold uppercase">Carteira</span>
+                {/* HISTÓRICO DE COMPRAS (Mock) */}
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
+                  <h2 className="text-xl font-black uppercase mb-6">Histórico de Compras</h2>
+                  <div className="text-center py-8 text-gray-400 text-sm font-bold bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                    Nenhuma transação recente encontrada.
+                  </div>
+                </div>
+
+                {/* MEU INVENTÁRIO */}
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
+                  <h2 className="text-xl font-black uppercase mb-6">Meu Inventário</h2>
+
+                  <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+                    <button className="px-4 py-2 bg-black text-white rounded-xl text-xs font-black uppercase whitespace-nowrap">
+                      Todos os Itens
+                    </button>
+                    <button className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-xs font-black uppercase whitespace-nowrap transition-colors">
+                      Anúncios
+                    </button>
+                    <button className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-xs font-black uppercase whitespace-nowrap transition-colors">
+                      Jobs/Vagas
+                    </button>
                   </div>
 
-                  {(!user.activePlans || user.activePlans.length === 0) ? (
-                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-center mb-6">
-                      <i className="fas fa-box-open text-gray-300 text-2xl mb-2"></i>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">Nenhum plano ativo.</p>
+                  {isLoadingAds ? (
+                    <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 animate-pulse">
+                      <i className="fas fa-circle-notch fa-spin text-gray-300 text-xl"></i>
+                    </div>
+                  ) : userAds.length === 0 ? (
+                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-center text-gray-400">
+                      <p className="text-[10px] font-bold uppercase">Nenhum anúncio vinculado ainda.</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mb-8">

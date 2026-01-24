@@ -14,6 +14,21 @@ interface PricingModalProps {
 const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPlan, user, onUpdateUser }) => {
     const [activeCycle, setActiveCycle] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [hiddenPlans, setHiddenPlans] = useState<Set<string>>(new Set());
+
+    const isAdmin = user && ['Admin', 'Administrador', 'Desenvolvedor'].includes(user.role);
+
+    const togglePlanVisibility = (planId: string) => {
+        setHiddenPlans(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(planId)) {
+                newSet.delete(planId);
+            } else {
+                newSet.add(planId);
+            }
+            return newSet;
+        });
+    };
 
     useEffect(() => {
         const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -113,6 +128,9 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 pb-12 justify-center pointer-events-auto">
 
                     {config.plans.map((plan) => {
+                        const isHidden = hiddenPlans.has(plan.id);
+                        if (isHidden && !isAdmin) return null;
+
                         const isMaster = plan.features.placements.includes('master_carousel');
                         const isPopular = plan.isPopular || isMaster;
 
@@ -149,11 +167,28 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
                         return (
                             <div
                                 key={plan.id}
-                                className={`relative rounded-[2.5rem] p-8 flex flex-col transition-transform duration-500 hover:scale-[1.02] border ${isMaster
+                                className={`relative rounded-[2.5rem] p-8 flex flex-col transition-transform duration-500 hover:scale-[1.02] border ${isHidden ? 'opacity-50' : ''} ${isMaster
                                     ? 'bg-black text-white border-zinc-800 shadow-[0_0_40px_rgba(220,38,38,0.2)]'
                                     : 'bg-white text-zinc-900 border-gray-100 shadow-xl'
                                     }`}
                             >
+                                {/* Admin Controls */}
+                                {isAdmin && (
+                                    <button
+                                        onClick={() => togglePlanVisibility(plan.id)}
+                                        className="absolute top-4 left-4 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all group"
+                                        title={isHidden ? 'Mostrar plano' : 'Ocultar plano'}
+                                    >
+                                        <i className={`fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'} text-xs ${isHidden ? 'text-red-500' : 'text-white'}`}></i>
+                                    </button>
+                                )}
+
+                                {/* Hidden Badge for Admins */}
+                                {isAdmin && isHidden && (
+                                    <div className="absolute top-4 left-14 bg-red-600/90 text-white text-[8px] font-black uppercase px-2 py-1 rounded shadow-lg z-10">
+                                        Oculto
+                                    </div>
+                                )}
                                 {isPopular && (
                                     <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black uppercase px-4 py-2 rounded-bl-2xl shadow-lg z-10">
                                         {isMaster ? 'Mais Vendido' : 'Popular'}

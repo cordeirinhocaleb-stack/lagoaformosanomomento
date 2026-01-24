@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { storeLocalFile, getLocalFile } from '@/services/storage/localStorageService';
 import { ContentBlock } from '@/types';
 import { YouTubeVideoMetadata } from '@/services/upload/youtubeVideoService';
@@ -21,6 +21,10 @@ interface UseMediaBlockProps {
     onUpdate: (content: unknown, settings?: unknown, extraProps?: Partial<ContentBlock>) => void;
 }
 
+const DEFAULT_EFFECTS = {
+    brightness: 100, contrast: 100, saturation: 100, blur: 0, sepia: 0, opacity: 100
+};
+
 export const useMediaBlock = ({ block, onUpdate }: UseMediaBlockProps) => {
     const [showYouTubeWizard, setShowYouTubeWizard] = useState(false);
     const [pendingYouTubeFile, setPendingYouTubeFile] = useState<File | null>(null);
@@ -29,16 +33,12 @@ export const useMediaBlock = ({ block, onUpdate }: UseMediaBlockProps) => {
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [panelPosition, setPanelPosition] = useState({ x: 20, y: 100 });
 
-    const settings = (block.settings || {}) as MediaSettings;
+    const settings = useMemo(() => (block.settings || {}) as MediaSettings, [block.settings]);
     const isVideo = block.type === 'video';
     const videoSource = block.videoSource;
     const content = block.content;
 
-    // Effects logic
-    const defaultEffects = {
-        brightness: 100, contrast: 100, saturation: 100, blur: 0, sepia: 0, opacity: 100
-    };
-    const effects = { ...defaultEffects, ...(settings.effects || {}) };
+    const effects = useMemo(() => ({ ...DEFAULT_EFFECTS, ...(settings.effects || {}) }), [settings.effects]);
 
     const getFilterString = useCallback(() => {
         return `brightness(${effects.brightness}%) contrast(${effects.contrast}%) saturate(${effects.saturation}%) blur(${effects.blur}px) sepia(${effects.sepia}%) opacity(${effects.opacity}%)`;

@@ -6,9 +6,21 @@ import DOMPurify from 'dompurify';
  */
 const config = {
     ADD_TAGS: ['iframe', 'embed'], // Permite iframes controlados (ex: Youtube)
-    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'target'],
+    ADD_ATTR: [
+        'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'target',
+        'contenteditable', 'data-key', 'data-img-key', 'data-variant'
+    ],
     FORBID_TAGS: ['script', 'style', 'head', 'canvas', 'form', 'input'], // Bloqueia tags perigosas
     FORBID_ATTR: ['style', 'onmouseover', 'onclick', 'onerror'], // Bloqueia inline styles e event handlers
+};
+
+/**
+ * Decodifica entidades HTML (&nbsp;, &amp;, etc) para caracteres normais
+ */
+const decodeHtmlEntities = (text: string): string => {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
 };
 
 /**
@@ -18,7 +30,8 @@ const config = {
  */
 export const sanitize = (dirty: string | undefined | null): string => {
     if (!dirty) return '';
-    return DOMPurify.sanitize(dirty, config);
+    const decoded = decodeHtmlEntities(dirty);
+    return DOMPurify.sanitize(decoded, config);
 };
 
 /**
@@ -26,5 +39,6 @@ export const sanitize = (dirty: string | undefined | null): string => {
  */
 export const sanitizeText = (dirty: string | undefined | null): string => {
     if (!dirty) return '';
-    return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: [] });
+    const decoded = decodeHtmlEntities(dirty);
+    return DOMPurify.sanitize(decoded, { ALLOWED_TAGS: [] });
 };

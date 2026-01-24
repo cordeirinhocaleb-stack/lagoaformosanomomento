@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-    // Static export desabilitado devido a rotas dinâmicas ([id])
+    // Static export desabilitado para desenvolvimento local
     // output: 'export',
 
     // Desabilitar otimização de imagens para compatibilidade

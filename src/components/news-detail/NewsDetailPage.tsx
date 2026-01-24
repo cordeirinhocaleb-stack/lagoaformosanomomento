@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useRef } from 'react';
-import { NewsItem, Advertiser, User, AdPricingConfig } from '../../types';
+import { NewsItem, Advertiser, User, AdPricingConfig, SystemSettings } from '../../types';
 import CategoryMenu, { RegionFilterType } from '../../components/layout/CategoryMenu';
 import { calculateReadTime, generateTOC } from './utils/article';
 import { useReadingProgress } from './hooks/useReadingProgress';
@@ -20,6 +20,7 @@ import ShareBar from './components/tools/ShareBar';
 import ReadingModeToggle from './components/tools/ReadingModeToggle';
 import PrintButton from './components/tools/PrintButton';
 import SavePostButton from './components/tools/SavePostButton';
+import Footer from '../../components/layout/Footer';
 
 interface NewsDetailProps {
     news: NewsItem;
@@ -42,6 +43,7 @@ interface NewsDetailProps {
     onDeactivateNews?: (item: NewsItem) => void;
     onPricingClick?: () => void;
     onLogin?: () => void; // Prop para abrir modal de login
+    settings?: SystemSettings;
 }
 
 const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
@@ -52,7 +54,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
         selectedRegion, onSelectRegion,
         user, onAdminClick, onUpdateUser,
         adConfig, onEditNews, onDeactivateNews,
-        onPricingClick, onLogin
+        onPricingClick, onLogin, settings
     } = props;
 
     const [fontSize, setFontSize] = useState<number>(0);
@@ -63,7 +65,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
     const recommendedNews = useMemo(() => {
         if (!allNews.length) return [];
 
-        const priorityRegions = ['Lagoa Formosa', 'Patos e Região'];
+        const priorityRegions = ['Lagoa Formosa', 'Lagoa Formosa e Região'];
 
         return [...allNews]
             .filter(n => n.id !== news.id && n.status !== 'archived')
@@ -100,7 +102,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                 return 0;
             })
             .slice(0, 4);
-    }, [allNews, news.id, news.region, news.category]);
+    }, [allNews, news.id, news.category]);
 
     // Filtragem de Anúncios por Localização + Randomização
     const sidebarAds = useMemo(() => {
@@ -212,8 +214,8 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                 onAuthorClick={handleAuthorProfile}
             />
 
-            <div ref={articleRef} className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:pl-2 lg:pr-8 flex-grow">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6 md:pt-10">
+            <div ref={articleRef} className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-4 flex-grow">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-6 md:pt-10">
                     <aside className={`lg:col-span-3 transition-all duration-500 ${readingMode ? 'opacity-0' : 'opacity-100'} mb-8 lg:mb-0`}>
                         <div className="sticky top-28">
                             <LeftAdsRail
@@ -366,6 +368,10 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                         Voltar ao Portal
                     </button>
                 </div>
+            )}
+
+            {!readingMode && (
+                <Footer settings={settings} />
             )}
 
             <BackToTopButton />

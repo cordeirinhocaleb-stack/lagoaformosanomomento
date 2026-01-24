@@ -113,7 +113,17 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                             onDelete={(id) => { ctrl.handleDeleteBlock(id); setShowInspectorMobile(false); }}
                             onClose={() => setShowInspectorMobile(false)}
                             accessToken={accessToken}
-                            newsMetadata={{ slug: ctrl.slug, setSlug: ctrl.setSlug, category: ctrl.category, setCategory: ctrl.setCategory, title: ctrl.title, lead: ctrl.lead, socialCaptions: ctrl.socialCaptions, setSocialCaptions: ctrl.setSocialCaptions }}
+                            newsMetadata={{
+                                slug: ctrl.slug, setSlug: ctrl.setSlug,
+                                category: ctrl.category, setCategory: ctrl.setCategory,
+                                title: ctrl.title, lead: ctrl.lead,
+                                socialCaptions: ctrl.socialCaptions, setSocialCaptions: ctrl.setSocialCaptions,
+                                // New SEO Props
+                                seoTitle: ctrl.seoTitle, setSeoTitle: ctrl.setSeoTitle,
+                                seoDescription: ctrl.seoDescription, setSeoDescription: ctrl.setSeoDescription,
+                                focusKeyword: ctrl.focusKeyword, setFocusKeyword: ctrl.setFocusKeyword,
+                                canonicalUrl: ctrl.canonicalUrl, setCanonicalUrl: ctrl.setCanonicalUrl
+                            }}
                             darkMode={darkMode}
                         />
                     </div>
@@ -209,7 +219,18 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                                 block={ctrl.blocks.find(b => b.id === ctrl.selectedBlockId) || null}
                                 onUpdate={ctrl.handleUpdateBlock} onDelete={ctrl.handleDeleteBlock}
                                 onClose={() => setIsRightSidebarOpen(false)} accessToken={accessToken}
-                                newsMetadata={{ slug: ctrl.slug, setSlug: ctrl.setSlug, category: ctrl.category, setCategory: ctrl.setCategory, title: ctrl.title, lead: ctrl.lead, socialCaptions: ctrl.socialCaptions, setSocialCaptions: ctrl.setSocialCaptions }}
+                                newsMetadata={{
+                                    slug: ctrl.slug, setSlug: ctrl.setSlug,
+                                    category: ctrl.category, setCategory: ctrl.setCategory,
+                                    title: ctrl.title, lead: ctrl.lead,
+                                    socialCaptions: ctrl.socialCaptions, setSocialCaptions: ctrl.setSocialCaptions,
+                                    // New SEO Props
+                                    seoTitle: ctrl.seoTitle, setSeoTitle: ctrl.setSeoTitle,
+                                    seoDescription: ctrl.seoDescription, setSeoDescription: ctrl.setSeoDescription,
+                                    focusKeyword: ctrl.focusKeyword, setFocusKeyword: ctrl.setFocusKeyword,
+                                    canonicalUrl: ctrl.canonicalUrl, setCanonicalUrl: ctrl.setCanonicalUrl,
+                                    onRegenerateSEO: ctrl.handleRegenerateSEO
+                                }}
                                 darkMode={darkMode}
                             />
                         </div>
@@ -241,10 +262,12 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                     progressMessage={ctrl.progressMessage}
                     onClose={ctrl.resetStatus}
                     onCreateNew={onCreateNew}
-                    onViewNews={() => window.open(`/#/news/${initialData?.id || ctrl.slug || ''}`, '_blank')}
+                    onViewNews={() => window.open(`/news/${ctrl.slug || initialData?.seo?.slug || initialData?.id || ''}`, '_blank')}
                     isUpdate={!!initialData?.id}
                     mode={ctrl.publishMode}
                     authorName={user.name}
+                    totalFiles={ctrl.totalFiles}
+                    currentFileIndex={ctrl.currentFileIndex}
                 />
 
                 {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}

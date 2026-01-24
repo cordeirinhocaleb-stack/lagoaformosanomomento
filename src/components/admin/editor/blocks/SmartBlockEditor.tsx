@@ -6,7 +6,9 @@ import { EDITOR_WIDGETS } from '../../EditorWidgets';
 import { RichContextMenu } from '../RichContextMenu';
 import { CELEBRATION_BLOCKS } from '../CelebrationBlocks';
 import { getEngagementColors } from '../EngagementColors';
+import { getWidgetStyles } from '../../WidgetPresets';
 import { uploadToCloudinary } from '../../../../services/cloudinaryService';
+import { sanitize } from '../../../../utils/sanitizer';
 
 interface SmartBlockEditorProps {
     block: ContentBlock;
@@ -19,8 +21,24 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
 
     // Resolve Color Theme - Prioriza editorialVariant
     const currentColor = block.settings.editorialVariant || block.settings.engagementColor || 'default_blue';
-    const colorThemes = getEngagementColors('default');
+    const engagementType = widgetId?.includes('poll') ? 'poll' :
+        widgetId?.includes('quiz') ? 'quiz' :
+            widgetId?.includes('countdown') ? 'countdown' :
+                widgetId?.includes('ranking') ? 'ranking' :
+                    widgetId?.includes('image_poll') ? 'image_poll' :
+                        widgetId?.includes('comparison') ? 'comparison' :
+                            widgetId?.includes('reaction') ? 'reaction' :
+                                widgetId?.includes('counter') ? 'counter' :
+                                    widgetId?.includes('timeline') ? 'timeline' :
+                                        widgetId?.includes('flipcard') ? 'flipcard' :
+                                            widgetId?.includes('accordion') ? 'accordion' :
+                                                widgetId?.includes('cta') ? 'cta' : 'default';
+    const colorThemes = getEngagementColors(engagementType);
     const activeTheme = colorThemes.find(c => c.id === currentColor) || colorThemes[0];
+
+    // Resolve Style Preset for current widget
+    const stylePresets = getWidgetStyles(widgetId || 'default');
+    const activeStylePreset = stylePresets.find(s => s.id === block.settings.editorialVariant) || stylePresets[0];
 
     // Find in standard widgets OR celebration blocks
     let widgetDef = EDITOR_WIDGETS.find(w => w.id === widgetId);
@@ -91,6 +109,16 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
         if (widgetDef && (!baseHtml || !baseHtml.includes('data-key'))) {
             baseHtml = widgetDef.html;
         }
+
+        // CLEANUP: Replace via.placeholder.com URLs with inline SVG
+        const cleanedHtml = baseHtml.replace(
+            /https:\/\/via\.placeholder\.com\/(\d+)/g,
+            (_match: string, size: string) => {
+                console.log(`🔧 Replacing placeholder URL for size ${size}`);
+                return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'%3E%3Crect fill='%23e5e7eb' width='${size}' height='${size}'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='${Math.max(12, parseInt(size) / 10)}' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E${size}x${size}%3C/text%3E%3C/svg%3E`;
+            }
+        );
+        baseHtml = cleanedHtml;
 
         // Apply visual variant capability (inject class)
         const currentVariant = block.settings.editorialVariant;
@@ -261,8 +289,8 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
             {/* LIVE PREVIEW / EDITOR CANVAS */}
             <div
                 ref={containerRef}
-                className={`w-full transition-all outline-none ${activeTheme.classes.text}`}
-                dangerouslySetInnerHTML={{ __html: renderHtml }}
+                className={`w-full transition-all outline-none ${activeTheme.classes.text} widget-root ${activeStylePreset?.classes || ''}`}
+                dangerouslySetInnerHTML={{ __html: sanitize(renderHtml) }}
                 onContextMenu={handleContainerRightClick}
                 onClick={handleImageClick}
                 onInput={handleInput}
@@ -288,6 +316,18 @@ export const SmartBlockEditor: React.FC<SmartBlockEditorProps> = ({ block, onUpd
                     onInsertLink={() => {
                         const url = prompt('Link URL:', 'https://');
                         if (url) { handleFormat('createLink', url); }
+                    }}
+                    themes={stylePresets}
+                    activeThemeId={block.settings.editorialVariant as string}
+                    onThemeSelect={(themeId) => {
+                        onUpdate({
+                            ...block,
+                            settings: {
+                                ...block.settings,
+                                editorialVariant: themeId
+                            }
+                        });
+                        setContextMenu(null);
                     }}
                 />
             )}

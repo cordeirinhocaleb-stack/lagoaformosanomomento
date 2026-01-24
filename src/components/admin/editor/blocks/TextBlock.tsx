@@ -5,6 +5,8 @@ import { TextBlockProps, normalizeTextBlockData } from './textblock/index';
 import { applyGlobalStyles } from './textblock/render/applyGlobalStyles';
 import { renderTextMode } from './textblock/render/TextModeRenderBlock';
 import { storeLocalFile } from '../../../../services/storage/localStorageService';
+import { TEXT_BLOCK_STYLES } from './textblock/TextBlockStyles';
+import { RichTextToolbar } from './textblock/RichTextToolbar';
 
 const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSelect, isMobileFormattingOpen, onToggleMobileFormatting }) => {
     const contentRef = useRef<any>(null);
@@ -26,7 +28,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
                 contentRef.current.dataset.blockId = block.id;
             }
         }
-    }, [block.id, isList, variant]);
+    }, [block.id, block.content, isList, variant]);
 
     // Fechar menu de contexto ao clicar fora
     useEffect(() => {
@@ -180,16 +182,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
     const Tag = isList ? (listType === 'ordered' ? 'ol' : 'ul') : 'div';
 
     // Botão Auxiliar de Menu Mobile
-    const MobileToolBtn = ({ icon, label, action, val, activeColor, tooltip }: any) => (
-        <button
-            onClick={(e) => { e.stopPropagation(); action === 'link' ? insertLink() : handleMenuAction(action, val); }}
-            className={`flex-shrink-0 flex flex-col items-center justify-center w-12 h-11 rounded-xl transition-all border border-zinc-800 hover:border-zinc-600 active:scale-95 group relative ${activeColor ? activeColor : 'bg-zinc-800 text-white'}`}
-            title={tooltip || label}
-        >
-            <i className={`fas ${icon} text-sm mb-0.5`}></i>
-            <span className="text-[6px] font-black uppercase tracking-wider opacity-60">{label}</span>
-        </button>
-    );
+
 
     return (
         <div
@@ -206,116 +199,17 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
             aria-selected={isSelected}
         >
 
-            {/* MOBILE FORMATTING TOOLBAR - EXPANDIDA E ORGANIZADA */}
+            {/* MOBILE FORMATTING TOOLBAR */}
             {isSelected && isMobileFormattingOpen && (
                 <div className="fixed bottom-[88px] left-4 right-4 z-[1900] animate-slideUp">
-                    <div className="bg-[#0f0f0f] rounded-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col">
-
-                        {/* Abas de Navegação do Menu */}
-                        <div className="flex border-b border-white/10 bg-black/40">
-                            <button onClick={(e) => { e.stopPropagation(); setActiveTab('style') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'style' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                                <i className="fas fa-font mr-1"></i> Estilo
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveTab('color') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'color' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                                <i className="fas fa-palette mr-1"></i> Cores
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveTab('layout') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'layout' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                                <i className="fas fa-align-left mr-1"></i> Layout
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); onToggleMobileFormatting && onToggleMobileFormatting(false); }} className="px-4 text-zinc-500 hover:text-red-500 border-l border-white/10">
-                                <i className="fas fa-times"></i>
-                            </button>
-                        </div>
-
-                        {/* Conteúdo das Abas */}
-                        <div className="p-3 bg-zinc-900">
-
-                            {/* ABA 1: ESTILO E TIPOGRAFIA */}
-                            {activeTab === 'style' && (
-                                <div className="space-y-3">
-                                    {/* Fontes Jornalísticas */}
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('fontName', 'Merriweather') }} className="px-3 py-2 bg-zinc-800 rounded-lg text-white font-serif text-xs border border-zinc-700 whitespace-nowrap active:bg-zinc-700">Serifa (Jornal)</button>
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('fontName', 'Inter') }} className="px-3 py-2 bg-zinc-800 rounded-lg text-white font-sans text-xs border border-zinc-700 whitespace-nowrap active:bg-zinc-700">Sans (Digital)</button>
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('fontName', 'monospace') }} className="px-3 py-2 bg-zinc-800 rounded-lg text-white font-mono text-xs border border-zinc-700 whitespace-nowrap active:bg-zinc-700">Mono (Tech)</button>
-                                    </div>
-
-                                    <div className="h-px bg-zinc-800 w-full"></div>
-
-                                    {/* Formatação Básica + Tamanho */}
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                                        <MobileToolBtn icon="fa-bold" label="Negrito" action="bold" tooltip="Texto em Negrito" />
-                                        <MobileToolBtn icon="fa-italic" label="Itálico" action="italic" tooltip="Texto Itálico" />
-                                        <MobileToolBtn icon="fa-underline" label="Sublin." action="underline" tooltip="Sublinhar Texto" />
-                                        <MobileToolBtn icon="fa-strikethrough" label="Riscado" action="strikeThrough" tooltip="Riscar Texto" />
-
-                                        <div className="w-px bg-zinc-800 mx-1"></div>
-
-                                        <MobileToolBtn icon="fa-text-height" label="Pequeno" action="fontSize" val="2" />
-                                        <MobileToolBtn icon="fa-text-height" label="Normal" action="fontSize" val="3" />
-                                        <MobileToolBtn icon="fa-heading" label="Grande" action="fontSize" val="5" />
-                                        <MobileToolBtn icon="fa-heading" label="Manchete" action="fontSize" val="7" />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* ABA 2: CORES E MARCA TEXTO */}
-                            {activeTab === 'color' && (
-                                <div className="space-y-3">
-                                    {/* Cor do Texto */}
-                                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <span className="text-[8px] font-black uppercase text-zinc-500 w-10 shrink-0">Texto</span>
-                                        {['#000000', '#ffffff', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#6b7280'].map(c => (
-                                            <button key={c} onClick={(e) => { e.stopPropagation(); execCommand('foreColor', c); }} className="w-8 h-8 rounded-full border-2 border-zinc-700 shrink-0 shadow-sm active:scale-90 transition-transform" style={{ backgroundColor: c }} title={`Texto: ${c}`} />
-                                        ))}
-                                    </div>
-
-                                    <div className="h-px bg-zinc-800 w-full"></div>
-
-                                    {/* Marca Texto / Watermark */}
-                                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <span className="text-[8px] font-black uppercase text-zinc-500 w-10 shrink-0">Fundo</span>
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('hiliteColor', 'transparent'); }} className="w-8 h-8 rounded border border-zinc-600 bg-transparent text-red-500 flex items-center justify-center shrink-0 active:scale-90"><i className="fas fa-ban text-xs"></i></button>
-                                        {['#fef08a', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#fed7aa', '#e9d5ff', '#1f2937'].map(c => (
-                                            <button key={c} onClick={(e) => { e.stopPropagation(); execCommand('hiliteColor', c); }} className="w-8 h-8 rounded border border-zinc-700 shrink-0 shadow-sm active:scale-90 transition-transform" style={{ backgroundColor: c }} title="Marca Texto" />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* ABA 3: LAYOUT E INSERÇÕES */}
-                            {activeTab === 'layout' && (
-                                <div className="space-y-3">
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <MobileToolBtn icon="fa-align-left" label="Esq" action="justifyLeft" />
-                                        <MobileToolBtn icon="fa-align-center" label="Centro" action="justifyCenter" />
-                                        <MobileToolBtn icon="fa-align-right" label="Dir" action="justifyRight" />
-                                        <MobileToolBtn icon="fa-align-justify" label="Justif." action="justifyFull" />
-
-                                        <div className="w-px bg-zinc-800 mx-1"></div>
-
-                                        <MobileToolBtn icon="fa-list-ul" label="Lista" action="insertUnorderedList" />
-                                        <MobileToolBtn icon="fa-list-ol" label="Num." action="insertOrderedList" />
-
-                                        <div className="w-px bg-zinc-800 mx-1"></div>
-
-                                        {/* Botão de Upload de Imagem */}
-                                        <MobileToolBtn icon="fa-image" label="Imagem" action="triggerImage" activeColor="text-green-400 border-green-900 bg-green-900/20" />
-                                    </div>
-
-                                    <div className="h-px bg-zinc-800 w-full"></div>
-
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                                        <MobileToolBtn icon="fa-link" label="Link" action="link" activeColor="text-blue-400 border-blue-900 bg-blue-900/20" />
-                                        <MobileToolBtn icon="fa-quote-right" label="Citação" action="formatBlock" val="BLOCKQUOTE" activeColor="text-amber-400 border-amber-900 bg-amber-900/20" />
-                                        <MobileToolBtn icon="fa-eraser" label="Limpar" action="removeFormat" activeColor="text-red-400 border-red-900 bg-red-900/20" />
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
-                    </div>
-
+                    <RichTextToolbar
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        handleMenuAction={handleMenuAction}
+                        execCommand={execCommand}
+                        insertLink={insertLink}
+                        onToggleMobileFormatting={onToggleMobileFormatting}
+                    />
                     {/* Seta indicativa */}
                     <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-zinc-900 rotate-45 border-r border-b border-zinc-800"></div>
                 </div>
@@ -336,7 +230,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
                 </div>
             )}
 
-            {/* Menu de Contexto Rico (Desktop e Mobile) - Renderizado via Portal */}
+            {/* CONTEXT MENU */}
             {contextMenu && ReactDOM.createPortal(
                 <div
                     className="fixed z-[99999]"
@@ -346,112 +240,14 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="bg-[#0f0f0f] rounded-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col w-[360px]">
-
-                        {/* Abas de Navegação do Menu */}
-                        <div className="flex border-b border-white/10 bg-black/40">
-                            <button onClick={(e) => { e.stopPropagation(); setActiveTab('style') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'style' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                                <i className="fas fa-font mr-1"></i> Estilo
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveTab('color') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'color' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                                <i className="fas fa-palette mr-1"></i> Cores
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveTab('layout') }} className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest ${activeTab === 'layout' ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                                <i className="fas fa-align-left mr-1"></i> Layout
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); setContextMenu(null); }} className="px-4 text-zinc-500 hover:text-red-500 border-l border-white/10">
-                                <i className="fas fa-times"></i>
-                            </button>
-                        </div>
-
-                        {/* Conteúdo das Abas */}
-                        <div className="p-3 bg-zinc-900">
-
-                            {/* ABA 1: ESTILO E TIPOGRAFIA */}
-                            {activeTab === 'style' && (
-                                <div className="space-y-3">
-                                    {/* Fontes Jornalísticas */}
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('fontName', 'Merriweather') }} className="px-3 py-2 bg-zinc-800 rounded-lg text-white font-serif text-xs border border-zinc-700 whitespace-nowrap active:bg-zinc-700">Serifa (Jornal)</button>
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('fontName', 'Inter') }} className="px-3 py-2 bg-zinc-800 rounded-lg text-white font-sans text-xs border border-zinc-700 whitespace-nowrap active:bg-zinc-700">Sans (Digital)</button>
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('fontName', 'monospace') }} className="px-3 py-2 bg-zinc-800 rounded-lg text-white font-mono text-xs border border-zinc-700 whitespace-nowrap active:bg-zinc-700">Mono (Tech)</button>
-                                    </div>
-
-                                    <div className="h-px bg-zinc-800 w-full"></div>
-
-                                    {/* Formatação Básica + Tamanho */}
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                                        <MobileToolBtn icon="fa-bold" label="Negrito" action="bold" tooltip="Texto em Negrito" />
-                                        <MobileToolBtn icon="fa-italic" label="Itálico" action="italic" tooltip="Texto Itálico" />
-                                        <MobileToolBtn icon="fa-underline" label="Sublin." action="underline" tooltip="Sublinhar Texto" />
-                                        <MobileToolBtn icon="fa-strikethrough" label="Riscado" action="strikeThrough" tooltip="Riscar Texto" />
-
-                                        <div className="w-px bg-zinc-800 mx-1"></div>
-
-                                        <MobileToolBtn icon="fa-text-height" label="Pequeno" action="fontSize" val="2" />
-                                        <MobileToolBtn icon="fa-text-height" label="Normal" action="fontSize" val="3" />
-                                        <MobileToolBtn icon="fa-heading" label="Grande" action="fontSize" val="5" />
-                                        <MobileToolBtn icon="fa-heading" label="Manchete" action="fontSize" val="7" />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* ABA 2: CORES E MARCA TEXTO */}
-                            {activeTab === 'color' && (
-                                <div className="space-y-3">
-                                    {/* Cor do Texto */}
-                                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <span className="text-[8px] font-black uppercase text-zinc-500 w-10 shrink-0">Texto</span>
-                                        {['#000000', '#ffffff', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#6b7280'].map(c => (
-                                            <button key={c} onClick={(e) => { e.stopPropagation(); execCommand('foreColor', c); }} className="w-8 h-8 rounded-full border-2 border-zinc-700 shrink-0 shadow-sm active:scale-90 transition-transform" style={{ backgroundColor: c }} title={`Texto: ${c}`} />
-                                        ))}
-                                    </div>
-
-                                    <div className="h-px bg-zinc-800 w-full"></div>
-
-                                    {/* Marca Texto / Watermark */}
-                                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <span className="text-[8px] font-black uppercase text-zinc-500 w-10 shrink-0">Fundo</span>
-                                        <button onClick={(e) => { e.stopPropagation(); execCommand('hiliteColor', 'transparent'); }} className="w-8 h-8 rounded border border-zinc-600 bg-transparent text-red-500 flex items-center justify-center shrink-0 active:scale-90"><i className="fas fa-ban text-xs"></i></button>
-                                        {['#fef08a', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#fed7aa', '#e9d5ff', '#1f2937'].map(c => (
-                                            <button key={c} onClick={(e) => { e.stopPropagation(); execCommand('hiliteColor', c); }} className="w-8 h-8 rounded border border-zinc-700 shrink-0 shadow-sm active:scale-90 transition-transform" style={{ backgroundColor: c }} title="Marca Texto" />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* ABA 3: LAYOUT E INSERÇÕES */}
-                            {activeTab === 'layout' && (
-                                <div className="space-y-3">
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                                        <MobileToolBtn icon="fa-align-left" label="Esq" action="justifyLeft" />
-                                        <MobileToolBtn icon="fa-align-center" label="Centro" action="justifyCenter" />
-                                        <MobileToolBtn icon="fa-align-right" label="Dir" action="justifyRight" />
-                                        <MobileToolBtn icon="fa-align-justify" label="Justif." action="justifyFull" />
-
-                                        <div className="w-px bg-zinc-800 mx-1"></div>
-
-                                        <MobileToolBtn icon="fa-list-ul" label="Lista" action="insertUnorderedList" />
-                                        <MobileToolBtn icon="fa-list-ol" label="Num." action="insertOrderedList" />
-
-                                        <div className="w-px bg-zinc-800 mx-1"></div>
-
-                                        {/* Botão de Upload de Imagem */}
-                                        <MobileToolBtn icon="fa-image" label="Imagem" action="triggerImage" activeColor="text-green-400 border-green-900 bg-green-900/20" />
-                                    </div>
-
-                                    <div className="h-px bg-zinc-800 w-full"></div>
-
-                                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                                        <MobileToolBtn icon="fa-link" label="Link" action="link" activeColor="text-blue-400 border-blue-900 bg-blue-900/20" />
-                                        <MobileToolBtn icon="fa-quote-right" label="Citação" action="formatBlock" val="BLOCKQUOTE" activeColor="text-amber-400 border-amber-900 bg-amber-900/20" />
-                                        <MobileToolBtn icon="fa-eraser" label="Limpar" action="removeFormat" activeColor="text-red-400 border-red-900 bg-red-900/20" />
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
-                    </div>
+                    <RichTextToolbar
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        handleMenuAction={handleMenuAction}
+                        execCommand={execCommand}
+                        insertLink={insertLink}
+                        onToggleMobileFormatting={() => setContextMenu(null)}
+                    />
                 </div>,
                 document.body
             )}
@@ -465,107 +261,7 @@ const TextBlock: React.FC<TextBlockProps> = ({ block, isSelected, onUpdate, onSe
                 style={{ display: 'none' }}
             />
 
-            <style>{`
-          /* GLOBAL LIST STYLES */
-          [role="article"] ul { list-style-type: disc !important; padding-left: 1.5rem !important; display: block !important; margin: 10px 0; }
-          [role="article"] ol { list-style-type: decimal !important; padding-left: 1.5rem !important; display: block !important; margin: 10px 0; }
-          [role="article"] li { display: list-item !important; margin-bottom: 0.6rem; outline: none; min-height: 1.2em; text-align: left; }
-          
-          /* Estilos de Espaçamento */
-          .list-spacing-compact li { margin-bottom: 0.2rem !important; }
-          .list-spacing-normal li { margin-bottom: 0.6rem !important; }
-          .list-spacing-relaxed li { margin-bottom: 1.2rem !important; }
-
-          /* Estilos de Tamanho */
-          .list-size-sm li { font-size: 0.875rem !important; }
-          .list-size-normal li { font-size: 1rem !important; }
-          .list-size-lg li { font-size: 1.25rem !important; }
-
-          /* Cores de Marcadores (Bullets/Numbers) */
-          .list-marker-red li::marker { color: #dc2626 !important; }
-          .list-marker-blue li::marker { color: #2563eb !important; }
-          .list-marker-green li::marker { color: #10b981 !important; }
-          .list-marker-purple li::marker { color: #9333ea !important; }
-          .list-marker-orange li::marker { color: #f97316 !important; }
-          .list-marker-pink li::marker { color: #ec4899 !important; }
-          .list-marker-default li::marker { color: inherit !important; }
-
-          /* ROW STYLES (NOVO) */
-          .list-row-divided li { border-bottom: 1px solid #f4f4f5; padding-bottom: 0.5em; padding-top: 0.5em; }
-          .list-row-divided li:last-child { border-bottom: none; }
-          
-          .list-row-striped li:nth-child(odd) { background-color: #f9fafb; padding: 0.5em; border-radius: 6px; }
-          .list-row-striped li { padding-left: 0.5em; padding-right: 0.5em; }
-          
-          .list-row-boxed li { background-color: #f9fafb; padding: 0.75em; border: 1px solid #f4f4f5; border-radius: 8px; margin-bottom: 0.5em !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-
-          /* Variantes Específicas */
-          .list-bullets-square li { list-style-type: square !important; }
-          
-          /* Numbered Steps Customizados */
-          .list-numbered-steps ol { list-style-type: none !important; counter-reset: lfnm-step; padding-left: 0 !important; }
-          .list-numbered-steps li { 
-              counter-increment: lfnm-step; 
-              position: relative; 
-              padding-left: 3rem !important; 
-              list-style-type: none !important;
-              display: block !important;
-          }
-          
-          .list-numbered-steps li::before { 
-            content: counter(lfnm-step); 
-            position: absolute; left: 0; top: 0; 
-            width: 1.8rem; height: 1.8rem; 
-            background: #000; color: #fff; 
-            border-radius: 50%; display: flex; 
-            align-items: center; justify-content: center; 
-            font-size: 10px; font-weight: 900; 
-            z-index: 10;
-          }
-
-          .list-numbered-steps.marker-style-outline li::before {
-              background: transparent !important;
-              border: 2px solid #000;
-              color: #000;
-          }
-
-          .list-numbered-steps.marker-style-simple li::before {
-              background: transparent !important;
-              border: none;
-              color: #000;
-              font-size: 14px;
-              width: auto;
-              justify-content: flex-start;
-              content: counter(lfnm-step) ".";
-          }
-          
-          /* Steps com Cores Override */
-          .list-marker-red.list-numbered-steps li::before { background: #dc2626; border-color: #dc2626; color: #fff; }
-          .list-marker-red.list-numbered-steps.marker-style-outline li::before { background: transparent; color: #dc2626; }
-          .list-marker-red.list-numbered-steps.marker-style-simple li::before { background: transparent; color: #dc2626; }
-
-          .list-marker-blue.list-numbered-steps li::before { background: #2563eb; border-color: #2563eb; color: #fff; }
-          .list-marker-blue.list-numbered-steps.marker-style-outline li::before { background: transparent; color: #2563eb; }
-          .list-marker-blue.list-numbered-steps.marker-style-simple li::before { background: transparent; color: #2563eb; }
-
-          .list-marker-green.list-numbered-steps li::before { background: #10b981; border-color: #10b981; color: #fff; }
-          .list-marker-green.list-numbered-steps.marker-style-outline li::before { background: transparent; color: #10b981; }
-          .list-marker-green.list-numbered-steps.marker-style-simple li::before { background: transparent; color: #10b981; }
-
-          .list-marker-purple.list-numbered-steps li::before { background: #9333ea; border-color: #9333ea; color: #fff; }
-          .list-marker-purple.list-numbered-steps.marker-style-outline li::before { background: transparent; color: #9333ea; }
-          .list-marker-purple.list-numbered-steps.marker-style-simple li::before { background: transparent; color: #9333ea; }
-
-          .list-marker-orange.list-numbered-steps li::before { background: #f97316; border-color: #f97316; color: #fff; }
-          .list-marker-orange.list-numbered-steps.marker-style-outline li::before { background: transparent; color: #f97316; }
-          .list-marker-orange.list-numbered-steps.marker-style-simple li::before { background: transparent; color: #f97316; }
-
-          .list-marker-pink.list-numbered-steps li::before { background: #ec4899; border-color: #ec4899; color: #fff; }
-          .list-marker-pink.list-numbered-steps.marker-style-outline li::before { background: transparent; color: #ec4899; }
-          .list-marker-pink.list-numbered-steps.marker-style-simple li::before { background: transparent; color: #ec4899; }
-
-          [contenteditable="true"]:empty:before { content: attr(data-placeholder); color: #cbd5e1; pointer-events: none; }
-      `}</style>
+            <style>{TEXT_BLOCK_STYLES}</style>
         </div>
     );
 };

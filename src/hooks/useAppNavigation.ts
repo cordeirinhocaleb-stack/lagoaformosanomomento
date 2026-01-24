@@ -52,13 +52,13 @@ export const useAppNavigation = ({
                 setShowLoginModal(true);
             }
         } else if (pathname.startsWith('/news/')) {
-            const id = pathname.split('/').pop();
-            const item = news.find(n => n.id === id);
+            const parts = pathname.split('/').filter(Boolean);
+            const idOrSlug = parts[parts.length - 1];
+            const item = news.find(n => n.id === idOrSlug || n.seo?.slug === idOrSlug || n.slug === idOrSlug);
             if (item) {
                 setSelectedNews(item);
                 setView('details');
             }
-            // Não redireciona para home - aguarda notícias carregarem
         } else if (pathname === '/jobs') {
             setView('jobs');
         } else if (pathname.startsWith('/advertiser/')) {

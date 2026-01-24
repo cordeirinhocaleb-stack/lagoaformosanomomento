@@ -1,0 +1,17 @@
+{
+  "version": "1",
+  "createdAt": "2026-01-23T01:39:55.429Z",
+  "builds": [
+    {
+      "buildNumber": 1,
+      "status": "in-progress",
+      "startedAt": "2026-01-23T01:39:55.429Z",
+      "description": "",
+      "filesChanged": [],
+      "decisions": [],
+      "patterns": [],
+      "summary": ""
+    }
+  ],
+  "currentBuild": 1
+}

@@ -1,4 +1,5 @@
-// Version: 1.111 - Blocos temáticos de comemorações do ano
+
+// Version: 1.120 - Blocos de Coberturas Especiais (Soft Premium)
 import { ContentBlock } from '../../../types';
 
 export interface CelebrationBlock {
@@ -18,143 +19,73 @@ export interface CelebrationBlock {
 
 export const CELEBRATION_BLOCKS: CelebrationBlock[] = [
     {
-        id: 'natal',
-        name: 'Natal',
-        emoji: '🎄',
-        date: '25/12',
-        colors: { primary: '#dc2626', secondary: '#16a34a', accent: '#fef3c7' },
-        icon: 'fa-tree',
-        description: 'Template festivo de Natal com cores vermelho e verde',
+        id: 'crime_coverage_soft',
+        name: 'Operação Policial',
+        emoji: '🚔',
+        date: 'AO VIVO',
+        colors: { primary: '#f8fafc', secondary: '#94a3b8', accent: '#0f172a' },
+        icon: 'fa-shield-halved',
+        description: 'Template policial em tons de cinza e azul marinho suave',
         template: {
             type: 'smart_block',
-            content: `<div class="widget-root celebration-natal bg-gradient-to-br from-red-50 to-green-50 p-8 rounded-3xl border-4 border-red-600 relative overflow-hidden"><div class="absolute top-0 right-0 text-9xl opacity-10">🎄</div><h2 class="text-4xl font-black text-red-600 mb-4 lfnm-text" data-key="Titulo">🎅 Feliz Natal!</h2><p class="text-lg text-gray-700 mb-6 lfnm-text" data-key="Mensagem">Desejamos a todos um Natal repleto de paz, amor e alegria!</p><div class="flex gap-4 justify-center"><span class="text-6xl">🎁</span><span class="text-6xl">⛄</span><span class="text-6xl">🔔</span></div></div>`,
-            settings: { widgetId: 'celebration_natal', width: 'full' }
+            content: `<div class="widget-root news-police bg-zinc-950/95 backdrop-blur-xl border-x-8 border-yellow-500/20 p-10 rounded-none shadow-2xl relative overflow-hidden flex flex-col items-center text-center"><div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M30 0 L60 30 L30 60 L0 30 Z\' fill=\'%23eab308\' /%3E%3C/svg%3E')]"></div><div class="relative z-10"><h4 class="text-[10px] font-black bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-4 py-1 uppercase tracking-[0.3em] mb-6 inline-block">UNIDADE MÓVEL</h4><h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4 lfnm-text" data-key="Titulo">Operação Impacto</h2><p class="text-lg text-zinc-400 font-mono italic mb-8 lfnm-text" data-key="Mensagem">Cobertura especial direta das frentes de investigação criminal.</p><div class="flex gap-8 justify-center text-4xl opacity-50"><span>🚔</span><span>🛡️</span><span>🚨</span></div></div></div>`,
+            settings: { widgetId: 'news_police_block', width: 'full' }
         }
     },
     {
-        id: 'ano_novo',
-        name: 'Ano Novo',
-        emoji: '🎆',
-        date: '01/01',
-        colors: { primary: '#eab308', secondary: '#3b82f6', accent: '#ffffff' },
-        icon: 'fa-champagne-glasses',
-        description: 'Celebração de Ano Novo com fogos e champagne',
+        id: 'politics_soft',
+        name: 'Debate Eleitoral',
+        emoji: '🏛️',
+        date: 'ESPECIAL',
+        colors: { primary: '#f0f4f8', secondary: '#1e3a8a', accent: '#ffffff' },
+        icon: 'fa-landmark',
+        description: 'Template político estilo "Long-form Editorial"',
         template: {
             type: 'smart_block',
-            content: `<div class="widget-root celebration-ano-novo bg-gradient-to-br from-yellow-400 via-blue-500 to-purple-600 p-8 rounded-3xl text-white relative overflow-hidden"><div class="absolute inset-0 bg-black opacity-20"></div><div class="relative z-10"><h2 class="text-5xl font-black mb-4 text-center lfnm-text" data-key="Titulo">🎆 Feliz 2026!</h2><p class="text-xl text-center mb-6 lfnm-text" data-key="Mensagem">Que o novo ano traga realizações e felicidade!</p><div class="flex gap-3 justify-center text-4xl"><span>🥂</span><span>🎉</span><span>✨</span><span>🎊</span></div></div></div>`,
-            settings: { widgetId: 'celebration_ano_novo', width: 'full' }
+            content: `<div class="widget-root news-politics bg-[#fdfcf9] border-y-4 border-slate-200 p-12 rounded-none shadow-sm relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-900/40 via-blue-900/10 to-blue-900/40"></div><div class="relative z-10 text-center"><h2 class="text-5xl font-serif font-black text-slate-900 mb-6 lfnm-text" data-key="Titulo">Análise do Poder</h2><p class="text-xl text-slate-600 font-serif italic max-w-2xl mx-auto mb-10 lfnm-text" data-key="Mensagem">O futuro político da região em debate e análise pelos nossos especialistas.</p><div class="flex gap-6 items-center justify-center"><span class="w-16 h-[1px] bg-slate-300"></span><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">DEBATE 2024</span><span class="w-16 h-[1px] bg-slate-300"></span></div></div></div>`,
+            settings: { widgetId: 'news_politics_block', width: 'full' }
         }
     },
     {
-        id: 'carnaval',
-        name: 'Carnaval',
-        emoji: '🎭',
-        date: 'Fev/Mar',
-        colors: { primary: '#ec4899', secondary: '#8b5cf6', accent: '#fbbf24' },
-        icon: 'fa-masks-theater',
-        description: 'Festa de Carnaval com cores vibrantes',
+        id: 'weather_soft',
+        name: 'Alerta Clima',
+        emoji: '⛈️',
+        date: 'ALERTA',
+        colors: { primary: '#fef2f2', secondary: '#ef4444', accent: '#ffffff' },
+        icon: 'fa-cloud-showers-heavy',
+        description: 'Template climático "Glassmorphism"',
         template: {
             type: 'smart_block',
-            content: `<div class="widget-root celebration-carnaval bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 p-8 rounded-3xl relative overflow-hidden"><h2 class="text-5xl font-black text-white mb-4 text-center drop-shadow-lg lfnm-text" data-key="Titulo">🎭 Carnaval 2026!</h2><p class="text-xl text-white text-center mb-6 drop-shadow lfnm-text" data-key="Mensagem">É tempo de folia e alegria!</p><div class="flex gap-3 justify-center text-5xl"><span>🎉</span><span>🎊</span><span>🎺</span><span>🥁</span></div></div>`,
-            settings: { widgetId: 'celebration_carnaval', width: 'full' }
+            content: `<div class="widget-root news-weather bg-white/40 backdrop-blur-2xl border border-white shadow-2xl rounded-[3.5rem] p-12 relative overflow-hidden"><div class="absolute -right-10 -top-10 text-red-500/5 text-[15rem] font-black shrink-0 pointer-events-none">⛈️</div><div class="relative z-10"><h4 class="text-xs font-black text-red-600 bg-red-50 border border-red-100 px-4 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">DEFESA CIVIL</h4><h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4 lfnm-text" data-key="Titulo">Alerta de Chuvas</h2><p class="text-xl font-bold text-slate-600 mb-8 lfnm-text" data-key="Mensagem">Condições meteorológicas severas previstas para as próximas horas.</p><div class="flex gap-4 text-5xl opacity-40"><span>⚡</span><span>🌊</span><span>🌬️</span></div></div></div>`,
+            settings: { widgetId: 'news_weather_block', width: 'full' }
         }
     },
     {
-        id: 'pascoa',
-        name: 'Páscoa',
-        emoji: '🐰',
-        date: 'Mar/Abr',
-        colors: { primary: '#f472b6', secondary: '#a78bfa', accent: '#fde047' },
-        icon: 'fa-egg',
-        description: 'Páscoa com coelhos e ovos coloridos',
+        id: 'health_soft',
+        name: 'Saúde Pública',
+        emoji: '🏥',
+        date: 'UTILIDADE',
+        colors: { primary: '#f0fdf4', secondary: '#10b981', accent: '#ffffff' },
+        icon: 'fa-square-h',
+        description: 'Template saúde "Neo-Minimalist"',
         template: {
             type: 'smart_block',
-            content: `<div class="widget-root celebration-pascoa bg-gradient-to-br from-pink-100 via-purple-100 to-yellow-100 p-8 rounded-3xl border-4 border-pink-300 relative"><div class="absolute top-0 right-0 text-9xl opacity-10">🐰</div><h2 class="text-4xl font-black text-pink-600 mb-4 lfnm-text" data-key="Titulo">🐰 Feliz Páscoa!</h2><p class="text-lg text-gray-700 mb-6 lfnm-text" data-key="Mensagem">Que esta Páscoa traga renovação e doçura!</p><div class="flex gap-4 justify-center text-5xl"><span>🥚</span><span>🍫</span><span>🌷</span></div></div>`,
-            settings: { widgetId: 'celebration_pascoa', width: 'full' }
+            content: `<div class="widget-root news-health bg-white shadow-[0_30px_60px_rgba(0,0,0,0.03)] border-none rounded-[3rem] p-12 flex flex-col md:flex-row items-center gap-10"><div class="w-32 h-32 bg-emerald-50 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-lg"><span class="text-6xl items-center flex justify-center w-full h-full">🏥</span></div><div><h2 class="text-4xl font-black text-emerald-950 mb-3 tracking-tight lfnm-text" data-key="Titulo">Boletim de Saúde</h2><p class="text-lg text-slate-500 font-medium mb-0 lfnm-text" data-key="Mensagem">Informações oficiais sobre campanhas de vacinação e prevenção na cidade.</p></div></div>`,
+            settings: { widgetId: 'news_health_block', width: 'full' }
         }
     },
     {
-        id: 'dia_pais',
-        name: 'Dia dos Pais',
-        emoji: '👨',
-        date: '2º Dom Ago',
-        colors: { primary: '#3b82f6', secondary: '#1e40af', accent: '#dbeafe' },
-        icon: 'fa-user-tie',
-        description: 'Homenagem ao Dia dos Pais',
+        id: 'traffic_soft',
+        name: 'Flash Trânsito',
+        emoji: '🚗',
+        date: 'DIRETO',
+        colors: { primary: '#fffbeb', secondary: '#f59e0b', accent: '#000000' },
+        icon: 'fa-car-burst',
+        description: 'Template trânsito "High Contrast Minimal"',
         template: {
             type: 'smart_block',
-            content: `<div class="widget-root celebration-dia-pais bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-3xl border-4 border-blue-600 relative"><div class="absolute top-0 right-0 text-9xl opacity-10">👨</div><h2 class="text-4xl font-black text-blue-600 mb-4 lfnm-text" data-key="Titulo">👨 Feliz Dia dos Pais!</h2><p class="text-lg text-gray-700 mb-6 lfnm-text" data-key="Mensagem">Parabéns a todos os pais pelo seu dia!</p><div class="flex gap-4 justify-center text-5xl"><span>👔</span><span>🔧</span><span>💙</span></div></div>`,
-            settings: { widgetId: 'celebration_dia_pais', width: 'full' }
-        }
-    },
-    {
-        id: 'dia_maes',
-        name: 'Dia das Mães',
-        emoji: '👩',
-        date: '2º Dom Mai',
-        colors: { primary: '#ec4899', secondary: '#be185d', accent: '#fce7f3' },
-        icon: 'fa-heart',
-        description: 'Homenagem ao Dia das Mães',
-        template: {
-            type: 'smart_block',
-            content: `<div class="widget-root celebration-dia-maes bg-gradient-to-br from-pink-50 to-rose-100 p-8 rounded-3xl border-4 border-pink-500 relative"><div class="absolute top-0 right-0 text-9xl opacity-10">👩</div><h2 class="text-4xl font-black text-pink-600 mb-4 lfnm-text" data-key="Titulo">👩 Feliz Dia das Mães!</h2><p class="text-lg text-gray-700 mb-6 lfnm-text" data-key="Mensagem">Parabéns a todas as mães pelo seu dia!</p><div class="flex gap-4 justify-center text-5xl"><span>💐</span><span>💝</span><span>🌹</span></div></div>`,
-            settings: { widgetId: 'celebration_dia_maes', width: 'full' }
-        }
-    },
-    {
-        id: 'dia_namorados',
-        name: 'Dia dos Namorados',
-        emoji: '💑',
-        date: '12/06',
-        colors: { primary: '#ef4444', secondary: '#f472b6', accent: '#fecdd3' },
-        icon: 'fa-heart',
-        description: 'Celebração do Dia dos Namorados',
-        template: {
-            type: 'smart_block',
-            content: `<div class="widget-root celebration-namorados bg-gradient-to-br from-red-100 via-pink-100 to-rose-100 p-8 rounded-3xl border-4 border-red-500 relative overflow-hidden"><div class="relative z-10"><h2 class="text-4xl font-black text-red-600 mb-4 text-center lfnm-text" data-key="Titulo">💑 Feliz Dia dos Namorados!</h2><p class="text-lg text-gray-700 mb-6 text-center lfnm-text" data-key="Mensagem">Celebre o amor com quem você ama!</p><div class="flex gap-4 justify-center text-5xl"><span>💕</span><span>🌹</span><span>💝</span></div></div></div>`,
-            settings: { widgetId: 'celebration_namorados', width: 'full' }
-        }
-    },
-    {
-        id: 'independencia',
-        name: 'Independência',
-        emoji: '🇧🇷',
-        date: '07/09',
-        colors: { primary: '#16a34a', secondary: '#eab308', accent: '#3b82f6' },
-        icon: 'fa-flag',
-        description: 'Dia da Independência do Brasil',
-        template: {
-            type: 'smart_block',
-            content: `<div class="widget-root celebration-independencia bg-gradient-to-br from-green-600 via-yellow-400 to-blue-600 p-8 rounded-3xl text-white relative"><div class="absolute inset-0 bg-black opacity-20"></div><div class="relative z-10"><h2 class="text-4xl font-black mb-4 text-center drop-shadow-lg lfnm-text" data-key="Titulo">🇧🇷 7 de Setembro!</h2><p class="text-xl text-center mb-6 drop-shadow lfnm-text" data-key="Mensagem">Independência ou Morte!</p><div class="flex gap-4 justify-center text-5xl"><span>🇧🇷</span><span>🎖️</span><span>🏛️</span></div></div></div>`,
-            settings: { widgetId: 'celebration_independencia', width: 'full' }
-        }
-    },
-    {
-        id: 'halloween',
-        name: 'Halloween',
-        emoji: '🎃',
-        date: '31/10',
-        colors: { primary: '#f97316', secondary: '#000000', accent: '#7c3aed' },
-        icon: 'fa-ghost',
-        description: 'Noite de Halloween assustadora',
-        template: {
-            type: 'smart_block',
-            content: `<div class="widget-root celebration-halloween bg-gradient-to-br from-orange-600 via-black to-purple-900 p-8 rounded-3xl text-white relative overflow-hidden"><div class="absolute top-0 right-0 text-9xl opacity-20">🎃</div><h2 class="text-4xl font-black text-orange-400 mb-4 lfnm-text" data-key="Titulo">🎃 Happy Halloween!</h2><p class="text-lg mb-6 lfnm-text" data-key="Mensagem">Doces ou travessuras?</p><div class="flex gap-4 justify-center text-5xl"><span>👻</span><span>🦇</span><span>🕷️</span></div></div>`,
-            settings: { widgetId: 'celebration_halloween', width: 'full' }
-        }
-    },
-    {
-        id: 'volta_aulas',
-        name: 'Volta às Aulas',
-        emoji: '📚',
-        date: 'Jan/Fev',
-        colors: { primary: '#eab308', secondary: '#3b82f6', accent: '#10b981' },
-        icon: 'fa-graduation-cap',
-        description: 'Início do ano letivo',
-        template: {
-            type: 'smart_block',
-            content: `<div class="widget-root celebration-volta-aulas bg-gradient-to-br from-yellow-100 via-blue-100 to-green-100 p-8 rounded-3xl border-4 border-yellow-500 relative"><div class="absolute top-0 right-0 text-9xl opacity-10">📚</div><h2 class="text-4xl font-black text-blue-600 mb-4 lfnm-text" data-key="Titulo">📚 Volta às Aulas!</h2><p class="text-lg text-gray-700 mb-6 lfnm-text" data-key="Mensagem">Bom ano letivo a todos os estudantes!</p><div class="flex gap-4 justify-center text-5xl"><span>✏️</span><span>📖</span><span>🎒</span></div></div>`,
-            settings: { widgetId: 'celebration_volta_aulas', width: 'full' }
+            content: `<div class="widget-root news-traffic bg-amber-50 border-2 border-amber-200 p-8 rounded-none shadow-sm flex items-center gap-8"><div class="w-16 h-16 bg-amber-500 rounded-2xl rotate-3 flex items-center justify-center text-3xl shrink-0 shadow-lg border-2 border-white">🚗</div><div class="flex-1"><h4 class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1">TRÂNSITO AGORA</h4><h2 class="text-2xl font-black text-zinc-900 uppercase tracking-tight lfnm-text" data-key="Titulo">Situação das Vias</h2><p class="text-sm font-bold text-zinc-500 italic lfnm-text" data-key="Mensagem">Acompanhe as interdições e fluxo nas principais entradas da cidade.</p></div></div>`,
+            settings: { widgetId: 'news_traffic_block', width: 'full' }
         }
     }
 ];
