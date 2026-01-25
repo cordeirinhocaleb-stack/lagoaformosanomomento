@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "1769137691451-43pslbgcz",
+    "timestamp": "2026-01-23T03:08:11.451Z",
+    "taskDescription": "Inicializar memória do agente",
+    "context": {
+      "files": [],
+      "areas": [
+        "initialization"
+      ],
+      "complexity": "low"
+    },
+    "result": "success",
+    "details": "Scan completo: 6009 itens catalogados"
+  },
+  {
+    "id": "1769137695973-pg9h8i2dy",
+    "timestamp": "2026-01-23T03:08:15.973Z",
+    "taskDescription": "Escanear projeto completo",
+    "context": {
+      "files": [],
+      "areas": [
+        "all"
+      ],
+      "complexity": "high"
+    },
+    "result": "success",
+    "details": "Inventário completo: 6009 itens catalogados"
+  }
+]

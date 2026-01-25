@@ -48,7 +48,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, stack, user, systemSetting
                 onOpenProfile={() => { }}
                 selectedCategory="all"
                 onSelectCategory={() => { }}
-                selectedRegion="Lagoa Formosa"
+                selectedRegion="Lagoa Formosa e Região"
                 onSelectRegion={() => { }}
             />
 

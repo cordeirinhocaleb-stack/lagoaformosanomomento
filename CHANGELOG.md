@@ -2,6 +2,17 @@
 # 📝 Registro de Edições e Revisões - LFNM
 
 
+## 0.2.2 (Build 230) - 25/01/2026 22:05
+### 🚀 Performance \u0026 Database Optimization
+- **RLS Performance Optimization**: Criada migração completa para resolver 46 avisos de performance do Supabase Database Linter.
+- **Auth.uid() Optimization**: Otimizadas 8 políticas RLS substituindo `auth.uid()` por `(select auth.uid())` para evitar reavaliação em cada linha.
+- **Policy Consolidation**: Consolidadas 38 políticas duplicadas em políticas únicas por role/ação, reduzindo overhead computacional.
+- **Performance Indexes**: Adicionados 12 índices estratégicos para otimizar verificações de role, ownership e status.
+- **Tabelas otimizadas**: `users`, `news`, `advertisers`, `audit_log`, `system_settings`, `jobs`, `engagement_interactions`, `terms_acceptances`.
+- **Migração**: `supabase/migrations/20260125000000_fix_rls_performance.sql`
+
+---
+
 ## 0.2.1 (Build 229) - 21/01/2026 02:00
 ### 🎨 UI/UX & Admin Dark Mode
 - **Standardized Dark Mode**: Implementada padronização visual em todo o painel administrativo.

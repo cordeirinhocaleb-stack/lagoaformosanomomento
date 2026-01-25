@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "1769254256878-2jkmzsli0",
+    "pattern": "Evitar: Detectou vulnerabilidade XSS corretamente",
+    "description": "Usuário não gostou de: Detectou vulnerabilidade XSS corretamente",
+    "recommendation": "Evitar fazer: Detectou vulnerabilidade XSS corretamente",
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastSeen": "2026-01-24T11:30:56.878Z",
+    "examples": [
+      "task-1769254251004-mgt4wazoh"
+    ]
+  },
+  {
+    "id": "1769254256879-zb7qqcw33",
+    "pattern": "Sugestão: Sugerir DOMPurify automaticamente",
+    "description": "Usuário sugeriu: Sugerir DOMPurify automaticamente",
+    "recommendation": "Considerar implementar: Sugerir DOMPurify automaticamente",
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastSeen": "2026-01-24T11:30:56.879Z",
+    "examples": [
+      "task-1769254251004-mgt4wazoh"
+    ]
+  }
+]

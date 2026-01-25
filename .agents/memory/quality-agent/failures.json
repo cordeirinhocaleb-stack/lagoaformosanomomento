@@ -1,7 +1,7 @@
 [
   {
-    "id": "1769269446619-xmuh7t7ke",
-    "timestamp": "2026-01-24T15:44:06.619Z",
+    "id": "1769137692468-2vntl6niu",
+    "timestamp": "2026-01-23T03:08:12.468Z",
     "taskDescription": "Inicializar memória do agente",
     "context": {
       "files": [],
@@ -11,6 +11,80 @@
       "complexity": "low"
     },
     "result": "failure",
-    "details": "Decisão: NO-GO\nLint: FALHOU\nTypeCheck: FALHOU\nBuild: FALHOU\nTests: OK"
+    "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
+  },
+  {
+    "id": "1769252942499-4hah8cbvu",
+    "timestamp": "2026-01-24T11:09:02.499Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
+  },
+  {
+    "id": "1769254245505-f8crsz8wr",
+    "timestamp": "2026-01-24T11:30:45.505Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend",
+        "auth",
+        "security"
+      ],
+      "complexity": "medium"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
+  },
+  {
+    "id": "1769254251000-z0qxliysk",
+    "timestamp": "2026-01-24T11:30:51.000Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend",
+        "security"
+      ],
+      "complexity": "medium"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
+  },
+  {
+    "id": "1769254256874-5hy2s1uqr",
+    "timestamp": "2026-01-24T11:30:56.874Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend",
+        "security"
+      ],
+      "complexity": "medium"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
+  },
+  {
+    "id": "1769269851402-qx70c6kbg",
+    "timestamp": "2026-01-24T15:50:51.402Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "inventory"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
   }
 ]

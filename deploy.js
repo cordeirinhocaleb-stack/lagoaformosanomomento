@@ -22,11 +22,11 @@ const config = {
     password: process.env.FTP_PASSWORD,
     host: process.env.FTP_HOST,
     port: 21,
-    localRoot: path.join(__dirname, '.next'),
+    localRoot: path.join(__dirname, 'out'),
     remoteRoot: process.env.FTP_REMOTE_ROOT || '/public_html/',
     include: ['*', '**/*'], // Enviar tudo
     exclude: ['**/*.map', 'node_modules/**', '.git/**'], // Excluir arquivos desnecessários
-    deleteRemote: false, // Manter arquivos existentes no servidor
+    deleteRemote: false, // Manter arquivos existentes (Upload de reparo)
     forcePasv: true, // Modo Passivo (Geralmente necessário para HostGator)
     sftp: false // HostGator padrão usa FTP, mude para true se tiver SFTP ativado
 };

@@ -1,0 +1,271 @@
+{
+    "repositories": {
+        "react": {
+            "url": "https://github.com/facebook/react",
+            "docs": "https://react.dev",
+            "description": "Biblioteca JavaScript para construir interfaces de usuário",
+            "topics": [
+                "frontend",
+                "ui",
+                "components"
+            ]
+        },
+        "nextjs": {
+            "url": "https://github.com/vercel/next.js",
+            "docs": "https://nextjs.org/docs",
+            "description": "Framework React para produção com SSR e SSG",
+            "topics": [
+                "frontend",
+                "framework",
+                "ssr",
+                "ssg"
+            ]
+        },
+        "supabase": {
+            "url": "https://github.com/supabase/supabase",
+            "docs": "https://supabase.com/docs",
+            "description": "Alternativa open source ao Firebase",
+            "topics": [
+                "backend",
+                "database",
+                "auth",
+                "storage"
+            ]
+        },
+        "typescript": {
+            "url": "https://github.com/microsoft/TypeScript",
+            "docs": "https://www.typescriptlang.org/docs",
+            "description": "Superset tipado de JavaScript",
+            "topics": [
+                "language",
+                "types",
+                "javascript"
+            ]
+        },
+        "tailwindcss": {
+            "url": "https://github.com/tailwindlabs/tailwindcss",
+            "docs": "https://tailwindcss.com/docs",
+            "description": "Framework CSS utility-first",
+            "topics": [
+                "frontend",
+                "css",
+                "styling"
+            ]
+        },
+        "eslint": {
+            "url": "https://github.com/eslint/eslint",
+            "docs": "https://eslint.org/docs",
+            "description": "Linter para JavaScript e TypeScript",
+            "topics": [
+                "quality",
+                "linting",
+                "code-quality"
+            ]
+        },
+        "prettier": {
+            "url": "https://github.com/prettier/prettier",
+            "docs": "https://prettier.io/docs",
+            "description": "Formatador de código opinativo",
+            "topics": [
+                "quality",
+                "formatting"
+            ]
+        },
+        "jest": {
+            "url": "https://github.com/jestjs/jest",
+            "docs": "https://jestjs.io/docs",
+            "description": "Framework de testes JavaScript",
+            "topics": [
+                "testing",
+                "unit-tests"
+            ]
+        },
+        "playwright": {
+            "url": "https://github.com/microsoft/playwright",
+            "docs": "https://playwright.dev/docs",
+            "description": "Framework para testes E2E",
+            "topics": [
+                "testing",
+                "e2e",
+                "browser-automation"
+            ]
+        },
+        "zod": {
+            "url": "https://github.com/colinhacks/zod",
+            "docs": "https://zod.dev",
+            "description": "Validação de schemas TypeScript-first",
+            "topics": [
+                "validation",
+                "schema",
+                "types"
+            ]
+        },
+        "owasp": {
+            "url": "https://github.com/OWASP",
+            "docs": "https://owasp.org",
+            "description": "Open Web Application Security Project",
+            "topics": [
+                "security",
+                "vulnerabilities",
+                "best-practices"
+            ]
+        },
+        "dompurify": {
+            "url": "https://github.com/cure53/DOMPurify",
+            "docs": "https://github.com/cure53/DOMPurify#readme",
+            "description": "Sanitizador de HTML para prevenir XSS",
+            "topics": [
+                "security",
+                "xss",
+                "sanitization"
+            ]
+        }
+    },
+    "documentation_sources": {
+        "mdn": {
+            "url": "https://developer.mozilla.org",
+            "description": "Mozilla Developer Network - Documentação web",
+            "topics": [
+                "web",
+                "javascript",
+                "html",
+                "css"
+            ]
+        },
+        "web_dev": {
+            "url": "https://web.dev",
+            "description": "Google Web Fundamentals",
+            "topics": [
+                "performance",
+                "seo",
+                "accessibility",
+                "best-practices"
+            ]
+        },
+        "wcag": {
+            "url": "https://www.w3.org/WAI/WCAG21/quickref",
+            "description": "Web Content Accessibility Guidelines",
+            "topics": [
+                "accessibility",
+                "a11y",
+                "standards"
+            ]
+        },
+        "cwe": {
+            "url": "https://cwe.mitre.org",
+            "description": "Common Weakness Enumeration",
+            "topics": [
+                "security",
+                "vulnerabilities",
+                "weaknesses"
+            ]
+        },
+        "nvd": {
+            "url": "https://nvd.nist.gov",
+            "description": "National Vulnerability Database",
+            "topics": [
+                "security",
+                "cve",
+                "vulnerabilities"
+            ]
+        }
+    },
+    "best_practices": {
+        "clean_code": {
+            "url": "https://github.com/ryanmcdermott/clean-code-javascript",
+            "description": "Clean Code adaptado para JavaScript",
+            "topics": [
+                "code-quality",
+                "best-practices",
+                "patterns"
+            ]
+        },
+        "node_best_practices": {
+            "url": "https://github.com/goldbergyoni/nodebestpractices",
+            "description": "Melhores práticas Node.js",
+            "topics": [
+                "nodejs",
+                "best-practices",
+                "security"
+            ]
+        },
+        "react_patterns": {
+            "url": "https://github.com/vasanthk/react-bits",
+            "description": "Padrões e técnicas React",
+            "topics": [
+                "react",
+                "patterns",
+                "best-practices"
+            ]
+        },
+        "typescript_handbook": {
+            "url": "https://www.typescriptlang.org/docs/handbook",
+            "description": "TypeScript Handbook oficial",
+            "topics": [
+                "typescript",
+                "types",
+                "handbook"
+            ]
+        }
+    },
+    "security_resources": {
+        "owasp_top_10": {
+            "url": "https://owasp.org/www-project-top-ten",
+            "description": "OWASP Top 10 Web Application Security Risks",
+            "topics": [
+                "security",
+                "vulnerabilities",
+                "top-10"
+            ]
+        },
+        "owasp_cheat_sheets": {
+            "url": "https://cheatsheetseries.owasp.org",
+            "description": "OWASP Cheat Sheet Series",
+            "topics": [
+                "security",
+                "cheat-sheets",
+                "best-practices"
+            ]
+        },
+        "snyk_vulnerabilities": {
+            "url": "https://security.snyk.io",
+            "description": "Snyk Vulnerability Database",
+            "topics": [
+                "security",
+                "vulnerabilities",
+                "npm"
+            ]
+        },
+        "cve_details": {
+            "url": "https://www.cvedetails.com",
+            "description": "CVE Security Vulnerability Database",
+            "topics": [
+                "security",
+                "cve",
+                "vulnerabilities"
+            ]
+        }
+    },
+    "performance": {
+        "web_vitals": {
+            "url": "https://web.dev/vitals",
+            "description": "Core Web Vitals",
+            "topics": [
+                "performance",
+                "metrics",
+                "optimization"
+            ]
+        },
+        "lighthouse": {
+            "url": "https://github.com/GoogleChrome/lighthouse",
+            "docs": "https://developer.chrome.com/docs/lighthouse",
+            "description": "Ferramenta de auditoria web",
+            "topics": [
+                "performance",
+                "seo",
+                "accessibility",
+                "audit"
+            ]
+        }
+    }
+}

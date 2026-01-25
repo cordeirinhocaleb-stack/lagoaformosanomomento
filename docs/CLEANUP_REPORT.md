@@ -1,0 +1,157 @@
+# 🧹 Relatório de Limpeza de Código
+
+**Data**: 24/01/2026
+**Total de Itens Analisados**: 11171
+**Potencialmente Não Utilizados**: 49
+
+> ⚠️ **Atenção**: Esta análise busca referências textuais exatas. Valide manualmente antes de excluir, pois podem haver usos dinâmicos ou indiretos.
+
+## VARIABLE (49)
+- **AGOLA**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **APPCIRCLE**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CODEBUILD**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **AZURE_PIPELINES**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **BAMBOO**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **BITBUCKET**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **BITRISE**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **BUDDY**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CIRCLE**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CLOUDFLARE_PAGES**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CLOUDFLARE_WORKERS**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CODEFRESH**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CODEMAGIC**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **CODESHIP**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **DSARI**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **EARTHLY**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **EAS**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **GERRIT**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **GITEA_ACTIONS**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **GITLAB**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **GOCD**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **GOOGLE_CLOUD_BUILD**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **HARNESS**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **HEROKU**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **HUDSON**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **JENKINS**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **LAYERCI**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **MAGNUM**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **NETLIFY**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **NEVERCODE**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **PROW**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **RELEASEHUB**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **RENDER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **SAIL**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **SCREWDRIVER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **SEMAPHORE**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **SOURCEHUT**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **STRIDER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **TASKCLUSTER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **TEAMCITY**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **VELA**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **VERCEL**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **APPCENTER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **WOODPECKER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **XCODE_CLOUD**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **XCODE_SERVER**
+  - Path: `node_modules\ci-info\index.d.ts`
+  - Last Modified: 24/01/2026
+- **_generateGlobals**
+  - Path: `node_modules\synckit\lib\helpers.js`
+  - Last Modified: 24/01/2026
+- **obsoleteFunction**
+  - Path: `node_modules\@types\node\util.d.ts`
+  - Last Modified: 24/01/2026
+- **kStringMaxLength**
+  - Path: `node_modules\@types\node\buffer.d.ts`
+  - Last Modified: 24/01/2026
+

@@ -1,65 +1,256 @@
-# DESIGN SYSTEM - LFNM
+# Sistema de Design - Triunfo Mineração
 
-Guia oficial do padrão visual do site.
+## 🎨 Paleta de Cores
 
-## 1) Cores
-Baseadas no `tailwind.config.js`.
+### Cores Primárias
+- **Primary**: `#1E40AF` (blue-800) - Ações principais, links, botões primários
+- **Secondary**: `#10B981` (green-500) - Sucesso, confirmações, status positivo
+- **Accent**: `#F59E0B` (amber-500) - Destaques, alertas importantes
+- **Neutral**: `#6B7280` (gray-500) - Textos secundários, bordas
+- **Error**: `#EF4444` (red-500) - Erros, validações, alertas críticos
 
-| Nome | Valor Hex | Uso |
-|------|-----------|-----|
-| `Primary-800` | `#9f1239` | **LFNM Red** - Cor principal da marca |
-| `Primary-500` | `#f43f5e` | Hover / Destaques |
-| `Zinc-950` | `#09090b` | Fundo Dark Mode |
-| `Gray-50` | `#f9fafb` | Fundo Light Mode |
+### Cores de Status
+- **Success**: `#10B981` (green-500)
+- **Warning**: `#F59E0B` (amber-500)
+- **Error**: `#EF4444` (red-500)
+- **Info**: `#3B82F6` (blue-500)
 
-## 2) Tipografia
-- **Sans-serif:** Inter (`sans-serif`) - Principal para conteúdo e UI.
-- **Serif:** Merriweather (`serif`) - Títulos e artigos longos.
+### Cores de Background
+- **Background**: `#F9FAFB` (gray-50)
+- **Surface**: `#FFFFFF` (white)
+- **Surface Secondary**: `#F3F4F6` (gray-100)
 
-## 3) Espaçamentos & Layout
-- **Container Máximo:** `max-w-7xl`
-- **Padding padrão:** `px-4 sm:px-6 lg:px-8`
+---
 
-## 4) Animações
+## 📝 Tipografia
 
-### Animações Principais
-- `fade-in`: 0.5s ease-out
-- `fade-in-up`: 0.5s ease-out com translação
-- `slide-in`: 0.3s ease-out (X)
-- `slideInRight`: Deslizar da direita para notificações
-- `coin-spin`: 3s loop (scale + rotação) para cashback/recompensas
-- `almost-fall`: Animação de quase queda para hover interativo
+### Fonte Principal
+- **Família**: Inter (Google Fonts)
+- **Fallback**: system-ui, -apple-system, sans-serif
 
-### Efeitos Especiais
-- **police-sweep**: Efeito de luzes piscando (Red: #dc2626 | Blue: #2563eb)
-  - Uso: Banners de urgência, notícias de última hora
-  - Duração: 2s loop
+### Hierarquia de Texto
+- **H1**: `font-bold text-3xl md:text-4xl` (30px → 36px)
+- **H2**: `font-bold text-2xl md:text-3xl` (24px → 30px)
+- **H3**: `font-semibold text-xl md:text-2xl` (20px → 24px)
+- **H4**: `font-semibold text-lg` (18px)
+- **Body**: `font-normal text-base` (16px)
+- **Body Small**: `font-normal text-sm` (14px)
+- **Caption**: `font-light text-xs` (12px)
 
-## 5) Componentes UI
-- **Botões:** Devem seguir o padrão LFNM Red para ações primárias.
-- **Modais:** Devem usar o `DialogProvider` e centralizar em `AuthModalsContainer` ou hooks específicos.
+---
 
-## 6) Stack Tecnológica
-- **CSS Framework**: Tailwind v3 (CDN)
-- **Database/Auth**: Supabase
-- **Mídia**: Cloudinary (imagens/vídeos)
-- **Vídeos Externos**: YouTube API
+## 🧩 Componentes Base
 
-## 7) Versionamento e Sincronização
+### Buttons
+Baseado em **shadcn/ui Button**
 
-### Database Sync
-Mudanças em tabelas exigem atualização imediata de:
-- Arquivo .sql (Schema)
-- Policies (RLS)
-- Documentação técnica de banco
+**Variantes**:
+- `default`: Background primary, texto branco
+- `outline`: Borda primary, texto primary, background transparente
+- `ghost`: Sem borda, texto primary, hover com background leve
+- `destructive`: Background red-500, texto branco
+- `link`: Sem background, underline no hover
 
-### Incremento de Versão
-- Formato: +0.0.1 (Build +1)
-- Atualizar em: App.tsx, package.json e VERSION.md
-- Pipeline: Local → Staging (https://dev.webgho.com) → Produção
+**Tamanhos**:
+- `sm`: `h-8 px-3 text-sm`
+- `default`: `h-10 px-4`
+- `lg`: `h-12 px-6 text-lg`
+- `icon`: `h-10 w-10` (quadrado)
 
-> [!IMPORTANT]
-> É PROIBIDO criar UI nova sem seguir esse padrão. Consulte os componentes existentes em `src/components/common` antes de criar novos.
+**Exemplo**:
+```tsx
+<Button variant="default" size="default">Salvar</Button>
+<Button variant="outline" size="sm">Cancelar</Button>
+```
 
-> [!NOTE]
-> Sempre que atualizar este arquivo, incremente a versão e atualize o CHANGELOG.md
+---
+
+### Inputs
+Baseado em **shadcn/ui Input**
+
+**Padrão**:
+- Borda: `border border-gray-300`
+- Focus: `ring-2 ring-primary`
+- Disabled: `opacity-50 cursor-not-allowed`
+- Error: `border-red-500 ring-red-500`
+
+**Com Label**:
+```tsx
+<div className="space-y-2">
+  <Label htmlFor="email">Email</Label>
+  <Input id="email" type="email" placeholder="seu@email.com" />
+</div>
+```
+
+---
+
+### Cards
+Baseado em **shadcn/ui Card**
+
+**Estrutura**:
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Título do Card</CardTitle>
+    <CardDescription>Descrição opcional</CardDescription>
+  </CardHeader>
+  <CardContent>
+    {/* Conteúdo principal */}
+  </CardContent>
+  <CardFooter>
+    {/* Ações opcionais */}
+  </CardFooter>
+</Card>
+```
+
+**Estilos**:
+- Background: `bg-white`
+- Borda: `border border-gray-200`
+- Sombra: `shadow-sm`
+- Border radius: `rounded-lg` (0.5rem)
+
+---
+
+### Modals/Dialogs
+Baseado em **shadcn/ui Dialog**
+
+**Estrutura**:
+```tsx
+<Dialog>
+  <DialogTrigger asChild>
+    <Button>Abrir Modal</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Título</DialogTitle>
+      <DialogDescription>Descrição</DialogDescription>
+    </DialogHeader>
+    {/* Conteúdo */}
+    <DialogFooter>
+      <Button variant="outline">Cancelar</Button>
+      <Button>Confirmar</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+---
+
+### Tables
+Baseado em **TanStack Table v8**
+
+**Padrão**:
+- Header: `bg-gray-50 font-semibold text-left`
+- Rows: `border-b hover:bg-gray-50`
+- Células: `px-4 py-3`
+
+**Exemplo com shadcn/ui Table**:
+```tsx
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Coluna 1</TableHead>
+      <TableHead>Coluna 2</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Dado 1</TableCell>
+      <TableCell>Dado 2</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+---
+
+## 🎯 Tokens de Design
+
+### Espaçamento
+- **Base unit**: `1rem` (16px)
+- **Scale**: 0.25rem, 0.5rem, 0.75rem, 1rem, 1.5rem, 2rem, 3rem, 4rem
+
+### Border Radius
+- **sm**: `0.25rem` (4px)
+- **default**: `0.5rem` (8px)
+- **md**: `0.75rem` (12px)
+- **lg**: `1rem` (16px)
+- **full**: `9999px` (círculo)
+
+### Sombras
+- **sm**: `shadow-sm` - Elevação leve
+- **default**: `shadow-md` - Elevação padrão
+- **lg**: `shadow-lg` - Elevação forte
+- **xl**: `shadow-xl` - Elevação máxima
+
+### Transições
+- **Padrão**: `transition-all duration-200 ease-in-out`
+- **Hover**: Aplicar em botões, links, cards clicáveis
+
+---
+
+## ♿ Acessibilidade
+
+### Contraste
+- Texto em background branco: mínimo AA (4.5:1)
+- Texto grande (18px+): mínimo AA (3:1)
+
+### Navegação por Teclado
+- Todos os botões/links acessíveis via Tab
+- Focus visível: `ring-2 ring-primary`
+- Escape fecha modals
+
+### ARIA Labels
+- Botões de ícone: `aria-label` obrigatório
+- Inputs: associar com `<Label>` via `htmlFor`
+- Estados: `aria-disabled`, `aria-expanded`, etc.
+
+---
+
+## 📱 Responsividade
+
+### Breakpoints (Tailwind)
+- **sm**: 640px
+- **md**: 768px
+- **lg**: 1024px
+- **xl**: 1280px
+- **2xl**: 1536px
+
+### Mobile-First
+Sempre começar com mobile e escalar para desktop:
+```tsx
+<div className="text-sm md:text-base lg:text-lg">
+  Texto responsivo
+</div>
+```
+
+---
+
+## 🚀 Performance
+
+### Imagens
+- Usar `next/image` sempre
+- Definir `width` e `height`
+- `priority` apenas above-the-fold
+- Lazy loading por padrão
+
+### Code Splitting
+- Componentes pesados: `dynamic(() => import())`
+- Bibliotecas grandes: carregar sob demanda
+
+---
+
+## 📦 Bibliotecas Aprovadas
+
+- **UI**: shadcn/ui (Radix UI + Tailwind)
+- **Forms**: React Hook Form + Zod
+- **Data Fetching**: TanStack Query
+- **Tabelas**: TanStack Table
+- **Datas**: date-fns
+- **Utils**: clsx / classnames
+- **Ícones**: lucide-react
+
+---
+
+**Última atualização**: 2026-01-20
+**Versão**: 1.0.0

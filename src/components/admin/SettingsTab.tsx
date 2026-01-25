@@ -25,6 +25,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
     systemSettings,
     onSave,
     onUpdateSettings,
+    currentUser,
     darkMode = false
 }) => {
     const [config, setConfig] = useState(driveConfig);
@@ -174,7 +175,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             </header>
 
             <div className="grid grid-cols-1 gap-8">
-                <FeatureSettings settings={settings} onToggle={handleToggle} darkMode={darkMode} />
+                <FeatureSettings settings={settings} onToggle={handleToggle} darkMode={darkMode} user={currentUser} />
 
                 <FooterSettings
                     settings={settings}

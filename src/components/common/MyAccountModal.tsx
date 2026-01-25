@@ -719,219 +719,93 @@ const MyAccountModal: React.FC<MyAccountModalProps> = ({ user, onClose, onUpdate
           )}
           {activeTab === 'billing' && showBilling && (
             <div className="max-w-4xl mx-auto animate-fadeIn">
-              <div className="mb-8 flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter mb-2">
-                    Minha <span className="text-red-600">Loja</span>
-                  </h1>
-                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-                    Gerencie suas assinaturas e créditos
-                  </p>
+              <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
+                <div className="bg-gray-50 p-6 rounded-full mb-6 relative">
+                  <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
+                  <i className="fas fa-store-slash text-5xl text-gray-400"></i>
                 </div>
-                <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
-                  <img src={lfnmCoin.src} className="w-6 h-6 object-contain" />
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-black uppercase text-gray-400 tracking-widest leading-none">Saldo Atual</span>
-                    <span className="text-lg font-black text-gray-900 leading-none">{(user.siteCredits || 0).toFixed(2)}</span>
-                  </div>
+                <h2 className="text-2xl font-black uppercase text-gray-900 mb-2">Loja em Manutenção</h2>
+                <p className="text-gray-500 font-medium max-w-md text-center">
+                  Estamos reformulando nossa loja de serviços e assinaturas.
+                  <br />Novidades e ofertas exclusivas chegarão em breve.
+                </p>
+                <div className="mt-8 flex gap-2">
+                  <span className="px-3 py-1 bg-gray-100 text-gray-500 text-[10px] font-black uppercase rounded-lg tracking-widest">Em Breve</span>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 gap-8">
-                {/* PLANOS */}
-                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50 rounded-full -mr-32 -mt-32 transition-transform group-hover:scale-150 duration-700"></div>
-                  <div className="relative">
-                    <h2 className="text-xl font-black uppercase mb-6 flex items-center gap-3">
-                      <i className="fas fa-crown text-yellow-400 text-2xl"></i>
-                      Planos Disponíveis
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {adConfig?.plans?.map((plan) => (
-                        <div key={plan.id} className="relative bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-black transition-all group/plan">
-                          {plan.isPopular && (
-                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-lg">
-                              Mais Popular
-                            </div>
-                          )}
-                          <h3 className="text-lg font-black uppercase mb-1">{plan.name}</h3>
-                          <div className="text-3xl font-black mb-4">
-                            R$ {(plan.prices?.monthly || 0).toFixed(0)}<span className="text-sm text-gray-400 font-bold">/mês</span>
-                          </div>
-                          <ul className="space-y-2 mb-6">
-                            {Object.entries(plan.features || {}).map(([key, value]) => {
-                              if (key === 'placements') return null;
-                              return (
-                                <li key={key} className="flex items-center gap-2 text-xs font-bold text-gray-600">
-                                  <i className="fas fa-check text-green-500"></i>
-                                  {key === 'socialVideoAd' ? 'Vídeo nas Redes' : key}
-                                </li>
-                              )
-                            })}
-                          </ul>
-                          <button onClick={onOpenPricing} className="w-full bg-black text-white py-3 rounded-xl font-black uppercase text-xs hover:bg-gray-800 transition-colors">
-                            Ver Detalhes
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* HISTÓRICO DE COMPRAS (Mock) */}
-                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
-                  <h2 className="text-xl font-black uppercase mb-6">Histórico de Compras</h2>
-                  <div className="text-center py-8 text-gray-400 text-sm font-bold bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                    Nenhuma transação recente encontrada.
-                  </div>
-                </div>
-
-                {/* MEU INVENTÁRIO */}
-                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
-                  <h2 className="text-xl font-black uppercase mb-6">Meu Inventário</h2>
-
-                  <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-                    <button className="px-4 py-2 bg-black text-white rounded-xl text-xs font-black uppercase whitespace-nowrap">
-                      Todos os Itens
-                    </button>
-                    <button className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-xs font-black uppercase whitespace-nowrap transition-colors">
-                      Anúncios
-                    </button>
-                    <button className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-xs font-black uppercase whitespace-nowrap transition-colors">
-                      Jobs/Vagas
-                    </button>
-                  </div>
-
-                  {isLoadingAds ? (
-                    <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 animate-pulse">
-                      <i className="fas fa-circle-notch fa-spin text-gray-300 text-xl"></i>
-                    </div>
-                  ) : userAds.length === 0 ? (
-                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-center text-gray-400">
-                      <p className="text-[10px] font-bold uppercase">Nenhum anúncio vinculado ainda.</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mb-8">
-                      {user.activePlans.map((planId: string, idx: number) => {
-                        const planName = adConfig?.plans.find(p => p.id === planId)?.name || planId;
-                        return (
-                          <div key={`${planId}-${idx}`} className="bg-white border border-gray-200 p-3 rounded-xl flex justify-between items-center shadow-sm group hover:border-red-200 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs">
-                                <i className="fas fa-certificate"></i>
-                              </div>
-                              <div>
-                                <span className="block text-[10px] font-black uppercase text-gray-900 leading-tight">{planName}</span>
-                                <span className="text-[8px] text-green-600 font-bold uppercase tracking-wider">Disponível</span>
-                              </div>
-                            </div>
-                            <button
-                              onClick={async () => {
-                                if (!confirm(`Remover plano "${planName}"?`)) return;
-                                const btn = document.getElementById(`remove-btn-${planId}-${idx}`);
-                                if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; (btn as any).disabled = true; }
-
-                                const res = await removeUserItem(user.id, 'plan', planId);
-                                if (res.success) {
-                                  const newPlans = [...(user.activePlans || [])];
-                                  newPlans.splice(idx, 1);
-                                  onUpdateUser({ ...user, activePlans: newPlans });
-                                  alert("Item removido!");
-                                } else {
-                                  alert(res.message);
-                                  if (btn) { btn.innerHTML = 'Retirar'; (btn as any).disabled = false; }
-                                }
-                              }}
-                              id={`remove-btn-${planId}-${idx}`}
-                              className="bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all"
-                            >
-                              Retirar
-                            </button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* SEUS ANÚNCIOS / CONTRATOS ATIVOS */}
-                <div className="mt-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Informações do Vínculo (Anúncios)</h4>
-                    <span className="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded font-bold uppercase">Performance</span>
-                  </div>
-
-                  {isLoadingAds ? (
-                    <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 animate-pulse">
-                      <i className="fas fa-circle-notch fa-spin text-gray-300 text-xl"></i>
-                    </div>
-                  ) : userAds.length === 0 ? (
-                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-center text-gray-400">
-                      <p className="text-[10px] font-bold uppercase">Nenhum anúncio vinculado ainda.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {userAds.map((ad) => (
-                        <div key={ad.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden border border-gray-100">
-                                {ad.logoUrl ? <img src={ad.logoUrl} className="w-full h-full object-cover" alt={ad.name} /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><i className="fas fa-image"></i></div>}
-                              </div>
-                              <div>
-                                <h5 className="text-[11px] font-black uppercase text-gray-900 leading-tight">{ad.name}</h5>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                  <span className="text-[8px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-widest">{ad.category}</span>
-                                  <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest ${ad.isActive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                    {ad.isActive ? 'No Ar' : 'Pausado'}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-grow max-w-2xl">
-                              <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Início</span>
-                                <span className="text-[10px] font-bold text-gray-800">{ad.startDate ? new Date(ad.startDate).toLocaleDateString('pt-BR') : 'Não definido'}</span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Término</span>
-                                <span className="text-[10px] font-bold text-gray-800">{ad.endDate ? new Date(ad.endDate).toLocaleDateString('pt-BR') : 'Não definido'}</span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Visualizações</span>
-                                <span className="text-[10px] font-black text-blue-600 flex items-center gap-1">
-                                  <i className="fas fa-eye text-[8px]"></i> {ad.views.toLocaleString()}
-                                </span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Cliques</span>
-                                <span className="text-[10px] font-black text-red-600 flex items-center gap-1">
-                                  <i className="fas fa-mouse-pointer text-[8px]"></i> {ad.clicks.toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* LOJA / CART */}
-                <div className="mt-2">
-                  <UserStorePOS user={user} adConfig={adConfig} onUpdateUser={onUpdateUser} />
-                </div>
-              </div>
-            </div>
-          )}
-          {activeTab === 'support' && (
-            <div className="max-w-4xl mx-auto animate-fadeIn">
-              <UserSupportSection userId={user.id} userName={user.name} />
             </div>
           )}
         </div>
+
+        {/* SEUS ANÚNCIOS / CONTRATOS ATIVOS */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Informações do Vínculo (Anúncios)</h4>
+            <span className="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded font-bold uppercase">Performance</span>
+          </div>
+
+          {isLoadingAds ? (
+            <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 animate-pulse">
+              <i className="fas fa-circle-notch fa-spin text-gray-300 text-xl"></i>
+            </div>
+          ) : userAds.length === 0 ? (
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-center text-gray-400">
+              <p className="text-[10px] font-bold uppercase">Nenhum anúncio vinculado ainda.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {userAds.map((ad) => (
+                <div key={ad.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden border border-gray-100">
+                        {ad.logoUrl ? <img src={ad.logoUrl} className="w-full h-full object-cover" alt={ad.name} /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><i className="fas fa-image"></i></div>}
+                      </div>
+                      <div>
+                        <h5 className="text-[11px] font-black uppercase text-gray-900 leading-tight">{ad.name}</h5>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <span className="text-[8px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-widest">{ad.category}</span>
+                          <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest ${ad.isActive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                            {ad.isActive ? 'No Ar' : 'Pausado'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-grow max-w-2xl">
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Início</span>
+                        <span className="text-[10px] font-bold text-gray-800">{ad.startDate ? new Date(ad.startDate).toLocaleDateString('pt-BR') : 'Não definido'}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Término</span>
+                        <span className="text-[10px] font-bold text-gray-800">{ad.endDate ? new Date(ad.endDate).toLocaleDateString('pt-BR') : 'Não definido'}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Visualizações</span>
+                        <span className="text-[10px] font-black text-blue-600 flex items-center gap-1">
+                          <i className="fas fa-eye text-[8px]"></i> {ad.views.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Cliques</span>
+                        <span className="text-[10px] font-black text-red-600 flex items-center gap-1">
+                          <i className="fas fa-mouse-pointer text-[8px]"></i> {ad.clicks.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {activeTab === 'support' && (
+          <div className="max-w-4xl mx-auto animate-fadeIn">
+            <UserSupportSection userId={user.id} userName={user.name} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,139 +1,182 @@
-# SYMBOLS TREE
+# Árvore de Símbolos do Projeto
 
-Mapa de símbolos (classes, variáveis, hooks, services, schemas, tipos) para evitar duplicidade e garantir organização.
+**Última atualização**: 2026-01-20 10:10  
+**Versão**: 1.0.0
 
-## 1) Containers & Pages
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `App` | Container | Main application entry point and view router | `src/App.tsx` | [CLIENT-ONLY] |
-| `Home` | Page | Landing page | `src/components-pages/Home.tsx` | |
-| `Admin` | Page | Dashboard for admins | `src/components-pages/Admin.tsx` | [SECURITY-CRITICAL] |
-| `NewsDetailPage` | Page | Internal article view | `src/components-pages/news-detail/NewsDetailPage.tsx` | |
-| `Jobs` | Page | Job listings | `src/components-pages/Jobs.tsx` | |
+Esta árvore mapeia a estrutura hierárquica de componentes, hooks, tipos e serviços do projeto.
 
-## 2) Layout Components
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `Header` | Component | Site header with navigation | `src/components/layout/Header.tsx` | |
-| `Footer` | Component | Site footer | `src/components/layout/Footer.tsx` | |
-| `GlobalModals` | Component | Encapsulates all global modals | `src/components/common/GlobalModals.tsx` | [REFAC] |
-| `NewsPagination` | Component | Pagination UI for news grid | `src/components/news/Pagination/NewsPagination.tsx` | [NEW] |
-| `UserLinker` | Component | User search/link for Ads editor | `src/components/admin/advertisers/editor/components/UserLinker.tsx` | [NEW] |
-| `PopupEffectsEditor` | Component | FX editor for popups | `src/components/admin/advertisers/popupBuilder/components/PopupEffectsEditor.tsx` | [NEW] |
-| `MediaBlockOverlays` | Component | Overlays for MediaBlock UI | `src/components/admin/editor/blocks/components/MediaBlockOverlays.tsx` | [NEW] |
-| `MediaSourceSection` | Component | Source selection for PopupMediaPanel | `src/components/admin/advertisers/popupBuilder/components/MediaSourceSection.tsx` | [NEW] |
-| `MediaVisualSection` | Component | Visual settings for PopupMediaPanel | `src/components/admin/advertisers/popupBuilder/components/MediaVisualSection.tsx` | [NEW] |
+---
 
-## 3) Hooks & Contexts
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `useApp` | Hook | Main state controller | `src/providers/AppControllerProvider.tsx` | [CLIENT-ONLY] |
-| `DialogProvider` | Provider | Global modal/dialog state | `src/providers/DialogProvider.tsx` | |
-| `useAppConfirmation` | Hook | Confirmation logic extraction | `src/hooks/useAppConfirmation.ts` | [REFAC] |
-| `useAppErrorHandler` | Hook | centralized error handling | `src/hooks/useAppErrorHandler.ts` | [REFAC] |
-| `useAppCrudHandlers` | Hook | news/user/ad CRUD logic | `src/hooks/useAppCrudHandlers.ts` | [REFAC] |
-| `useAppDerivedData` | Hook | Memoized UI data | `src/hooks/useAppDerivedData.ts` | [REFAC] |
-| `useHomeNews` | Hook | News normalization/filtering logic | `src/hooks/home/useHomeNews.ts` | [NEW] |
-| `useMediaBlock` | Hook | Logic for MediaBlock component | `src/components/admin/editor/blocks/hooks/useMediaBlock.ts` | [NEW] |
-| `usePopupMedia` | Hook | Logic for PopupMediaPanel component | `src/components/admin/advertisers/popupBuilder/hooks/usePopupMedia.ts` | [NEW] |
+## 📁 Estrutura de Diretórios
 
-## 4) Services
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `supabaseService` | Service | Client for Supabase DB | `src/services/supabaseService.ts` | [SECURITY-CRITICAL] |
-| `geminiService` | Service | AI integration | `src/services/geminiService.ts` | |
-| `adService` | Service | Ads management | `src/services/adService.ts` | |
-| `cloudinaryService`| Service | Image uploads | `src/services/cloudinaryService.ts` | |
+```
+app/
+├── (auth)/
+│   ├── login/
+│   │   └── page.tsx → LoginPage
+│   └── layout.tsx → AuthLayout
+├── (dashboard)/
+│   ├── page.tsx → DashboardPage
+│   ├── production/
+│   │   └── page.tsx → ProductionPage
+│   ├── orders/
+│   │   └── page.tsx → OrdersPage
+│   ├── weighing/
+│   │   └── page.tsx → WeighingPage
+│   ├── financial/
+│   │   └── page.tsx → FinancialPage
+│   └── layout.tsx → DashboardLayout
+└── layout.tsx → RootLayout
+```
 
-## 5) Types & Constants
+---
 
-### Tipos de Domínio - News
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `NewsItem` | Interface | Estrutura principal de notícia | `src/types/news.ts:L45` | [CORE] |
-| `ContentBlock` | Interface | Bloco de conteúdo modular | `src/types/news.ts:L3` | [CORE] |
-| `BannerEffect` | Interface | Efeitos visuais de banner | `src/types/news.ts:L23` | |
-| `BannerVideoConfig` | Interface | Configuração de vídeo de banner | `src/types/news.ts:L32` | |
-| `DailyBreadData` | Interface | Dados do "Pão Diário" | `src/types/news.ts:L136` | |
-| `GalleryItem` | Interface | Item de galeria | `src/types/news.ts:L147` | |
+## 🧩 Componentes
 
-### Tipos de Domínio - Ads
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `AdPlanConfig` | Interface | Configuração de planos de anúncio | `src/types/ads.ts:L5` | [CORE] |
-| `AdPricingConfig` | Interface | Configuração de preços | `src/types/ads.ts:L276` | |
-| `Advertiser` | Interface | Dados do anunciante | `src/types/ads.ts:L227` | [CORE] |
-| `AdvertiserProduct` | Interface | Produto do anunciante | `src/types/ads.ts:L61` | |
-| `Coupon` | Interface | Cupom de desconto | `src/types/ads.ts:L70` | |
-| `MarketItem` | Interface | Item do marketplace | `src/types/ads.ts:L264` | |
+### UI Primitives (`components/ui/`)
+Componentes base do shadcn/ui:
+- `Button` - Botão com variantes (default, outline, ghost, destructive, link)
+- `Input` - Campo de entrada de texto
+- `Card`, `CardHeader`, `CardContent`, `CardFooter` - Container de conteúdo
+- `Dialog`, `DialogTrigger`, `DialogContent` - Modal/Dialog
+- `Label` - Label para inputs
+- `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableCell` - Tabela
+- `Select`, `SelectTrigger`, `SelectContent`, `SelectItem` - Dropdown
+- `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` - Abas
 
-### Tipos de Domínio - Users
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `UserRole` | Type | Roles de usuário do sistema | `src/types/users.ts:L2-11` | [CORE] |
-| `User` | Interface | Dados do usuário | `src/types/users.ts:L15` | [CORE] |
-| `UserSession` | Interface | Sessão de usuário | `src/types/users.ts:L90` | |
-| `Invoice` | Interface | Fatura de usuário | `src/types/users.ts:L98` | |
-| `USER_ROLES` | Constant | Lista oficial de roles | `src/components/admin/users/constants.ts:L4` | [CORE] |
+### Common Components (`components/common/`)
+Componentes reutilizáveis globais:
+- `Header` - Cabeçalho do dashboard
+- `Footer` - Rodapé (se existir)
+- `Sidebar` - Menu lateral de navegação
+- `LoadingSpinner` - Indicador de loading
+- `ErrorBoundary` - Tratamento de erros React
 
-#### Roles Disponíveis (9 total)
-1. **Leitor** - Usuário comum, apenas leitura
-2. **Desenvolvedor** - Equipe técnica
-3. **Editor-Chefe** - Admin editorial
-4. **Repórter** - Equipe editorial
-5. **Jornalista** - Equipe editorial
-6. **Estagiário** - Equipe editorial
-7. **Anunciante** - Empresas/Anunciantes
-8. **Empresa** - Alias de Anunciante (wizard público)
-9. **Prestador de Serviço** - Freelancers/Bicos
+### Page Components (`components/pages/`)
+Componentes específicos de páginas:
+- `DashboardView` - Visão geral do dashboard
+- `ProductionView` - Gestão de produção
+- `OrdersView` - Gestão de pedidos
+- `WeighingView` - Sistema de pesagem
+- `FinancialView` - Gestão financeira
 
-### Tipos de Sistema
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `AuditLog` | Interface | Log de auditoria | `src/types/system.ts:L54` | [SECURITY-CRITICAL] |
-| `ErrorReport` | Interface | Relatório de erro | `src/types/system.ts:L72` | |
-| `Job` | Interface | Trabalho agendado | `src/types/system.ts:L6` | |
+### Feature Components
+Componentes específicos por funcionalidade:
+- **Production** (`components/production/`)
+  - `ProductionEventForm` - Formulário de eventos de produção
+  - `ProductionEventTable` - Tabela de eventos
+  - `PlantProductionCard` - Card de produção da planta
+  
+- **Orders** (`components/orders/`)
+  - `OrderForm` - Formulário de pedidos
+  - `OrderTable` - Tabela de pedidos
+  - `OrderDetailsModal` - Modal de detalhes
+  
+- **Weighing** (`components/weighing/`)
+  - `WeighingForm` - Formulário de pesagem
+  - `WeighingHistory` - Histórico de pesagens
 
-### Editor e Schemas
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `EditorialTextSettings` | Interface | Configurações de texto editorial | `src/components/admin/editor/schema/editorialTextSettings.ts:L101` | [SCHEMA] |
-| `GlobalTextSettings` | Interface | Configurações globais de texto | `src/components/admin/editor/schema/editorialTextSettings.ts:L16` | [SCHEMA] |
-| `HeadingSettings` | Interface | Configurações de cabeçalhos | `src/components/admin/editor/schema/editorialTextSettings.ts:L63` | [SCHEMA] |
-| `FieldSchema` | Interface | Schema de validação de campo | `src/services/sanitizationService.ts:L210` | [SECURITY-CRITICAL] |
-| `FieldPermission` | Interface | Permissão de campo | `src/hooks/useFieldPermissions.ts:L7` | [SECURITY-CRITICAL] |
+---
 
-### Upload e Mídia
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `CloudinaryUploadProgress` | Interface | Progresso de upload Cloudinary | `src/services/upload/cloudinaryVideoService.ts:L21` | |
-| `CloudinaryUploadResult` | Interface | Resultado de upload Cloudinary | `src/services/upload/cloudinaryVideoService.ts:L11` | |
+## 🪝 Hooks Customizados
 
-### Constantes
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `CURRENT_VERSION` | Constant | App versioning | `src/providers/AppControllerProvider.tsx` | [CORE] |
+### Global Hooks (`hooks/`)
+- `useAppCrud` - CRUD genérico para qualquer tabela Supabase
+  - **Funções**: `handleAdd`, `handleUpdate`, `handleDelete`
+  - **Estados**: `loading`, `error`
+  
+- `useAuth` - Gerenciamento de autenticação
+  - **Funções**: `signIn`, `signOut`, `signUp`
+  - **Estados**: `user`, `session`, `loading`
+  
+- `useAppLogic` - Lógica de negócio principal
+  - **Dados**: `orders`, `productionEvents`, `miningCycles`, `plantLogs`
+  - **Refreshers**: `refreshOrders`, `refreshProductionEvents`, etc.
 
-## 6) Classes Core
+### Feature Hooks
+- `usePlantProduction` (`hooks/usePlantProduction.ts`) - Lógica de produção da planta
+- `useOrderManagement` - Lógica de gestão de pedidos
+- `useWeighing` - Lógica de pesagem
 
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `ErrorBoundary` | Class | Captura de erros React | `src/components/common/ErrorBoundary.tsx:L13` | [CLIENT-ONLY] |
-| `PlatformService` | Class | Abstração de plataforma | `src/services/platformService.ts:L6` | [CORE-SERVICE] |
-| `NetworkService` | Class | Gerenciamento de rede | `src/services/platformService.ts:L36` | [CORE-SERVICE] |
-| `OfflineService` | Class | Sincronização offline | `src/services/offlineService.ts:L62` | [CORE-SERVICE] |
-| `DebugLogger` | Class | Logging estruturado | `src/services/core/debugLogger.ts:L3` | [INTERNAL] |
-| `StorageAdapter` | Class | Adaptador de armazenamento | `src/services/offlineService.ts:L25` | [INTERNAL] |
+---
 
-## 7) Utilitários
+## 🛠 Services & APIs
 
-| SymbolName | Kind | Purpose | FilePath | Notes |
-|------------|------|---------|----------|-------|
-| `cn` | Function | Concatenação de classes Tailwind | `src/utils/cn.ts:L4` | [UTILITY] |
-| `clearAllFiles` | Function | Limpar storage | `src/services/storage/localStorageService.ts:L149` | [STORAGE] |
+### Supabase (`utils/supabase/`)
+- `client.ts` - Cliente Supabase (browser)
+- `server.ts` - Cliente Supabase (server-side)
 
-> [!NOTE]
-> Este arquivo deve ser atualizado sempre que um novo símbolo relevante for criado.
+### API Clients (`services/`)
+- `orders.ts` - Funções de API para pedidos
+- `production.ts` - Funções de API para produção
+- `weighing.ts` - Funções de API para pesagem
+- `financial.ts` - Funções de API para financeiro
 
-> [!IMPORTANT]
-> Símbolos marcados com `[SECURITY-CRITICAL]` requerem atenção especial em code reviews.
+---
+
+## 📊 Types & Interfaces
+
+### Database Types (`types/database.ts`)
+Tipos gerados do Supabase:
+- Todas as tabelas do banco de dados
+
+### Domain Types (`types/`)
+- `Order` - Pedido
+- `ProductionEvent` - Evento de produção
+- `MiningCycle` - Ciclo de mineração
+- `PlantLog` - Log da planta
+- `WeighingRecord` - Registro de pesagem
+
+---
+
+## 🔧 Utilitários
+
+### Helpers (`lib/`)
+- `utils.ts` - Funções utilitárias gerais (ex: `cn()` para classes)
+- `format.ts` - Formatação de datas, números, moeda
+- `validation.ts` - Schemas de validação Zod
+
+### Constants (`constants/`)
+- `TABLE_NAMES` - Nomes das tabelas do Supabase
+  ```ts
+  {
+    orders: 'orders',
+    production_events: 'production_events',
+    mining_cycles: 'mining_cycles',
+    plant_logs: 'plant_logs'
+  }
+  ```
+- `ROLES` - Papéis de usuários
+- `STATUS` - Status de pedidos, produção, etc.
+
+---
+
+## 🗃 Schemas Supabase
+
+### Tabelas Principais
+- `orders` - Pedidos expedidos
+- `production_events` - Eventos de produção
+- `mining_cycles` - Ciclos de mineração
+- `plant_logs` - Logs da planta
+- `weighing_records` - Registros de pesagem
+- `users` - Usuários do sistema
+- `profiles` - Perfis de usuários
+
+### Views
+- (Se houver views, listar aqui)
+
+### Functions
+- (Se houver functions, listar aqui)
+
+---
+
+## 📝 Notas
+
+- Esta árvore é atualizada automaticamente pelo **Agente de Documentação**
+- Ao adicionar novos componentes/hooks/services, eles devem ser registrados aqui
+- Manter sincronizado com a estrutura real do código
+
+---
+
+**Gerado por**: Documentation Agent  
+**Próxima atualização**: Após próximo build

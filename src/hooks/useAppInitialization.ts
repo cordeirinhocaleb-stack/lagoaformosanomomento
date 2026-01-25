@@ -175,60 +175,92 @@ export const useAppInitialization = ({
                         // Helper para restaurar perfil do usuário do banco
                         const restoreUserProfile = async (authUser: { id: string }) => {
                             try {
-                                DebugLogger.log(`[AUTH] 🔍 Sincronizando perfil para o usuário: ${authUser.id}`);
-                                const { data: profile, error: profileError } = await sbClient
+                                console.log(`[AUTH] 🔍 Iniciando restoreUserProfile para ID: ${authUser.id}`);
+
+                                // Timeout de segurança para a consulta ao banco
+                                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout na consulta de perfil')), 5000));
+
+                                const fetchPromise = sbClient
                                     .from('users')
                                     .select('*')
                                     .eq('id', authUser.id)
                                     .maybeSingle();
 
-                                if (profileError) throw profileError;
+                                const { data: profile, error: profileError } = await Promise.race([fetchPromise, timeout]) as any;
 
-                                // Verificação de Perfil Completo:
-                                // Um perfil é considerado completo se:
-                                // 1. Existe no banco
-                                // 2. Tem role definida (qualquer role válida)
-                                // 3. OU tem algum campo adicional preenchido (phone, document, city, etc)
-                                // Isso evita re-abrir o cadastro para usuários que já completaram
-                                const hasBasicInfo = profile && profile.role && profile.name;
-                                const hasAdditionalInfo = profile && (profile.phone || profile.document || profile.city || profile.state);
+                                if (profileError) {
+                                    console.error(`[AUTH] ❌ Erro na consulta de perfil (users):`, profileError);
+                                    throw profileError;
+                                }
+
+                                console.log(`[AUTH] 📊 Perfil bruto recebido do banco:`, profile);
+
+                                if (!profile) {
+                                    console.warn(`[AUTH] ⚠️ Perfil não encontrado no banco para ID: ${authUser.id}.`);
+
+                                    // [MOD] Fallback Persistence: Se temos sessão mas o banco falhou/RLS barrou, 
+                                    // tentamos usar o cache local para não deslogar o usuário bruscamente.
+                                    const cachedUserStr = localStorage.getItem('lfnm_user');
+                                    if (cachedUserStr) {
+                                        try {
+                                            const cached = JSON.parse(cachedUserStr);
+                                            if (cached.id === authUser.id) {
+                                                console.log(`[AUTH] 🛡️ Fallback: Usando perfil do cache local para ${cached.name}`);
+                                                onUserRestored(cached);
+                                                return;
+                                            }
+                                        } catch (e) {
+                                            console.warn("[AUTH] Erro ao parsear cache no fallback");
+                                        }
+                                    }
+
+                                    onAuthChallenge(authUser);
+                                    return;
+                                }
+
+                                // Verificação de Perfil Completo
+                                const hasBasicInfo = profile.role && profile.name;
+                                const hasAdditionalInfo = profile.phone || profile.document || profile.city || profile.state;
                                 const isProfileComplete = hasBasicInfo && (hasAdditionalInfo || profile.role !== 'Leitor');
 
-                                if (isProfileComplete) {
-                                    DebugLogger.log(`[AUTH] ✅ Perfil completo recuperado: ${profile.name}`);
-                                    const user = mapDbToUser(profile);
-                                    onUserRestored(user);
-                                    localStorage.setItem('lfnm_user', JSON.stringify(user));
-                                } else if (profile && profile.role) {
-                                    // Perfil existe e tem role, mas sem dados adicionais
-                                    // Isso pode ser um Leitor que ainda não preencheu tudo
-                                    // Aceitar mesmo assim (não forçar recadastro)
-                                    DebugLogger.log(`[AUTH] ✅ Perfil básico aceito: ${profile.name} (${profile.role})`);
-                                    const user = mapDbToUser(profile);
-                                    onUserRestored(user);
-                                    localStorage.setItem('lfnm_user', JSON.stringify(user));
-                                } else {
-                                    DebugLogger.log(`[AUTH] ⚠️ Perfil incompleto ou inexistente (Novo Usuário): ${authUser.id}`);
-                                    onAuthChallenge(authUser);
+                                console.log("[AUTH] Mapeando perfil para objeto User...");
+                                const user = mapDbToUser(profile);
+
+                                if (!user) {
+                                    console.error("[AUTH] ❌ Falha crítica: mapDbToUser retornou null.");
+                                    return;
                                 }
+
+                                console.log(`[AUTH] ✅ Restaurando usuário: ${user.name} (${user.role})`);
+                                onUserRestored(user);
+                                localStorage.setItem('lfnm_user', JSON.stringify(user));
+                                console.log("[AUTH] 🔥 User persistido no localStorage e estado global atualizado.");
+
                             } catch (e: unknown) {
-                                DebugLogger.warn("⚠️ Erro ao restaurar perfil via Auth Listener:", e);
-                                // Se o erro for 403 (Forbidden), as permissões RLS podem estar bloqueando o acesso
-                                // devido a um estado inconsistente. Tentamos forçar re-cadastro.
-                                const isForbidden = e && typeof e === 'object' && ('status' in e && e.status === 403 || 'message' in e && (e.message as string)?.includes('403'));
+                                console.error("[AUTH] ❌ Erro fatal em restoreUserProfile:", e);
+                                const isForbidden = e && typeof e === 'object' && ('status' in e && (e as any).status === 403);
                                 if (isForbidden) {
+                                    console.warn("[AUTH] Acesso 403 detectado. Tentando registro de novo usuário.");
                                     onAuthChallenge(authUser);
                                 }
                             }
                         };
 
                         sbClient.auth.onAuthStateChange((event, session) => {
-                            DebugLogger.log(`[AUTH] 🔄 Evento: ${event}`, { session: !!session });
+                            // LOG ULTRA VERBOSO PARA DEPURAR PRODUÇÃO
+                            console.log(`[AUTH] 🔄 EVENTO DETECTADO: ${event}`, {
+                                hasSession: !!session,
+                                email: session?.user?.email,
+                                eventType: event,
+                                timestamp: new Date().toISOString()
+                            });
 
-                            if (event === 'SIGNED_IN' && session?.user) {
+                            if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+                                console.log("[AUTH] Tentando restaurar perfil...");
                                 restoreUserProfile(session.user);
                                 loadRemoteData();
                             } else if (event === 'SIGNED_OUT') {
+                                console.warn("[AUTH] 🚪 Usuário deslogado pelo Supabase. Verifique se o relógio do sistema está correto.");
                                 onUserRestored(null);
                                 localStorage.removeItem('lfnm_user');
                                 sessionStorage.removeItem('lfnm_user');
@@ -237,11 +269,16 @@ export const useAppInitialization = ({
                         });
 
                         // Carregamento Inicial (Sessão Existente)
-                        const { data: { session } } = await sbClient.auth.getSession();
+                        const { data: { session }, error: sessionError } = await sbClient.auth.getSession();
+                        if (sessionError) {
+                            DebugLogger.error("[AUTH] ❌ Erro ao recuperar sessão inicial:", sessionError);
+                        }
+
                         if (session?.user) {
-                            DebugLogger.log(`[AUTH] 🔄 Sessão ativa detectada: ${session.user.email}`);
-                            // AQUARDA a sincronização oficial para que a UI não carregue com cache antigo
+                            DebugLogger.log(`[AUTH] 🔄 Sessão ativa detectada pela SDK: ${session.user.email}`);
                             await restoreUserProfile(session.user);
+                        } else {
+                            DebugLogger.log("[AUTH] ℹ️ Nenhuma sessão bruta encontrada via getSession().");
                         }
 
                         // Sempre carrega dados remotos (ou aguarda se prod)

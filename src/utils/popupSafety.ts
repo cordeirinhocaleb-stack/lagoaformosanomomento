@@ -1,9 +1,9 @@
 
-import { 
-    PromoPopupItemConfig, 
-    PromoPopupSetConfig, 
-    PopupFilterId, 
-    PopupImagePresentation, 
+import {
+    PromoPopupItemConfig,
+    PromoPopupSetConfig,
+    PopupFilterId,
+    PopupImagePresentation,
     PopupSize,
     PopupMediaConfig,
     PopupImageStyle,
@@ -36,24 +36,24 @@ const VALID_TARGETS: PopupTargetPage[] = ['home', 'news_detail', 'jobs_board', '
  * Bloqueia javascript:, data:, file: e vbscript:.
  */
 export const isSafeUrl = (url: string | undefined | null): boolean => {
-    if (!url || url.trim() === '') {return false;} // Vazio não é seguro para renderizar
-    
+    if (!url || url.trim() === '') { return false; } // Vazio não é seguro para renderizar
+
     const lower = url.trim().toLowerCase();
-    
+
     // Lista negra de protocolos perigosos (XSS vectors)
     const blockedProtocols = ['javascript:', 'data:', 'file:', 'vbscript:'];
-    if (blockedProtocols.some(p => lower.startsWith(p))) {return false;}
+    if (blockedProtocols.some(p => lower.startsWith(p))) { return false; }
 
-    return true; 
+    return true;
 };
 
 /**
  * Remove caracteres de controle perigosos e limita o tamanho do texto.
  */
 export const sanitizeText = (str: string | undefined | null): string => {
-    if (!str) {return '';}
+    if (!str) { return ''; }
     // Remove caracteres de controle não imprimíveis (exceto newline e tab)
-     
+
     return str.replace(/[\x00-\x09\x0B-\x1F\x7F]/g, "").trim();
 };
 
@@ -62,7 +62,7 @@ export const sanitizeText = (str: string | undefined | null): string => {
  */
 export const clampText = (str: string | undefined, max: number): string => {
     const clean = sanitizeText(str);
-    if (clean.length <= max) {return clean;}
+    if (clean.length <= max) { return clean; }
     return clean.slice(0, max);
 };
 
@@ -133,9 +133,6 @@ const DEFAULT_ITEM: PromoPopupItemConfig = {
         imageStyle: DEFAULT_IMAGE_STYLE,
         videoUrl: '',
         videoSettings: DEFAULT_VIDEO_SETTINGS,
-        videoMuted: true,
-        videoLoop: true,
-        videoFit: 'cover',
         videoZoom: false
     },
     effectConfig: DEFAULT_EFFECT_CONFIG
@@ -158,40 +155,40 @@ export const normalizePopupItem = (input: Partial<PromoPopupItemConfig>): Normal
 
     // 1. Textos
     const title = clampText(input.title, TEXT_LIMITS.title);
-    if (input.title && input.title.length > TEXT_LIMITS.title) {warnings.push(`Título cortado em ${TEXT_LIMITS.title} caracteres.`);}
+    if (input.title && input.title.length > TEXT_LIMITS.title) { warnings.push(`Título cortado em ${TEXT_LIMITS.title} caracteres.`); }
 
     const body = clampText(input.body, TEXT_LIMITS.body);
-    if (input.body && input.body.length > TEXT_LIMITS.body) {warnings.push(`Corpo do texto cortado em ${TEXT_LIMITS.body} caracteres.`);}
+    if (input.body && input.body.length > TEXT_LIMITS.body) { warnings.push(`Corpo do texto cortado em ${TEXT_LIMITS.body} caracteres.`); }
 
     const ctaText = clampText(input.ctaText, TEXT_LIMITS.ctaText);
-    
+
     // 2. URLs
     let ctaUrl = sanitizeText(input.ctaUrl);
     if (!isSafeUrl(ctaUrl)) {
         ctaUrl = '';
-        if (input.ctaUrl) {warnings.push("URL do botão removida por segurança (protocolo inválido).");}
+        if (input.ctaUrl) { warnings.push("URL do botão removida por segurança (protocolo inválido)."); }
     }
 
     // 3. Mídia
     const inputMedia: Partial<PopupMediaConfig> = input.media || {};
     let images = inputMedia.images || [];
-    
+
     if (images.length > MAX_IMAGES_PER_ITEM) {
         images = images.slice(0, MAX_IMAGES_PER_ITEM);
         warnings.push(`Máximo de ${MAX_IMAGES_PER_ITEM} imagens permitido. O excesso foi removido.`);
     }
-    
+
     // Filtra URLs de imagem inseguras
     const safeImages = images.filter(img => {
         const safe = isSafeUrl(img);
-        if (!safe) {warnings.push("Uma imagem foi removida por conter URL insegura.");}
+        if (!safe) { warnings.push("Uma imagem foi removida por conter URL insegura."); }
         return safe;
     });
 
     let videoUrl = sanitizeText(inputMedia.videoUrl);
     if (videoUrl && !isSafeUrl(videoUrl)) {
         videoUrl = '';
-        if (inputMedia.videoUrl) {warnings.push("URL de vídeo removida por segurança.");}
+        if (inputMedia.videoUrl) { warnings.push("URL de vídeo removida por segurança."); }
     }
 
     // 4. Enums & Validações de Estilo
@@ -202,7 +199,7 @@ export const normalizePopupItem = (input: Partial<PromoPopupItemConfig>): Normal
     // 5. Target Pages Sanitization
     let targetPages = input.targetPages || ['home', 'news_detail'];
     targetPages = targetPages.filter(t => VALID_TARGETS.includes(t));
-    if (targetPages.length === 0) {targetPages = ['home'];}
+    if (targetPages.length === 0) { targetPages = ['home']; }
 
     const normalizedImageStyle: PopupImageStyle = {
         ...DEFAULT_IMAGE_STYLE,
@@ -247,10 +244,7 @@ export const normalizePopupItem = (input: Partial<PromoPopupItemConfig>): Normal
             imageStyle: normalizedImageStyle,
             videoUrl: videoUrl,
             videoSettings: normalizedVideoSettings,
-            videoMuted: inputMedia.videoMuted ?? true,
-            videoLoop: inputMedia.videoLoop ?? true,
             videoZoom: inputMedia.videoZoom ?? false,
-            videoFit: inputMedia.videoFit === 'contain' ? 'contain' : 'cover'
         },
         effectConfig: normalizedEffectConfig
     };
@@ -273,11 +267,11 @@ export const normalizePopupSet = (input: Partial<PromoPopupSetConfig>): Normaliz
 
     // 2. Normaliza cada item individualmente
     const normalizedItems: PromoPopupItemConfig[] = [];
-    
+
     items.forEach((item, index) => {
         const result = normalizePopupItem(item);
         normalizedItems.push(result.normalized);
-        
+
         // Adiciona prefixo aos warnings para identificar o item
         result.warnings.forEach(w => {
             warnings.push(`Item ${index + 1} ("${result.normalized.title}"): ${w}`);

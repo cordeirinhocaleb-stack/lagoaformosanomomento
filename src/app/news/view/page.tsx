@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useAppControllerContext } from '@/providers/AppControllerProvider';
 import NewsDetailPage from '@/components/news-detail/NewsDetailPage';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
-export default function NewsSlugPage() {
-    const params = useParams();
+function NewsViewContent() {
+    const searchParams = useSearchParams();
     const router = useRouter();
     const ctrl = useAppControllerContext();
 
@@ -17,8 +17,8 @@ export default function NewsSlugPage() {
     const isLoading = ctrl.showLoading || !ctrl.isInitialized;
     const [notFound, setNotFound] = useState(false);
 
-    // Slug from URL
-    const slug = params?.slug as string;
+    // Slug from Query Param
+    const slug = searchParams.get('slug');
 
     useEffect(() => {
         if (isLoading) return;
@@ -38,16 +38,13 @@ export default function NewsSlugPage() {
 
         if (foundItem) {
             ctrl.setSelectedNews(foundItem);
-            // Also ensure the view state is correct, though page component is handling render
             ctrl.setView('details');
         } else {
-            // Not found after data load
-            console.warn(`[NewsSlugPage] News item not found for slug: ${slug}`);
+            console.warn(`[NewsViewPage] News item not found for slug: ${slug}`);
             setNotFound(true);
         }
     }, [isLoading, slug, ctrl.news, ctrl.setSelectedNews, ctrl.setView]);
 
-    // Handle "Voltar" action - Go back to home
     const handleBack = () => {
         ctrl.setSelectedNews(null);
         ctrl.setView('home');
@@ -93,41 +90,33 @@ export default function NewsSlugPage() {
         );
     }
 
-    // Double check if selectedNews is set (it should set in the useEffect)
-    // But we can also use 'foundItem' logic directly to render immediately if we wanted, 
-    // but using global state 'ctrl.selectedNews' keeps consistancy.
-    // However, for this page component, we can render directly found item to avoid flicker if 'ctrl.selectedNews' update is async.
-
-    // Fallback: search again or use selectedNews.
     const itemToRender = ctrl.selectedNews || ctrl.news.find(n => n.id === slug || n.slug === slug || n.seo?.slug === slug);
 
-    if (!itemToRender) return null; // Should be handled by notFound state
+    if (!itemToRender) return null;
 
     return (
         <NewsDetailPage
             news={itemToRender}
-            allNews={ctrl.news} // For related news logic
+            allNews={ctrl.news}
             onBack={handleBack}
             onNewsClick={(n) => {
                 const link = n.seo?.slug || n.slug || n.id;
-                router.push(`/news/${link}`);
+                // Navigate to same page with new param
+                router.push(`/news/view?slug=${link}`);
             }}
             advertisers={ctrl.advertisers}
             onAdvertiserClick={(ad) => {
-                // Common logic from page.tsx (should probably be a helper)
                 ctrl.setSelectedAdvertiser(ad);
-                router.push(`/advertiser/${ad.id}`);
+                router.push(`/advertiser/view?id=${ad.id}`);
             }}
             selectedCategory={ctrl.selectedCategory}
             onSelectCategory={(id) => {
                 ctrl.handleCategorySelection(id);
-                // Ensure we navigate to home to see the filtered grid
                 router.push('/');
             }}
             selectedRegion={ctrl.selectedRegion}
             onSelectRegion={(region) => {
                 ctrl.handleRegionSelection(region);
-                // Ensure we navigate to home to see the filtered grid
                 router.push('/');
             }}
             user={ctrl.user}
@@ -135,18 +124,24 @@ export default function NewsSlugPage() {
             adConfig={ctrl.adConfig}
             onPricingClick={() => ctrl.modals.setShowPricingModal(true)}
             settings={ctrl.systemSettings}
-            // Staff props
             onEditNews={(n) => {
                 ctrl.setAdminNewsToEdit(n);
                 ctrl.setView('admin');
                 router.push('/admin');
             }}
             onUpdateUser={async (u) => {
-                // Simplified version of handleProfileUpdate
                 ctrl.setUsers(p => p.map(x => x.id === u.id ? u : x));
                 if (ctrl.user?.id === u.id) ctrl.setUser(u);
             }}
             onLogin={() => ctrl.modals.setShowLoginModal(true)}
         />
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={<LoadingScreen onFinished={() => { }} />}>
+            <NewsViewContent />
+        </Suspense>
     );
 }

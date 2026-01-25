@@ -1,5 +1,5 @@
-export const TERMS_VERSION = '1.1.2';
-export const TERMS_LAST_UPDATED = '08/01/2026 às 22:05';
+export const TERMS_VERSION = '1.1.3';
+export const TERMS_LAST_UPDATED = '24/01/2026 às 18:20';
 
 export const getTermsOfServiceContent = (userName: string, userEmail: string) => `
 # TERMOS DE USO - LAGOA FORMOSA NO MOMENTO

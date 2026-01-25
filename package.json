@@ -15,8 +15,12 @@
     "lint:fix": "next lint --fix",
     "checkup": "eslint -c .eslintrc.cjs src --fix",
     "dup": "npx jscpd src",
-    "agent": "npx tsx agent-cli.ts",
-    "agents:init": "npx tsx node_modules/wegho-agentes/.agents/init.ts",
+    "agent": "node agent-wrapper.js",
+    "agents:comandos": "node agent-wrapper.js !comandos",
+    "agents:contexto": "node agent-wrapper.js !contexto",
+    "agents:inventario": "node agent-wrapper.js !inventario",
+    "agents:auditoria": "node agent-wrapper.js !auditoria",
+    "agents:documentacao": "node agent-wrapper.js !documentacao",
     "task": "npx tsx diagnose_inventory_v2.ts"
   },
   "dependencies": {

@@ -50,6 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
         { id: 'jobs', label: 'Vagas de Emprego', icon: 'fa-briefcase' },
         { id: 'advertisers', label: 'Anunciantes', icon: 'fa-ad' },
         { id: 'settings', label: 'Configurações', icon: 'fa-cog' },
+        ...(user?.role === 'Desenvolvedor' ? [{ id: 'developer', label: 'Central Dev', icon: 'fa-code' }] : []),
     ];
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);

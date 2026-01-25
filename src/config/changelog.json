@@ -1,5 +1,26 @@
 [
   {
+    "version": "0.2.2",
+    "date": "24/01/2026",
+    "items": [
+      {
+        "category": "fix",
+        "title": "Deploy & Estabilidade",
+        "description": "Correção crítica de compatibilidade com HostGator (Static Export), eliminando erros 404 em rotas e imagens."
+      },
+      {
+        "category": "feature",
+        "title": "Google Login",
+        "description": "Implementação de página dedicada de Callback para garantir autenticação segura e redirecionamento correto."
+      },
+      {
+        "category": "improvement",
+        "title": "Core Stability",
+        "description": "Correções de tipagem e build no Painel Admin e Módulo de Segurança."
+      }
+    ]
+  },
+  {
     "version": "0.1.0",
     "date": "18/01/2026",
     "items": [

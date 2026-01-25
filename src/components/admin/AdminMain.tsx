@@ -10,6 +10,7 @@ import AdvertisersTab from './AdvertisersTab';
 import SettingsTab from './SettingsTab';
 import SocialHubTab from './SocialHubTab';
 import WorkflowTab from './WorkflowTab';
+import DeveloperHub from './DeveloperHub';
 import { User, NewsItem, Advertiser, AdPricingConfig, SystemSettings, Job } from '@/types';
 
 interface AdminMainProps {
@@ -113,6 +114,9 @@ const AdminMain: React.FC<AdminMainProps> = (props) => {
                         darkMode={darkMode}
                     />
                 );
+            case 'developer':
+                if (props.user.role !== 'Desenvolvedor') return null;
+                return <DeveloperHub onLogout={props.onLogout} />;
             default:
                 return (
                     <div className="flex items-center justify-center min-h-[400px]">

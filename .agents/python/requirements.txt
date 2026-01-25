@@ -1,0 +1,9 @@
+
+# Core
+typing
+json
+sys
+
+# Data Analysis (Optional for now, but good to have)
+# pandas
+# numpy

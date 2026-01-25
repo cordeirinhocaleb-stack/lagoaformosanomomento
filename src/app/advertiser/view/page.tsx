@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useAppControllerContext } from '@/providers/AppControllerProvider';
-import AdvertiserPage from '@/components/advertiser/AdvertiserContent'; // Assuming this is the main content component
+import AdvertiserPage from '@/components/advertiser/AdvertiserContent';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
-export default function AdvertiserIdPage() {
-    const params = useParams();
+function AdvertiserViewContent() {
+    const searchParams = useSearchParams();
     const router = useRouter();
     const ctrl = useAppControllerContext();
 
     const isLoading = ctrl.showLoading || !ctrl.isInitialized;
     const [notFound, setNotFound] = useState(false);
 
-    const id = params?.id as string;
+    const id = searchParams.get('id');
 
     useEffect(() => {
         if (isLoading) return;
@@ -32,7 +32,7 @@ export default function AdvertiserIdPage() {
             ctrl.setSelectedAdvertiser(foundAd);
             ctrl.setView('advertiser');
         } else {
-            console.warn(`[AdvertiserIdPage] Advertiser not found for id: ${id}`);
+            console.warn(`[AdvertiserViewPage] Advertiser not found for id: ${id}`);
             setNotFound(true);
         }
     }, [isLoading, id, ctrl.advertisers, ctrl.setSelectedAdvertiser, ctrl.setView]);
@@ -88,22 +88,20 @@ export default function AdvertiserIdPage() {
 
     return (
         <div className="flex flex-col min-h-screen animate-fadeIn">
-            {/* We might want a header here as well, AdvertiserPage is just content? 
-                Checking AdvertiserContent.tsx -> it has a big hero image and back button. 
-                It seems designed to be full page or modal.
-                If full page, we probably don't need the standard header on top of the hero image, 
-                but we might want it for navigation. 
-                Let's keep it clean as per the design of AdvertiserContent (it has its own back button).
-            */}
-
             <AdvertiserPage
                 advertiser={adToRender}
                 onBack={handleBack}
                 isModal={false}
             />
-
-            {/* Footer fits well */}
             <Footer settings={ctrl.systemSettings} />
         </div>
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={<LoadingScreen onFinished={() => { }} />}>
+            <AdvertiserViewContent />
+        </Suspense>
     );
 }

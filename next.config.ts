@@ -1,8 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-    // Static export desabilitado para desenvolvimento local
-    // output: 'export',
+    // Static export desabilitado para desenvolvimento local (ATIVADO PARA PROD)
+    output: 'export',
 
     // Desabilitar otimização de imagens para compatibilidade
     images: {
