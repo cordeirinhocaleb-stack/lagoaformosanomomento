@@ -52,8 +52,8 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
     }
 
     return (
-        <section className="w-full mb-24 px-4 md:px-8 lg:px-12">
-            <div className="bg-gray-50 rounded-[3rem] p-6 md:p-10 lg:p-16 border border-gray-100">
+        <section className="w-full mb-24 px-0">
+            <div className="bg-gray-50 rounded-[2.5rem] md:rounded-[3rem] py-8 px-4 md:py-10 md:px-6 lg:py-12 lg:px-8 border border-gray-100">
                 <div className="flex items-center justify-between mb-12">
                     <div className="flex items-center gap-4">
                         <div className="w-2 h-12 bg-black rounded-full"></div>
