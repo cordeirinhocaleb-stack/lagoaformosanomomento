@@ -246,7 +246,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                                 <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] shadow-sm">
                                     <div className="flex items-center gap-3">
                                         <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest mr-2">Compartilhar:</span>
-                                        <ShareBar title={news.title} url={window.location.href} />
+                                        <ShareBar title={news.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
                                     </div>
                                     <div className="flex items-center gap-3 ml-auto">
                                         <SavePostButton newsId={news.id} />
