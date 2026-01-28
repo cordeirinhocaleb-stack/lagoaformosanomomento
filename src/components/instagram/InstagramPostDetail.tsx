@@ -188,6 +188,7 @@ const InstagramPostDetail: React.FC<InstagramPostDetailProps> = ({
                         <LeftAdsRail
                             advertisers={sidebarAds}
                             onAdvertiserClick={onAdvertiserClick}
+                            isStatic={false}
                         />
                     </aside>
 

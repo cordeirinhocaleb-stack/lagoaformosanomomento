@@ -220,6 +220,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                                 onAdvertiserClick={onAdvertiserClick || (() => { })}
                                 onPlanRequest={onPricingClick}
                                 adConfig={adConfig}
+                                isStatic={false}
                             />
                         </div>
                     </aside>

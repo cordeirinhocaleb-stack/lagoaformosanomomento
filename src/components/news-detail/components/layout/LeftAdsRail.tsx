@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Advertiser, AdPricingConfig } from '../../../../types';
-
 import { AdvertiserCard } from '../../../../components/common/AdvertiserCard';
 
 interface LeftAdsRailProps {
@@ -9,21 +8,32 @@ interface LeftAdsRailProps {
     onAdvertiserClick: (ad: Advertiser) => void;
     onPlanRequest?: () => void;
     adConfig?: AdPricingConfig;
+    isStatic?: boolean;
 }
 
-const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClick, onPlanRequest, adConfig }) => {
-    const scrollRef = React.useRef<HTMLDivElement>(null);
+/**
+ * [COMPONENTE UI] Lateral de Apoiadores
+ * Rail vertical com rolagem infinita suave.
+ */
+const LeftAdsRail: React.FC<LeftAdsRailProps> = ({
+    advertisers,
+    onAdvertiserClick,
+    onPlanRequest,
+    adConfig,
+    isStatic = false // Voltando para rolagem automática por padrão
+}) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
     const [isPaused, setIsPaused] = useState(false);
-    const virtualPosRef = React.useRef(0);
+    const virtualPosRef = useRef(0);
 
     // Filtra exclusivamente parceiros Master ativos (incluindo plano lancamento)
     const supporters = advertisers.filter(ad => ad.isActive && (ad.plan?.toLowerCase() === 'master' || ad.plan?.toLowerCase() === 'lancamento'));
 
-    // Lista para loop infinito vertical (6x para garantir preenchimento fluido em 2 colunas)
-    const loopSupporters = supporters.length >= 1 ? Array(6).fill(supporters).flat() : [];
+    // Lista para loop infinito vertical (6x para garantir preenchimento fluido)
+    const loopSupporters = (!isStatic && supporters.length >= 1) ? Array(6).fill(supporters).flat() : supporters;
 
     useEffect(() => {
-        if (loopSupporters.length === 0 || isPaused) return;
+        if (isStatic || loopSupporters.length === 0 || isPaused) return;
 
         const container = scrollRef.current;
         if (!container) return;
@@ -41,19 +51,18 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
             const deltaTime = currentTime - lastTime;
             lastTime = currentTime;
 
-            // Medição da altura de um set completo (considerando Grid)
-            // Em grid de 2 colunas, a altura total de um set é a metade se o array for duplicado, 
-            // mas aqui estamos apenas repetindo o set. A altura de 1 set é total/6.
+            // Altura de um set único (sem as repetições)
             const currentSetHeight = container.scrollHeight / 6;
             if (currentSetHeight <= 0) {
                 animationFrameId = requestAnimationFrame(scroll);
                 return;
             }
 
-            const speed = 0.045; // Velocidade suave para visualização lateral
+            // VELOCIDADE REDUZIDA (antes era 0.045, agora 0.02 para ser mais devagar)
+            const speed = 0.02;
             virtualPosRef.current += speed * deltaTime;
 
-            // Loop Infinito Vertical
+            // Reset do loop
             if (virtualPosRef.current >= currentSetHeight) {
                 virtualPosRef.current -= currentSetHeight;
             }
@@ -66,12 +75,12 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
         return () => {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, [loopSupporters.length, isPaused]);
+    }, [isStatic, loopSupporters.length, isPaused]);
 
     return (
         <nav aria-label="Nossos Apoiadores" className="space-y-4">
             <div
-                className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] p-4 lg:p-5 shadow-sm overflow-hidden"
+                className={`bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] p-4 lg:p-5 shadow-sm ${!isStatic ? 'overflow-hidden' : ''}`}
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
             >
@@ -84,18 +93,17 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
 
                 <div
                     ref={scrollRef}
-                    className="grid grid-cols-1 gap-4 max-h-[800px] overflow-hidden scrollbar-hide"
+                    className={`${!isStatic ? 'flex flex-col gap-4 max-h-[1000px] overflow-hidden scrollbar-hide' : 'space-y-4'}`}
                 >
                     {loopSupporters.length > 0 ? loopSupporters.map((ad, idx) => (
                         <AdvertiserCard
                             key={`${ad.id}-${idx}`}
                             ad={ad}
                             onClick={onAdvertiserClick}
-                            className="min-h-[120px] lg:min-h-[160px] w-full flex-shrink-0"
-                            innerClassName="!p-1 lg:!p-2"
+                            className="min-h-[160px] w-full shrink-0"
                         />
                     )) : (
-                        <div className="col-span-2 py-10 flex flex-col items-center justify-center opacity-40">
+                        <div className="py-10 flex flex-col items-center justify-center opacity-40">
                             <i className="fas fa-crown text-2xl mb-2"></i>
                             <p className="text-[7px] font-bold text-gray-300 text-center uppercase tracking-widest leading-tight">Espaço Master<br />Disponível</p>
                         </div>
