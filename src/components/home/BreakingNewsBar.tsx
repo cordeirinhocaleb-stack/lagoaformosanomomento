@@ -18,18 +18,18 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({ item, onClick }) => {
       <div className="max-w-[1500px] mx-auto px-4 py-2 flex items-center gap-4">
         <div className="flex items-center gap-2 animate-pulse shrink-0 z-10 bg-red-600 pr-2">
           <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-          <span className="text-[9px] font-[1000] uppercase tracking-widest italic">Plantão</span>
+          <span className="text-[11px] font-[1000] uppercase tracking-widest italic">Plantão</span>
         </div>
 
         <div className="flex-1 overflow-hidden relative h-5 flex items-center">
           <div className="absolute whitespace-nowrap animate-marquee flex items-center">
-            <span className="text-[11px] md:text-xs font-black uppercase italic tracking-tight mr-16">
+            <span className="text-[13px] md:text-[15px] font-black uppercase italic tracking-tight mr-16">
               {item.title}
             </span>
-            <span className="text-[11px] md:text-xs font-black uppercase italic tracking-tight mr-16">
+            <span className="text-[13px] md:text-[15px] font-black uppercase italic tracking-tight mr-16">
               {item.title}
             </span>
-            <span className="text-[11px] md:text-xs font-black uppercase italic tracking-tight mr-16">
+            <span className="text-[13px] md:text-[15px] font-black uppercase italic tracking-tight mr-16">
               {item.title}
             </span>
           </div>

@@ -44,18 +44,18 @@ const NewsTicker: React.FC<NewsTickerProps> = ({ latestNews, externalNews, onNew
         `}</style>
         <div className="flex ticker-red">
           <div className="flex items-center gap-12 md:gap-24 whitespace-nowrap px-12 shrink-0">
-            <span className="text-red-600 bg-red-900/20 px-2 py-0.5 rounded border border-red-900/50 font-black uppercase italic text-[10px] md:text-xs shadow-[0_0_15px_rgba(220,38,38,0.5)] shrink-0">PLANTÃO LAGOA</span>
+            <span className="text-red-600 bg-red-900/20 px-2 py-0.5 rounded border border-red-900/50 font-black uppercase italic text-[12px] md:text-[14px] shadow-[0_0_15px_rgba(220,38,38,0.5)] shrink-0">PLANTÃO LAGOA</span>
             {latestNews.length > 0 ? latestNews.map((n, idx) => (
-              <button key={`local-${idx}`} onClick={() => onNewsClick?.(n)} className="text-white text-[10px] md:text-xs font-black uppercase italic hover:text-red-500 transition-colors flex items-center gap-2 shrink-0">
+              <button key={`local-${idx}`} onClick={() => onNewsClick?.(n)} className="text-white text-[12px] md:text-[14px] font-black uppercase italic hover:text-red-500 transition-colors flex items-center gap-2 shrink-0">
                 <i className="fas fa-circle text-[4px] text-red-600"></i>
                 {n.title}
               </button>
             )) : <span className="text-white/40 text-[10px] uppercase font-bold shrink-0">ACOMPANHE O PORTAL LFNM</span>}
           </div>
           <div className="flex items-center gap-12 md:gap-24 whitespace-nowrap px-12 shrink-0">
-            <span className="text-red-600 bg-red-900/20 px-2 py-0.5 rounded border border-red-900/50 font-black uppercase italic text-[10px] md:text-xs shadow-[0_0_15px_rgba(220,38,38,0.5)] shrink-0">PLANTÃO LAGOA</span>
+            <span className="text-red-600 bg-red-900/20 px-2 py-0.5 rounded border border-red-900/50 font-black uppercase italic text-[12px] md:text-[14px] shadow-[0_0_15px_rgba(220,38,38,0.5)] shrink-0">PLANTÃO LAGOA</span>
             {latestNews.length > 0 ? latestNews.map((n, idx) => (
-              <button key={`local-dup-${idx}`} onClick={() => onNewsClick?.(n)} className="text-white text-[10px] md:text-xs font-black uppercase italic hover:text-red-500 transition-colors flex items-center gap-2 shrink-0">
+              <button key={`local-dup-${idx}`} onClick={() => onNewsClick?.(n)} className="text-white text-[12px] md:text-[14px] font-black uppercase italic hover:text-red-500 transition-colors flex items-center gap-2 shrink-0">
                 <i className="fas fa-circle text-[4px] text-red-600"></i>
                 {n.title}
               </button>
