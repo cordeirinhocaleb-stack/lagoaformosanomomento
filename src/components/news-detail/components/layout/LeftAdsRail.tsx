@@ -80,7 +80,7 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({
     return (
         <nav aria-label="Nossos Apoiadores" className="space-y-4">
             <div
-                className={`bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[1.2rem] p-4 lg:p-5 shadow-sm ${!isStatic ? 'overflow-hidden' : ''}`}
+                className={`flex flex-col bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[1.2rem] p-4 lg:p-5 shadow-sm ${!isStatic ? 'overflow-hidden max-h-[1200px]' : ''}`}
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
             >
@@ -93,7 +93,7 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({
 
                 <div
                     ref={scrollRef}
-                    className={`${!isStatic ? 'flex flex-col gap-4 max-h-[1000px] overflow-hidden scrollbar-hide' : 'space-y-4'}`}
+                    className={`${!isStatic ? 'flex-grow flex flex-col gap-4 overflow-hidden scrollbar-hide' : 'space-y-4'}`}
                 >
                     {loopSupporters.length > 0 ? loopSupporters.map((ad, idx) => (
                         <AdvertiserCard
@@ -109,16 +109,18 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({
                         </div>
                     )}
                 </div>
-            </div>
 
-            {/* Link para se tornar parceiro master */}
-            <button
-                onClick={onPlanRequest}
-                className="w-full bg-red-600 hover:bg-black text-white py-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
-            >
-                <i className="fas fa-plus-circle"></i>
-                Seja um Parceiro Master
-            </button>
+                {/* Link para se tornar parceiro master */}
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
+                    <button
+                        onClick={onPlanRequest}
+                        className="w-full bg-red-600 hover:bg-black text-white py-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        <i className="fas fa-plus-circle"></i>
+                        Seja um Parceiro Master
+                    </button>
+                </div>
+            </div>
         </nav>
     );
 };

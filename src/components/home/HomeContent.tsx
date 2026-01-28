@@ -326,7 +326,7 @@ const Home: React.FC<HomeProps> = ({
             <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
                 <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
                     {/* Lateral Esquerda: Parceiros Master (Apenas Desktop) */}
-                    <aside className="hidden lg:block lg:col-span-3 h-full">
+                    <aside className="hidden lg:block lg:col-span-3">
                         <LeftAdsRail
                             advertisers={advertisers}
                             onAdvertiserClick={onAdvertiserClick}
@@ -404,7 +404,7 @@ const Home: React.FC<HomeProps> = ({
                         </div>
 
 
-                        {/* 6. Giro Rápido - AGORA ALINHADO DENTRO DA COLUNA PRINCIPAL */}
+                        {/* 5. Giro Rápido - ALINHADO NA COLUNA PRINCIPAL */}
                         <div className="mt-8 md:mt-16 border-t border-gray-100 pt-8 md:pt-12">
                             <LazyBlock threshold={0.1} minHeight="600px">
                                 <WorldNewsGrid
@@ -417,11 +417,10 @@ const Home: React.FC<HomeProps> = ({
                 </div>
             </div>
 
-            {/* 6. Pão Diário */}
+            {/* 6. Pão Diário - Fora da grade para que os anúncios parem antes dele */}
             <div className="mt-8 md:mt-16 w-full max-w-[1920px] mx-auto px-4 md:px-8">
                 <DailyBread />
             </div>
-
         </div>
     );
 };
