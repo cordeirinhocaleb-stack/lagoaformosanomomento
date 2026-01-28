@@ -399,19 +399,20 @@ const Home: React.FC<HomeProps> = ({
                                 )}
                             </LazyBlock>
                         </div>
+
+
+                        {/* 6. Giro Rápido - AGORA ALINHADO DENTRO DA COLUNA PRINCIPAL */}
+                        <div className="mt-8 md:mt-16 border-t border-gray-100 pt-8 md:pt-12">
+                            <LazyBlock threshold={0.1} minHeight="600px">
+                                <WorldNewsGrid
+                                    externalCategories={normalizedExternalCategories}
+                                    selectedCategory={selectedCategory}
+                                />
+                            </LazyBlock>
+                        </div>
                     </main>
                 </div>
             </div>
-
-            {/* 6. Giro Rápido */}
-            <LazyBlock threshold={0.1} minHeight="600px">
-                <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
-                    <WorldNewsGrid
-                        externalCategories={normalizedExternalCategories}
-                        selectedCategory={selectedCategory}
-                    />
-                </div>
-            </LazyBlock>
 
             {/* 6. Pão Diário */}
             <div className="mt-8 md:mt-16 w-full max-w-[1920px] mx-auto px-4 md:px-8">
