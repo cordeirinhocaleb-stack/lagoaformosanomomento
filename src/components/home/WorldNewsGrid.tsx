@@ -8,8 +8,8 @@ interface WorldNewsGridProps {
 }
 
 const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selectedCategory }) => {
-    // Lista completa de categorias para rotação
-    const allCategories = ['Política', 'Economia', 'Agro', 'Mundo', 'Tecnologia', 'Esporte', 'Cultura', 'Cotidiano'];
+    // Lista de categorias para o Giro (Limitado a 4 conforme solicitado para ser mais direto)
+    const allCategories = ['Política', 'Economia', 'Agro', 'Mundo'];
     const [startIndex, setStartIndex] = useState(0);
     const [visibleCount, setVisibleCount] = useState(4);
 
@@ -17,9 +17,8 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
     useEffect(() => {
         const handleResize = () => {
             const w = window.innerWidth;
-            if (w < 768) setVisibleCount(2); // Mobile
-            else if (w < 1280) setVisibleCount(4); // Tablet
-            else setVisibleCount(4); // PC - Alterado para 4 conforme solicitado
+            if (w < 768) setVisibleCount(2); // Mobile (2 por vez)
+            else setVisibleCount(4); // Tablet e PC (4 por vez)
         };
         handleResize();
         window.addEventListener('resize', handleResize);
