@@ -78,7 +78,7 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({
     }, [isStatic, loopSupporters.length, isPaused]);
 
     return (
-        <nav aria-label="Nossos Apoiadores" className="h-full space-y-4">
+        <nav aria-label="Nossos Apoiadores" className="space-y-4 h-full lg:h-[80vh]">
             <div
                 className={`flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[1.2rem] p-4 lg:p-5 shadow-sm ${!isStatic ? 'overflow-hidden' : ''}`}
                 onMouseEnter={() => setIsPaused(true)}
