@@ -18,9 +18,10 @@ interface UserStorePOSProps {
     user: User;
     adConfig?: AdPricingConfig;
     onUpdateUser: (u: User) => void;
+    onOpenPix?: () => void;
 }
 
-const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUser }) => {
+const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUser, onOpenPix }) => {
     const [cartItems, setCartItems] = useState<MarketItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -34,7 +35,7 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
             type: 'boost',
             name: 'Vídeo Propaganda (30s)',
             cost: adConfig?.boostsValues?.['boost_video_30s'] ?? 200,
-            icon: 'fa-clapperboard',
+            icon: 'fa-film', // Changed from fa-clapperboard
             color: 'text-pink-600 bg-pink-100',
             details: { videoLimit: 1 }
         },
@@ -79,7 +80,7 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
             type: 'boost',
             name: 'Rodapé Artigo (7d)',
             cost: adConfig?.boostsValues?.['boost_article_footer_7d'] ?? 100,
-            icon: 'fa-chart-simple',
+            icon: 'fa-chart-line', // Changed from fa-chart-simple
             color: 'text-emerald-600 bg-emerald-100',
             details: { articleFooter: true }
         },
@@ -88,7 +89,7 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
             type: 'boost',
             name: 'Sidebar Esq (7d)',
             cost: adConfig?.boostsValues?.['boost_article_sidebar_7d'] ?? 100,
-            icon: 'fa-table-columns',
+            icon: 'fa-columns', // Changed from fa-table-columns
             color: 'text-violet-600 bg-violet-100',
             details: { articleSidebar: true }
         },
@@ -97,7 +98,7 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
             type: 'boost',
             name: 'Scroll Topo (7d)',
             cost: adConfig?.boostsValues?.['boost_home_scroll_7d'] ?? 150,
-            icon: 'fa-up-long',
+            icon: 'fa-arrow-up', // Changed from fa-up-long
             color: 'text-amber-600 bg-amber-100',
             details: { homeScroll: true }
         }
@@ -156,7 +157,13 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
         const balance = user.siteCredits || 0;
 
         if (balance < total) {
-            alert(`Saldo insuficiente. Recarregue sua carteira.`);
+            if (onOpenPix) {
+                if (confirm(`Saldo insuficiente (C$ ${balance.toFixed(2)}). Deseja recarregar via PIX agora?`)) {
+                    onOpenPix();
+                }
+            } else {
+                alert(`Saldo insuficiente. Recarregue sua carteira.`);
+            }
             return;
         }
 
@@ -222,8 +229,8 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
                     <button
                         onClick={() => setActiveCategory('plans')}
                         className={`flex-1 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === 'plans'
-                            ? 'bg-purple-600 text-white shadow-lg'
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                            : 'bg-white border border-gray-100 text-gray-400 hover:bg-gray-50'
                             }`}
                     >
                         <i className="fas fa-certificate mr-2"></i>
@@ -232,8 +239,8 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
                     <button
                         onClick={() => setActiveCategory('boosts')}
                         className={`flex-1 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === 'boosts'
-                            ? 'bg-blue-600 text-white shadow-lg'
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                            : 'bg-white border border-gray-100 text-gray-400 hover:bg-gray-50'
                             }`}
                     >
                         <i className="fas fa-rocket mr-2"></i>
@@ -251,7 +258,7 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
                             draggable
                             onDragStart={(e) => { e.dataTransfer.setData('application/json', JSON.stringify(item)); e.dataTransfer.effectAllowed = 'copy'; }}
                             onClick={() => setCartItems(prev => [...prev, item])}
-                            className="bg-gray-50 hover:bg-white border border-gray-100 hover:border-gray-300 p-3 rounded-xl flex flex-col items-center gap-2 cursor-pointer transition-all active:scale-95 group relative"
+                            className="bg-white hover:bg-gray-50 border border-gray-100 hover:border-red-200 p-3 rounded-xl flex flex-col items-center gap-2 cursor-pointer transition-all active:scale-95 group relative shadow-sm hover:shadow-md"
                         >
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform`}>
                                 <i className={`fas ${item.icon}`}></i>
@@ -263,7 +270,7 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
                                 </span>
                             </div>
                             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i className="fas fa-plus-circle text-green-500"></i>
+                                <i className="fas fa-plus-circle text-red-500"></i>
                             </div>
                         </div>
                     ))}
@@ -287,12 +294,12 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
                     onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                     onDragLeave={() => setIsDragOver(false)}
                     onDrop={handleDrop}
-                    className={`flex-1 min-h-[180px] md:min-h-[250px] border-2 border-dashed rounded-2xl flex flex-col p-3 md:p-4 transition-all relative overflow-hidden bg-white ${isDragOver ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}
+                    className={`flex-1 min-h-[180px] md:min-h-[250px] border-2 border-dashed rounded-2xl flex flex-col p-3 md:p-4 transition-all relative overflow-hidden bg-white ${isDragOver ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                 >
-                    <div className="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 max-h-[150px]">
+                    <div className="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 max-h-[150px] custom-scrollbar">
                         {cartItems.length > 0 ? (
                             cartItems.map((item, index) => (
-                                <div key={`${item.id}-${index}`} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100 animate-fadeIn">
+                                <div key={`${item.id}-${index}`} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100 animate-fadeIn hover:border-red-100 transition-colors">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-5 h-5 rounded-full flex items-center justify-center ${item.color} text-[8px]`}><i className={`fas ${item.icon}`}></i></div>
                                         <div>
@@ -322,19 +329,29 @@ const UserStorePOS: React.FC<UserStorePOSProps> = ({ user, adConfig, onUpdateUse
                         </div>
                         <div className="flex justify-between items-center mb-3">
                             <span className="text-[9px] font-bold uppercase text-gray-400">Saldo Final</span>
-                            <span className={`text-[10px] font-black flex items-center gap-1 ${finalBalance < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                            <span className={`text-[10px] font-black flex items-center gap-1 ${finalBalance < 0 ? 'text-red-500' : 'text-gray-900'}`}>
                                 <img src={lfnmCoin.src} className="w-4 h-4 object-contain animate-coin-sm grayscale" alt="Coin" /> {finalBalance.toFixed(2)}
                             </span>
                         </div>
                         <button
                             onClick={handlePurchase}
                             disabled={isLoading || cartItems.length === 0 || finalBalance < 0}
-                            className={`w-full py-2 rounded-lg text-[9px] font-black uppercase text-white shadow-lg transition-all ${isLoading || finalBalance < 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                            className={`w-full py-3 rounded-xl text-[10px] font-black uppercase text-white shadow-lg transition-all ${isLoading || finalBalance < 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-red-600 hover:bg-black'}`}
                         >
-                            {isLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Confirmar Compra'}
+                            {isLoading ? <i className="fas fa-spinner fa-spin"></i> : (finalBalance < 0 ? 'Saldo Insuficiente' : 'Confirmar Compra')}
                         </button>
+
+                        {finalBalance < 0 && onOpenPix && (
+                            <button
+                                onClick={onOpenPix}
+                                className="w-full mt-2 py-2 rounded-xl text-[9px] font-black uppercase text-red-600 border border-red-100 hover:bg-red-50 transition-all animate-pulse"
+                            >
+                                <i className="fab fa-pix mr-2"></i>
+                                Clique para recarregar via PIX
+                            </button>
+                        )}
                     </div>
-                    {isDragOver && <div className="absolute inset-0 bg-green-50/90 flex items-center justify-center text-green-600 font-black uppercase text-xs z-10 border-2 border-green-500 rounded-2xl">Solte Aqui</div>}
+                    {isDragOver && <div className="absolute inset-0 bg-red-50/90 flex items-center justify-center text-red-600 font-black uppercase text-xs z-10 border-2 border-red-500 rounded-2xl">Solte Aqui</div>}
                 </div>
             </div>
         </div>

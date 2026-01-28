@@ -123,11 +123,20 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
 
         try {
             if (userId) {
-                // Update existing user using the service function
-                await updateUser({ id: userId, ...data } as User);
+                // BUG FIX: Must merge with existing user to avoid sending nulls for missing fields
+                const existingUser = users.find(u => u.id === userId);
+                if (!existingUser) {
+                    throw new Error(`Usuário ${userId} não encontrado na lista para atualização.`);
+                }
+
+                const fullUserPayload = { ...existingUser, ...data };
+
+                // Update existing user using the service function with FULL data
+                await updateUser(fullUserPayload);
                 setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
             } else {
-                // Create new user
+                // Create new user (Insert needs basic fields at least)
+                // Assuming 'data' contains enough info for insert if userId is null
                 const { data: newUser, error } = await supabase
                     .from('users')
                     .insert([data])
@@ -135,10 +144,13 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
                     .single();
 
                 if (error) { throw error; }
-                setUsers(prev => [newUser, ...prev]);
+                const mappedNewUser = mapDbToUser(newUser); // Ensure we map back
+                if (mappedNewUser) {
+                    setUsers(prev => [mappedNewUser, ...prev]);
+                }
             }
-        } catch (error) {
-            console.error("Erro na operação de usuário:", error);
+        } catch (error: any) {
+            console.error("Erro na operação de usuário:", error.message || error);
             throw error;
         }
     };
@@ -222,7 +234,7 @@ const UserManager: React.FC<UserManagerProps> = ({ currentUser, darkMode = true 
     });
 
     return (
-        <div className="max-w-7xl mx-auto pb-20 animate-fadeIn">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 pb-20 animate-fadeIn">
             <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter">Gerenciar <span className="text-red-600">Usuários</span></h1>

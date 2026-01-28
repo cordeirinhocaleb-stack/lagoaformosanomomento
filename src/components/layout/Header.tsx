@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({
     if (isSimplified) {
         return (
             <header className="bg-black sticky top-0 z-[100] shadow-2xl w-full border-b-4 border-red-600">
-                <div className="max-w-[1500px] mx-auto flex items-center justify-between px-4 py-3">
+                <div className="max-w-[1500px] mx-auto flex items-center justify-between px-2 md:px-4 py-3">
                     <div className="flex items-center gap-3 cursor-pointer active:scale-95 transition-all" onClick={onHomeClick}>
                         <div className="flex flex-col">
                             <span className="text-[11px] font-black uppercase text-white leading-none tracking-tight">PAINEL OPERACIONAL</span>
@@ -85,8 +85,8 @@ const Header: React.FC<HeaderProps> = ({
                     <div className="flex items-center gap-4">
                         {user && (
                             <button onClick={onOpenProfile} className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 group">
-                                <div className="w-8 h-8 rounded-full bg-gray-800 border-2 border-red-600 overflow-hidden group-hover:animate-almost-fall group-active:animate-almost-fall">
-                                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <span className="text-white text-xs font-black">{user.name.charAt(0)}</span>}
+                                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-zinc-100 overflow-hidden border border-gray-100 shadow-sm flex items-center justify-center">
+                                    {(user.avatar || user.avatar_url) ? <img src={user.avatar || user.avatar_url} className="w-full h-full object-cover" /> : <span className="text-[10px] font-black text-gray-400 flex items-center justify-center h-full">{user.name.charAt(0)}</span>}
                                 </div>
                             </button>
                         )}
@@ -113,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
             <div
                 className={`fixed top-0 left-0 w-full z-[10000] bg-black border-b-4 border-red-600 shadow-2xl transition-transform duration-300 ease-in-out transform ${isScrolled ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-full opacity-0 pointer-events-none'}`}
             >
-                <div className="max-w-[1600px] mx-auto px-4 py-2 flex items-center justify-between gap-4 overflow-hidden h-14 md:h-14">
+                <div className="max-w-[1600px] mx-auto px-2 md:px-4 py-2 flex items-center justify-between gap-2 md:gap-4 overflow-hidden h-14">
 
                     <div className="flex items-center gap-3 shrink-0 cursor-pointer group" onClick={onHomeClick}>
                         <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white shadow-[0_0_15px_rgba(220,38,38,0.6)] group-hover:scale-105 transition-transform">
@@ -131,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({
                     </div>
 
                     <div className="flex flex-1 justify-center items-center overflow-hidden px-2">
-                        <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide py-1 mask-fade-sides w-full md:w-auto">
+                        <div className="flex items-center gap-1 md:gap-2 overflow-x-auto scrollbar-hide py-1 mask-fade-sides w-full">
                             {['Lagoa Formosa e Região', 'Brasil', 'Mundo'].map((region) => {
                                 return (
                                     <button

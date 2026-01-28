@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { PromoPopupSetConfig, PopupTargetPage } from '../../../types';
+import { PromoPopupSetConfig, PopupTargetPage, PromoPopupItemConfig, AdvertiserInfoSummary } from '../../../types';
 import { normalizePopupSet } from '../../../utils/popupSafety';
 import PromoPopupCarousel from './PromoPopupCarousel';
+import AdvertiserInfoModal from './components/AdvertiserInfoModal';
 
 interface PromoPopupHostProps {
     popupSet?: PromoPopupSetConfig;
@@ -15,6 +16,10 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
     const [isOpen, setIsOpen] = useState(false);
     const [normalizedItems, setNormalizedItems] = useState<any[]>([]);
 
+    // Internal Advertiser Info Modal State
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [selectedAdvertiserInfo, setSelectedAdvertiserInfo] = useState<AdvertiserInfoSummary | null>(null);
+
     useEffect(() => {
         if (!popupSet) {
             setNormalizedItems([]);
@@ -24,7 +29,7 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
 
         // Normaliza para garantir dados seguros
         const { normalized } = normalizePopupSet(popupSet);
-        
+
         let filteredItems = normalized.items;
 
         // 1. Filtra ativos se LIVE (STRICT CHECK)
@@ -37,12 +42,12 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
         if (mode === 'live') {
             filteredItems = filteredItems.filter(item => {
                 // Se não tiver targets definidos (legado), assume Home e News
-                const targets = item.targetPages && item.targetPages.length > 0 
-                    ? item.targetPages 
+                const targets = item.targetPages && item.targetPages.length > 0
+                    ? item.targetPages
                     : ['home', 'news_detail'];
-                
+
                 // Se tiver 'all', aparece em tudo
-                if (targets.includes('all')) {return true;}
+                if (targets.includes('all')) { return true; }
 
                 // Verifica match exato
                 return targets.includes(currentContext);
@@ -58,7 +63,7 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
 
         if (filteredItems.length > 0) {
             setNormalizedItems(filteredItems);
-            
+
             if (mode === 'preview') {
                 setIsOpen(true);
             } else {
@@ -66,7 +71,7 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
                 // Usa IDs combinados para gerar chave única do set (agora filtrado por contexto)
                 const setHash = filteredItems.map(i => i.id).join('_');
                 const storageKey = `lfnm_popup_set_${setHash}_seen`;
-                
+
                 const hasSeen = sessionStorage.getItem(storageKey);
                 // Se mudou o contexto e tem novos itens que não foram vistos nessa combinação, mostra
                 if (!hasSeen) {
@@ -86,31 +91,52 @@ const PromoPopupHost: React.FC<PromoPopupHostProps> = ({ popupSet, mode = 'live'
             const storageKey = `lfnm_popup_set_${setHash}_seen`;
             sessionStorage.setItem(storageKey, 'true');
         }
-        if (onClose) {onClose();}
+        if (onClose) { onClose(); }
     };
 
-    const handleAction = (url: string) => {
-        if (url) {window.open(url, '_blank');}
-        handleClose();
+    const handleAction = (url: string, item?: PromoPopupItemConfig) => {
+        if (url) {
+            window.open(url, '_blank');
+            handleClose();
+        } else if (item?.advertiserInfo) {
+            setSelectedAdvertiserInfo(item.advertiserInfo);
+            setShowInfoModal(true);
+            // We keep isOpen true technically, but we won't render the carousel because of the early return below
+            // Actually, we should probably close the carousel if we consider it "Action Taken"
+            // But we want to show the modal.
+        } else {
+            handleClose();
+        }
     };
+
+    const handleCloseInfoModal = () => {
+        setShowInfoModal(false);
+        setSelectedAdvertiserInfo(null);
+        handleClose(); // Close the main popup flow too
+    };
+
+    // Render Advertiser Info Modal if active
+    if (showInfoModal && selectedAdvertiserInfo) {
+        return <AdvertiserInfoModal info={selectedAdvertiserInfo} onClose={handleCloseInfoModal} />;
+    }
 
     // Renderização Condicional Estrita
-    if (!isOpen || normalizedItems.length === 0) {return null;}
+    if (!isOpen || normalizedItems.length === 0) { return null; }
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center animate-fadeIn">
             {/* Backdrop com Blur */}
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={handleClose}></div>
-            
+
             {/* Fullscreen Container for Carousel */}
             <div className="relative w-full h-full z-50 pointer-events-none">
                 {/* Carousel handles interactions internally */}
                 <div className="w-full h-full pointer-events-auto">
-                    <PromoPopupCarousel 
-                        items={normalizedItems} 
-                        mode={mode} 
-                        onClose={handleClose} 
-                        onAction={handleAction} 
+                    <PromoPopupCarousel
+                        items={normalizedItems}
+                        mode={mode}
+                        onClose={handleClose}
+                        onAction={handleAction}
                         isMobilePreview={false} // Host is live/real environment
                     />
                 </div>

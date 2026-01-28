@@ -86,5 +86,88 @@
     },
     "result": "failure",
     "details": "Decisão: NO-GO\nLint: OK\nTypeCheck: FALHOU\nBuild: OK\nTests: FALHOU"
+  },
+  {
+    "id": "1769354216995-7shyuerig",
+    "timestamp": "2026-01-25T15:16:56.995Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "generic"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: FALHOU\nTypeCheck: FALHOU\nBuild: FALHOU\nTests: OK"
+  },
+  {
+    "id": "1769354216999-08wyizrer",
+    "timestamp": "2026-01-25T15:16:56.999Z",
+    "taskDescription": "Tarefa falhou",
+    "context": {
+      "files": [],
+      "areas": [
+        "generic"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: FALHOU\nTypeCheck: FALHOU\nBuild: FALHOU\nTests: OK",
+    "userFeedback": {
+      "satisfied": false,
+      "likes": [],
+      "dislikes": [
+        "Falhou na validação global ou audit"
+      ],
+      "suggestions": [
+        "Revisar integração com o sistema de build"
+      ]
+    }
+  },
+  {
+    "id": "1769357766595-q771w0uat",
+    "timestamp": "2026-01-25T16:16:06.595Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend",
+        "testing"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: FALHOU\nTypeCheck: FALHOU\nBuild: FALHOU\nTests: OK"
+  },
+  {
+    "id": "1769357801420-m2dzr2m3l",
+    "timestamp": "2026-01-25T16:16:41.420Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend",
+        "testing"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: FALHOU\nTypeCheck: FALHOU\nBuild: FALHOU\nTests: OK"
+  },
+  {
+    "id": "1769357876014-v60whrlpc",
+    "timestamp": "2026-01-25T16:17:56.014Z",
+    "taskDescription": "Executar lint, typecheck, build e dar GO/NO-GO final",
+    "context": {
+      "files": [],
+      "areas": [
+        "frontend",
+        "testing"
+      ],
+      "complexity": "low"
+    },
+    "result": "failure",
+    "details": "Decisão: NO-GO\nLint: FALHOU\nTypeCheck: FALHOU\nBuild: FALHOU\nTests: OK"
   }
 ]

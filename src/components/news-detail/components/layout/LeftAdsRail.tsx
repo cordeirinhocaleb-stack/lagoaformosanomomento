@@ -12,25 +12,83 @@ interface LeftAdsRailProps {
 }
 
 const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClick, onPlanRequest, adConfig }) => {
-    const supporters = advertisers.filter(ad => ad.isActive).slice(0, 5);
+    const scrollRef = React.useRef<HTMLDivElement>(null);
+    const [isPaused, setIsPaused] = useState(false);
+    const virtualPosRef = React.useRef(0);
+
+    const supporters = advertisers.filter(ad => ad.isActive);
+
+    // Lista para loop infinito vertical (4x para garantir preenchimento da altura)
+    const loopSupporters = supporters.length >= 1 ? Array(4).fill(supporters).flat() : [];
+
+    useEffect(() => {
+        if (loopSupporters.length === 0 || isPaused) return;
+
+        const container = scrollRef.current;
+        if (!container) return;
+
+        let animationFrameId: number;
+        let lastTime = performance.now();
+
+        const scroll = (currentTime: number) => {
+            if (!container || isPaused) {
+                lastTime = currentTime;
+                animationFrameId = requestAnimationFrame(scroll);
+                return;
+            }
+
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
+            // Medição da altura de um set completo
+            const currentSetHeight = container.scrollHeight / 4;
+            if (currentSetHeight <= 0) {
+                animationFrameId = requestAnimationFrame(scroll);
+                return;
+            }
+
+            const speed = 0.052; // Velocidade 30% mais rápida (original: 0.04)
+            virtualPosRef.current += speed * deltaTime;
+
+            // Loop Infinito Vertical
+            if (virtualPosRef.current >= currentSetHeight) {
+                virtualPosRef.current -= currentSetHeight;
+            }
+
+            container.scrollTop = virtualPosRef.current;
+            animationFrameId = requestAnimationFrame(scroll);
+        };
+
+        animationFrameId = requestAnimationFrame(scroll);
+        return () => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        };
+    }, [loopSupporters.length, isPaused]);
 
     return (
         <nav aria-label="Nossos Apoiadores" className="space-y-4">
-            <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] p-5 shadow-sm">
+            <div
+                className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] p-5 shadow-sm overflow-hidden"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+            >
                 <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-6 flex items-center gap-2">
                     <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span> Apoiadores Master
                 </h5>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-4 lg:gap-4">
-                    {supporters.length > 0 ? supporters.map(ad => (
+                <div
+                    ref={scrollRef}
+                    className="flex flex-col gap-4 max-h-[500px] overflow-hidden scrollbar-hide"
+                >
+                    {loopSupporters.length > 0 ? loopSupporters.map((ad, idx) => (
                         <AdvertiserCard
-                            key={ad.id}
+                            key={`${ad.id}-${idx}`}
                             ad={ad}
                             onClick={onAdvertiserClick}
-                            className="min-h-[170px] lg:min-h-[190px]"
+                            className="min-h-[190px] w-full flex-shrink-0"
                         />
                     )) : (
-                        <p className="col-span-full text-[8px] font-bold text-gray-300 text-center py-6 uppercase tracking-widest">Espaço Reservado</p>
+                        <p className="text-[8px] font-bold text-gray-300 text-center py-6 uppercase tracking-widest">Espaço Reservado</p>
                     )}
                 </div>
             </div>

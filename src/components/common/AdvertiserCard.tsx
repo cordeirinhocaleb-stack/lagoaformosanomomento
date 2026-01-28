@@ -81,13 +81,40 @@ export const MediaBox: React.FC<MediaBoxProps> = ({ ad, className }) => {
 interface AdvertiserCardProps {
     ad: Advertiser;
     onClick: (ad: Advertiser) => void;
+    onView?: (adId: string) => void;
     className?: string;
     innerClassName?: string;
 }
 
-export const AdvertiserCard: React.FC<AdvertiserCardProps> = ({ ad, onClick, className, innerClassName }) => {
+export const AdvertiserCard: React.FC<AdvertiserCardProps> = ({ ad, onClick, onView, className, innerClassName }) => {
+    const cardRef = React.useRef<HTMLDivElement>(null);
+    const hasViewedRef = React.useRef(false);
+
+    useEffect(() => {
+        if (!onView || hasViewedRef.current || !cardRef.current) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !hasViewedRef.current) {
+                hasViewedRef.current = true;
+                onView(ad.id);
+                observer.disconnect();
+            }
+        }, { threshold: 0.5 }); // 50% visible to count as view
+
+        observer.observe(cardRef.current);
+
+        return () => observer.disconnect();
+    }, [ad.id, onView]);
+
+    const getWhatsAppUrl = (number: string) => {
+        const cleanNumber = number.replace(/\D/g, '');
+        const message = ad.internalPage?.whatsappMessage || "Oi eu vim pelo lagoaformosanomomento, gostei da sua publicacao e estou interassado";
+        return `https://wa.me/55${cleanNumber}?text=${encodeURIComponent(message)}`;
+    };
+
     return (
         <div
+            ref={cardRef}
             onClick={() => onClick(ad)}
             role="button"
             tabIndex={0}
@@ -107,7 +134,7 @@ export const AdvertiserCard: React.FC<AdvertiserCardProps> = ({ ad, onClick, cla
                     <div className="flex items-center justify-center gap-0.5 lg:gap-1 shrink-0">
                         {ad.internalPage?.whatsapp && (
                             <button
-                                onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/55${ad.internalPage!.whatsapp.replace(/\D/g, '')}`, '_blank'); }}
+                                onClick={(e) => { e.stopPropagation(); window.open(getWhatsAppUrl(ad.internalPage!.whatsapp), '_blank'); }}
                                 className="w-4 h-4 lg:w-5 lg:h-5 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-500 text-green-600 hover:text-white transition-all duration-300 hover:scale-125 hover:shadow-md active:scale-90 shadow-sm"
                                 title="WhatsApp"
                             >

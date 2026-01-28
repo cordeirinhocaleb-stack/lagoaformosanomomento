@@ -11,7 +11,20 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
     // Lista completa de categorias para rotação
     const allCategories = ['Política', 'Economia', 'Agro', 'Mundo', 'Tecnologia', 'Esporte', 'Cultura', 'Cotidiano'];
     const [startIndex, setStartIndex] = useState(0);
-    const visibleCount = 4; // Exibe 4 colunas por vez
+    const [visibleCount, setVisibleCount] = useState(4);
+
+    // Responsive Column Count
+    useEffect(() => {
+        const handleResize = () => {
+            const w = window.innerWidth;
+            if (w < 768) setVisibleCount(2); // Mobile
+            else if (w < 1280) setVisibleCount(4); // Tablet
+            else setVisibleCount(6); // PC
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Rotação automática dos filtros (apenas quando não há filtro selecionado)
     useEffect(() => {
@@ -31,7 +44,7 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
         // Se há filtro ativo, mostra apenas essa categoria
         visibleCategories.push(selectedCategory);
     } else {
-        // Rotação normal de 4 categorias
+        // Rotação normal das categorias baseada no count responsivo
         for (let i = 0; i < visibleCount; i++) {
             const idx = (startIndex + i) % allCategories.length;
             visibleCategories.push(allCategories[idx]);
@@ -59,7 +72,7 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-8">
                     {visibleCategories.map(cat => {
                         let theme: 'blue' | 'green' | 'orange' | 'purple' = 'blue';
                         if (['Política', 'Economia'].includes(cat)) theme = 'orange';

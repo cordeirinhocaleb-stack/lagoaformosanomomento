@@ -208,15 +208,31 @@ const SimplePopupEditor: React.FC<SimplePopupEditorProps> = ({
                                             />
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteItem(item.id);
-                                        }}
-                                        className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center hover:bg-red-200"
-                                    >
-                                        <i className="fas fa-trash text-[10px]"></i>
-                                    </button>
+                                    {item.active ? (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleUpdateItem(item.id, { active: false });
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center hover:bg-orange-200 transition-colors"
+                                            title="Desativar para excluir"
+                                        >
+                                            <i className="fas fa-power-off text-[10px]"></i>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (confirm('Tem certeza? Essa ação não pode ser desfeita.')) {
+                                                    handleDeleteItem(item.id);
+                                                }
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 flex items-center justify-center hover:bg-red-200 transition-colors"
+                                            title="Excluir Permanentemente"
+                                        >
+                                            <i className="fas fa-trash text-[10px]"></i>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -313,17 +329,30 @@ const SimplePopupEditor: React.FC<SimplePopupEditorProps> = ({
                                     </button>
 
                                     {selectedItem.media?.images?.[0] && (
-                                        <button
-                                            onClick={() => handleUpdateItem(selectedItem.id, {
-                                                media: {
-                                                    ...selectedItem.media,
-                                                    images: []
-                                                }
-                                            })}
-                                            className="px-6 py-4 bg-red-600 text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-                                        >
-                                            <i className="fas fa-trash"></i>
-                                        </button>
+                                        <>
+                                            {selectedItem.active ? (
+                                                <button
+                                                    onClick={() => handleUpdateItem(selectedItem.id, { active: false })}
+                                                    className="px-6 py-4 bg-orange-500 text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                                                    title="Desative o popup para excluir a imagem"
+                                                >
+                                                    <i className="fas fa-power-off"></i>
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleUpdateItem(selectedItem.id, {
+                                                        media: {
+                                                            ...selectedItem.media,
+                                                            images: []
+                                                        }
+                                                    })}
+                                                    className="px-6 py-4 bg-red-600 text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                                                    title="Remover Imagem"
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                </button>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 

@@ -75,8 +75,16 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
         setToast({ message: "Anunciante enviado (processando...)", type: 'info' });
       }
     } catch (error) {
-      console.error("Erro ao salvar anunciante:", error);
-      setToast({ message: "Erro ao salvar anunciante.", type: 'error' });
+      console.error("Erro ao salvar anunciante (Objeto):", error);
+      console.error("Erro ao salvar anunciante (JSON):", JSON.stringify(error, null, 2));
+      // @ts-ignore
+      if (error?.message) console.error("Message:", error.message);
+      // @ts-ignore
+      if (error?.details) console.error("Details:", error.details);
+      // @ts-ignore
+      if (error?.hint) console.error("Hint:", error.hint);
+
+      setToast({ message: "Erro ao salvar anunciante. Verifique o console.", type: 'error' });
     } finally {
       setIsLoading(false);
       setLoadingMessage('');
@@ -120,6 +128,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
           advertisers={advertisers}
           onEdit={handleEdit}
           onDelete={onDeleteAdvertiser}
+          onUpdate={onUpdateAdvertiser}
           onCreate={handleCreate}
           onConfigClick={handleConfig}
           darkMode={darkMode}
@@ -132,6 +141,7 @@ const AdvertisersManager: React.FC<AdvertisersManagerProps> = ({
           advertiser={selectedAdvertiser}
           onSave={handleSaveAdvertiser}
           onCancel={handleBackToList}
+          currentUser={userPermissions}
           darkMode={darkMode}
         />
       )}

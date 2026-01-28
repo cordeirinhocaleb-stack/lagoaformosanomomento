@@ -18,42 +18,48 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
             label: 'Catálogo de Parceiros',
             shortLabel: 'Parceiros',
             icon: 'fa-store',
-            action: () => window.location.href = '/servicos'
+            action: () => window.location.href = '/servicos',
+            isComingSoon: false
         },
         {
             id: 'jobs',
             label: 'Vagas de Emprego',
             shortLabel: 'Vagas',
             icon: 'fa-briefcase',
-            action: onComingSoon || (() => alert("Em breve"))
+            action: onComingSoon || (() => alert("Em breve")),
+            isComingSoon: true
         },
         {
             id: 'gigs',
             label: 'Bico',
             shortLabel: 'Bico',
             icon: 'fa-hammer',
-            action: onComingSoon || (() => alert("Em breve"))
+            action: onComingSoon || (() => alert("Em breve")),
+            isComingSoon: true
         },
         {
             id: 'classifieds',
             label: 'Classificados',
             shortLabel: 'Vendas',
             icon: 'fa-bullhorn',
-            action: onComingSoon || (() => alert("Em breve"))
+            action: onComingSoon || (() => alert("Em breve")),
+            isComingSoon: true
         },
         {
             id: 'podcast',
             label: 'Podcast',
             shortLabel: 'Cast',
             icon: 'fa-podcast',
-            action: onComingSoon || (() => alert("Em breve"))
+            action: onComingSoon || (() => alert("Em breve")),
+            isComingSoon: true
         },
         {
             id: 'groups',
             label: 'Grupos',
             shortLabel: 'Grupos',
             icon: 'fa-users',
-            action: onComingSoon || (() => alert("Em breve"))
+            action: onComingSoon || (() => alert("Em breve")),
+            isComingSoon: true
         },
     ];
 
@@ -102,7 +108,7 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
 
     return (
         <div className="w-full bg-[#f4f4f7] relative z-40">
-            <div className="w-full md:w-[94%] md:max-w-[1550px] mx-auto py-2 md:py-3 shadow-sm relative overflow-hidden border-x border-b border-black/5 group/extramenu">
+            <div className="w-full md:w-[94%] md:max-w-[1550px] mx-auto py-2 md:py-3 shadow-sm relative overflow-hidden border-x border-b border-black/5 group/extramenu text-zinc-900">
 
                 {/* Textura Zebrada */}
                 <div className="absolute inset-0" style={{
@@ -149,13 +155,24 @@ const ExtraMenu: React.FC<ExtraMenuProps> = ({ onJobsClick, onComingSoon }) => {
                     className={`container mx-auto flex flex-nowrap md:flex-wrap items-center gap-2 md:gap-3 relative z-10 overflow-x-auto scrollbar-hide px-8 md:px-4 ${!canScroll ? 'justify-center' : 'justify-start'}`}
                 >
                     {menuItems.map((item) => (
-                        <button key={item.id} onClick={item.action} className={`whitespace-nowrap px-2 py-1 md:px-4 md:py-2 rounded-md md:rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm active:translate-y-1 flex items-center gap-1 md:gap-2 group shrink-0 ${item.id === 'advertisers'
-                                ? 'bg-red-600 text-white hover:bg-white hover:text-red-600 border-red-600'
-                                : 'bg-black text-white hover:bg-white hover:text-black border-black md:border-2'
-                            }`}>
-                            <i className={`fas ${item.icon} text-[8px] md:text-xs text-yellow-400 group-hover:text-red-600 group-hover:scale-110 transition-transform`}></i>
+                        <button
+                            key={item.id}
+                            onClick={item.isComingSoon ? undefined : item.action}
+                            disabled={item.isComingSoon}
+                            className={`whitespace-nowrap px-2 py-1.5 md:px-4 md:py-2.5 rounded-md md:rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm relative flex items-center gap-1 md:gap-2 group shrink-0 overflow-hidden ${item.isComingSoon ? 'opacity-40 grayscale cursor-not-allowed border-gray-300 bg-white' :
+                                item.id === 'advertisers' ? 'bg-red-600 text-white hover:bg-white hover:text-red-600 border-red-600 active:translate-y-1' :
+                                    'bg-black text-white hover:bg-white hover:text-black border-black md:border-2 active:translate-y-1'
+                                }`}
+                        >
+                            <i className={`fas ${item.icon} text-[8px] md:text-xs ${item.isComingSoon ? 'text-gray-400' : 'text-yellow-400 group-hover:text-red-600 group-hover:scale-110'} transition-transform`}></i>
                             <span className="md:hidden">{item.shortLabel}</span>
                             <span className="hidden md:inline">{item.label}</span>
+
+                            {item.isComingSoon && (
+                                <div className="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 text-[7px] md:text-[8px] font-black uppercase tracking-widest transform translate-x-[20%] translate-y-[10%] rotate-12 shadow-[0_0_10px_rgba(220,38,38,0.5)] border-b-2 border-l-2 border-white/20 z-20">
+                                    Em Breve
+                                </div>
+                            )}
                         </button>
                     ))}
                 </div>

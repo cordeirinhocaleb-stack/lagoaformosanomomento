@@ -15,7 +15,7 @@ interface SlideContentLayerProps {
         btnBg: string;
         btnText: string;
     };
-    onAction?: (url: string) => void;
+    onAction?: (url: string, item?: PromoPopupItemConfig) => void;
 }
 
 export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
@@ -25,7 +25,7 @@ export const SlideContentLayer: React.FC<SlideContentLayerProps> = ({
     // Tratamento de CTA
     const isCtaSafe = isSafeUrl(item.ctaUrl);
     const handleCtaClick = () => {
-        if (isCtaSafe && item.ctaUrl && onAction) { onAction(item.ctaUrl); }
+        if (onAction) { onAction(item.ctaUrl, item as any); }
     };
 
     const textStyle = item.textStyle || {};

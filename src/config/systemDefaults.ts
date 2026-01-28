@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS: SystemSettings = {
     maintenanceMode: false,
     registrationEnabled: true,
     enableOmnichannel: true,
+    purchasingEnabled: true,
     footer: {
         phone: '(34) 99999-0000',
         email: 'pauta@lfnm.com.br',
@@ -38,7 +39,7 @@ export const INITIAL_AD_CONFIG: AdPricingConfig = {
         {
             id: 'master',
             name: 'Master',
-            prices: { daily: 50, weekly: 300, fortnightly: 600, monthly: 1200, quarterly: 3000, semiannual: 5500, yearly: 10000 },
+            prices: { single: 0, daily: 50, weekly: 300, fortnightly: 600, monthly: 1200, quarterly: 3000, semiannual: 5500, yearly: 10000 },
             description: 'Domínio total do portal',
             cashbackPercent: 15,
             features: {

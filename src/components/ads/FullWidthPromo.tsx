@@ -7,6 +7,8 @@ interface FullWidthPromoProps {
     banners?: PromoBanner[];
     customHeight?: string;
     forceShow?: boolean;
+    onAdvertiserClick?: (adId: string) => void;
+    onAdvertiserView?: (adId: string) => void;
 }
 
 const DEFAULT_SLIDES: PromoBanner[] = [
@@ -20,7 +22,6 @@ const DEFAULT_SLIDES: PromoBanner[] = [
         tag: 'Cobertura Exclusiva',
         title: 'LAGOA FORMOSA <br /><span class="text-red-600">CONECTADA</span> COM VOCÊ',
         description: 'Informação de verdade, com a credibilidade de quem conhece cada canto da nossa terra.',
-        // Fixed: Added missing buttonText and link properties to DEFAULT_SLIDES
         buttonText: 'Seguir @lagoaformosanomomento',
         link: 'https://instagram.com/lagoaformosanomomento',
         textPositionPreset: 'gradient_bottom_left',
@@ -43,7 +44,7 @@ const DEFAULT_SLIDES: PromoBanner[] = [
     }
 ];
 
-const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, forceShow = false }) => {
+const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, forceShow = false, onAdvertiserClick, onAdvertiserView }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [backgroundIndex, setBackgroundIndex] = useState(0);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -98,6 +99,13 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, 
         video.addEventListener('timeupdate', handleSnippetTimeUpdate);
         return () => video.removeEventListener('timeupdate', handleSnippetTimeUpdate);
     }, [currentBanner?.type, currentBanner?.videoUrl, currentSlide]);
+
+    // View Tracking
+    useEffect(() => {
+        if (currentBanner?.advertiserId && onAdvertiserView) {
+            onAdvertiserView(currentBanner.advertiserId);
+        }
+    }, [currentBanner?.id, currentBanner?.advertiserId, onAdvertiserView]);
 
     if (!currentBanner) { return null; }
 
@@ -170,7 +178,18 @@ const FullWidthPromo: React.FC<FullWidthPromoProps> = ({ banners, customHeight, 
                 </p>
             )}
             <div className={`flex flex-wrap gap-4 animate-fadeInUp delay-200 ${currentBanner.align === 'center' ? 'justify-center' : currentBanner.align === 'right' ? 'justify-end' : ''}`}>
-                <a href={buttonConfig.link} target="_blank" rel="noopener noreferrer" className={`${getButtonClasses()} group/btn`} onClick={(e) => { if (buttonConfig.link === '#') { e.preventDefault(); } }}>
+                <a
+                    href={buttonConfig.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${getButtonClasses()} group/btn`}
+                    onClick={(e) => {
+                        if (currentBanner.advertiserId && onAdvertiserClick) {
+                            onAdvertiserClick(currentBanner.advertiserId);
+                        }
+                        if (buttonConfig.link === '#') { e.preventDefault(); }
+                    }}
+                >
                     <span className={buttonConfig.rounded === 'none' ? 'skew-x-[10deg]' : ''}>
                         {/* Ícones baseados no redirectType ou URL */}
                         {(currentBanner.redirectType === 'instagram' || buttonConfig.link.includes('instagram')) && <i className="fab fa-instagram text-sm"></i>}

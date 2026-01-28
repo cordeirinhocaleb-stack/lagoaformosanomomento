@@ -7,8 +7,7 @@ import { logger } from '../core/debugLogger';
 
 // Re-exports
 export * from './newsService';
-export * from './newsService';
-export * from './advertiserService'; // Now includes incrementAdvertiserClick
+export * from './advertiserService'; // Now includes incrementAdvertiserClick and incrementAdvertiserView
 export * from './socialService';
 
 export const fetchSiteData = async (): Promise<{ source: 'database' | 'mock'; data: SiteData } | null> => {

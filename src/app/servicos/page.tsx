@@ -38,9 +38,17 @@ export default function ServicesPage() {
                     {/* ADVERTISERS CONTENT (Guia Comercial) */}
                     <div className="p-8 animate-fadeIn">
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                            <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2">
-                                <Store className="text-red-600" /> Catálogo de Parceiros
-                            </h2>
+                            <div className="flex flex-col md:flex-row md:items-center gap-2">
+                                <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2">
+                                    <Store className="text-red-600" /> Catálogo de Parceiros
+                                </h2>
+                                <button
+                                    onClick={() => ctrl.modals.setShowPricingModal(true)}
+                                    className="text-[10px] md:text-sm font-bold text-red-600 hover:text-red-700 hover:underline transition-all flex items-center gap-1"
+                                >
+                                    <span className="hidden md:inline">•</span> Seja um parceiro clicando aqui
+                                </button>
+                            </div>
                             <div className="relative w-full md:w-96">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                 <input

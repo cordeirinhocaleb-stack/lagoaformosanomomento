@@ -11,12 +11,12 @@ interface EditorHeaderProps {
     initialNewsId?: string;
 }
 
-const EditorHeader: React.FC<EditorHeaderProps> = ({ 
-    isPublished, publishStatus, isHeaderVisible, onCancel, onPublish, initialNewsId 
+const EditorHeader: React.FC<EditorHeaderProps> = ({
+    isPublished, publishStatus, isHeaderVisible, onCancel, onPublish, initialNewsId
 }) => {
-    
+
     const handleRepublication = () => {
-        if(confirm("⚠️ ATENÇÃO: Isso enviará a notícia novamente para todas as redes sociais configuradas (Instagram, Facebook, etc). Deseja continuar?")) {
+        if (confirm("⚠️ ATENÇÃO: Isso enviará a notícia novamente para todas as redes sociais configuradas (Instagram, Facebook, etc). Deseja continuar?")) {
             onPublish(true, true);
         }
     };
@@ -36,39 +36,39 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                     </div>
                 </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
                 <button onClick={onCancel} className="px-5 py-2 rounded-full text-[9px] font-black uppercase text-white/50 border border-white/10 hover:text-white hover:border-white transition-all">
                     Cancelar
                 </button>
-                
+
                 {isPublished ? (
                     <>
-                        <button 
-                            onClick={() => window.open(`/#/news/${initialNewsId}`, '_blank')}
+                        <button
+                            onClick={() => window.open(`/news/view?slug=${initialNewsId}`, '_blank')}
                             className="bg-white/10 text-white px-5 py-2.5 rounded-full font-black uppercase text-[9px] tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2"
                         >
                             <i className="fas fa-external-link-alt"></i> Ver no Site
                         </button>
-                        
-                        <button 
+
+                        <button
                             onClick={handleRepublication}
                             className="bg-blue-600 text-white px-5 py-2.5 rounded-full font-black uppercase text-[9px] tracking-widest hover:bg-blue-500 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(37,99,235,0.5)]"
                         >
                             <i className="fas fa-share-nodes"></i> Republicar
                         </button>
 
-                        <button 
+                        <button
                             onClick={() => onPublish(true, false)}
                             className="bg-green-600 text-white px-6 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.5)] hover:bg-white hover:text-green-600 transition-all flex items-center gap-2 group"
                         >
-                            {publishStatus !== 'idle' ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-save group-hover:rotate-12 transition-transform"></i>} 
+                            {publishStatus !== 'idle' ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-save group-hover:rotate-12 transition-transform"></i>}
                             Salvar Edição
                         </button>
                     </>
                 ) : (
-                    <button 
-                        onClick={() => onPublish(false, false)} 
+                    <button
+                        onClick={() => onPublish(false, false)}
                         disabled={publishStatus !== 'idle'}
                         className="bg-red-600 text-white px-8 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:bg-white hover:text-red-600 transition-all flex items-center gap-2 group transform hover:scale-105 disabled:opacity-50"
                     >

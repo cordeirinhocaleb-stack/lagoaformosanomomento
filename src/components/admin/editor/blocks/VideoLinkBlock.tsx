@@ -70,7 +70,7 @@ const VideoLinkBlock: React.FC<VideoLinkBlockProps> = ({ block, isSelected, onSe
                         value={inputUrl}
                         onChange={(e) => setInputUrl(e.target.value)}
                         placeholder="Cole o link do vídeo aqui..."
-                        className="w-full px-4 py-3 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 dark:bg-zinc-800 dark:text-white mb-4"
+                        className="w-full px-4 py-3 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white mb-4"
                         autoFocus
                     />
                     <div className="flex gap-2">

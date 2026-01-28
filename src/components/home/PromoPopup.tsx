@@ -12,25 +12,25 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!config || !config.active) {return;}
+    if (!config || !config.active) { return; }
 
     // 1. Validação de Rota (Onde exibir)
-    const currentHash = window.location.hash || '#/';
+    const { pathname, search } = window.location;
     const targets = config.targetPages || ['all'];
     let isOnAllowedPage = false;
 
-    if ((currentHash === '#/' || currentHash === '') && (targets.includes('home') || targets.includes('all'))) {
-        isOnAllowedPage = true;
+    if (pathname === '/' && (targets.includes('home') || targets.includes('all'))) {
+      isOnAllowedPage = true;
     }
-    else if (currentHash.startsWith('#/news/') && (targets.includes('news_detail') || targets.includes('all'))) {
-        isOnAllowedPage = true;
+    else if (pathname === '/news/view/' && (targets.includes('news_detail') || targets.includes('all'))) {
+      isOnAllowedPage = true;
     }
     else if (targets.includes('advertiser_page')) {
-        // Se a config tem 'advertiser_page', assume-se que o componente está montado na página correta (AdvertiserPage.tsx)
-        isOnAllowedPage = true;
+      // Se a config tem 'advertiser_page', assume-se que o componente está montado na página correta (AdvertiserPage.tsx)
+      isOnAllowedPage = true;
     }
 
-    if (!isOnAllowedPage) {return;}
+    if (!isOnAllowedPage) { return; }
 
     // 2. Validação de Frequência (Storage) - Usa título sanitizado como chave
     const safeTitle = sanitizeText(config.title);
@@ -41,10 +41,10 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
 
     if (config.frequency === 'once_per_session') {
       const sessionSeen = sessionStorage.getItem(storageKey);
-      if (sessionSeen) {shouldShow = false;}
+      if (sessionSeen) { shouldShow = false; }
     } else if (config.frequency === 'once_per_day' && lastSeen) {
       const hoursSince = (now - parseInt(lastSeen)) / (1000 * 60 * 60);
-      if (hoursSince < 24) {shouldShow = false;}
+      if (hoursSince < 24) { shouldShow = false; }
     }
 
     if (shouldShow) {
@@ -55,9 +55,9 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
   }, [config]);
 
   const handleClose = () => {
-    if (!config) {return;}
+    if (!config) { return; }
     setIsVisible(false);
-    
+
     // Salva estado de visualização
     const safeTitle = sanitizeText(config.title);
     const storageKey = `lfnm_popup_${safeTitle.replace(/\s/g, '_')}_seen`;
@@ -67,19 +67,19 @@ const PromoPopup: React.FC<PromoPopupProps> = ({ config }) => {
 
   const handleAction = () => {
     if (config?.buttonLink) {
-        window.open(config.buttonLink, '_blank');
+      window.open(config.buttonLink, '_blank');
     }
     handleClose();
   };
 
-  if (!isVisible || !config) {return null;}
+  if (!isVisible || !config) { return null; }
 
   return (
-    <PromoPopupView 
-        config={config} 
-        mode="live"
-        onClose={handleClose}
-        onAction={handleAction}
+    <PromoPopupView
+      config={config}
+      mode="live"
+      onClose={handleClose}
+      onAction={handleAction}
     />
   );
 };

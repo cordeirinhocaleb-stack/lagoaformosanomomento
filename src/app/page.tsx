@@ -105,7 +105,7 @@ export default function HomePage() {
                 selectedRegion={ctrl.selectedRegion} onSelectRegion={ctrl.handleRegionSelection}
             />
 
-            <div className="w-full flex-grow flex flex-col md:w-[94%] md:max-w-[1550px] mx-auto self-center relative bg-white border-gray-100 shadow-2xl border-x">
+            <div className="w-full flex-grow flex flex-col px-4 md:px-0 md:w-[94%] md:max-w-[1550px] mx-auto self-center relative bg-white border-gray-100 shadow-2xl border-x">
                 <span className="absolute bottom-2 right-2 text-[10px] font-bold text-gray-500 bg-white/50 px-2 py-1 rounded-full border border-gray-200 backdrop-blur-sm z-10">
                     V. {ctrl.CURRENT_VERSION}
                 </span>
@@ -115,27 +115,67 @@ export default function HomePage() {
                         onNewsClick={(n) => {
                             ctrl.setSelectedNews(n);
                             const link = n.seo?.slug || n.slug || n.id;
-                            ctrl.updateHash(`/news/${link}`);
+                            ctrl.updateHash(`/news/view?slug=${link}`);
                         }}
-                        onAdvertiserClick={(ad) => {
-                            // Registra o clique sem esperar (fire and forget)
-                            incrementAdvertiserClick(ad.id).catch(console.error);
+                        onAdvertiserClick={(adOrId) => {
+                            // Registra o clique e atualiza estado local
+                            ctrl.handleAdvertiserClick(adOrId);
+
+                            // Se for apenas ID (string), significa que o clique veio de um banner
+                            // que já tratou o redirecionamento ou link externamente.
+                            if (typeof adOrId === 'string') {
+                                return;
+                            }
+
+                            const ad = adOrId; // Type narrowing
 
                             if (ad.redirectType === 'external' && ad.externalUrl) {
                                 window.open(ad.externalUrl, '_blank');
                             } else if (ad.redirectType === 'whatsapp' && ad.internalPage?.whatsapp) {
                                 const phone = ad.internalPage.whatsapp.replace(/\D/g, '');
-                                window.open(`https://wa.me/55${phone}`, '_blank');
+                                const message = ad.internalPage?.whatsappMessage || "Oi eu vim pelo lagoaformosanomomento, gostei da sua publicacao e estou interassado";
+                                window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(message)}`, '_blank');
                             } else if (ad.redirectType === 'instagram' && ad.internalPage?.instagram) {
                                 const user = ad.internalPage.instagram.replace('@', '').trim();
                                 window.open(`https://instagram.com/${user}`, '_blank');
                             } else {
-                                ctrl.setSelectedAdvertiser(ad);
-                                ctrl.updateHash(`/advertiser/${ad.id}`);
+                                // Show Info Modal instead of navigating to potentially missing page
+                                modals.openAdvertiserInfo({
+                                    id: ad.id,
+                                    name: ad.name,
+                                    phone: ad.phone,
+                                    whatsapp: ad.internalPage?.whatsapp,
+                                    whatsappMessage: ad.internalPage?.whatsappMessage,
+                                    address: ad.address,
+                                    logoUrl: ad.logoUrl,
+                                    category: ad.category,
+                                    location: ad.internalPage?.location
+                                });
                             }
                         }}
+                        onAdvertiserView={ctrl.handleAdvertiserView}
                         onAdminClick={() => { if (ctrl.user?.role !== 'Leitor') { ctrl.updateHash('/admin'); } else { modals.setShowProfileModal(true); } }}
-                        onPricingClick={() => modals.setShowPricingModal(true)}
+                        onPricingClick={() => {
+                            // Check for active plans available for public purchase
+                            const hasActivePlans = ctrl.adConfig?.plans && ctrl.adConfig.plans.length > 0;
+
+                            if (hasActivePlans) {
+                                modals.setShowPricingModal(true);
+                            } else {
+                                // No plans available - Redirect to Contact Modal (WhastApp)
+                                modals.openAdvertiserInfo({
+                                    id: 'site_contact_ads',
+                                    name: 'Anuncie Conosco',
+                                    category: 'Publicidade',
+                                    logoUrl: undefined, // Will trigger gradient theme
+                                    phone: ctrl.systemSettings?.footer?.phone || '(34) 99999-9999',
+                                    whatsapp: ctrl.systemSettings?.footer?.phone || '(34) 99999-9999',
+                                    whatsappMessage: "Olá! Gostaria de saber mais sobre as opções de anúncio no portal.",
+                                    address: "Lagoa Formosa - MG",
+                                    location: "Lagoa Formosa"
+                                });
+                            }
+                        }}
                         onJobsClick={() => { ctrl.updateHash('/jobs'); }}
                         adConfig={ctrl.adConfig} externalCategories={ctrl.externalCategories}
                         contractBanners={ctrl.contractBanners}

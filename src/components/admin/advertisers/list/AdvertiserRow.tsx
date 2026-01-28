@@ -8,10 +8,11 @@ interface AdvertiserRowProps {
     advertiser: Advertiser;
     onEdit: (advertiser: Advertiser) => void;
     onDelete?: (id: string) => void;
+    onUpdate?: (advertiser: Advertiser) => Promise<any>;
     darkMode?: boolean;
 }
 
-const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDelete, darkMode = false }) => {
+const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDelete, onUpdate, darkMode = false }) => {
     const ctrl = useAppControllerContext();
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
@@ -142,22 +143,53 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDel
             </div>
 
             <div className={`flex lg:flex pl-4 lg:border-l w-full lg:w-auto gap-3 ${darkMode ? 'border-white/5' : 'border-gray-100'}`}>
-                <button
-                    className={`w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-lg active:scale-95 group/del`}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        ctrl.modals.showConfirm(
-                            'Excluir Parceiro',
-                            `Tem certeza que deseja excluir o parceiro ${advertiser.name}?`,
-                            () => onDelete && onDelete(advertiser.id),
-                            'danger',
-                            'Excluir'
-                        );
-                    }}
-                    title="Excluir Parceiro"
-                >
-                    <i className="fas fa-trash-alt text-lg"></i>
-                </button>
+                {advertiser.isActive ? (
+                    <button
+                        className={`w-14 h-14 rounded-2xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all flex items-center justify-center shadow-lg active:scale-95 group/disable`}
+                        onClick={async (e) => {
+                            e.stopPropagation();
+                            if (onUpdate) {
+                                await onUpdate({ ...advertiser, isActive: false });
+                            }
+                        }}
+                        title="Desativar Parceiro"
+                    >
+                        <i className="fas fa-power-off text-lg"></i>
+                    </button>
+                ) : (
+                    <>
+                        <button
+                            className={`w-14 h-14 rounded-2xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all flex items-center justify-center shadow-lg active:scale-95 group/enable`}
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                if (onUpdate) {
+                                    await onUpdate({ ...advertiser, isActive: true });
+                                }
+                            }}
+                            title="Reativar Parceiro"
+                        >
+                            <i className="fas fa-redo text-lg"></i>
+                        </button>
+                        <button
+                            className={`w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-lg active:scale-95 group/del`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDelete) {
+                                    ctrl.modals.showConfirm(
+                                        'Excluir Parceiro',
+                                        `Tem certeza que deseja excluir o parceiro ${advertiser.name}? Esta ação não pode ser desfeita.`,
+                                        () => onDelete(advertiser.id),
+                                        'danger',
+                                        'Excluir Definitivamente'
+                                    );
+                                }
+                            }}
+                            title="Excluir Parceiro"
+                        >
+                            <i className="fas fa-trash-alt text-lg"></i>
+                        </button>
+                    </>
+                )}
 
                 <button
                     className={`flex-1 lg:w-14 h-14 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center shadow-xl active:scale-95 group/btn ${darkMode ? 'bg-white text-black' : 'bg-black text-white'}`}
@@ -171,3 +203,4 @@ const AdvertiserRow: React.FC<AdvertiserRowProps> = ({ advertiser, onEdit, onDel
 };
 
 export default AdvertiserRow;
+

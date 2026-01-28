@@ -30,6 +30,7 @@ export {
     upsertAdvertiser,
     deleteAdvertiser,
     incrementAdvertiserClick,
+    incrementAdvertiserView,
     saveSystemSetting,
     getSystemSetting,
     fetchDailyBreadWithLookahead,

@@ -62,7 +62,7 @@ function AdvertiserViewContent() {
                     selectedRegion={ctrl.selectedRegion}
                     onSelectRegion={ctrl.handleRegionSelection}
                 />
-                <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-gray-50">
+                <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-8 text-center bg-gray-50">
                     <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full">
                         <div className="w-20 h-20 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center text-4xl mb-6 mx-auto">
                             <i className="fas fa-store-slash"></i>

@@ -5,10 +5,10 @@ interface ProfileSectionProps {
     formData: User;
     setFormData: (user: User) => void;
     isSaving: boolean;
-    onSave: () => void;
+    handleSaveProfile: () => void;
 }
 
-const ProfileSection: React.FC<ProfileSectionProps> = ({ formData, setFormData, isSaving, onSave }) => {
+const ProfileSection: React.FC<ProfileSectionProps> = ({ formData, setFormData, isSaving, handleSaveProfile }) => {
     return (
         <div className="max-w-3xl mx-auto animate-fadeIn">
             <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-8">
@@ -105,9 +105,9 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ formData, setFormData, 
                 </div>
 
                 <button
-                    onClick={onSave}
+                    onClick={handleSaveProfile}
                     disabled={isSaving}
-                    className="bg-black text-white px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-green-600 transition-all disabled:cursor-wait disabled:opacity-50"
+                    className="bg-black text-white px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all disabled:cursor-wait disabled:opacity-50"
                 >
                     {isSaving ? <><i className="fas fa-spinner fa-spin mr-2"></i> Salvando...</> : 'Salvar'}
                 </button>

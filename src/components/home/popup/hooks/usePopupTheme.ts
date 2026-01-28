@@ -18,7 +18,7 @@ export const usePopupTheme = (
     const overlayPresetClass = useMemo(() => getOverlayPresetClass(overlayPreset), [overlayPreset]);
     const videoFrame = useMemo(() => getVideoFrameById(videoFramePreset), [videoFramePreset]);
     const mediaFilterClass = useMemo(
-        () => getMediaFilterCss(mediaFilter, mediaFilterVariant),
+        () => getMediaFilterCss(mediaFilter as any, mediaFilterVariant as any),
         [mediaFilter, mediaFilterVariant]
     );
 

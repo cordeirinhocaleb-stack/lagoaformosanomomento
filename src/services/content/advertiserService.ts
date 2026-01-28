@@ -6,8 +6,21 @@ export const upsertAdvertiser = async (advertiser: Advertiser): Promise<Advertis
     const supabase = getSupabase();
     if (!supabase) { return null; }
     const payload = mapAdvertiserToDb(advertiser);
+
+    console.log("🔄 Upserting Advertiser:", {
+        incomingId: advertiser.id,
+        payloadId: payload.id,
+        payloadName: payload.name
+    });
+
     const { data, error } = await supabase.from('advertisers').upsert(payload).select().single();
-    if (error) { throw error; }
+
+    if (error) {
+        console.error("❌ Upsert Error:", error);
+        throw error;
+    }
+
+    console.log("✅ Upsert Success. Returned ID:", data?.id);
     return mapAdvertiserFromDb(data);
 };
 
@@ -54,3 +67,15 @@ export const incrementAdvertiserClick = async (id: string): Promise<void> => {
         await supabase.from('advertisers').update({ clicks: (data.clicks || 0) + 1 }).eq('id', id);
     }
 };
+
+export const incrementAdvertiserView = async (id: string): Promise<void> => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    // Fetch current views
+    const { data } = await supabase.from('advertisers').select('views').eq('id', id).single();
+    if (data) {
+        await supabase.from('advertisers').update({ views: (data.views || 0) + 1 }).eq('id', id);
+    }
+};
+

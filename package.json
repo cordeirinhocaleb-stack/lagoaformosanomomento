@@ -15,12 +15,12 @@
     "lint:fix": "next lint --fix",
     "checkup": "eslint -c .eslintrc.cjs src --fix",
     "dup": "npx jscpd src",
-    "agent": "node agent-wrapper.js",
-    "agents:comandos": "node agent-wrapper.js !comandos",
-    "agents:contexto": "node agent-wrapper.js !contexto",
-    "agents:inventario": "node agent-wrapper.js !inventario",
-    "agents:auditoria": "node agent-wrapper.js !auditoria",
-    "agents:documentacao": "node agent-wrapper.js !documentacao",
+    "agent": "npx tsx node_modules/wegho-agentes/.agents/cli.ts",
+    "agents:comandos": "npx tsx node_modules/wegho-agentes/.agents/cli.ts !comandos",
+    "agents:contexto": "npx tsx node_modules/wegho-agentes/.agents/cli.ts !iniciar contexto",
+    "agents:inventario": "npx tsx node_modules/wegho-agentes/.agents/cli.ts !escanear",
+    "agents:auditoria": "npx tsx node_modules/wegho-agentes/.agents/cli.ts !rever codigo",
+    "agents:documentacao": "npx tsx node_modules/wegho-agentes/.agents/cli.ts !comandos",
     "task": "npx tsx diagnose_inventory_v2.ts"
   },
   "dependencies": {
@@ -43,7 +43,7 @@
     "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.4.0",
     "uuid": "^13.0.0",
-    "wegho-agentes": "^5.0.0"
+    "wegho-agentes": "^6.1.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdPricingConfig, AdPlan, User } from '@/types';
 import { userPurchaseItem } from '@/services/supabaseService';
 import lfnmCoin from '@/assets/lfnm_coin.png';
+import PixRechargeModal from './MyAccountModal/components/PixRechargeModal';
 
 interface PricingModalProps {
     config: AdPricingConfig;
@@ -15,6 +16,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
     const [activeCycle, setActiveCycle] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
     const [isProcessing, setIsProcessing] = useState(false);
     const [hiddenPlans, setHiddenPlans] = useState<Set<string>>(new Set());
+    const [showPixModal, setShowPixModal] = useState(false);
 
     const isAdmin = user && ['Admin', 'Administrador', 'Desenvolvedor'].includes(user.role);
 
@@ -28,6 +30,12 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
             }
             return newSet;
         });
+    };
+
+    const handleCommercialContact = () => {
+        const number = ("(34) 999123-4567").replace(/\D/g, ''); // Placeholder: should come from settings if possible
+        const message = "Olá! Tenho dúvidas sobre os planos de anúncio e gostaria de falar com um consultor.";
+        window.open(`https://wa.me/55${number}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     useEffect(() => {
@@ -59,8 +67,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
     };
 
     return (
-        <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-fadeIn">
-            {/* Styles for animations */}
+        <div className="fixed inset-0 z-[7000] bg-[#050505]/95 backdrop-blur-2xl flex items-center justify-center p-0 md:p-4 animate-fadeIn">
             <style>{`
                 @keyframes spin-3d {
                     0% { transform: rotateY(0deg); }
@@ -72,66 +79,60 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
                 }
             `}</style>
 
-            {/* Área de clique externa para fechar */}
             <div className="absolute inset-0 cursor-pointer" onClick={onClose}></div>
 
-            {/* BOTÃO FECHAR FIXO SUPERIOR */}
             <button
                 onClick={onClose}
-                className="fixed top-6 right-6 md:top-10 md:right-10 z-[7100] w-10 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl border border-white/20 group backdrop-blur-md active:scale-95"
+                className="fixed top-4 right-4 md:top-10 md:right-10 z-[7100] w-12 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center transition-all duration-500 shadow-2xl border border-white/20 group backdrop-blur-md active:scale-95"
             >
-                <i className="fas fa-times text-xl md:text-2xl group-hover:rotate-90 transition-transform duration-300"></i>
-                <span className="text-[7px] font-black uppercase tracking-widest mt-1 hidden md:block">Fechar</span>
+                <i className="fas fa-times text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+                <span className="text-[6px] font-black uppercase tracking-[0.2em] mt-1 hidden md:block">Fechar</span>
             </button>
 
-            <div className="w-full max-w-7xl h-full max-h-[92vh] overflow-y-auto custom-scrollbar relative z-10 pointer-events-none">
-                <div className="text-center mb-6 pt-4 md:pt-8 pointer-events-auto">
-                    <h2 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter text-white mb-1">
+            <div className="w-full max-w-7xl h-full max-h-screen md:max-h-[94vh] overflow-y-auto custom-scrollbar relative z-10 pointer-events-none bg-transparent">
+                <div className="text-center mb-10 pt-16 md:pt-14 pointer-events-auto px-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-red-600/10 border border-red-500/20 rounded-full mb-4 animate-bounce">
+                        <i className="fas fa-star text-red-500 text-[10px]"></i>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-red-500">Mídia Kit 2026</span>
+                    </div>
+
+                    <h2 className="text-4xl md:text-6xl font-[1000] uppercase italic tracking-tighter text-white mb-4 leading-none select-none">
                         Destaque sua <span className="text-red-600">Marca</span>
                     </h2>
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[9px] md:text-[10px] max-w-2xl mx-auto px-4 leading-tight">
-                        Escolha o plano ideal para o seu negócio e apareça no maior portal da região.
+                    <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs max-w-2xl mx-auto leading-relaxed">
+                        Escolha o plano ideal para o seu negócio e apareça no maior portal de notícias do <span className="text-white">Alto Paranaíba</span>.
                     </p>
 
-
-
-                    <div className="mt-4 flex justify-center px-4">
-                        <div className="bg-zinc-900/50 p-1 rounded-2xl flex items-center flex-wrap justify-center gap-1 border border-white/5 backdrop-blur-md scale-95">
-                            <button
-                                onClick={() => setActiveCycle('daily')}
-                                className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeCycle === 'daily' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                Diário
-                            </button>
-                            <button
-                                onClick={() => setActiveCycle('weekly')}
-                                className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeCycle === 'weekly' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                Semanal
-                            </button>
-                            <button
-                                onClick={() => setActiveCycle('monthly')}
-                                className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeCycle === 'monthly' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                Mensal
-                            </button>
-                            <button
-                                onClick={() => setActiveCycle('yearly')}
-                                className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeCycle === 'yearly' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                Anual
-                            </button>
+                    <div className="mt-8 flex justify-center sticky top-0 z-50">
+                        <div className="bg-zinc-900/80 p-1.5 rounded-[2rem] flex items-center flex-wrap justify-center gap-1 border border-white/10 backdrop-blur-xl shadow-2xl">
+                            {[
+                                { id: 'daily', label: 'Diário' },
+                                { id: 'weekly', label: 'Semanal' },
+                                { id: 'monthly', label: 'Mensal' },
+                                { id: 'yearly', label: 'Anual' }
+                            ].map(cycle => (
+                                <button
+                                    key={cycle.id}
+                                    onClick={() => setActiveCycle(cycle.id as any)}
+                                    className={`px-6 py-3 rounded-full text-[10px] font-[1000] uppercase tracking-widest transition-all ${activeCycle === cycle.id
+                                        ? 'bg-red-600 text-white shadow-[0_8px_20px_rgba(220,38,38,0.4)] scale-105'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    {cycle.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 pb-12 justify-center pointer-events-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6 md:px-10 pb-12 justify-center pointer-events-auto">
 
                     {config.plans.map((plan) => {
                         const isHidden = hiddenPlans.has(plan.id);
                         if (isHidden && !isAdmin) return null;
 
-                        const isMaster = plan.features.placements.includes('master_carousel');
+                        const isMaster = plan.id.toLowerCase().includes('master') || plan.features.placements.includes('master_carousel');
                         const isPopular = plan.isPopular || isMaster;
 
                         let currentPrice = 0;
@@ -167,189 +168,119 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
                         return (
                             <div
                                 key={plan.id}
-                                className={`relative rounded-[2.5rem] p-8 flex flex-col transition-transform duration-500 hover:scale-[1.02] border ${isHidden ? 'opacity-50' : ''} ${isMaster
-                                    ? 'bg-black text-white border-zinc-800 shadow-[0_0_40px_rgba(220,38,38,0.2)]'
-                                    : 'bg-white text-zinc-900 border-gray-100 shadow-xl'
+                                className={`relative rounded-[3rem] p-10 flex flex-col transition-all duration-500 hover:scale-[1.03] group border ${isHidden ? 'opacity-50' : ''} ${isMaster
+                                    ? 'bg-zinc-950 text-white border-zinc-800 shadow-[0_0_60px_rgba(220,38,38,0.1)]'
+                                    : 'bg-white text-zinc-900 border-gray-100 shadow-2xl'
                                     }`}
                             >
-                                {/* Admin Controls */}
+                                {/* Master Skew Highlight */}
+                                {isMaster && (
+                                    <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem]"></div>
+                                )}
+
                                 {isAdmin && (
                                     <button
                                         onClick={() => togglePlanVisibility(plan.id)}
-                                        className="absolute top-4 left-4 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all group"
-                                        title={isHidden ? 'Mostrar plano' : 'Ocultar plano'}
+                                        className="absolute top-6 left-6 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-red-600 border border-white/20 flex items-center justify-center transition-all"
                                     >
-                                        <i className={`fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'} text-xs ${isHidden ? 'text-red-500' : 'text-white'}`}></i>
+                                        <i className={`fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'} text-[10px]`}></i>
                                     </button>
                                 )}
 
-                                {/* Hidden Badge for Admins */}
-                                {isAdmin && isHidden && (
-                                    <div className="absolute top-4 left-14 bg-red-600/90 text-white text-[8px] font-black uppercase px-2 py-1 rounded shadow-lg z-10">
-                                        Oculto
-                                    </div>
-                                )}
                                 {isPopular && (
-                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black uppercase px-4 py-2 rounded-bl-2xl shadow-lg z-10">
-                                        {isMaster ? 'Mais Vendido' : 'Popular'}
+                                    <div className="absolute top-0 right-10 bg-red-600 text-white text-[9px] font-black uppercase px-5 py-2.5 rounded-b-2xl shadow-xl z-10 animate-pulse">
+                                        {isMaster ? 'Top Tier' : 'Popular'}
                                     </div>
                                 )}
 
-                                <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${isMaster ? 'from-red-600 to-red-800' : 'from-gray-200 to-gray-400'}`}></div>
-
-                                <div className="mb-6 mt-2">
-                                    <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                                        {isMaster ? <i className="fas fa-crown text-yellow-400 text-lg"></i> : <i className="fas fa-star text-blue-500 text-lg"></i>}
+                                <div className="mb-8 mt-4">
+                                    <h3 className="text-2xl font-[1000] uppercase italic tracking-tighter flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isMaster ? 'bg-red-600' : 'bg-zinc-100'}`}>
+                                            {isMaster ? <i className="fas fa-crown text-white text-sm"></i> : <i className="fas fa-bolt text-red-600 text-sm"></i>}
+                                        </div>
                                         {plan.name}
                                     </h3>
-                                    <p className={`text-[10px] font-bold uppercase tracking-widest mt-2 ${isMaster ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                                        {plan.description || 'Plano de visibilidade'}
+                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-3 leading-relaxed opacity-60`}>
+                                        {plan.description || 'Impulsione sua presença agora'}
                                     </p>
                                 </div>
 
-                                <div className="mb-8 pb-8 border-b border-dashed border-zinc-200/20">
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-sm font-black mr-1">LFNM</span>
-                                        <span className="text-4xl font-black">{currentPrice}</span>
-                                        <span className={`font-bold text-xs ${isMaster ? 'text-zinc-500' : 'text-zinc-400'}`}>{periodLabel}</span>
+                                <div className="mb-10 pb-10 border-b border-dashed border-zinc-200/20">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-sm font-black opacity-50">LFNM</span>
+                                        <span className="text-5xl font-[1000] tracking-tighter italic">{currentPrice}</span>
+                                        <span className={`font-black text-xs uppercase opacity-40`}>{periodLabel}</span>
                                     </div>
 
-                                    {activeCycle !== 'daily' && (
-                                        <div className={`text-[10px] font-bold uppercase mt-1 ${isMaster ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                                            Equivale a LFNM {dailyEquivalent.toFixed(2)}/dia
-                                        </div>
-                                    )}
-
                                     {discountPercent > 0 && (
-                                        <div className="mt-3 text-[10px] font-bold uppercase text-green-500 bg-green-500/10 inline-block px-2 py-1 rounded">
-                                            {discountPercent}% OFF vs Diário
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <div className="bg-green-500/10 text-green-500 text-[9px] font-black uppercase px-3 py-1 rounded-full border border-green-500/20">
+                                                Economia de {discountPercent}%
+                                            </div>
                                         </div>
                                     )}
-
-                                    {plan.cashbackPercent && plan.cashbackPercent > 0 ? (
-                                        <div className={`mt-3 flex items-center gap-2 px-3 py-1 rounded-lg w-fit ${isMaster ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-700'}`}>
-                                            <img src={lfnmCoin.src} className="w-3 h-3 object-contain grayscale opacity-70" alt="Cashback" />
-                                            <span className="text-[10px] font-black uppercase">Cashback {plan.cashbackPercent}%</span>
-                                        </div>
-                                    ) : null}
                                 </div>
 
-                                <ul className="space-y-4 mb-8 flex-1">
-                                    <li className="flex items-start gap-3 text-xs font-bold">
-                                        <i className={`fas fa-check mt-0.5 ${isMaster ? 'text-red-500' : 'text-green-500'}`}></i>
-                                        <div className={isMaster ? 'text-zinc-300' : 'text-zinc-600'}>
-                                            Exibição em:
-                                            <ul className="mt-1 space-y-1">
-                                                {plan.features.placements.map(p => (
-                                                    <li key={p} className={`text-[10px] uppercase px-2 py-0.5 rounded w-fit ${isMaster ? 'bg-zinc-800 text-white' : 'bg-zinc-100 text-black'}`}>
-                                                        {getPlacementLabel(p)}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </li>
+                                <ul className="space-y-5 mb-10 flex-1">
+                                    {plan.features.placements.map(p => (
+                                        <li key={p} className="flex items-center gap-3">
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${isMaster ? 'bg-red-500/20 text-red-500' : 'bg-green-100 text-green-600'}`}>
+                                                <i className="fas fa-check text-[10px]"></i>
+                                            </div>
+                                            <span className={`text-[11px] font-black uppercase tracking-tight ${isMaster ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                                {getPlacementLabel(p)}
+                                            </span>
+                                        </li>
+                                    ))}
 
                                     {plan.features.videoLimit && plan.features.videoLimit > 0 ? (
-                                        <li className="flex items-start gap-3 text-xs font-bold">
-                                            <i className="fas fa-video mt-0.5 text-blue-500"></i>
-                                            <span className={isMaster ? 'text-zinc-300' : 'text-zinc-600'}>
-                                                {plan.features.videoLimit} Vídeos Comerciais / Mês
+                                        <li className="flex items-center gap-3">
+                                            <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                                <i className="fas fa-video text-[10px]"></i>
+                                            </div>
+                                            <span className={`text-[11px] font-black uppercase tracking-tight ${isMaster ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                                {plan.features.videoLimit} Vídeos Mensais
                                             </span>
                                         </li>
                                     ) : null}
 
-                                    {plan.features.socialFrequency && (
-                                        <li className="flex items-start gap-3 text-xs font-bold">
-                                            <i className="fas fa-bullhorn mt-0.5 text-pink-500"></i>
-                                            <span className={isMaster ? 'text-zinc-300' : 'text-zinc-600'}>
-                                                Divulgação nas Redes: <span className="uppercase">{getFrequencyLabel(plan.features.socialFrequency)}</span>
+                                    {plan.features.canCreateJobs && (
+                                        <li className="flex items-center gap-3">
+                                            <div className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                                                <i className="fas fa-user-plus text-[10px]"></i>
+                                            </div>
+                                            <span className={`text-[11px] font-black uppercase tracking-tight ${isMaster ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                                Oferta de Vagas
                                             </span>
                                         </li>
                                     )}
-
-                                    <li className="flex items-start gap-3 text-xs font-bold">
-                                        <i className={`fas ${plan.features.maxProducts === 0 || plan.features.maxProducts > 0 ? 'fa-check' : 'fa-times'} mt-0.5 ${isMaster ? 'text-red-500' : 'text-green-500'}`}></i>
-                                        <span className={isMaster ? 'text-zinc-300' : 'text-zinc-600'}>
-                                            {plan.features.maxProducts === 0
-                                                ? 'Produtos Ilimitados na Vitrine'
-                                                : plan.features.maxProducts > 0
-                                                    ? `Até ${plan.features.maxProducts} Produtos na Vitrine`
-                                                    : 'Sem Vitrine de Produtos'}
-                                        </span>
-                                    </li>
-
-                                    <li className={`flex items-start gap-3 text-xs font-bold ${!plan.features.canCreateJobs ? 'opacity-50' : ''}`}>
-                                        <i className={`fas ${plan.features.canCreateJobs ? 'fa-check' : 'fa-times'} mt-0.5 ${plan.features.canCreateJobs ? (isMaster ? 'text-red-500' : 'text-green-500') : 'text-zinc-400'}`}></i>
-                                        <span className={isMaster ? 'text-zinc-300' : 'text-zinc-600'}>Publicação de Vagas</span>
-                                    </li>
-
-                                    <li className="flex items-start gap-3 text-xs font-bold">
-                                        <i className={`fas fa-share-alt mt-0.5 ${isMaster ? 'text-red-500' : 'text-green-500'}`}></i>
-                                        <span className={isMaster ? 'text-zinc-300' : 'text-zinc-600'}>
-                                            {plan.features.allowedSocialNetworks.length > 0
-                                                ? `Redes: ${plan.features.allowedSocialNetworks.join(', ').replace('instagram', 'Insta').replace('facebook', 'Face')}`
-                                                : 'Sem divulgação social'}
-                                        </span>
-                                    </li>
                                 </ul>
 
                                 <button
                                     disabled={isProcessing}
                                     onClick={async () => {
-                                        if (!user) {
-                                            onSelectPlan(plan.id);
-                                            return;
-                                        }
-
+                                        if (!user) { onSelectPlan(plan.id); return; }
                                         if ((user.siteCredits || 0) < currentPrice) {
-                                            alert(`Saldo insuficiente! Você tem LFNM ${(user.siteCredits || 0).toFixed(2)} mas este plano custa LFNM ${currentPrice.toFixed(2)}.`);
+                                            if (confirm(`Saldo insuficiente! Deseja carregar via PIX?`)) { setShowPixModal(true); }
                                             return;
                                         }
-
-                                        if (!confirm(`Confirmar assinatura do plano ${plan.name} por LFNM ${currentPrice.toFixed(2)}? \nIsso descontará do seu saldo na carteira virtual.`)) { return; }
-
+                                        if (!confirm(`Confirmar assinatura: ${plan.name}?`)) { return; }
                                         setIsProcessing(true);
                                         try {
-                                            // Calculate Cashback
-                                            const cashbackValue = (plan.cashbackPercent && plan.cashbackPercent > 0)
-                                                ? (currentPrice * (plan.cashbackPercent / 100))
-                                                : 0;
-
-                                            const res = await userPurchaseItem(
-                                                user.id,
-                                                'plan',
-                                                plan.id,
-                                                currentPrice,
-                                                plan.name,
-                                                { maxProducts: plan.features.maxProducts, videoLimit: plan.features.videoLimit },
-                                                cashbackValue
-                                            );
-
+                                            const cashbackValue = (plan.cashbackPercent && plan.cashbackPercent > 0) ? (currentPrice * (plan.cashbackPercent / 100)) : 0;
+                                            const res = await userPurchaseItem(user.id, 'plan', plan.id, currentPrice, plan.name, { maxProducts: plan.features.maxProducts, videoLimit: plan.features.videoLimit }, cashbackValue);
                                             if (res.success && res.updatedUser) {
-                                                alert(res.message);
-                                                if (onUpdateUser && user) {
-                                                    onUpdateUser({ ...user, ...res.updatedUser } as User);
-                                                }
+                                                if (onUpdateUser && user) { onUpdateUser({ ...user, ...res.updatedUser } as User); }
                                                 onClose();
-                                            } else {
-                                                alert(res.message);
                                             }
-                                        } catch (error) {
-                                            alert("Erro ao processar.");
-                                        } finally {
-                                            setIsProcessing(false);
-                                        }
+                                        } finally { setIsProcessing(false); }
                                     }}
-                                    className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${user && (user.siteCredits || 0) >= currentPrice
-                                        ? 'bg-green-600 text-white hover:bg-white hover:text-green-600'
-                                        : 'bg-red-600 text-white hover:bg-white hover:text-red-600'
+                                    className={`w-full py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all transform active:scale-95 shadow-xl ${isMaster
+                                        ? 'bg-red-600 text-white hover:bg-white hover:text-red-600 shadow-red-600/30'
+                                        : 'bg-black text-white hover:bg-red-600 shadow-black/20'
                                         }`}
                                 >
-                                    {isProcessing ? 'Processando...' : (
-                                        user
-                                            ? ((user.siteCredits || 0) >= currentPrice ? `Comprar com Créditos` : `Saldo Insuficiente`)
-                                            : `Selecionar ${plan.name}`
-                                    )}
+                                    {isProcessing ? 'Processando...' : (user ? 'Assinar Agora' : 'Selecionar ' + plan.name)}
                                 </button>
                             </div>
                         );
@@ -357,18 +288,37 @@ const PricingModal: React.FC<PricingModalProps> = ({ config, onClose, onSelectPl
 
                 </div>
 
-                <div className="mt-8 text-center pb-20 pointer-events-auto">
-                    <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-widest mb-6">
-                        Pagamento via PIX ou Cartão de Crédito. Cancelamento a qualquer momento.
-                    </p>
-                    <button
-                        onClick={onClose}
-                        className="text-white/40 hover:text-white text-[10px] font-black uppercase tracking-[0.3em] underline underline-offset-8 transition-colors"
-                    >
-                        Não tenho interesse agora
-                    </button>
+                <div className="mt-8 mb-20 px-6 max-w-2xl mx-auto pointer-events-auto">
+                    <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10 text-center flex flex-col items-center gap-4">
+                        <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center shadow-2xl shadow-red-600/40 -rotate-6">
+                            <i className="fas fa-headset text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Ainda tem dúvidas?</h3>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Nossa equipe comercial está pronta para te ajudar a escolher a melhor estratégia.</p>
+                        </div>
+                        <button
+                            onClick={handleCommercialContact}
+                            className="mt-2 px-10 py-4 bg-white text-black hover:bg-green-500 hover:text-white rounded-full font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 group"
+                        >
+                            <i className="fab fa-whatsapp text-lg"></i>
+                            Falar com um Consultor
+                            <i className="fas fa-arrow-right text-[10px] translate-x-0 group-hover:translate-x-2 transition-transform"></i>
+                        </button>
+                    </div>
+
+                    <div className="mt-12 text-center opacity-30">
+                        <button onClick={onClose} className="text-white text-[9px] font-black uppercase tracking-[0.4em] hover:opacity-100 transition-opacity">
+                            Fechar Mídia Kit
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <PixRechargeModal
+                isOpen={showPixModal}
+                onClose={() => setShowPixModal(false)}
+            />
         </div>
     );
 };

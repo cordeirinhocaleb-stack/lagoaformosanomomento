@@ -16,12 +16,31 @@ export interface Job {
     whatsapp?: string;
 }
 
+export interface PaymentMethod {
+    id: string;
+    type: 'pix' | 'bank_transfer' | 'boleto';
+    label: string;
+    config: {
+        pixKey?: string;
+        merchantName?: string;
+        merchantCity?: string;
+        bankName?: string;
+        agency?: string;
+        account?: string;
+        ownerName?: string;
+        ownerDocument?: string;
+    };
+    interestRate?: number; // Juros por parcela extra
+    maxInstallments?: number;
+}
+
 export interface SystemSettings {
     jobsModuleEnabled: boolean;
     enableOmnichannel: boolean;
     maintenanceMode: boolean;
     registrationEnabled: boolean;
     purchasingEnabled?: boolean;
+    enableInterestBilling?: boolean; // Toggle for showing/calculating interest
     tickerMessage?: string;
     footer?: {
         phone?: string;
@@ -49,6 +68,25 @@ export interface SystemSettings {
         };
         cloudName?: string;
         uploadPreset?: string;
+    };
+    paymentMethods?: PaymentMethod[];
+    pixConfig?: {
+        key: string;
+        merchantName: string;
+        merchantCity: string;
+    };
+    boletoConfig?: {
+        bankName: string;
+        bankCode?: string; // Novo campo: Código do Banco (ex: 341)
+        agency: string;
+        account: string;
+        ownerName: string;
+        ownerDocument: string;
+    };
+    financeSecurity?: {
+        isLocked: boolean;
+        pinHash?: string; // Simples para MVP, idealmente hash real
+        lockedBy?: string; // ID do usuário que trancou
     };
 }
 
@@ -113,10 +151,8 @@ export const checkPermission = (user: User | null, permission: string): boolean 
     const role = (user.role || '').toLowerCase();
     const isHighPrivilege =
         role.includes('admin') ||
-        role.includes('chefe') ||
         role.includes('desenvolvedor') ||
-        role.includes('dev') ||
-        role.includes('editor');
+        role.includes('dev');
 
     if (isHighPrivilege) { return true; }
 

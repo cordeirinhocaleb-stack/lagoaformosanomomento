@@ -15,6 +15,8 @@ import { ArchitectureAgent } from './core/architecture-agent.js';
 import { QualityAgent } from './core/quality-agent.js';
 import { DocumentationAgent } from './core/documentation-agent.js';
 import { InventoryAgent } from './core/inventory-agent.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Domain Agents
 import { CMSAgent } from './domains/news/cms-agent.js';
@@ -257,7 +259,7 @@ export class IntelligentOrchestrator {
 
         try {
             const context: TaskContext = {
-                files: this.extractFilesForAgent(assignment.agentName, analysis),
+                files: await this.extractFilesForAgent(assignment.agentName, analysis),
                 areas: analysis.detectedAreas,
                 complexity: analysis.complexity,
             };
@@ -415,10 +417,41 @@ export class IntelligentOrchestrator {
     /**
      * Extrai arquivos relevantes para um agente
      */
-    private extractFilesForAgent(agentName: string, analysis: TaskAnalysis): string[] {
-        // Implementação simplificada - em produção seria mais sofisticado
-        // Por enquanto, retorna lista vazia (agentes usarão arquivos do contexto geral)
-        return [];
+    async extractFilesForAgent(agentName: string, analysis: TaskAnalysis): Promise<string[]> {
+        const taskDesc = analysis.taskDescription.toLowerCase();
+        const rootDir = process.cwd();
+        const srcDir = path.join(rootDir, 'src');
+
+        const files: string[] = [];
+
+        try {
+            this.recursiveFind(srcDir, files);
+        } catch (e) {
+            console.error('Error scanning files:', e);
+        }
+
+        if (taskDesc.includes('admin')) {
+            return files.filter(f => f.includes('admin'));
+        }
+
+        return files;
+    }
+
+    private recursiveFind(dir: string, fileList: string[]) {
+        if (!fs.existsSync(dir)) return;
+        const files = fs.readdirSync(dir);
+        for (const file of files) {
+            const filePath = path.join(dir, file);
+            if (fs.statSync(filePath).isDirectory()) {
+                if (file !== 'node_modules') {
+                    this.recursiveFind(filePath, fileList);
+                }
+            } else {
+                if (file.endsWith('.ts') || file.endsWith('.tsx')) {
+                    fileList.push(filePath);
+                }
+            }
+        }
     }
 
     /**

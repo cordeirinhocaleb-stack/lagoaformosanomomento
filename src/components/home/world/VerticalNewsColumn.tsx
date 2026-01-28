@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { CATEGORY_IMAGES } from '../../../services/geminiService';
 
 interface VerticalNewsColumnProps {
     title: string;
@@ -7,13 +8,7 @@ interface VerticalNewsColumnProps {
     theme: 'green' | 'blue' | 'orange' | 'purple';
 }
 
-const CATEGORY_FALLBACKS: Record<string, string> = {
-    'Política': 'https://placehold.co/600x400/1a1a1a/FFF?text=Politica',
-    'Agronegócio': 'https://placehold.co/600x400/166534/FFF?text=Agro',
-    'Tecnologia': 'https://placehold.co/600x400/2563eb/FFF?text=Tech',
-    'Economia': 'https://placehold.co/600x400/0f172a/FFF?text=Economia',
-    'Mundo': 'https://placehold.co/600x400/475569/FFF?text=Mundo'
-};
+
 
 const THEME_CONFIG = {
     green: { accent: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100', mainBorder: 'border-green-600', hover: 'group-hover:border-green-300', badgeBg: 'bg-green-100', badgeText: 'text-green-800' },
@@ -63,9 +58,11 @@ const VerticalNewsColumn: React.FC<VerticalNewsColumnProps> = ({ title, items, t
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                 onError={(e) => {
                                     e.currentTarget.onerror = null;
-                                    e.currentTarget.src = CATEGORY_FALLBACKS[title] || "https://placehold.co/600x400?text=News";
+                                    e.currentTarget.src = CATEGORY_IMAGES[title] || "https://placehold.co/600x400?text=News";
                                 }}
+                                referrerPolicy="no-referrer"
                             />
+
                             <span className={`absolute top-2 left-2 ${styles.badgeBg} ${styles.badgeText} text-[8px] font-black uppercase px-2 py-1 rounded-md tracking-widest z-10 shadow-sm`}>
                                 {item.sourceName}
                             </span>

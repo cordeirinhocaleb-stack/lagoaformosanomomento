@@ -13,11 +13,12 @@ interface UserPOSPanelProps {
     adConfig?: AdPricingConfig;
     onUpdateUser: (updates: Partial<User>) => void;
     darkMode?: boolean;
+    onOpenPix?: () => void;
 }
 
 
 
-const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUser, darkMode = false }) => {
+const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUser, darkMode = false, onOpenPix }) => {
     const [cartItems, setCartItems] = useState<MarketItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -308,7 +309,13 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
         const currentBalance = user.siteCredits || 0;
 
         if (currentBalance < totalCost) {
-            alert(`Saldo insuficiente. Necessário: C$ ${totalCost.toFixed(2)}. Atual: C$ ${currentBalance.toFixed(2)}.`);
+            if (onOpenPix) {
+                if (confirm(`Saldo insuficiente (C$ ${currentBalance.toFixed(2)}). Deseja recarregar via PIX agora?`)) {
+                    onOpenPix();
+                }
+            } else {
+                alert(`Saldo insuficiente. Necessário: C$ ${totalCost.toFixed(2)}. Atual: C$ ${currentBalance.toFixed(2)}.`);
+            }
             return;
         }
 
@@ -636,6 +643,16 @@ const UserPOSPanel: React.FC<UserPOSPanelProps> = ({ user, adConfig, onUpdateUse
                                 {isLoading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-check-circle"></i>}
                                 {finalBalance < 0 ? 'Saldo Insuficiente' : 'Finalizar Compra'}
                             </button>
+
+                            {finalBalance < 0 && onOpenPix && (
+                                <button
+                                    onClick={onOpenPix}
+                                    className="w-full mt-2 py-2 rounded-xl text-[9px] font-black uppercase text-red-600 border border-red-100 hover:bg-red-50 transition-all animate-pulse"
+                                >
+                                    <i className="fab fa-pix mr-2"></i>
+                                    Recarregar via PIX
+                                </button>
+                            )}
                         </div>
 
                         {isDragOver && (

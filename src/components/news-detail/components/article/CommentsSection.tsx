@@ -48,8 +48,12 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ newsId, user, onLogin
                 {user ? (
                     <form onSubmit={handleSubmit} className="relative z-10">
                         <div className="flex flex-col md:flex-row items-start gap-4 mb-4">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-black flex items-center justify-center text-white font-black uppercase shadow-xl shrink-0 border-2 border-white dark:border-zinc-700">
-                                {user.name.charAt(0)}
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-white font-black uppercase shadow-xl shrink-0 border-2 border-white dark:border-zinc-700 overflow-hidden">
+                                {user.avatar || user.avatar_url ? (
+                                    <img src={user.avatar || user.avatar_url} className="w-full h-full object-cover" />
+                                ) : (
+                                    user.name.charAt(0)
+                                )}
                             </div>
                             <div className="flex-1 w-full">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest mb-2 text-zinc-400">

@@ -1,6 +1,7 @@
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { NewsItem, Advertiser, User, AdPricingConfig } from '@/types';
+import { CATEGORY_IMAGES } from '../../services/geminiService';
 
 // Componentes da Home (Modulares)
 import CategoryMenu, { RegionFilterType } from '@/components/layout/CategoryMenu';
@@ -11,6 +12,7 @@ import WorldNewsGrid from '@/components/home/WorldNewsGrid';
 import LazyBlock from '@/components/common/LazyBlock';
 import DailyBread from '@/components/news/DailyBread';
 import PartnersStrip from '@/components/home/PartnersStrip';
+import InstagramFeed from '@/components/home/InstagramFeed';
 import DebugOverlay from '@/components/common/DebugOverlay';
 // PromoPopup removido da importação e uso
 
@@ -19,7 +21,8 @@ interface HomeProps {
     advertisers: Advertiser[];
     user: User | null;
     onNewsClick: (item: NewsItem) => void;
-    onAdvertiserClick: (ad: Advertiser) => void;
+    onAdvertiserClick: (adOrId: Advertiser | string) => void;
+    onAdvertiserView: (adId: string) => void;
     onAdminClick: () => void;
     onPricingClick: () => void;
     onJobsClick: () => void;
@@ -40,7 +43,7 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({
-    news, advertisers, user, onNewsClick, onAdvertiserClick, onAdminClick, onPricingClick, onJobsClick, adConfig, externalCategories = {},
+    news, advertisers, user, onNewsClick, onAdvertiserClick, onAdvertiserView, onAdminClick, onPricingClick, onJobsClick, adConfig, externalCategories = {},
     selectedCategory, onSelectCategory, selectedRegion, onSelectRegion, shouldScrollToGrid, onScrollConsumed,
     contractBanners
 }) => {
@@ -87,17 +90,36 @@ const Home: React.FC<HomeProps> = ({
     // --- 1. UNIFICAÇÃO DE FONTES DE NOTÍCIAS ---
     const allMixedNews = useMemo(() => {
         const convertedExternalNews: NewsItem[] = [];
+        const seenTitles = new Set<string>();
 
-        Object.entries(externalCategories).forEach(([catKey, items]) => {
+        // 1. Processar Notícias do Banco (news) primeiro
+        const processedInternalNews = news.map(n => {
+            const titleNormalized = n.title.trim().toLowerCase();
+            seenTitles.add(titleNormalized);
+
+            // Fallback de imagem para internos que sejam puxados e estejam sem imagem
+            if (!n.imageUrl && ((n as any).image_url === null || !(n as any).image_url)) {
+                return {
+                    ...n,
+                    imageUrl: CATEGORY_IMAGES[n.category] || CATEGORY_IMAGES['Geral']
+                };
+            }
+            return n;
+        });
+
+        // 2. Processar Notícias Externas (puxadas agora)
+        Object.entries(externalCategories || {}).forEach(([catKey, items]) => {
             if (Array.isArray(items)) {
                 items.forEach((item: any, idx: number) => {
+                    const titleNormalized = (item.title || '').trim().toLowerCase();
+                    if (seenTitles.has(titleNormalized)) return; // Evita duplicação
+                    seenTitles.add(titleNormalized);
+
                     let normalizedCategory = catKey;
-                    if (catKey === 'Agronegócio') { normalizedCategory = 'Agro'; }
+                    if (catKey === 'Agronegócio' || catKey === 'Agro') { normalizedCategory = 'Agro'; }
                     if (catKey === 'Cultura' || catKey === 'Pop & Arte') { normalizedCategory = 'Cultura'; }
                     if (catKey === 'Cotidiano') { normalizedCategory = 'Cotidiano'; }
 
-                    // Gera ID determinístico para evitar re-renderizações e warnings
-                    // Se o título estiver vazio, usa um fallback para evitar null
                     const titleStr = item.title || 'SemTitulo';
                     const safeTitle = titleStr.substring(0, 10).replace(/[^a-zA-Z0-9]/g, '');
 
@@ -111,7 +133,7 @@ const Home: React.FC<HomeProps> = ({
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString(),
                         status: 'published',
-                        imageUrl: item.imageUrl || item.image_url,
+                        imageUrl: item.imageUrl || item.image_url || CATEGORY_IMAGES[catKey] || CATEGORY_IMAGES['Geral'],
                         bannerMediaType: 'image',
                         mediaType: 'image',
                         isBreaking: false,
@@ -137,14 +159,14 @@ const Home: React.FC<HomeProps> = ({
             }
         });
 
-        return [...news, ...convertedExternalNews];
+        return [...processedInternalNews, ...convertedExternalNews];
     }, [news, externalCategories]);
 
-    // Filtragem de Anunciantes do Topo + Randomização
+    // Filtragem de Anunciantes do Topo (Mantém ordem estável para evitar saltos no carrossel)
     const topAds = useMemo(() => {
         return advertisers
             .filter(ad => !ad.displayLocations || ad.displayLocations.includes('home_top'))
-            .sort(() => Math.random() - 0.5);
+            .filter(ad => ad.isActive);
     }, [advertisers]);
 
     // --- 2. LÓGICA DE FILTRAGEM UNIFICADA ---
@@ -260,6 +282,20 @@ const Home: React.FC<HomeProps> = ({
         onSelectRegion(region);
     };
 
+    // Normalização de categorias para o Grid "Giro Mundo"
+    const normalizedExternalCategories = useMemo(() => {
+        const normalized: Record<string, any[]> = {};
+        Object.entries(externalCategories || {}).forEach(([cat, items]) => {
+            let key = cat;
+            if (cat === 'Agronegócio') key = 'Agro';
+            if (cat === 'Pop & Arte' || cat === 'Cultura') key = 'Cultura';
+
+            if (!normalized[key]) normalized[key] = [];
+            normalized[key] = [...normalized[key], ...items];
+        });
+        return normalized;
+    }, [externalCategories]);
+
     return (
         <div className="w-full">
 
@@ -270,6 +306,7 @@ const Home: React.FC<HomeProps> = ({
             <PartnersStrip
                 advertisers={topAds}
                 onAdvertiserClick={onAdvertiserClick}
+                onAdvertiserView={onAdvertiserView}
                 onPricingClick={onPricingClick}
             />
 
@@ -279,6 +316,7 @@ const Home: React.FC<HomeProps> = ({
                 adConfig={adConfig}
                 contractBanners={contractBanners}
                 onAdvertiserClick={onAdvertiserClick}
+                onAdvertiserView={onAdvertiserView}
                 onPlanRequest={onPricingClick}
             />
 
@@ -352,11 +390,14 @@ const Home: React.FC<HomeProps> = ({
                 </LazyBlock>
             </div>
 
-            {/* 5. Giro Rápido */}
+            {/* 5. Instagram Feed */}
+            <InstagramFeed />
+
+            {/* 6. Giro Rápido */}
             <LazyBlock threshold={0.1} minHeight="600px">
                 <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
                     <WorldNewsGrid
-                        externalCategories={externalCategories}
+                        externalCategories={normalizedExternalCategories}
                         selectedCategory={selectedCategory}
                     />
                 </div>

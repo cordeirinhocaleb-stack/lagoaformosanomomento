@@ -1,7 +1,7 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { NewsItem } from '../../types';
-import { sanitizeText } from '../../utils/sanitizer';
+import { sanitize } from '../../utils/sanitizer';
 
 interface NewsCardProps {
     news: NewsItem;
@@ -100,7 +100,40 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
     };
 
     const isInternal = news.source === 'site' || !news.source;
-    const displayContent = isInternal ? (news.content || news.lead) : news.lead;
+    const displayContent = useMemo(() => {
+        if (!isInternal) return news.lead;
+
+        // Se houver blocos, e o conteúdo principal for curto ou inexistente, reconstrói o texto dos blocos
+        if (news.blocks && news.blocks.length > 0 && (!news.content || news.content.length < 50)) {
+            return news.blocks
+                .map(block => {
+                    if (block.type === 'paragraph' || block.type === 'heading') return block.content;
+                    if (block.type === 'quote') return `<blockquote>${block.content}</blockquote>`;
+                    if (block.type === 'list') {
+                        const items = Array.isArray(block.content) ? block.content : [];
+                        return `<ul>${items.map((it: any) => `<li>${it}</li>`).join('')}</ul>`;
+                    }
+                    if (block.type === 'image') {
+                        return `<img src="${block.content}" alt="" class="w-full h-auto rounded-3xl my-10 shadow-lg border border-white/10" />`;
+                    }
+                    if (block.type === 'video' || block.type === 'video_link') {
+                        // Simplificado para teleprompter
+                        return `<div class="bg-zinc-800 p-8 rounded-3xl text-center my-10 border border-white/10"><i class="fas fa-play-circle text-4xl mb-2"></i><p class="text-[10px] uppercase font-black tracking-widest">Vídeo Anexo na Matéria</p></div>`;
+                    }
+                    return '';
+                })
+                .filter(content => !!content)
+                .join('<br/><br/>');
+        }
+
+        return news.content || news.lead;
+    }, [news, isInternal]);
+
+    const hasVideo = useMemo(() => {
+        if (news.bannerMediaType === 'video' || news.bannerVideoUrl) return true;
+        if (news.blocks?.some(b => b.type === 'video' || b.type === 'video_link')) return true;
+        return false;
+    }, [news]);
 
     // Auto-Scroll Animation
     useEffect(() => {
@@ -188,8 +221,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                         </h3>
                         <div className={`w-6 h-1 mx-auto mb-4 rounded-full ${isInternal ? 'bg-red-600' : 'bg-blue-600'}`}></div>
                         <div
-                            className={`prose prose-sm prose-invert max-w-none text-gray-300 font-serif leading-relaxed line-clamp-[12] fade-bottom pb-8 space-y-4`}
-                            dangerouslySetInnerHTML={{ __html: sanitizeText(displayContent) }}
+                            className={`prose prose-sm prose-invert max-w-none text-gray-300 font-serif leading-relaxed pb-24 space-y-4`}
+                            dangerouslySetInnerHTML={{ __html: sanitize(displayContent) }}
                         />
                         {!isInternal && (
                             <div className="mt-6 p-4 border border-white/20 rounded-xl bg-white/5">
@@ -198,7 +231,17 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                             </div>
                         )}
                         <div className="mt-12 text-white/30 text-[8px] font-mono uppercase tracking-[0.2em] animate-pulse">
-                            • Fim da Transmissão •<br /><span className="text-[6px]">Toque 1x para fechar</span>
+                            {hasVideo ? (
+                                <>
+                                    <span className="text-red-500 font-black">• VÍDEO DISPONÍVEL •</span><br />
+                                    <span className="text-[6px]">Toque 2x para ver vídeo</span>
+                                </>
+                            ) : (
+                                <>
+                                    • Fim da Transmissão •<br />
+                                    <span className="text-[6px]">Toque 1x para fechar</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -213,7 +256,14 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                         else { activeColorClass = "bg-red-600 border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.8)]"; }
 
                         return (
-                            <div key={level} className={`flex-1 w-full rounded-full flex items-center justify-center transition-all duration-200 relative z-10 border ${speedLevel === level ? `${activeColorClass} text-white scale-110 font-black` : 'bg-transparent border-transparent text-zinc-600 font-bold hover:text-white hover:bg-white/10'}`}>
+                            <div
+                                key={level}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSpeedLevel(level);
+                                    scrollSpeedRef.current = level * 0.5;
+                                }}
+                                className={`flex-1 w-full rounded-full flex items-center justify-center transition-all duration-200 relative z-10 border ${speedLevel === level ? `${activeColorClass} text-white scale-110 font-black` : 'bg-transparent border-transparent text-zinc-600 font-bold hover:text-white hover:bg-white/10'}`}>
                                 <span className="text-[9px] tracking-tighter">{level}x</span>
                             </div>
                         );
@@ -277,6 +327,14 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                 {!featured && (
                     <div className={`absolute top-2 left-0 transition-opacity ${(isHovering || isMobileActive) ? 'opacity-0' : 'opacity-100'}`}>
                         <div className="bg-red-600 text-white px-2 py-0.5 text-[7px] font-black uppercase tracking-widest shadow-md rounded-r-md">{news.category}</div>
+                    </div>
+                )}
+                {news.city && (
+                    <div className={`absolute top-2 right-2 z-20 transition-opacity duration-300 ${(isHovering || isMobileActive) ? 'opacity-0' : 'opacity-100'}`}>
+                        <div className="bg-black/60 backdrop-blur-md text-white px-2 py-0.5 text-[7px] font-black uppercase tracking-widest shadow-lg rounded-md border border-white/10">
+                            <i className="fas fa-location-dot text-red-500 mr-1"></i>
+                            {news.city}
+                        </div>
                     </div>
                 )}
                 {featured && (

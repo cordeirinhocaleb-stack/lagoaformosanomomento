@@ -37,7 +37,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({ isPublished, isHeade
                 {isPublished ? (
                     <>
                         <button
-                            onClick={() => window.open(`/news/${initialData?.seo?.slug || initialData?.slug || initialData?.id}`, '_blank')}
+                            onClick={() => window.open(`/news/view?slug=${initialData?.seo?.slug || initialData?.slug || initialData?.id}`, '_blank')}
                             className="bg-white/10 text-white px-5 py-2.5 rounded-full font-black uppercase text-[9px] tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2"
                         >
                             <i className="fas fa-external-link-alt"></i> Ver no Site

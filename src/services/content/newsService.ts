@@ -39,3 +39,14 @@ export const deleteNews = async (id: string) => {
     const { error } = await supabase.from('news').delete().eq('id', id);
     if (error) { throw error; }
 };
+
+export const incrementNewsView = async (id: string): Promise<void> => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    // Fetch current views
+    const { data } = await supabase.from('news').select('views').eq('id', id).single();
+    if (data) {
+        await supabase.from('news').update({ views: (data.views || 0) + 1 }).eq('id', id);
+    }
+};

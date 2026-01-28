@@ -41,7 +41,7 @@ export const usePopupMedia = ({
 
     // Vídeo
     if (config.mediaType === 'video' && config.mediaUrl && isSafeUrl(config.mediaUrl)) {
-        const videoIdMatch = config.mediaUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/ |.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+        const videoIdMatch = config.mediaUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
         const videoId = videoIdMatch ? videoIdMatch[1] : null;
         const isYouTube = !!videoId;
 
@@ -55,7 +55,7 @@ export const usePopupMedia = ({
                 mode === 'preview' ? (
                     <div className= "w-full h-full relative bg-black group cursor-default" >
                     <img
-                      src= {`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                                            src= {`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
         className = {`w-full h-full object-cover ${mediaClass} opacity-70 group-hover:opacity-90 transition-opacity`
     }
     alt = "Video Preview"
@@ -66,29 +66,29 @@ export const usePopupMedia = ({
                     </div>
                     </div>
                     </div>
-                ) : (
+                                ) : (
     <iframe
-                    src= {`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${videoId}`}
+                                        src= {`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${videoId}`}
 className = {`w-full h-full object-cover ${mediaClass} pointer-events-none`}
 allow = "autoplay; encrypted-media"
     > </iframe>
-                )
-              ) : (
+                                )
+                            ) : (
     <video
-                  src= { config.mediaUrl }
+                                    src= { config.mediaUrl }
 autoPlay
 muted
 loop
 controls = { false}
 playsInline
 className = {`w-full h-full object-cover ${mediaClass}`}
-                />
-              )}
+                                />
+                            )}
 </div>
     </div>
     </div>
-      );
-    }
+            );
+        }
 
 // Imagens
 if (imageList.length > 0) {
@@ -99,17 +99,17 @@ if (imageList.length > 0) {
         <div className={ overlayClass }> </div>
     { overlayPresetDiv }
     <PopupMediaRenderer
-            mode={ presentationMode }
+                        mode={ presentationMode }
     images = { imageList }
     className = { mediaClass }
     imageStyle = { config.media?.imageStyle }
         />
         </div>
-      );
+            );
 }
 
 return null;
-  };
+    };
 
 return { renderMedia, imageList };
 };

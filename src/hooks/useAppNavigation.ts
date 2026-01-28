@@ -53,10 +53,7 @@ export const useAppNavigation = ({
             }
         } else if (pathname.startsWith('/news/')) {
             const parts = pathname.split('/').filter(Boolean);
-            const idOrSlug = parts[parts.length - 1];
-            const item = news.find(n => n.id === idOrSlug || n.seo?.slug === idOrSlug || n.slug === idOrSlug);
-            if (item) {
-                setSelectedNews(item);
+            if (parts.length >= 2 && parts[0] === 'news' && parts[1] === 'view') {
                 setView('details');
             }
         } else if (pathname === '/jobs') {

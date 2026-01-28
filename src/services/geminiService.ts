@@ -16,22 +16,25 @@ import { getSupabase } from './supabaseService';
 import { DailyBreadData } from "../types";
 
 // Imagens de Fallback Estáveis
-const CATEGORY_IMAGES: Record<string, string> = {
+export const CATEGORY_IMAGES: Record<string, string> = {
     'Política': 'https://placehold.co/600x400/1a1a1a/FFF?text=Politica',
+    'Agro': 'https://placehold.co/600x400/166534/FFF?text=Agro',
     'Agronegócio': 'https://placehold.co/600x400/166534/FFF?text=Agro',
     'Tecnologia': 'https://placehold.co/600x400/2563eb/FFF?text=Tech',
     'Economia': 'https://placehold.co/600x400/0f172a/FFF?text=Economia',
     'Mundo': 'https://placehold.co/600x400/475569/FFF?text=Mundo',
     'Esporte': 'https://placehold.co/600x400/16a34a/FFF?text=Esporte',
     'Cultura': 'https://placehold.co/600x400/9333ea/FFF?text=Cultura',
-    'Cotidiano': 'https://placehold.co/600x400/f59e0b/FFF?text=Brasil'
+    'Pop & Arte': 'https://placehold.co/600x400/9333ea/FFF?text=Cultura',
+    'Cotidiano': 'https://placehold.co/600x400/f59e0b/FFF?text=Brasil',
+    'Geral': 'https://placehold.co/600x400/000/FFF?text=Noticia',
 };
 
 // --- FUNÇÃO PRINCIPAL (RSS - SEM IA) ---
 export const getExternalNews = async () => {
     const supabase = getSupabase();
     const now = new Date();
-    const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
+    const fortyEightHoursAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     // 1. Tenta buscar do Banco de Dados (Supabase) primeiro
     if (supabase) {
@@ -55,16 +58,16 @@ export const getExternalNews = async () => {
 
                     if (!grouped[row.category]) { grouped[row.category] = []; }
                     grouped[row.category].push({
-                        id: row.id,
-                        title: row.title,
-                        sourceName: row.author || 'RSS',
-                        sourceUrl: row.seo?.canonicalUrl || '#',
-                        imageUrl: row.image_url || row.imageUrl,
-                        category: row.category,
-                        region: row.region,
-                        city: row.city,
-                        createdAt: row.createdAt,
-                        theme: ['Política', 'Agronegócio', 'Esporte'].includes(row.category) ? 'green' : 'blue'
+                        id: String(row.id),
+                        title: typeof row.title === 'object' ? JSON.stringify(row.title) : String(row.title || 'Sem Título'),
+                        sourceName: typeof row.author === 'object' ? 'Redação' : String(row.author || 'RSS'),
+                        sourceUrl: typeof row.seo === 'object' ? String(row.seo?.canonicalUrl || '#') : '#',
+                        imageUrl: (typeof row.image_url === 'string' ? row.image_url : '') || (typeof row.imageUrl === 'string' ? row.imageUrl : '') || '',
+                        category: typeof row.category === 'object' ? 'Geral' : String(row.category || 'Geral'),
+                        region: typeof row.region === 'object' ? 'Brasil' : String(row.region || 'Brasil'),
+                        city: typeof row.city === 'object' ? 'Brasil' : String(row.city || 'Brasil'),
+                        createdAt: String(row.createdAt || new Date().toISOString()),
+                        theme: ['Política', 'Agronegócio', 'Esporte'].includes(String(row.category)) ? 'green' : 'blue'
                     });
                 });
 
@@ -75,8 +78,30 @@ export const getExternalNews = async () => {
         }
     }
 
-    // Retorna vazio se não houver cache
-    return {};
+    // 2. Retorna dados MOCK como fallback (temporário até ter RSS automation)
+    console.log("📰 [News] Usando dados MOCK de notícias externas (fallback)");
+    return {
+        'Política': [
+            { id: 'mock-pol-1', title: 'Congresso aprova nova reforma tributária', sourceName: 'G1', sourceUrl: 'https://g1.globo.com', imageUrl: CATEGORY_IMAGES['Política'], category: 'Política', region: 'Brasil', city: 'Brasil', theme: 'green' },
+            { id: 'mock-pol-2', title: 'Governo anuncia pacote de investimentos em infraestrutura', sourceName: 'UOL', sourceUrl: 'https://uol.com.br', imageUrl: CATEGORY_IMAGES['Política'], category: 'Política', region: 'Brasil', city: 'Brasil', theme: 'green' }
+        ],
+        'Economia': [
+            { id: 'mock-eco-1', title: 'Dólar fecha em queda após decisão do Banco Central', sourceName: 'Valor', sourceUrl: 'https://valor.globo.com', imageUrl: CATEGORY_IMAGES['Economia'], category: 'Economia', region: 'Brasil', city: 'Brasil', theme: 'blue' },
+            { id: 'mock-eco-2', title: 'Inflação desacelera em dezembro, aponta IBGE', sourceName: 'InfoMoney', sourceUrl: 'https://infomoney.com.br', imageUrl: CATEGORY_IMAGES['Economia'], category: 'Economia', region: 'Brasil', city: 'Brasil', theme: 'blue' }
+        ],
+        'Tecnologia': [
+            { id: 'mock-tech-1', title: 'OpenAI lança nova versão do ChatGPT com recursos avançados', sourceName: 'TechCrunch', sourceUrl: 'https://techcrunch.com', imageUrl: CATEGORY_IMAGES['Tecnologia'], category: 'Tecnologia', region: 'Global', city: 'Mundo', theme: 'blue' },
+            { id: 'mock-tech-2', title: 'Apple anuncia novos produtos para 2026', sourceName: 'The Verge', sourceUrl: 'https://theverge.com', imageUrl: CATEGORY_IMAGES['Tecnologia'], category: 'Tecnologia', region: 'Global', city: 'Mundo', theme: 'blue' }
+        ],
+        'Mundo': [
+            { id: 'mock-world-1', title: 'Líderes mundiais se reúnem para discutir mudanças climáticas', sourceName: 'BBC', sourceUrl: 'https://bbc.com', imageUrl: CATEGORY_IMAGES['Mundo'], category: 'Mundo', region: 'Global', city: 'Mundo', theme: 'blue' },
+            { id: 'mock-world-2', title: 'Eleições presidenciais movimentam cenário político europeu', sourceName: 'Reuters', sourceUrl: 'https://reuters.com', imageUrl: CATEGORY_IMAGES['Mundo'], category: 'Mundo', region: 'Global', city: 'Mundo', theme: 'blue' }
+        ],
+        'Agronegócio': [
+            { id: 'mock-agro-1', title: 'Safra de soja bate recorde no Brasil', sourceName: 'Canal Rural', sourceUrl: 'https://canalrural.com.br', imageUrl: CATEGORY_IMAGES['Agronegócio'], category: 'Agronegócio', region: 'Brasil', city: 'Brasil', theme: 'green' },
+            { id: 'mock-agro-2', title: 'Exportações do agro crescem 15% no primeiro trimestre', sourceName: 'Globo Rural', sourceUrl: 'https://globorural.globo.com', imageUrl: CATEGORY_IMAGES['Agronegócio'], category: 'Agronegócio', region: 'Brasil', city: 'Brasil', theme: 'green' }
+        ]
+    };
 };
 
 // Helper simples para calcular fase da lua (Matemático, sem IA)

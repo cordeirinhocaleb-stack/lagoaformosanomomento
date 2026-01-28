@@ -9,6 +9,7 @@ interface AdvertisersListViewProps {
   advertisers: Advertiser[];
   onEdit: (advertiser: Advertiser) => void;
   onDelete?: (id: string) => void;
+  onUpdate?: (advertiser: Advertiser) => Promise<any>;
   onCreate: () => void;
   onConfigClick: () => void;
   darkMode?: boolean;
@@ -20,6 +21,7 @@ const AdvertisersListView: React.FC<AdvertisersListViewProps> = ({
   advertisers,
   onEdit,
   onDelete,
+  onUpdate,
   onCreate,
   onConfigClick,
   darkMode = false
@@ -80,6 +82,7 @@ const AdvertisersListView: React.FC<AdvertisersListViewProps> = ({
               advertiser={ad}
               onEdit={onEdit}
               onDelete={onDelete}
+              onUpdate={onUpdate}
               darkMode={darkMode}
             />
           ))

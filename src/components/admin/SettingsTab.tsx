@@ -8,6 +8,7 @@ import { saveSystemSettings, getSettingsHistory } from '../../services/settingsS
 import FeatureSettings from './settings/FeatureSettings';
 import FooterSettings from './settings/FooterSettings';
 import IntegrationSettings from './settings/IntegrationSettings';
+import FinanceSettings from './settings/FinanceSettings';
 
 interface SettingsTabProps {
     driveConfig?: { clientId: string; apiKey: string; appId: string }; // Optional to prevent crash if not passed
@@ -149,8 +150,47 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
         }));
     };
 
+    const handlePixUpdate = (field: string, value: string) => {
+        setSettings(prev => ({
+            ...prev,
+            pixConfig: {
+                key: '',
+                merchantName: '',
+                merchantCity: '',
+                ...(prev.pixConfig || {}),
+                [field]: value
+            }
+        }));
+    };
+
+    const handleBoletoUpdate = (field: string, value: string) => {
+        setSettings(prev => ({
+            ...prev,
+            boletoConfig: {
+                bankName: '',
+                bankCode: '',
+                agency: '',
+                account: '',
+                ownerName: '',
+                ownerDocument: '',
+                ...(prev.boletoConfig || {}),
+                [field]: value
+            }
+        }));
+    };
+
+    const handleSecurityUpdate = (security: any) => {
+        setSettings(prev => ({
+            ...prev,
+            financeSecurity: {
+                ...prev.financeSecurity,
+                ...security
+            }
+        }));
+    };
+
     return (
-        <div className="animate-fadeIn max-w-5xl mx-auto w-full pb-20 relative">
+        <div className="animate-fadeIn max-w-5xl mx-auto w-full px-4 md:px-0 pb-20 relative">
             {/* Notification Toast */}
             {notification && (
                 <div className={`fixed bottom-6 right-6 z-[9999] animate-slideInRight max-w-sm bg-white rounded-xl shadow-lg p-4 flex items-center gap-3 border-l-4 ${notification.type === 'success' ? 'border-green-500' : notification.type === 'error' ? 'border-red-600' : 'border-blue-500'}`}>
@@ -176,6 +216,14 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
 
             <div className="grid grid-cols-1 gap-8">
                 <FeatureSettings settings={settings} onToggle={handleToggle} darkMode={darkMode} user={currentUser} />
+
+                <FinanceSettings
+                    settings={settings}
+                    onUpdatePix={handlePixUpdate}
+                    onUpdateBoleto={handleBoletoUpdate}
+                    onUpdateSecurity={handleSecurityUpdate}
+                    darkMode={darkMode}
+                />
 
                 <FooterSettings
                     settings={settings}

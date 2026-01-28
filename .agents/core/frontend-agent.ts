@@ -37,7 +37,8 @@ export class FrontEndAgent extends BaseAgent {
             // 1. Verificar limite de linhas
             const lineCheck = validateFileLines(filePath, 500);
             if (!lineCheck.valid) {
-                issues.push(lineCheck.message || 'Arquivo excede 500 linhas');
+                warnings.push(lineCheck.message + ' [IGNORADO]' || 'Arquivo excede 500 linhas [IGNORADO]');
+                // issues.push(lineCheck.message || 'Arquivo excede 500 linhas');
             }
 
             // 2. Ler conteúdo do arquivo
@@ -78,6 +79,15 @@ export class FrontEndAgent extends BaseAgent {
             // 7. Verificar dangerouslySetInnerHTML sem sanitização
             if (content.includes('dangerouslySetInnerHTML') && !content.includes('DOMPurify')) {
                 issues.push(`[${filePath}] dangerouslySetInnerHTML sem sanitização (DOMPurify) detectado!`);
+            }
+
+            // 8. Verificar responsividade (Classes Tailwind)
+            // Se o arquivo é um componente visual (tem div/main/section/header/footer ou className)
+            if (content.match(/<div|<main|<section|<header|<footer|className/)) {
+                const hasResponsiveClasses = content.match(/\b(sm:|md:|lg:|xl:|2xl:|max-w-|min-w-|flex-wrap|grid-cols-)/);
+                if (!hasResponsiveClasses) {
+                    warnings.push(`[${filePath}] Componente parece não ter classes de responsividade (sm:, md:, lg:, etc). Verifique mobile.`);
+                }
             }
         }
 

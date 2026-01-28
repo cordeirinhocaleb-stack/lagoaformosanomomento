@@ -6,7 +6,7 @@ interface PromoPopupCarouselProps {
     items: PromoPopupItemConfig[];
     mode: 'live' | 'preview';
     onClose?: () => void;
-    onAction?: (url: string) => void;
+    onAction?: (url: string, item?: PromoPopupItemConfig) => void;
     selectedId?: string | null; // Nova prop para controle externo
     isMobilePreview?: boolean; // Força renderização mobile em preview
 }

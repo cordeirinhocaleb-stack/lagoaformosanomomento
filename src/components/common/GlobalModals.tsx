@@ -11,6 +11,7 @@ import PricingModal from './PricingModal';
 import MyAccountModal from './MyAccountModal';
 import ActivityToastHost from './ActivityToastHost';
 import ComingSoonModal from './ComingSoonModal';
+import AdvertiserInfoModal from '../home/popup/components/AdvertiserInfoModal';
 
 interface GlobalModalsProps {
     modals: any;
@@ -173,6 +174,13 @@ export default function GlobalModals({
                 <ComingSoonModal
                     isOpen={modals.showComingSoonModal}
                     onClose={() => modals.setShowComingSoonModal(false)}
+                />
+            )}
+
+            {modals.showAdvertiserInfoModal && modals.selectedAdvertiserInfo && (
+                <AdvertiserInfoModal
+                    info={modals.selectedAdvertiserInfo}
+                    onClose={modals.closeAdvertiserInfo}
                 />
             )}
 

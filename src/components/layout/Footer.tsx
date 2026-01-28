@@ -44,7 +44,7 @@ const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
     <footer className="bg-black text-white pt-16 pb-32 md:pb-20 border-t-4 border-red-600 w-full relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
 
-      <div className="w-full px-6 md:px-12 xl:px-20 relative z-10">
+      <div className="w-full px-4 md:px-6 lg:px-12 xl:px-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 lg:gap-12 mb-16 md:mb-24">
           <div className="flex items-start space-y-6 flex-col">
             <div className="w-40 h-28 md:w-48 md:h-32 -ml-4 overflow-visible relative">
@@ -102,7 +102,7 @@ const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
             <ul className="grid grid-cols-2 gap-x-4 gap-y-4">
               {['Polícia', 'Agro', 'Política', 'Esporte', 'Cultura', 'Cotidiano', 'Saúde', 'Regional'].map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-[10px] text-gray-400 hover:text-red-500 transition-colors uppercase font-black tracking-widest flex items-center gap-2 group">
+                  <a href={`/${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`} className="text-[10px] text-gray-400 hover:text-red-500 transition-colors uppercase font-black tracking-widest flex items-center gap-2 group">
                     <i className="fas fa-chevron-right text-[8px] text-gray-700 group-hover:text-red-600 transition-colors"></i> {item}
                   </a>
                 </li>
@@ -153,7 +153,12 @@ const Footer: React.FC<FooterProps> = ({ isSimplified, settings }) => {
             <p className="text-gray-600 text-[9px] font-bold uppercase tracking-[0.2em] leading-relaxed">
               &copy; {new Date().getFullYear()} Lagoa Formosa No Momento.<br className="md:hidden" /> Todos os direitos reservados.
             </p>
-            <span className="text-[7px] font-bold text-zinc-800 uppercase tracking-widest mt-1 opacity-50">{versionString}</span>
+            <div className="flex items-center gap-4 mt-2">
+              <a href="/termos" className="text-[8px] font-black text-zinc-700 uppercase hover:text-red-600 transition-colors">Termos</a>
+              <a href="/politicas" className="text-[8px] font-black text-zinc-700 uppercase hover:text-red-600 transition-colors">Privacidade</a>
+              <a href="/exclusao" className="text-[8px] font-black text-zinc-700 uppercase hover:text-red-600 transition-colors">Exclusão</a>
+              <span className="text-[7px] font-bold text-zinc-800 uppercase tracking-widest opacity-50">{versionString}</span>
+            </div>
           </div>
 
           <a

@@ -18,28 +18,37 @@ const UserPermissionsPanel: React.FC<UserPermissionsPanelProps> = ({ permissions
 
         if (!userRole || !onSetPermissions) return;
 
-        const roleKey = userRole.trim();
-        const roleLower = roleKey.toLowerCase();
+        // Normalização robusta: lowercase, remove acentos, remove caracteres não-alfabéticos
+        const normalize = (s: string) => s.toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]/g, "");
 
-        // Mapa com chaves em lowercase para facilitar o match
+        const roleKey = normalize(userRole);
+
+        // Mapa com chaves normalizadas
         const presets: Record<string, string[]> = {
             'admin': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'financial_edit', 'plans_edit', 'user_plan_edit', 'users_view', 'users_edit', 'settings_edit', 'logs_view'],
             'administrador': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'financial_edit', 'plans_edit', 'user_plan_edit', 'users_view', 'users_edit', 'settings_edit', 'logs_view'],
             'desenvolvedor': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'financial_edit', 'plans_edit', 'user_plan_edit', 'users_view', 'users_edit', 'settings_edit', 'logs_view'],
-            'editor-chefe': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'users_view', 'logs_view'],
+            'editorchefe': ['editorial_view', 'editorial_edit', 'editorial_delete', 'financial_view', 'users_view', 'logs_view'],
             'editor': ['editorial_view', 'editorial_edit'],
             'jornalista': ['editorial_view', 'editorial_edit'],
-            'repórter': ['editorial_view', 'editorial_edit'],
-            'reporter': ['editorial_view', 'editorial_edit'], // Fallback sem acento
-            'estagiário': ['editorial_view'],
-            'estagiario': ['editorial_view'], // Fallback sem acento
-            'anunciante': []
+            'reporter': ['editorial_view', 'editorial_edit'],
+            'estagiario': ['editorial_view'],
+            'leitor': [],
+            'anunciante': [],
+            'empresa': [],
+            'prestadordeservico': []
         };
 
-        const targetKeys = presets[roleLower];
+        const targetKeys = presets[roleKey];
 
         if (!targetKeys) {
-            alert(`Não foi encontrada uma predefinição para o cargo: "${userRole}". Configure as permissões manualmente.`);
+            // Tentativa de fallback parcial se contiver "admin"
+            if (roleKey.includes('admin')) {
+                // ... logic could act here, but alert is safer
+            }
+            alert(`Não foi encontrada uma predefinição para o cargo: "${userRole}" (chave: ${roleKey}). Configure as permissões manualmente.`);
             return;
         }
 

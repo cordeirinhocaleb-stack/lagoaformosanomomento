@@ -45,22 +45,27 @@ const MainNewsGrid: React.FC<MainNewsGridProps> = ({ news, highlights, onNewsCli
           Tablet (md): grid-cols-3 
           PC (lg): grid-cols-4 
       */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 auto-rows-fr">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 auto-rows-fr grid-flow-dense">
                 {news.length > 0 ? (
-                    news.map((item) => {
+                    news.map((item, index) => {
                         const isZoomed = zoomedId === item.id;
 
-                        // LÓGICA CORE: 
-                        // Se estiver com zoom, ocupa 2 colunas (toda a largura no mobile),
-                        // forçando o item vizinho a ir para a linha de baixo.
+                        // LÓGICA CORE v2 (Order-based Displacement):
+                        // Se estiver com zoom, ocupa 2 colunas.
+                        // Para "jogar o da esquerda para baixo", reduzimos mecanicamente o 'order' do card.
+                        // Isso faz com que ele assuma a posição anterior no fluxo do grid.
                         const gridClasses = isZoomed
-                            ? 'col-span-2 row-span-2 z-20 order-none' // Ocupa tudo, prioridade visual
-                            : 'col-span-1 z-auto order-none'; // Normal
+                            ? 'col-span-2 row-span-2 z-30 shadow-2xl transition-all duration-500' // Ocupa 2x2, fica por cima
+                            : 'col-span-1 z-auto transition-all duration-500'; // Normal
+
+                        // Calculamos a ordem para que o card com zoom "puxe" a vaga do anterior se necessário
+                        const itemOrder = isZoomed ? (index * 10 - 11) : (index * 10);
 
                         return (
                             <div
                                 key={item.id}
-                                className={`${gridClasses} transition-all duration-500 ease-in-out`}
+                                className={gridClasses}
+                                style={{ order: itemOrder }}
                             >
                                 <NewsCard
                                     news={item}

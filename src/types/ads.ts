@@ -1,6 +1,6 @@
 
 export type AdPlan = string;
-export type BillingCycle = 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
+export type BillingCycle = 'single' | 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
 
 export interface AdPlanConfig {
     id: string;
@@ -63,6 +63,7 @@ export interface PromoBanner {
     imageScale?: number;
     imagePosition?: string;
     fit?: 'cover' | 'contain';
+    advertiserId?: string;
 }
 
 export interface AdvertiserProduct {
@@ -205,6 +206,19 @@ export interface PromoPopupItemConfig {
     position?: any;
     overlay?: any;
     animation?: any;
+    advertiserInfo?: AdvertiserInfoSummary;
+}
+
+export interface AdvertiserInfoSummary {
+    id: string;
+    name: string;
+    phone?: string;
+    whatsapp?: string; // derived from phone or separate
+    whatsappMessage?: string;
+    address?: string;
+    logoUrl?: string;
+    category?: string;
+    location?: string; // from internalPage?
 }
 
 export interface PromoPopupSetConfig {
@@ -274,6 +288,7 @@ export interface Advertiser {
     startDate: string;
     endDate: string;
     isActive: boolean;
+    contractDuration?: number; // Duração em meses (para cálculo de total)
     isPaid?: boolean; // Payment status
 
     // Billing Info (boleto simples)
@@ -282,6 +297,12 @@ export interface Advertiser {
     billingStatus?: 'pending' | 'paid' | 'overdue' | 'cancelled';
     billingObs?: string;
     billingBarCode?: string;
+    installments?: number;
+    interestRate?: number;
+    interestFreeInstallments?: number;
+    lateFee?: number;
+    dailyInterest?: number;
+    totalWithInterest?: number;
 
     views: number;
     clicks: number;
@@ -291,6 +312,7 @@ export interface Advertiser {
         description: string;
         products: AdvertiserProduct[];
         whatsapp: string;
+        whatsappMessage?: string;
         instagram: string;
         tiktok?: string;
         kwai?: string;

@@ -137,6 +137,33 @@ const FeatureSettings: React.FC<FeatureSettingsProps> = ({ settings, onToggle, d
                         `} />
                             </button>
                         </div>
+
+                        {/* Interest Billing Toggle (New) */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border shadow-sm md:col-span-2 ${darkMode ? 'bg-[#151515] border-white/5' : 'bg-white border-gray-100'}`}>
+                            <div>
+                                <h3 className={`text-sm font-bold mb-1 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                                    <i className="fas fa-percentage text-purple-500"></i> Cobrança de Juros/Multa
+                                </h3>
+                                <p className="text-xs text-gray-500">
+                                    Exibe campos de Juros e Multa no painel e nos contratos/carnês.
+                                    <br />
+                                    <span className="text-gray-400">Mantenha desativado para ocultar essas informações dos clientes.</span>
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => onToggle('enableInterestBilling', 'Cobrança de Juros')}
+                                className={`
+                            relative w-12 h-7 rounded-full transition-all duration-300 ease-in-out flex-shrink-0
+                            ${settings.enableInterestBilling ? 'bg-purple-500' : (darkMode ? 'bg-white/10' : 'bg-gray-300')}
+                        `}
+                            >
+                                <span className={`
+                            absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md
+                            transition-transform duration-300 ease-in-out
+                            ${settings.enableInterestBilling ? 'translate-x-5' : 'translate-x-0'}
+                        `} />
+                            </button>
+                        </div>
                     </div>
                 </>
             ) : (

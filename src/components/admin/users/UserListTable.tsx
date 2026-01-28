@@ -51,9 +51,17 @@ const UserListTable: React.FC<UserListTableProps> = ({ users, loading, onEdit, o
         );
     };
 
+    const getFirstLast = (fullName: string) => {
+        if (!fullName) return 'Sem Nome';
+        const parts = fullName.trim().split(/\s+/);
+        if (parts.length <= 2) return fullName;
+        return `${parts[0]} ${parts[parts.length - 1]}`;
+    };
+
     return (
         <div className={`rounded-2xl border shadow-sm overflow-hidden transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className={`border-b transition-colors ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50/50 border-gray-100'}`}>
@@ -127,6 +135,63 @@ const UserListTable: React.FC<UserListTableProps> = ({ users, loading, onEdit, o
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile List View (Flexbox - Guaranteed Fit) */}
+            <div className={`md:hidden flex flex-col divide-y ${darkMode ? 'divide-white/5 bg-transparent' : 'divide-gray-100 bg-white'}`}>
+                {users.map((user) => (
+                    <div key={user.id} className={`p-3 flex items-center gap-3 ${darkMode ? 'bg-transparent' : 'bg-white'}`}>
+                        {/* Left Side: Avatar + Info */}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {/* Avatar */}
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border shrink-0 ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
+                                {user.avatar_url ? (
+                                    <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <i className="fas fa-user text-gray-400 text-sm"></i>
+                                )}
+                            </div>
+
+                            {/* Text Content */}
+                            <div className="flex flex-col min-w-0 gap-1">
+                                <div className="flex items-center gap-2">
+                                    <div className="shrink-0 scale-90 origin-left">
+                                        {getRoleBadge(user.role)}
+                                    </div>
+                                    <h4 className={`text-sm font-bold truncate leading-tight ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {getFirstLast(user.name)}
+                                    </h4>
+                                </div>
+                                <span className={`text-[10px] truncate flex items-center gap-1 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                                    <i className="fas fa-envelope text-[9px] opacity-70"></i>
+                                    {user.email}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Right Side: Actions (Always Visible) */}
+                        <div className="flex items-center gap-2 shrink-0 pl-1">
+                            <button
+                                onClick={() => onEdit(user)}
+                                className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all active:scale-95 ${darkMode ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                            >
+                                <i className="fas fa-pen text-[10px]"></i>
+                            </button>
+                            {(currentUserLevel === 'admin' && user.role !== 'Desenvolvedor') && (
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm('Tem certeza que deseja excluir este usuário?')) {
+                                            onDelete(user.id);
+                                        }
+                                    }}
+                                    className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all active:scale-95 ${darkMode ? 'bg-red-900/10 border-red-900/30 text-red-400' : 'bg-red-50 border-red-100 text-red-500'}`}
+                                >
+                                    <i className="fas fa-trash text-[10px]"></i>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

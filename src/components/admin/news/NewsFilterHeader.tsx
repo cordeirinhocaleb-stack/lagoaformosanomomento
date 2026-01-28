@@ -18,8 +18,10 @@ const NewsFilterHeader: React.FC<NewsFilterHeaderProps> = ({
 }) => {
     return (
         <div className={`flex flex-col md:flex-row justify-between items-center gap-4 p-4 rounded-2xl border ${darkMode ? 'bg-black border-white/5' : 'bg-white border-gray-200'}`}>
-            <div className="flex items-center gap-4 w-full md:w-auto">
-                <div className="relative flex-1 md:w-64">
+            {/* Main Content Wrapper */}
+            <div className="flex flex-col w-full gap-4 md:flex-row md:items-center md:gap-4 md:w-auto">
+                {/* Search Bar - Full Width on Mobile */}
+                <div className="relative w-full md:w-64">
                     <i className={`fas fa-search absolute left-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}></i>
                     <input
                         type="text"
@@ -30,66 +32,43 @@ const NewsFilterHeader: React.FC<NewsFilterHeaderProps> = ({
                     />
                 </div>
 
-                {/* Quick Filter Buttons */}
-                <div className="flex items-center gap-2 flex-wrap">
+                {/* Quick Filter Buttons - Single Line Compact */}
+                <div className="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar w-full md:w-auto">
+                    {/* Main Filter: My Posts */}
                     <button
-                        onClick={() => setFilterCategory('Minhas Publicações')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Minhas Publicações'
-                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                        onClick={() => setFilterCategory(filterCategory === 'Minhas Publicações' ? 'Todas' : 'Minhas Publicações')}
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex-shrink-0 ${filterCategory === 'Minhas Publicações'
+                            ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                             : (darkMode ? 'bg-black/40 text-gray-400 border border-white/10 hover:border-purple-600/50' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-purple-300 hover:bg-white')
                             }`}
                     >
-                        <i className="fas fa-user-edit mr-1.5"></i>
+                        <i className="fas fa-user-edit mr-1"></i>
                         Minhas
                     </button>
-                    <button
-                        onClick={() => setFilterCategory('Postagens do Site')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Postagens do Site'
-                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                            : (darkMode ? 'bg-black/40 text-gray-400 border border-white/10 hover:border-red-600/50' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-red-300 hover:bg-white')
-                            }`}
-                    >
-                        <i className="fas fa-home mr-1.5"></i>
-                        Lagoa Formosa
-                    </button>
-                    <button
-                        onClick={() => setFilterCategory('Brasil')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Brasil'
-                            ? 'bg-green-600 text-white shadow-lg shadow-green-600/30'
-                            : (darkMode ? 'bg-black/40 text-gray-400 border border-white/10 hover:border-green-600/50' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-green-300 hover:bg-white')
-                            }`}
-                    >
-                        <i className="fas fa-flag mr-1.5"></i>
-                        Brasil
-                    </button>
-                    <button
-                        onClick={() => setFilterCategory('Mundo')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterCategory === 'Mundo'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                            : (darkMode ? 'bg-black/40 text-gray-400 border border-white/10 hover:border-blue-600/50' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-blue-300 hover:bg-white')
-                            }`}
-                    >
-                        <i className="fas fa-globe mr-1.5"></i>
-                        Mundo
-                    </button>
+
+                    {/* Category Dropdown (All others) */}
                     <select
-                        value={filterCategory}
+                        value={(filterCategory === 'Minhas Publicações') ? '' : filterCategory}
                         onChange={(e) => setFilterCategory(e.target.value)}
-                        className={`border rounded-xl py-2 px-3 text-xs focus:border-red-600 focus:outline-none ${darkMode ? 'bg-black/40 border-white/10 text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}
+                        className={`border rounded-lg py-1.5 px-2 text-[10px] font-medium focus:border-red-600 focus:outline-none min-w-[120px] flex-shrink-0 ${darkMode ? 'bg-black/40 border-white/10 text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}
                     >
-                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        <option value="Todas">Todas as Categorias</option>
+                        {categories.filter(c => c !== 'Todas').map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
                     </select>
 
+                    {/* Hidden Toggle - Icon Only on Mobile */}
                     <button
                         onClick={() => setShowHidden(!showHidden)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${showHidden
-                            ? 'bg-gray-600 text-white shadow-lg'
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all flex-shrink-0 ${showHidden
+                            ? 'bg-gray-600 text-white shadow-md'
                             : (darkMode ? 'bg-black/40 text-gray-400 border border-white/10 hover:bg-white/5' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-white')
                             }`}
                         title={showHidden ? "Ocultar notícias escondidas" : "Mostrar notícias escondidas"}
                     >
-                        <i className={`fas ${showHidden ? 'fa-eye-slash' : 'fa-eye'} mr-1.5`}></i>
-                        {showHidden ? 'Ocultar Escondidas' : 'Ver Escondidas'}
+                        <i className={`fas ${showHidden ? 'fa-eye-slash' : 'fa-eye'} md:mr-1`}></i>
+                        <span className="hidden md:inline">{showHidden ? 'Ocultar' : 'Ver Ocultas'}</span>
                     </button>
                 </div>
 

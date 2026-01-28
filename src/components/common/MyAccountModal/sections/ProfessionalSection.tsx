@@ -5,10 +5,10 @@ interface ProfessionalSectionProps {
   formData: User;
   setFormData: (user: User) => void;
   isSaving: boolean;
-  onSave: () => void;
+  handleSaveProfile: () => void;
 }
 
-const ProfessionalSection: React.FC<ProfessionalSectionProps> = ({ formData, setFormData, isSaving, onSave }) => {
+const ProfessionalSection: React.FC<ProfessionalSectionProps> = ({ formData, setFormData, isSaving, handleSaveProfile }) => {
   return (
     <div className="max-w-3xl mx-auto animate-fadeIn">
       <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2">
@@ -90,7 +90,7 @@ const ProfessionalSection: React.FC<ProfessionalSectionProps> = ({ formData, set
           </div>
         </div>
         <button
-          onClick={onSave}
+          onClick={handleSaveProfile}
           disabled={isSaving}
           className="bg-red-600 text-white px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all disabled:opacity-50 disabled:cursor-wait"
         >

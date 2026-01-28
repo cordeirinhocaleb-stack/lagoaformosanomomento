@@ -20,58 +20,58 @@ const PLATFORMS = [
  * Distribuição vinculada a uma Notícia do site
  */
 export const dispatchSocialWebhook = async (
-    news: NewsItem, 
+    news: NewsItem,
     webhookUrl?: string,
     onProgress?: (platform: string, status: 'posting' | 'success' | 'error') => void
 ): Promise<boolean> => {
-  console.log("🚀 Iniciando distribuição Omnichannel...", news.title);
+    console.log("🚀 Iniciando distribuição Omnichannel...", news.title);
 
-  const mediaUrl = news.bannerMediaType === 'video' ? news.bannerVideoUrl : news.imageUrl;
+    const mediaUrl = news.bannerMediaType === 'video' ? news.bannerVideoUrl : news.imageUrl;
 
-  const basePayload = {
-      id: news.id,
-      title: news.title,
-      url: `https://lagoaformosanomomento.com.br/#/news/${news.id}`,
-      mediaType: news.bannerMediaType,
-      mediaUrl: mediaUrl, 
-      date: new Date().toISOString(),
-      author: news.author,
-      category: news.category,
-      type: 'news_link'
-  };
+    const basePayload = {
+        id: news.id,
+        title: news.title,
+        url: `https://lagoaformosanomomento.com.br/news/view?slug=${news.seo?.slug || news.slug || news.id}`,
+        mediaType: news.bannerMediaType,
+        mediaUrl: mediaUrl,
+        date: new Date().toISOString(),
+        author: news.author,
+        category: news.category,
+        type: 'news_link'
+    };
 
-  for (const platform of PLATFORMS) {
-      if (onProgress) {onProgress(platform.id, 'posting');}
+    for (const platform of PLATFORMS) {
+        if (onProgress) { onProgress(platform.id, 'posting'); }
 
-      const customCaption = news.socialDistribution?.find(s => s.platform === platform.id)?.content;
-      const finalCaption = customCaption || news.lead;
+        const customCaption = news.socialDistribution?.find(s => s.platform === platform.id)?.content;
+        const finalCaption = customCaption || news.lead;
 
-      const payload = {
-          ...basePayload,
-          targetPlatform: platform.id,
-          text: finalCaption
-      };
+        const payload = {
+            ...basePayload,
+            targetPlatform: platform.id,
+            text: finalCaption
+        };
 
-      try {
-          if (webhookUrl && webhookUrl.startsWith('http')) {
-              await fetch(webhookUrl, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(payload)
-              });
-          } else {
-              console.log(`[Simulação] Enviando para ${platform.label}:`, payload);
-          }
+        try {
+            if (webhookUrl && webhookUrl.startsWith('http')) {
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                console.log(`[Simulação] Enviando para ${platform.label}:`, payload);
+            }
 
-          await new Promise(resolve => setTimeout(resolve, platform.delay));
-          if (onProgress) {onProgress(platform.id, 'success');}
-      } catch (error) {
-          console.error(`Falha na distribuição para ${platform.label}`, error);
-          if (onProgress) {onProgress(platform.id, 'error');}
-      }
-  }
+            await new Promise(resolve => setTimeout(resolve, platform.delay));
+            if (onProgress) { onProgress(platform.id, 'success'); }
+        } catch (error) {
+            console.error(`Falha na distribuição para ${platform.label}`, error);
+            if (onProgress) { onProgress(platform.id, 'error'); }
+        }
+    }
 
-  return true;
+    return true;
 };
 
 /**
@@ -98,7 +98,7 @@ export const dispatchGenericSocialPost = async (
     const selectedPlatforms = PLATFORMS.filter(p => post.platforms.includes(p.id as any));
 
     for (const platform of selectedPlatforms) {
-        if (onProgress) {onProgress(platform.id, 'posting');}
+        if (onProgress) { onProgress(platform.id, 'posting'); }
 
         try {
             if (webhookUrl && webhookUrl.startsWith('http')) {
@@ -112,9 +112,9 @@ export const dispatchGenericSocialPost = async (
             }
 
             await new Promise(resolve => setTimeout(resolve, platform.delay));
-            if (onProgress) {onProgress(platform.id, 'success');}
+            if (onProgress) { onProgress(platform.id, 'success'); }
         } catch (error) {
-            if (onProgress) {onProgress(platform.id, 'error');}
+            if (onProgress) { onProgress(platform.id, 'error'); }
         }
     }
 
@@ -122,19 +122,19 @@ export const dispatchGenericSocialPost = async (
 };
 
 export const generateWhatsAppLink = (
-  phone: string | undefined, 
-  context: 'job_application' | 'classified_buy' | 'advertiser_contact',
-  itemName: string,
-  itemId?: string
+    phone: string | undefined,
+    context: 'job_application' | 'classified_buy' | 'advertiser_contact',
+    itemName: string,
+    itemId?: string
 ): string => {
-  if (!phone) {return '#';}
-  const cleanPhone = phone.replace(/\D/g, '');
-  let message = '';
-  switch (context) {
-    case 'job_application': message = `Olá! Vi a vaga "${itemName}" (ID: ${itemId}) no Portal LFNM e gostaria de me candidatar.`; break;
-    case 'classified_buy': message = `Olá! Tenho interesse no item "${itemName}" (ID: ${itemId}) anunciado no Portal LFNM.`; break;
-    case 'advertiser_contact': message = `Olá! Vi sua página no Portal Lagoa Formosa No Momento e gostaria de mais informações.`; break;
-    default: message = `Olá! Contato via Portal LFNM.`;
-  }
-  return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
+    if (!phone) { return '#'; }
+    const cleanPhone = phone.replace(/\D/g, '');
+    let message = '';
+    switch (context) {
+        case 'job_application': message = `Olá! Vi a vaga "${itemName}" (ID: ${itemId}) no Portal LFNM e gostaria de me candidatar.`; break;
+        case 'classified_buy': message = `Olá! Tenho interesse no item "${itemName}" (ID: ${itemId}) anunciado no Portal LFNM.`; break;
+        case 'advertiser_contact': message = `Olá! Vi sua página no Portal Lagoa Formosa No Momento e gostaria de mais informações.`; break;
+        default: message = `Olá! Contato via Portal LFNM.`;
+    }
+    return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
 };

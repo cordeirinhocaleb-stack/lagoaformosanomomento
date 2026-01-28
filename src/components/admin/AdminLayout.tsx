@@ -165,7 +165,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                 ${isMobile ? 'ml-0' : (isSidebarOpen ? 'ml-64' : 'ml-20')}
             `}>
                 {/* Top Header */}
-                <header className={`h-20 sticky top-0 z-30 backdrop-blur-md border-b flex items-center justify-between px-4 md:px-8 transition-colors duration-300 ${darkMode ? 'bg-[#050505]/80 border-white/5' : 'bg-white/80 border-gray-200'}`}>
+                <header className={`h-20 sticky top-0 z-30 backdrop-blur-md border-b flex items-center justify-between px-2 md:px-4 lg:px-8 transition-colors duration-300 ${darkMode ? 'bg-[#050505]/80 border-white/5' : 'bg-white/80 border-gray-200'}`}>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={toggleSidebar}
@@ -197,7 +197,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, user, currentView, 
                 </header>
 
                 {/* Content Area */}
-                <div className="p-4 md:p-8 animate-fade-in w-full overflow-x-hidden">
+                <div className="p-2 md:p-4 lg:p-8 animate-fade-in w-full overflow-x-hidden">
                     {children}
                 </div>
             </main>

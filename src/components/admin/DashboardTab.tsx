@@ -81,7 +81,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
         <div className="animate-fadeIn w-full max-w-[1600px] mx-auto pb-20">
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-            <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 px-1 md:px-0">
+            <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className={`text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                         Centro de <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">Comando</span>
@@ -138,7 +138,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
 
             {/* Metrics Cards */}
             {checkPermission(user, 'financial_view') && (
-                <div className="mb-8 md:mb-12 w-full px-1 md:px-0">
+                <div className="mb-8 md:mb-12 w-full">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                         <div className={`p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border shadow-md relative overflow-hidden group ${darkMode ? 'bg-gradient-to-br from-white/5 to-blue-900/10 border-white/5' : 'bg-gradient-to-br from-white to-blue-50/50 border-white'}`}>
                             <div className="relative z-10">
@@ -205,8 +205,9 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                     </div>
                 </div>
 
-                <div className="overflow-x-auto w-full">
-                    <table className="w-full text-left min-w-[600px]">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                    <table className="w-full text-left">
                         <thead className={darkMode ? 'bg-white/5' : 'bg-gray-50'}>
                             <tr>
                                 <th className="p-4 md:p-6 text-[8px] md:text-[9px] font-black uppercase text-gray-400 tracking-[0.1em] pl-6 md:pl-8">Publicação</th>
@@ -229,7 +230,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="p-4 md:p-6">
+                                    <td className="p-6">
                                         {n.source === 'rss_automation' ? (
                                             <span className={`flex items-center gap-1.5 text-[8px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-blue-400 bg-blue-900/20 border-blue-900/50' : 'text-blue-600 bg-blue-50 border-blue-100'}`}>
                                                 <i className="fas fa-globe"></i> Mundo
@@ -240,7 +241,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                             </span>
                                         )}
                                     </td>
-                                    <td className="p-4 md:p-6">
+                                    <td className="p-6">
                                         <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border ${n.status === 'published' ? (darkMode ? 'bg-emerald-900/20 text-emerald-400 border-emerald-900/50' : 'bg-emerald-50 text-emerald-600 border-emerald-100') :
                                             n.status === 'draft' ? (darkMode ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-50 text-gray-500 border-gray-100') :
                                                 (darkMode ? 'bg-amber-900/20 text-amber-400 border-amber-900/50' : 'bg-amber-50 text-amber-600 border-amber-100')
@@ -248,7 +249,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                             {n.status === 'published' ? 'No Ar' : n.status === 'draft' ? 'Rascunho' : 'Revisão'}
                                         </span>
                                     </td>
-                                    <td className="p-4 md:p-6 text-right pr-6 md:pr-8">
+                                    <td className="p-6 text-right pr-6 md:pr-8">
                                         <div className="flex justify-end gap-2">
                                             <button onClick={() => onEditPost(n)} className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${darkMode ? 'bg-white/5 text-gray-400 hover:bg-white hover:text-black' : 'bg-gray-50 text-gray-400 hover:bg-black hover:text-white'}`}>
                                                 <i className="fas fa-pen text-[10px]"></i>
@@ -264,6 +265,51 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden flex flex-col divide-y divide-white/5">
+                    {recentActivity.map(n => (
+                        <div key={n.id} className={`p-4 flex flex-col gap-3 ${darkMode ? 'bg-transparent' : 'bg-white'}`}>
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className={`w-12 h-12 rounded-lg overflow-hidden relative shadow-sm border shrink-0 ${darkMode ? 'bg-zinc-800 border-white/5' : 'bg-gray-100 border-gray-200'}`}>
+                                        <img src={n.imageUrl} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = "https://placehold.co/100x100?text=News" }} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className={`font-bold text-sm leading-tight line-clamp-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{n.title}</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-wider">{n.category}</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2 shrink-0">
+                                    <button onClick={() => onEditPost(n)} className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${darkMode ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-500'}`}>
+                                        <i className="fas fa-pen text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-1">
+                                <div className="flex items-center gap-2">
+                                    {n.source === 'rss_automation' ? (
+                                        <span className={`flex items-center gap-1.5 text-[9px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-blue-400 bg-blue-900/20 border-blue-900/50' : 'text-blue-600 bg-blue-50 border-blue-100'}`}>
+                                            <i className="fas fa-globe"></i> Mundo
+                                        </span>
+                                    ) : (
+                                        <span className={`flex items-center gap-1.5 text-[9px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-red-400 bg-red-950/20 border-red-900/50' : 'text-red-600 bg-red-50 border-red-100'}`}>
+                                            <i className="fas fa-pen-nib"></i> Local
+                                        </span>
+                                    )}
+                                </div>
+
+                                <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${n.status === 'published' ? (darkMode ? 'bg-emerald-900/20 text-emerald-400 border-emerald-900/50' : 'bg-emerald-50 text-emerald-600 border-emerald-100') :
+                                    n.status === 'draft' ? (darkMode ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-50 text-gray-500 border-gray-100') :
+                                        (darkMode ? 'bg-amber-900/20 text-amber-400 border-amber-900/50' : 'bg-amber-50 text-amber-600 border-amber-100')
+                                    }`}>
+                                    {n.status === 'published' ? 'No Ar' : n.status === 'draft' ? 'Rascunho' : 'Revisão'}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

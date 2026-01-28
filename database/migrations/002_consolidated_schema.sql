@@ -15,7 +15,78 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL,admin/:1  Tracking Prevention blocked access to storage for https://res.cloudinary.com/dqrxppg5b/image/upload/c_fill,w_32,h_32,g_center/v1768817794/lfnm_cms/geral/gustavo/gustavo_2026-01-19_geral_4187.png.
+admin/:1  Tracking Prevention blocked access to storage for https://res.cloudinary.com/dqrxppg5b/image/upload/c_fill,w_32,h_32,g_center/v1768817794/lfnm_cms/geral/gustavo/gustavo_2026-01-19_geral_4187.png.
+admin/:1  Tracking Prevention blocked access to storage for https://res.cloudinary.com/dqrxppg5b/image/upload/c_fill,w_32,h_32,g_center/v1768817794/lfnm_cms/geral/gustavo/gustavo_2026-01-19_geral_4187.png.
+admin/:1  Tracking Prevention blocked access to storage for https://res.cloudinary.com/dqrxppg5b/image/upload/c_fill,w_32,h_32,g_center/v1768817794/lfnm_cms/geral/gustavo/gustavo_2026-01-19_geral_4187.png.
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔑 Usando Supabase: https://xlqyccbnlqahyxhfswzh.supabase.co 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📦 Carregando dados iniciais (mock)... 
+G:\lagoaformosanomomento\src\services\geminiService.ts:82 📰 [News] Usando dados MOCK de notícias externas (fallback)
+G:\lagoaformosanomomento\src\services\core\supabaseClient.ts:43 ⚡ Supabase: Singleton inicializado com sucesso.
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:251 [AUTH] 🔄 EVENTO DETECTADO: SIGNED_IN Object
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:259 [AUTH] Tentando restaurar perfil...
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:178 [AUTH] 🔍 Iniciando restoreUserProfile para ID: 5768b355-8ec7-461b-8ec1-57321a669a15
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔄 Sincronizando dados do Supabase... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔄 Iniciando carga de dados (Cascade Mode)... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Notícias... 
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:251 [AUTH] 🔄 EVENTO DETECTADO: INITIAL_SESSION Object
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:259 [AUTH] Tentando restaurar perfil...
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:178 [AUTH] 🔍 Iniciando restoreUserProfile para ID: 5768b355-8ec7-461b-8ec1-57321a669a15
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔄 Sincronizando dados do Supabase... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔄 Iniciando carga de dados (Cascade Mode)... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Notícias... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 [AUTH] 🔄 Sessão ativa detectada pela SDK: gustavocarcara.2@gmail.com 
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:178 [AUTH] 🔍 Iniciando restoreUserProfile para ID: 5768b355-8ec7-461b-8ec1-57321a669a15
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:196 [AUTH] 📊 Perfil bruto recebido do banco: Object
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:226 [AUTH] Mapeando perfil para objeto User...
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:234 [AUTH] ✅ Restaurando usuário: GUSTAVO (Admin)
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:237 [AUTH] 🔥 User persistido no localStorage e estado global atualizado.
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Notícias recebidas: 121 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📋 Exemplo: Jacaré de 2 metros é resgatado dentro do campus do Ifap em Macapá; é o 2º animal em 17 dias (published) 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Anúncios e Vagas... 
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:196 [AUTH] 📊 Perfil bruto recebido do banco: Object
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:226 [AUTH] Mapeando perfil para objeto User...
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:234 [AUTH] ✅ Restaurando usuário: GUSTAVO (Admin)
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:237 [AUTH] 🔥 User persistido no localStorage e estado global atualizado.
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Anúncios: 10 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Usuários... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Notícias recebidas: 121 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📋 Exemplo: Jacaré de 2 metros é resgatado dentro do campus do Ifap em Macapá; é o 2º animal em 17 dias (published) 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Anúncios e Vagas... 
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:196 [AUTH] 📊 Perfil bruto recebido do banco: Object
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:226 [AUTH] Mapeando perfil para objeto User...
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:234 [AUTH] ✅ Restaurando usuário: GUSTAVO (Admin)
+G:\lagoaformosanomomento\src\hooks\useAppInitialization.ts:237 [AUTH] 🔥 User persistido no localStorage e estado global atualizado.
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔄 Sincronizando dados do Supabase... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 🔄 Iniciando carga de dados (Cascade Mode)... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Notícias... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Usuários: 12 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Anúncios: 10 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Usuários... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Dados recebidos do Supabase (fonte: database) 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Notícias recebidas: 121 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📋 Exemplo: Jacaré de 2 metros é resgatado dentro do campus do Ifap em Macapá; é o 2º animal em 17 dias (published) 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Anúncios e Vagas... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Usuários: 12 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Dados recebidos do Supabase (fonte: database) 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Anúncios: 10 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 📡 Buscando Usuários... 
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Usuários: 12 
+G:\lagoaformosanomomento\src\services\geminiService.ts:82 📰 [News] Usando dados MOCK de notícias externas (fallback)
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Dados recebidos do Supabase (fonte: database) 
+G:\lagoaformosanomomento\src\services\geminiService.ts:82 📰 [News] Usando dados MOCK de notícias externas (fallback)
+G:\lagoaformosanomomento\src\services\core\debugLogger.ts:25 ✅ Aplicação inicializada com sucesso. 
+G:\lagoaformosanomomento\src\services\geminiService.ts:82 📰 [News] Usando dados MOCK de notícias externas (fallback)
+G:\lagoaformosanomomento\src\services\content\advertiserService.ts:10 🔄 Upserting Advertiser: Object
+G:\lagoaformosanomomento\src\services\content\advertiserService.ts:23 ✅ Upsert Success. Returned ID: e60c186c-b8e2-4eb5-89b9-a58f574110f7
+[NOVO] Explique os erros do Console usando o Copilot no Edge: clique em
+         
+         para explicar um erro.
+        Saiba mais
+        Não mostrar novamente
+G:\lagoaformosanomomento\src\services\content\advertiserService.ts:10 🔄 Upserting Advertiser: {incomingId: 'e60c186c-b8e2-4eb5-89b9-a58f574110f7', payloadId: 'e60c186c-b8e2-4eb5-89b9-a58f574110f7', payloadName: 'GHO WEB'}
+G:\lagoaformosanomomento\src\services\content\advertiserService.ts:23 ✅ Upsert Success. Returned ID: e60c186c-b8e2-4eb5-89b9-a58f574110f7
+
     role TEXT NOT NULL CHECK (role IN ('Administrador', 'Jornalista', 'Editor', 'Leitor')),
     avatar_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

@@ -6,10 +6,11 @@ import { AdvertiserCard } from '../common/AdvertiserCard';
 interface PartnersStripProps {
     advertisers: Advertiser[];
     onAdvertiserClick: (ad: Advertiser) => void;
+    onAdvertiserView?: (adId: string) => void;
     onPricingClick?: () => void;
 }
 
-const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiserClick, onPricingClick }) => {
+const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiserClick, onAdvertiserView, onPricingClick }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isPaused, setIsPaused] = useState(false);
 
@@ -25,43 +26,68 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
         ? Array(12).fill(activePartners).flat()
         : activePartners;
 
+    const virtualPosRef = useRef(0);
+
+    // Motor de Animação Único e Ultra-Preciso
     useEffect(() => {
         if (!shouldLoop || isPaused) return;
 
         const container = scrollRef.current;
         if (!container) return;
 
-        // Reset inicial se estiver no 0, para garantir que podemos ir para a esquerda se quisessemos (não usado aqui, mas bom para consistência)
-        // Mas para o scroll infinito para direita:
-
-        const scrollSpeed = 1;
         let animationFrameId: number;
+        let lastTime = performance.now();
 
-        const scroll = () => {
-            if (container) {
-                // Se já rolou o equivalente a UM set (1/12 do total), volta para o início
-                // Tolerância de 1px para garantir
-                const oneSetWidth = container.scrollWidth / 12;
-
-                if (container.scrollLeft >= oneSetWidth - 1) {
-                    container.scrollLeft = 0;
-                } else {
-                    container.scrollLeft += scrollSpeed;
-                }
+        const scroll = (currentTime: number) => {
+            if (!container || isPaused) {
+                lastTime = currentTime;
+                animationFrameId = requestAnimationFrame(scroll);
+                return;
             }
+
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
+            // Medição instantânea (1/12 do total)
+            const currentSetOffset = container.scrollWidth / 12;
+            if (currentSetOffset <= 0) {
+                animationFrameId = requestAnimationFrame(scroll);
+                return;
+            }
+
+            // Inicialização da posição virtual
+            if (virtualPosRef.current === 0) {
+                virtualPosRef.current = currentSetOffset;
+            }
+
+            const speed = 0.055;
+            virtualPosRef.current += speed * deltaTime;
+
+            // Loop Infinito Robusto
+            if (virtualPosRef.current >= currentSetOffset * 2) {
+                virtualPosRef.current -= currentSetOffset;
+            } else if (virtualPosRef.current <= 0) {
+                virtualPosRef.current += currentSetOffset;
+            }
+
+            // Aplicação física direta (SEM scroll-smooth para evitar lag)
+            container.scrollLeft = virtualPosRef.current;
+
             animationFrameId = requestAnimationFrame(scroll);
         };
 
         animationFrameId = requestAnimationFrame(scroll);
-
-        return () => cancelAnimationFrame(animationFrameId);
+        return () => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        };
     }, [shouldLoop, isPaused, activePartners.length]);
 
     const scrollManual = (direction: 'left' | 'right') => {
         const container = scrollRef.current;
         if (!container) return;
+        const currentSetOffset = container.scrollWidth / 12;
 
-        const jump = 350;
+        const jump = currentSetOffset;
         const target = direction === 'right' ? container.scrollLeft + jump : container.scrollLeft - jump;
 
         container.scrollTo({ left: target, behavior: 'smooth' });
@@ -69,17 +95,17 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
 
     return (
         <div
-            className="w-full bg-white dark:bg-[#050505] py-4 md:py-4 overflow-hidden relative group/strip border-b border-gray-100 dark:border-white/5"
+            className="w-full bg-white dark:bg-[#050505] pt-4 pb-1 md:pb-2 overflow-hidden relative group/strip border-b border-gray-100 dark:border-white/5"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
             <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8 relative">
 
                 {/* HEADER: TITLE + CTA (STAY FIXED ABOVE MARQUEE) */}
-                <div className="flex items-center justify-between mb-6 md:mb-8 px-2">
-                    <div className="flex items-center gap-5">
-                        <div className="w-2.5 h-9 bg-red-600 rounded-full shadow-[0_0_20px_rgba(220,38,38,0.5)]"></div>
-                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-zinc-900 dark:text-white flex items-center gap-3">
+                <div className="flex items-center justify-between mb-1 md:mb-2 px-2">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-5 bg-black dark:bg-white rounded-full"></div>
+                        <h2 className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white flex items-center gap-1">
                             Parceiros <span className="text-red-600">Master</span>
                         </h2>
                     </div>
@@ -87,10 +113,11 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
                     {onPricingClick && (
                         <button
                             onClick={onPricingClick}
-                            className="bg-red-50 hover:bg-red-600 text-red-600 hover:text-white px-8 py-3 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border border-red-100 hover:border-red-600 flex items-center gap-3 group/cta shadow-sm hover:shadow-xl hover:shadow-red-500/20 active:scale-95"
+                            className="group relative flex items-center justify-center bg-red-600 hover:bg-black text-white px-6 md:px-14 py-2 md:py-3 rounded-full transition-all duration-500 shadow-2xl shadow-red-600/30 hover:shadow-red-600/50 active:scale-95 overflow-hidden border border-white/10"
                         >
-                            Seja um anunciante master
-                            <i className="fas fa-arrow-right group-hover/cta:translate-x-1 transition-transform"></i>
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                            <i className="fas fa-plus-circle text-[10px] md:text-sm"></i>
+                            <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest ml-2">Anuncie aqui</span>
                         </button>
                     )}
                 </div>
@@ -123,7 +150,7 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
                     {/* Carrossel de Cards Verticais OU Placeholder Empty State */}
                     <div
                         ref={scrollRef}
-                        className="flex items-center gap-2 md:gap-6 overflow-x-auto scrollbar-hide whitespace-nowrap py-6 scroll-smooth"
+                        className="flex items-center gap-2 md:gap-6 overflow-x-auto scrollbar-hide py-3 md:py-4"
                     >
                         {loopPartners.length > 0 ? (
                             loopPartners.map((partner, idx) => (
@@ -131,7 +158,8 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
                                     key={`${partner.id}-${idx}`}
                                     ad={partner}
                                     onClick={onAdvertiserClick}
-                                    className="w-28 md:w-72 shrink-0 bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 !rounded-lg"
+                                    onView={onAdvertiserView}
+                                    className="flex-shrink-0 grow-0 basis-[48%] md:basis-[280px] bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 !rounded-lg"
                                 />
                             ))
                         ) : (

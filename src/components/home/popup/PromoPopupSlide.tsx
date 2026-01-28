@@ -12,7 +12,7 @@ interface PromoPopupSlideProps {
     item: PromoPopupItemConfig;
     mode: 'live' | 'preview';
     onClose?: () => void;
-    onAction?: (url: string) => void;
+    onAction?: (url: string, item?: PromoPopupItemConfig) => void;
     className?: string;
     isMobilePreview?: boolean;
 }
@@ -147,7 +147,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                     </span>
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => onAction && onAction(item.ctaUrl)}
+                            onClick={() => onAction && onAction(item.ctaUrl, item)}
                             className="px-4 py-1.5 md:px-6 md:py-2 text-[9px] md:text-xs font-black uppercase tracking-widest hover:scale-105 transition-transform"
                             style={{ backgroundColor: colors.btnBg, color: colors.btnText }}
                         >
@@ -196,7 +196,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                                 {item.body}
                             </p>
                             <button
-                                onClick={() => onAction && onAction(item.ctaUrl)}
+                                onClick={() => onAction && onAction(item.ctaUrl, item)}
                                 className="w-full py-6 text-xl font-bold border-t-2 border-white/20 hover:bg-white hover:text-black transition-colors uppercase tracking-widest flex justify-between items-center group"
                                 style={{ borderColor: colors.btnBg, color: colors.btnText, backgroundColor: colors.btnBg }}
                             >
@@ -247,7 +247,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                         </p>
                         <div className="flex gap-4">
                             <button
-                                onClick={() => onAction && onAction(item.ctaUrl)}
+                                onClick={() => onAction && onAction(item.ctaUrl, item)}
                                 className="flex-1 py-3 px-6 bg-yellow-400 text-black font-bold uppercase text-sm tracking-wider hover:bg-white transition-colors"
                                 style={{ backgroundColor: colors.btnBg, color: colors.btnText }}
                             >
@@ -311,7 +311,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                             {item.body}
                         </p>
                         <button
-                            onClick={() => onAction && onAction(item.ctaUrl)}
+                            onClick={() => onAction && onAction(item.ctaUrl, item)}
                             className="px-8 py-3 text-sm font-bold uppercase tracking-[0.2em] border border-current hover:bg-current hover:text-black transition-colors"
                             style={{ color: colors.btnText, borderColor: colors.btnBg }}
                         >
@@ -390,7 +390,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                         </p>
 
                         <button
-                            onClick={() => onAction && onAction(item.ctaUrl)}
+                            onClick={() => onAction && onAction(item.ctaUrl, item)}
                             className="w-full md:w-auto px-8 py-4 text-sm font-bold uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-lg"
                             style={{ backgroundColor: colors.btnBg, color: colors.btnText }}
                         >
@@ -454,7 +454,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                     </div>
 
                     <button
-                        onClick={() => onAction && onAction(item.ctaUrl)}
+                        onClick={() => onAction && onAction(item.ctaUrl, item)}
                         className="w-full py-5 text-sm font-black uppercase tracking-widest hover:brightness-110 transition-all shadow-xl"
                         style={{ backgroundColor: colors.btnBg, color: colors.btnText, borderRadius: '16px' }}
                     >
@@ -507,7 +507,7 @@ const PromoPopupSlide: React.FC<PromoPopupSlideProps> = ({
                     </div>
 
                     <button
-                        onClick={() => onAction && onAction(item.ctaUrl)}
+                        onClick={() => onAction && onAction(item.ctaUrl, item)}
                         className="w-full py-4 text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
                         style={{ backgroundColor: colors.btnBg, color: colors.btnText, borderRadius: '99px' }}
                     >

@@ -11,7 +11,7 @@ interface SupportSectionProps {
 const SupportSection: React.FC<SupportSectionProps> = ({ user, systemSettings, onOpenTerms }) => {
     return (
         <div className="max-w-4xl mx-auto animate-fadeIn">
-            <UserSupportSection user={user} systemSettings={systemSettings} onOpenTerms={onOpenTerms} />
+            <UserSupportSection userId={user.id} userName={user.name} />
         </div>
     );
 };

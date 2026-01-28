@@ -1,7 +1,7 @@
 import { BaseAgent, TaskContext, TaskResult } from './base-agent.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { glob } from 'glob';
+import glob from 'glob';
 
 // ============================================================
 // 🏭 INVENTORY AGENT - ALMOXARIFADO CENTRAL DO SISTEMA

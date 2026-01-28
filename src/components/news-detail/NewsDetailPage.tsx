@@ -14,6 +14,7 @@ import RightToolsRail from './components/layout/RightToolsRail';
 import BackToTopButton from './components/tools/BackToTopButton';
 import FontSizeControls from './components/tools/FontSizeControls';
 import AuthorProfileModal from '../../components/common/AuthorProfileModal';
+import { AdvertiserCard } from '../../components/common/AdvertiserCard';
 import PartnersStrip from '../../components/home/PartnersStrip';
 import CommentsSection from './components/article/CommentsSection';
 import ShareBar from './components/tools/ShareBar';
@@ -113,10 +114,17 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
     const footerAds = useMemo(() => {
         return advertisers
+            .filter(ad => ad.isActive && ad.plan !== 'Master') // Evita duplicação se já for master no topo do footer
             .filter(ad => !ad.displayLocations || ad.displayLocations.includes('article_footer'))
             .sort(() => Math.random() - 0.5);
     }, [advertisers]);
 
+    const masterSupporters = useMemo(() => {
+        return advertisers
+            .filter(ad => ad.isActive && ad.plan === 'Master')
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 2);
+    }, [advertisers]);
     const articleRef = useRef<HTMLDivElement>(null);
     const progress = useReadingProgress(articleRef);
 
@@ -214,7 +222,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                 onAuthorClick={handleAuthorProfile}
             />
 
-            <div ref={articleRef} className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-4 flex-grow">
+            <div ref={articleRef} className="w-full max-w-[1600px] mx-auto px-4 md:px-6 lg:px-4 flex-grow">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-6 md:pt-10">
                     <aside className={`lg:col-span-3 transition-all duration-500 ${readingMode ? 'opacity-0' : 'opacity-100'} mb-8 lg:mb-0`}>
                         <div className="sticky top-28">
@@ -282,7 +290,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
             {/* Expansão Full-Width Pós-Artigo */}
             {!readingMode && (
-                <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-16 pb-20">
+                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 space-y-16 pb-20">
                     <div className="max-w-4xl mx-auto w-full">
                         {/* Sobre o Autor - Mantido um pouco mais contido para leitura */}
                         <button
@@ -339,6 +347,26 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
                     {/* Comentários - Tela Cheia */}
                     <div className="pt-16 border-t-2 border-gray-100 dark:border-zinc-800">
+                        {/* Parceiros Master Lado a Lado (Random) */}
+                        {masterSupporters.length > 0 && (
+                            <div className="mb-16">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Parceiros Master</h4>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {masterSupporters.map(ad => (
+                                        <AdvertiserCard
+                                            key={ad.id}
+                                            ad={ad}
+                                            onClick={onAdvertiserClick || (() => { })}
+                                            className="bg-zinc-50 dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 shadow-sm"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <CommentsSection newsId={news.id} user={user} onLogin={onLogin} />
                     </div>
 

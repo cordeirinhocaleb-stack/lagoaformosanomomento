@@ -262,7 +262,7 @@ const EditorTab: React.FC<EditorTabProps> = ({ user, initialData, onSave, onCrea
                     progressMessage={ctrl.progressMessage}
                     onClose={ctrl.resetStatus}
                     onCreateNew={onCreateNew}
-                    onViewNews={() => window.open(`/news/${ctrl.slug || initialData?.seo?.slug || initialData?.id || ''}`, '_blank')}
+                    onViewNews={() => window.open(`/news/view?slug=${ctrl.slug || initialData?.seo?.slug || initialData?.id || ''}`, '_blank')}
                     isUpdate={!!initialData?.id}
                     mode={ctrl.publishMode}
                     authorName={user.name}

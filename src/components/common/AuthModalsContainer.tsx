@@ -5,6 +5,7 @@ import RoleSelectionModal from '@/components/RoleSelectionModal';
 import TermsOfServiceModal from '@/components/common/TermsOfServiceModal';
 import AccessDeniedModal from '@/components/common/AccessDeniedModal';
 import SuccessModal from '@/components/common/SuccessModal';
+import ForgotPasswordModal from '@/components/common/ForgotPasswordModal';
 import { User, SystemSettings } from '@/types';
 import { getSupabase, createUser, updateUser } from '@/services/supabaseService';
 import { UseModalsReturn } from '@/hooks/useModals';
@@ -56,6 +57,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
         showAccessDenied,
         showSuccessModal,
         showTermsModal,
+        showForgotPasswordModal,
         pendingManualEmail,
         accessDeniedConfig,
         successMessage,
@@ -158,6 +160,12 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
             // CADASTRO MANUAL (Email/Senha)
             // CADASTRO MANUAL (Email/Senha)
             if (!pendingGoogleUser) {
+                const registrationEmail = data.email || pendingManualEmail;
+
+                if (!registrationEmail) {
+                    throw new Error('E-mail necessário para o cadastro.');
+                }
+
                 // Preparar metadata para o trigger criar o perfil completo
                 const newUserMetadata = {
                     name: data.username,
@@ -181,7 +189,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                 };
 
                 const { data: authData, error: authError } = await sb.auth.signUp({
-                    email: pendingManualEmail!,
+                    email: registrationEmail,
                     password: data.password,
                     options: {
                         data: newUserMetadata, // Trigger 'handle_new_auth_user' vai pegar isso e criar o user na tabela public.users
@@ -193,7 +201,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
 
                 if (authData.user) {
                     createdUserId = authData.user.id;
-                    createdUserEmail = pendingManualEmail;
+                    createdUserEmail = registrationEmail;
 
                     // NOTA DE SEGURANÇA: Não chamamos createUser() aqui porque o Trigger do Banco já faz isso.
                     // Tentar criar manualmente causaria erro de Chave Duplicada (500/409).
@@ -381,7 +389,7 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
     return (
         <>
             {/* Role Selection Modal */}
-            {showRoleSelector && (pendingGoogleUser || pendingManualEmail) && (
+            {showRoleSelector && (
                 <RoleSelectionModal
                     userName={pendingGoogleUser?.user_metadata?.full_name || ''}
                     userAvatar={pendingGoogleUser?.user_metadata?.avatar_url}
@@ -432,6 +440,14 @@ const AuthModalsContainer: React.FC<AuthModalsContainerProps> = ({
                     onClose={() => setShowLoginModal(false)}
                     disableSignup={!systemSettings.registrationEnabled}
                     onOpenTerms={modals.openTermsModal}
+                    onForgotPassword={modals.openForgotPasswordModal}
+                />
+            )}
+
+            {/* Forgot Password Modal */}
+            {showForgotPasswordModal && (
+                <ForgotPasswordModal
+                    onClose={modals.closeForgotPasswordModal}
                 />
             )}
 

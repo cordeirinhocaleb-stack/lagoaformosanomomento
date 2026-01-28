@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { Advertiser } from '../../../../types';
+import { User, Advertiser } from '../../../../types';
 import ContractSectionSelector, { ContractSection } from './ContractSectionSelector';
 import GeneralSection from './sections/GeneralSection';
 import ShowcaseSection from './sections/ShowcaseSection';
@@ -9,11 +9,13 @@ import SimpleBannerEditor from './sections/SimpleBannerEditor';
 import PopupSetBuilder from '../popupBuilder/PopupSetBuilderPanel';
 import { processAdvertiserUploads } from '../../../../services/storage/syncService';
 import ContractPDFButton from '../ContractPDFButton';
+import PixRechargeModal from '../../../common/MyAccountModal/components/PixRechargeModal';
 
 interface AdvertiserEditorProps {
     advertiser: Advertiser | null; // null = Criando novo
     onSave: (advertiser: Advertiser) => Promise<void> | void;
     onCancel: () => void;
+    currentUser: User;
     darkMode?: boolean;
 }
 
@@ -47,7 +49,7 @@ const DEFAULT_ADVERTISER: Advertiser = {
     displayLocations: ['home_top', 'article_sidebar', 'article_footer']
 };
 
-const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave, onCancel, darkMode = false }) => {
+const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave, onCancel, currentUser, darkMode = false }) => {
     // Prepare initial state helper
     const prepareInitialState = (adv: Advertiser | null): Advertiser => {
         if (adv) {
@@ -81,6 +83,7 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
     const [activeTab, setActiveTab] = useState<ContractSection>('basic');
     const [formData, setFormData] = useState<Advertiser>(() => prepareInitialState(advertiser));
     const [isSaving, setIsSaving] = useState(false);
+    const [showPixModal, setShowPixModal] = useState(false);
 
 
 
@@ -121,7 +124,10 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
 
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     {advertiser && (
-                        <ContractPDFButton advertiser={formData} darkMode={darkMode} />
+                        <>
+
+                            <ContractPDFButton advertiser={formData} darkMode={darkMode} />
+                        </>
                     )}
                     <button
                         onClick={onCancel}
@@ -153,7 +159,10 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
                     <GeneralSection
                         data={formData}
                         onChange={setFormData}
+                        user={currentUser}
+                        onShowQR={() => setShowPixModal(true)}
                         darkMode={darkMode}
+                        onSave={handleSave}
                     />
                 )}
                 {activeTab === 'showcase' && (
@@ -178,6 +187,7 @@ const AdvertiserEditor: React.FC<AdvertiserEditorProps> = ({ advertiser, onSave,
                     />
                 )}
             </div>
+            {/* Billing History / Extra Components could go here */}
         </div>
     );
 };

@@ -8,10 +8,10 @@ interface VideoPresenterProps {
 }
 
 function getVimeoId(input: string | undefined): string {
-  if (!input) {return "";}
+  if (!input) { return ""; }
   const m = input.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (m?.[1]) {return m[1];}
-  if (/^\d+$/.test(input)) {return input;}
+  if (m?.[1]) { return m[1]; }
+  if (/^\d+$/.test(input)) { return input; }
   return "";
 }
 
@@ -71,10 +71,10 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
         if (isVimeo && playerRef.current) {
           try {
             if (resetToStart) {
-              await playerRef.current.pause().catch(() => {});
-              await playerRef.current.setCurrentTime(0).catch(() => {});
+              await playerRef.current.pause().catch(() => { });
+              await playerRef.current.setCurrentTime(0).catch(() => { });
             }
-            await playerRef.current.play().catch(() => {});
+            await playerRef.current.play().catch(() => { });
             return true;
           } catch {
           }
@@ -102,7 +102,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
 
   const triggerAnimation = useCallback(
     async (isInitial = false) => {
-      if (isAnimatingRef.current) {return;}
+      if (isAnimatingRef.current) { return; }
       isAnimatingRef.current = true;
 
       setIsScanning(false);
@@ -115,7 +115,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
           setIsScanning(false);
           isAnimatingRef.current = false;
 
-          if (isInitial) {safeStorage.setItem(SESSION_KEY, "true");}
+          if (isInitial) { safeStorage.setItem(SESSION_KEY, "true"); }
         }, 900);
       }, 300);
     },
@@ -124,7 +124,7 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
 
   // Vimeo Integration
   useEffect(() => {
-    if (!isVimeo || !embedUrl) {return;}
+    if (!isVimeo || !embedUrl) { return; }
 
     let disposed = false;
     // Removed the aggressive safetyTimer that was forcing visibility too early.
@@ -135,19 +135,19 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
         const mod = await import("@vimeo/player");
         const Player = (mod as any).default || mod;
 
-        if (disposed || !iframeRef.current) {return;}
+        if (disposed || !iframeRef.current) { return; }
 
         const player = new Player(iframeRef.current);
         playerRef.current = player;
 
-        await player.setMuted(true).catch(() => {});
-        await player.setLoop(false).catch(() => {});
+        await player.setMuted(true).catch(() => { });
+        await player.setLoop(false).catch(() => { });
 
         player.on("loaded", async () => {
           // Do NOT set isVideoReady here to avoid white flash.
           // Just trigger the play logic.
           if (autoPlay) {
-            await player.play().catch(() => {});
+            await player.play().catch(() => { });
           }
           if (pendingPlayRef.current) {
             pendingPlayRef.current = false;
@@ -158,21 +158,21 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
         // Trigger visibility only when playback actually begins
         player.on("play", () => {
           setTimeout(() => {
-             if (!disposed) {setIsVideoReady(true);}
+            if (!disposed) { setIsVideoReady(true); }
           }, 150); // Small buffer to ensure first frame is rendered
         });
-        
+
         // Backup: sometimes 'play' doesn't fire correctly on some devices, 'timeupdate' is reliable
         player.on("timeupdate", (data: any) => {
-            if (data.seconds > 0 && !disposed) {
-                setIsVideoReady(true);
-            }
+          if (data.seconds > 0 && !disposed) {
+            setIsVideoReady(true);
+          }
         });
 
         player.on("ended", async () => {
           try {
             await player.pause();
-          } catch {}
+          } catch { }
         });
       } catch (e) {
         console.warn("Vimeo Player SDK failed to load:", e);
@@ -185,14 +185,14 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
       disposed = true;
       try {
         playerRef.current?.destroy?.();
-      } catch {}
+      } catch { }
       playerRef.current = null;
     };
   }, [embedUrl, isVimeo, autoPlay, triggerAnimation]);
 
   // General Logic
   useEffect(() => {
-    if (!src) {return;}
+    if (!src) { return; }
 
     const hasPlayed = safeStorage.getItem(SESSION_KEY);
 
@@ -218,15 +218,14 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
     return () => window.clearInterval(intervalId);
   }, [src, isVimeo, autoPlay, triggerAnimation, runPlayWithRetry]);
 
-  if (!src) {return null;}
+  if (!src) { return null; }
 
   const matrixChroma = "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.6 -3.2 1.6 1.0 0";
 
   return (
     <div
-      className={`relative transition-opacity duration-1000 ease-out bg-transparent ${
-        isVideoReady ? "opacity-100" : "opacity-0"
-      } ${className || ""}`}
+      className={`relative transition-opacity duration-1000 ease-out bg-transparent ${isVideoReady ? "opacity-100" : "opacity-0"
+        } ${className || ""}`}
     >
       <svg style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }} aria-hidden="true">
         <filter id={filterId} colorInterpolationFilters="sRGB">
@@ -272,13 +271,12 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
           />
         ) : isYoutube ? (
           <iframe
-            src={`https://www.youtube.com/embed/${
-              src.includes("v=") ? src.split("v=")[1]?.split("&")[0] : src.split("/").pop()
-            }?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&loop=0`}
+            src={`https://www.youtube.com/embed/${src.includes("v=") ? src.split("v=")[1]?.split("&")[0] : src.split("/").pop()
+              }?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&loop=0`}
             className="w-full h-full border-0 pointer-events-none bg-transparent"
             style={{ backgroundColor: "transparent" }}
             onLoad={() => {
-                setTimeout(() => setIsVideoReady(true), 500);
+              setTimeout(() => setIsVideoReady(true), 500);
             }}
             allow="autoplay; fullscreen"
             title="Presenter"
@@ -288,12 +286,13 @@ const VideoPresenter: React.FC<VideoPresenterProps> = ({ src, className, autoPla
           <video
             ref={videoRef}
             src={src}
+            crossOrigin="anonymous"
             muted
             playsInline
             preload="auto"
-            onPlaying={() => setIsVideoReady(true)} 
+            onPlaying={() => setIsVideoReady(true)}
             onCanPlay={() => {
-               if(autoPlay) {videoRef.current?.play().catch(()=>{});}
+              if (autoPlay) { videoRef.current?.play().catch(() => { }); }
             }}
             className="w-full h-full object-contain bg-transparent pointer-events-none"
             loop={false}

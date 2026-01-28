@@ -29,6 +29,8 @@ import {
     updateNews,
     deleteNews,
     upsertAdvertiser,
+    incrementAdvertiserClick,
+    incrementAdvertiserView,
     saveSystemSetting,
     getSystemSetting
 } from '../services/supabaseService';
@@ -175,9 +177,12 @@ export const useAppController = () => {
     }, [internalNews]);
 
     const marqueeNews = useMemo(() => {
-        const items = Object.entries(externalCategories)
-            .filter(([cat]) => ['Política', 'Agro', 'Agronegócio', 'Tecnologia', 'Mundo', 'Economia'].includes(cat))
-            .flatMap(([_, items]) => items);
+        const items = Object.entries(externalCategories || {})
+            .filter(([cat]) => ['Política', 'Agro', 'Agronegócio', 'Tecnologia', 'Mundo', 'Economia', 'Cotidiano'].includes(cat))
+            .flatMap(([cat, items]) => {
+                const normalizedCat = cat === 'Agronegócio' ? 'Agro' : cat;
+                return items.map(item => ({ ...item, category: normalizedCat }));
+            });
 
         // Deduplicação final por título (segurança extra)
         const seen = new Set();
@@ -190,11 +195,22 @@ export const useAppController = () => {
     }, [externalCategories]);
 
     const brazilMarquee = useMemo(() => {
-        return marqueeNews.filter(n => n.region === 'Brasil' || n.city === 'Brasil');
+        return marqueeNews.filter(n =>
+            n.region === 'Brasil' ||
+            n.city === 'Brasil' ||
+            n.category === 'Política' ||
+            n.category === 'Economia' ||
+            n.category === 'Cotidiano'
+        );
     }, [marqueeNews]);
 
     const worldMarquee = useMemo(() => {
-        return marqueeNews.filter(n => n.region === 'Global' || n.city === 'Mundo');
+        return marqueeNews.filter(n =>
+            n.region === 'Global' ||
+            n.city === 'Mundo' ||
+            n.category === 'Mundo' ||
+            n.category === 'Tecnologia'
+        );
     }, [marqueeNews]);
 
     useEffect(() => {
@@ -290,6 +306,46 @@ export const useAppController = () => {
         setShouldScrollToGrid(true);
     };
 
+    const handleAdvertiserClick = useCallback(async (adOrId: Advertiser | string) => {
+        const id = typeof adOrId === 'string' ? adOrId : adOrId.id;
+
+        // Ignore invalid or default IDs to prevent loops/errors
+        if (!id || id === 'site_promo_default') return;
+
+        // Optimistic update - ONLY if ID exists
+        setAdvertisers(prev => {
+            const exists = prev.some(a => a.id === id);
+            if (!exists) return prev; // Return same ref if not found to avoid re-render
+            return prev.map(a =>
+                a.id === id ? { ...a, clicks: (a.clicks || 0) + 1 } : a
+            );
+        });
+
+        // Background update
+        if (dataSource === 'database') {
+            incrementAdvertiserClick(id).catch(console.error);
+        }
+    }, [dataSource]);
+
+    const handleAdvertiserView = useCallback(async (adId: string) => {
+        // Ignore default ID
+        if (!adId || adId === 'site_promo_default') return;
+
+        // Optimistic update - ONLY if ID exists
+        setAdvertisers(prev => {
+            const exists = prev.some(a => a.id === adId);
+            if (!exists) return prev;
+            return prev.map(a =>
+                a.id === adId ? { ...a, views: (a.views || 0) + 1 } : a
+            );
+        });
+
+        // Background update
+        if (dataSource === 'database') {
+            incrementAdvertiserView(adId).catch(console.error);
+        }
+    }, [dataSource]);
+
     const currentContext: PopupTargetPage = useMemo(() => {
         if (view === 'admin') { return 'admin_area'; }
         if (view === 'jobs') { return 'jobs_board'; }
@@ -301,11 +357,26 @@ export const useAppController = () => {
     const activeAdvertisers = useMemo(() => advertisers.filter(a => a.isActive), [advertisers]);
 
     const contractBanners = useMemo(() => {
-        return activeAdvertisers.flatMap(a => a.promoBanners || []).filter(b => b.active);
+        return activeAdvertisers.flatMap(a => (a.promoBanners || []).map(b => ({ ...b, advertiserId: a.id }))).filter(b => b.active);
     }, [activeAdvertisers]);
 
     const contractPopupSet = useMemo(() => {
-        const items = activeAdvertisers.flatMap(a => a.popupSet?.items || []).filter(i => i.active);
+        const items = activeAdvertisers.flatMap(a => {
+            if (!a.popupSet?.items) return [];
+            return a.popupSet.items.map(item => ({
+                ...item,
+                advertiserInfo: {
+                    id: a.id,
+                    name: a.name,
+                    phone: a.phone,
+                    whatsapp: a.internalPage?.whatsapp,
+                    address: a.address,
+                    logoUrl: a.logoUrl,
+                    category: a.category,
+                    location: a.internalPage?.location
+                }
+            }));
+        }).filter(i => i.active);
         return { items };
     }, [activeAdvertisers]);
 
@@ -347,6 +418,8 @@ export const useAppController = () => {
         handleCategorySelection,
         handleRegionSelection,
         triggerErrorModal,
+        handleAdvertiserClick,
+        handleAdvertiserView,
         currentContext,
         contractBanners,
         contractPopupSet

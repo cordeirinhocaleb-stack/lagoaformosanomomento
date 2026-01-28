@@ -33,9 +33,9 @@ export const useAppInitialization = ({
         try {
             DebugLogger.log("🔄 Sincronizando dados do Supabase...");
 
-            // Reduz timeout para 10 segundos para feedback mais rápido
+            // Aumenta timeout para 25 segundos para evitar falsos positivos em conexões lentas
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Timeout: Supabase não respondeu em 10 segundos')), 10000)
+                setTimeout(() => reject(new Error('Timeout: Supabase não respondeu em 25 segundos')), 25000)
             );
 
             // Tenta buscar dados do site (públicos)
@@ -177,8 +177,8 @@ export const useAppInitialization = ({
                             try {
                                 console.log(`[AUTH] 🔍 Iniciando restoreUserProfile para ID: ${authUser.id}`);
 
-                                // Timeout de segurança para a consulta ao banco
-                                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout na consulta de perfil')), 5000));
+                                // Timeout de segurança para a consulta ao banco (Aumentado para 30s)
+                                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout na consulta de perfil (30s)')), 30000));
 
                                 const fetchPromise = sbClient
                                     .from('users')
@@ -272,6 +272,19 @@ export const useAppInitialization = ({
                         const { data: { session }, error: sessionError } = await sbClient.auth.getSession();
                         if (sessionError) {
                             DebugLogger.error("[AUTH] ❌ Erro ao recuperar sessão inicial:", sessionError);
+
+                            // [FIX] Invalid Refresh Token Handler
+                            // Se a sessão estiver corrompida ou o token inválido, forçamos logout para limpar o storage
+                            if (sessionError.message && (
+                                sessionError.message.includes("Invalid Refresh Token") ||
+                                sessionError.message.includes("Refresh Token Not Found")
+                            )) {
+                                console.warn("[AUTH] ♻️ Token inválido detectado. Limpando sessão e forçando logout...");
+                                await sbClient.auth.signOut();
+                                localStorage.removeItem(`sb-${new URL(sbUrl).hostname}-auth-token`); // Padrão do Supabase
+                                localStorage.removeItem('lfnm_user');
+                                onUserRestored(null);
+                            }
                         }
 
                         if (session?.user) {

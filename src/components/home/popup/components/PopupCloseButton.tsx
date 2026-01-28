@@ -2,7 +2,7 @@ import React from 'react';
 
 interface PopupCloseButtonProps {
     onClose?: () => void;
-    closeButtonStyle?: 'default' | 'square' | 'circle';
+    closeButtonStyle?: 'default' | 'square' | 'circle' | 'x';
     buttonBg?: string;
     buttonText?: string;
 }
@@ -20,6 +20,7 @@ const PopupCloseButton: React.FC<PopupCloseButtonProps> = ({
         if (closeButtonStyle === 'circle') {
             return '-top-4 -right-4 w-10 h-10 rounded-full';
         }
+        // 'default' or 'x'
         return 'top-4 right-4 w-8 h-8 rounded-lg';
     };
 

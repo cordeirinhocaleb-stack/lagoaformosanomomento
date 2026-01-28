@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Advertiser } from '../../../../../types';
+import { User, Advertiser } from '../../../../../types';
 import { getUserByDocument, getUserByName } from '../../../../../services/supabaseService';
 import ToggleSwitch from '../components/ToggleSwitch';
 import BillingInfoPanel from './BillingInfoPanel';
@@ -8,7 +8,10 @@ import BillingInfoPanel from './BillingInfoPanel';
 interface GeneralSectionProps {
     data: Advertiser;
     onChange: (data: Advertiser) => void;
+    user?: User | null;
+    onShowQR?: () => void;
     darkMode?: boolean;
+    onSave?: () => Promise<void> | void;
 }
 
 // Estilos base unificados (Constantes fora para evitar recriação)
@@ -16,7 +19,7 @@ const BASE_INPUT_CLASS = "w-full rounded-lg px-4 py-3 text-sm font-medium outlin
 const LIGHT_INPUT_CLASS = "bg-white border-gray-200 text-gray-900 focus:border-red-500 placeholder-gray-400";
 const DARK_INPUT_CLASS = "bg-[#1A1A1A] border-zinc-800 text-gray-100 focus:border-red-500 placeholder-zinc-600";
 
-const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMode = false }) => {
+const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, user, onShowQR, darkMode = false, onSave }) => {
     // Classes computadas
     const inputClass = `${BASE_INPUT_CLASS} ${darkMode ? DARK_INPUT_CLASS : LIGHT_INPUT_CLASS}`;
     const labelClass = `block text-[10px] font-bold uppercase tracking-wider mb-2 ${darkMode ? 'text-zinc-400' : 'text-zinc-500'}`;
@@ -29,7 +32,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
     const [searchResults, setSearchResults] = useState<Array<{ id: string, name: string, email: string, document?: string }>>([]);
 
     // State for dynamic plans
-    const [availablePlans, setAvailablePlans] = useState<{ id: string, name: string }[]>([]);
+    const [availablePlans, setAvailablePlans] = useState<any[]>([]);
 
     useEffect(() => {
         const loadPlans = async () => {
@@ -39,13 +42,28 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                 const config = await getSystemSetting('ad_config');
 
                 if (config && config.plans && Array.isArray(config.plans)) {
-                    setAvailablePlans(config.plans.map((p: any) => ({ id: p.id, name: p.name })));
+                    setAvailablePlans(config.plans);
                 } else {
-                    // Fallback se não houver config, mantendo compatibilidade visual
+                    // Fallback com preços padrão para teste
                     setAvailablePlans([
-                        { id: 'master', name: 'Master' },
-                        { id: 'premium', name: 'Premium' },
-                        { id: 'basic', name: 'Básico' }
+                        {
+                            id: 'basic',
+                            name: 'Básico',
+                            prices: { monthly: 89.90, quarterly: 250.00, semiannual: 480.00, yearly: 900.00 },
+                            features: { allowedSocialNetworks: ['instagram'], socialFrequency: '1x/sem' }
+                        },
+                        {
+                            id: 'premium',
+                            name: 'Premium',
+                            prices: { monthly: 149.90, quarterly: 420.00, semiannual: 800.00, yearly: 1500.00 },
+                            features: { allowedSocialNetworks: ['instagram', 'facebook'], socialFrequency: '3x/sem' }
+                        },
+                        {
+                            id: 'master',
+                            name: 'Master',
+                            prices: { monthly: 299.90, quarterly: 850.00, semiannual: 1600.00, yearly: 3000.00 },
+                            features: { allowedSocialNetworks: ['all'], socialFrequency: 'diário' }
+                        }
                     ]);
                 }
             } catch (e) {
@@ -57,10 +75,54 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
 
 
     const handleChange = (field: keyof Advertiser, value: unknown) => {
-        onChange({ ...data, [field]: value });
+        // Lógica de Atualização (com auto-fill)
+        let updates: Partial<Advertiser> = { [field]: value };
+
+        // Se mudou o Plano -> Auto-selecionar preço base do ciclo atual
+        if (field === 'plan') {
+            const planConfig = availablePlans.find(p => p.id === value);
+            if (planConfig && planConfig.prices) {
+                const currentCycle = data.billingCycle || 'monthly';
+                const price = planConfig.prices[currentCycle] || 0;
+
+                updates.billingValue = price;
+                updates.billingCycle = currentCycle;
+            }
+        }
+
+        // Se mudou o Ciclo -> Auto-atualizar preço base do plano atual
+        if (field === 'billingCycle') {
+            const planConfig = availablePlans.find(p => p.id === data.plan);
+            if (planConfig && planConfig.prices) {
+                const newCycle = value as string;
+                const price = planConfig.prices[newCycle] || 0;
+                updates.billingValue = price;
+            }
+        }
+
+        // Auto-calcular duração se mudar datas
+        if (field === 'startDate' || field === 'endDate') {
+            const startStr = field === 'startDate' ? value as string : data.startDate;
+            const endStr = field === 'endDate' ? value as string : data.endDate;
+
+            if (startStr && endStr) {
+                const start = new Date(startStr);
+                const end = new Date(endStr);
+                let months = (end.getFullYear() - start.getFullYear()) * 12;
+                months -= start.getMonth();
+                months += end.getMonth();
+                if (months <= 0) months = 1;
+                updates.contractDuration = months;
+            }
+        }
+
+        onChange({ ...data, ...updates });
     };
 
+    // ... (rest of search logic handles)
+
     const handleSearchUser = async () => {
+        // ... (original content)
         if (!docSearch) return;
         setIsSearchingUser(true);
         setSearchResults([]);
@@ -182,6 +244,24 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                         </div>
 
                         <div>
+                            <label className={labelClass}>Mensagem Automática (WhatsApp)</label>
+                            <input
+                                type="text"
+                                value={data.internalPage?.whatsappMessage || ''}
+                                onChange={e => {
+                                    const currentInternal = data.internalPage || { description: '', products: [], whatsapp: '', instagram: '', location: '' };
+                                    onChange({
+                                        ...data,
+                                        internalPage: { ...currentInternal, whatsappMessage: e.target.value }
+                                    });
+                                }}
+                                className={inputClass}
+                                placeholder="Oi eu vim pelo lagoaformosanomomento..."
+                            />
+                            <p className="text-[9px] mt-1.5 text-gray-400">Mensagem que aparecerá quando o cliente clicar no botão do WhatsApp.</p>
+                        </div>
+
+                        <div>
                             <label className={labelClass}>Endereço Completo</label>
                             <input
                                 type="text"
@@ -215,6 +295,20 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                                 Use as abas superiores para configurar Banners na Home e Popups Promocionais exclusivos para este anunciante.
                             </p>
                         </div>
+                    </div>
+
+                    {/* Botão de Salvar Identidade */}
+                    <div className="pt-4">
+                        <button
+                            onClick={() => onSave && onSave()}
+                            className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 ${darkMode ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
+                        >
+                            <i className="fas fa-save text-lg"></i>
+                            Salvar Identidade do Anúncio
+                        </button>
+                        <p className={`text-[10px] text-center mt-3 ${darkMode ? 'text-zinc-500' : 'text-gray-400'}`}>
+                            Atualiza nome, categoria e contatos públicos.
+                        </p>
                     </div>
                 </div>
 
@@ -284,11 +378,15 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                                         <option value="quarterly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Trimestral</option>
                                         <option value="semiannual" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Semestral</option>
                                         <option value="yearly" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Anual</option>
+                                        <option value="single" className={darkMode ? 'bg-zinc-900 text-white' : 'text-black'}>Pagamento à Vista (Único)</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label className={labelClass}>Status de Pagamento</label>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className={labelClass}>Status de Pagamento</label>
+
+                                    </div>
                                     <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer group transition-all ${data.isPaid ? 'border-green-500/30 bg-green-500/5' : 'border-orange-500/30 bg-orange-500/5'}`}>
                                         <span className={`text-xs font-black uppercase ${data.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
                                             {data.isPaid ? '✓ Pago' : 'Pendente'}
@@ -465,9 +563,26 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({ data, onChange, darkMod
                         </div>
                     </div>
 
-                    <BillingInfoPanel data={data} onChange={onChange} darkMode={darkMode} />
+                    {/* Botão de Salvar Contrato */}
+                    <div className="pt-4 mt-auto">
+                        <button
+                            onClick={() => onSave && onSave()}
+                            className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 bg-gradient-to-r ${darkMode ? 'from-green-900 to-green-800 hover:from-green-800 hover:to-green-700 text-green-100' : 'from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white'}`}
+                        >
+                            <i className="fas fa-file-signature text-lg"></i>
+                            Salvar Gestão de Contrato
+                        </button>
+                        <p className={`text-[10px] text-center mt-3 ${darkMode ? 'text-zinc-500' : 'text-gray-400'}`}>
+                            Atualiza status, planos, ciclos e gera recálculos financeiros.
+                        </p>
+                    </div>
 
                 </div>
+
+            </div>
+
+            <div className="mt-12 pt-12 border-t border-dashed">
+                <BillingInfoPanel data={data} onChange={onChange} user={user} darkMode={darkMode} />
             </div>
         </div>
     );

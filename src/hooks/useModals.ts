@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { AdvertiserInfoSummary } from '../types';
 
 /**
  * Hook para gerenciar todos os estados de modais da aplicação
@@ -26,11 +27,14 @@ interface ModalsState {
     showPricingModal: boolean;
     showTermsModal: boolean;
     showComingSoonModal: boolean;
+    showForgotPasswordModal: boolean;
     errorModal: ErrorModalState;
     accessDeniedConfig: AccessDeniedConfig | null;
     successMessage: string;
     pendingGoogleUser: unknown;
     pendingManualEmail: string | null;
+    showAdvertiserInfoModal: boolean;
+    selectedAdvertiserInfo: AdvertiserInfoSummary | null;
 }
 
 export const useModals = () => {
@@ -43,6 +47,7 @@ export const useModals = () => {
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+    const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
     const [errorModal, setErrorModal] = useState<ErrorModalState>({
         visible: false,
@@ -53,6 +58,9 @@ export const useModals = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [pendingGoogleUser, setPendingGoogleUser] = useState<unknown>(null);
     const [pendingManualEmail, setPendingManualEmail] = useState<string | null>(null);
+
+    const [showAdvertiserInfoModal, setShowAdvertiserInfoModal] = useState(false);
+    const [selectedAdvertiserInfo, setSelectedAdvertiserInfo] = useState<AdvertiserInfoSummary | null>(null);
 
     // Confirmation State
     const [confirmationState, setConfirmationState] = useState<{
@@ -143,6 +151,19 @@ export const useModals = () => {
     const openComingSoonModal = useCallback(() => setShowComingSoonModal(true), []);
     const closeComingSoonModal = useCallback(() => setShowComingSoonModal(false), []);
 
+    const openForgotPasswordModal = useCallback(() => setShowForgotPasswordModal(true), []);
+    const closeForgotPasswordModal = useCallback(() => setShowForgotPasswordModal(false), []);
+
+    const openAdvertiserInfo = useCallback((info: AdvertiserInfoSummary) => {
+        setSelectedAdvertiserInfo(info);
+        setShowAdvertiserInfoModal(true);
+    }, []);
+
+    const closeAdvertiserInfo = useCallback(() => {
+        setShowAdvertiserInfoModal(false);
+        setSelectedAdvertiserInfo(null);
+    }, []);
+
     return useMemo(() => ({
         // Estados
         showLoginModal,
@@ -154,11 +175,14 @@ export const useModals = () => {
         showPricingModal,
         showTermsModal,
         showComingSoonModal,
+        showForgotPasswordModal,
         errorModal,
         accessDeniedConfig,
         successMessage,
         pendingGoogleUser,
         pendingManualEmail,
+        showAdvertiserInfoModal,
+        selectedAdvertiserInfo,
         confirmationState, // New
 
         // Setters diretos (para compatibilidade)
@@ -170,14 +194,19 @@ export const useModals = () => {
         setShowChangelog,
         setShowPricingModal,
         setShowComingSoonModal,
+        setShowForgotPasswordModal,
         setErrorModal,
         setAccessDeniedConfig,
         setSuccessMessage,
         setPendingGoogleUser,
         setPendingManualEmail,
+        setShowAdvertiserInfoModal,
+        setSelectedAdvertiserInfo,
         setConfirmationState, // New
 
         // Helper functions
+        openAdvertiserInfo,
+        closeAdvertiserInfo,
         showError,
         hideError,
         showConfirm, // New
@@ -199,18 +228,23 @@ export const useModals = () => {
         openTermsModal,
         closeTermsModal,
         openComingSoonModal,
-        closeComingSoonModal
+        closeComingSoonModal,
+        openForgotPasswordModal,
+        closeForgotPasswordModal
     }), [
         showLoginModal, showProfileModal, showRoleSelector, showAccessDenied,
         showSuccessModal, showChangelog, showPricingModal, showTermsModal, showComingSoonModal,
+        showForgotPasswordModal,
         errorModal, accessDeniedConfig, successMessage, pendingGoogleUser,
-        pendingManualEmail, confirmationState, // New
+        pendingManualEmail, confirmationState,
+        showAdvertiserInfoModal, selectedAdvertiserInfo, // New
         showError, hideError, showConfirm, closeConfirm, showAccessDeniedModal,
         hideAccessDenied, showSuccess, hideSuccess, openLoginModal,
         closeLoginModal, openProfileModal, closeProfileModal, openRoleSelector,
         closeRoleSelector, openChangelog, closeChangelog, openPricingModal,
         closePricingModal, openTermsModal, closeTermsModal, openComingSoonModal,
-        closeComingSoonModal
+        closeComingSoonModal, openForgotPasswordModal, closeForgotPasswordModal,
+        openAdvertiserInfo, closeAdvertiserInfo
     ]);
 };
 
