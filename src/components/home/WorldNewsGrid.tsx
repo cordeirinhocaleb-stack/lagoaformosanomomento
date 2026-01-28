@@ -8,8 +8,8 @@ interface WorldNewsGridProps {
 }
 
 const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selectedCategory }) => {
-    // Lista de categorias para o Giro (Limitado a 4 conforme solicitado para ser mais direto)
-    const allCategories = ['Política', 'Economia', 'Agro', 'Mundo'];
+    // Lista completa de categorias para o Giro
+    const allCategories = ['Política', 'Economia', 'Agro', 'Mundo', 'Tecnologia', 'Esporte', 'Cultura', 'Cotidiano'];
     const [startIndex, setStartIndex] = useState(0);
     const [visibleCount, setVisibleCount] = useState(4);
 
@@ -30,8 +30,9 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
         if (selectedCategory !== 'all') return; // Não rotaciona se há filtro ativo
 
         const interval = setInterval(() => {
-            setStartIndex((prev) => (prev + 1) % allCategories.length);
-        }, 6000); // Muda a cada 6 segundos
+            // Rotaciona de 4 em 4 para trocar o bloco completo conforme solicitado
+            setStartIndex((prev) => (prev + 4) % allCategories.length);
+        }, 40000); // Muda a cada 40 segundos conforme solicitado
 
         return () => clearInterval(interval);
     }, [allCategories.length, selectedCategory]);
