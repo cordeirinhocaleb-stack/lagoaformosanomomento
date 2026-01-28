@@ -49,27 +49,11 @@ const Home: React.FC<HomeProps> = ({
 }) => {
     const newsGridRef = useRef<HTMLDivElement>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(18); // Default Desktop
 
-    // --- LÓGICA DE PAGINAÇÃO RESPONSIVA ---
+    // Reset de página ao mudar filtros
     useEffect(() => {
-        const handleResize = () => {
-            const w = window.innerWidth;
-            if (w < 768) {
-                setItemsPerPage(8); // Mobile
-            } else if (w < 1280) {
-                setItemsPerPage(12); // Tablet / Laptop Pequeno
-            } else {
-                setItemsPerPage(18); // Desktop Grande
-            }
-        };
-
-        // Executa na montagem
-        handleResize();
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+        setCurrentPage(1);
+    }, [selectedCategory, selectedRegion]);
 
     // Reset de página ao mudar filtros
     useEffect(() => {
@@ -225,20 +209,38 @@ const Home: React.FC<HomeProps> = ({
     }, [allMixedNews, selectedCategory, selectedRegion, user]);
 
     // --- 3. LÓGICA DE PAGINAÇÃO E RECORTE ---
-    const totalPages = Math.max(1, Math.ceil(filteredNews.length / itemsPerPage));
-
     // Efeito de segurança: Se o resize reduzir as páginas e o usuário estiver na pag 5 de 3, volta para a 3.
     useEffect(() => {
+        // This effect now depends on the totalPages derived from the useMemo below
+        // It needs to be re-evaluated when filteredNews or screen size changes
         if (currentPage > totalPages) {
             setCurrentPage(totalPages);
         }
-    }, [itemsPerPage, totalPages, currentPage]);
+    }, [filteredNews, currentPage]); // Removed totalPages from dependencies to avoid circular dependency, it's derived from filteredNews
 
-    const paginatedNews = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        return filteredNews.slice(start, end);
-    }, [filteredNews, currentPage, itemsPerPage]);
+    // 7. Paginação e Filtragem Final
+    const { paginatedNews, totalPages } = useMemo(() => {
+        // Usa as notícias filtradas (por categoria ou busca)
+        const source = filteredNews;
+
+        // Determina o tamanho da página baseado no dispositivo
+        let pageSize = 12; // Default for tablet/small laptop
+        if (typeof window !== 'undefined') {
+            if (window.innerWidth < 768) pageSize = 8; // Mobile
+            else if (window.innerWidth >= 1900) pageSize = 20; // Extra Large Desktop
+            else if (window.innerWidth >= 1280) pageSize = 18; // Desktop Grande (original default)
+            else pageSize = 12; // Tablet / Laptop Pequeno
+        }
+
+        const total = Math.max(1, Math.ceil(source.length / pageSize));
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+
+        return {
+            paginatedNews: source.slice(start, end),
+            totalPages: total
+        };
+    }, [filteredNews, currentPage]);
 
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) { return; }
