@@ -55,12 +55,10 @@ const InstagramFeed: React.FC = () => {
     }, [token]);
 
     const handlePostClick = (post: InstaPost, e: React.MouseEvent) => {
-        // Agora sempre navegamos para a página de "notícia" do Instagram
         e.preventDefault();
         router.push(`/noticia/instagram?id=${post.id}`);
     };
 
-    // Se não tiver token, não renderiza nada ou mostra aviso sutil
     if (!token && !posts.length) return null;
 
     return (
@@ -101,48 +99,71 @@ const InstagramFeed: React.FC = () => {
                         <p className="text-xs font-bold text-red-600/60 uppercase">Verifique o token nas configurações do admin</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         {posts.map((post) => (
-                            <a
+                            <div
                                 key={post.id}
-                                href={post.permalink}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 onClick={(e) => handlePostClick(post, e)}
-                                className="group relative aspect-square rounded-[2rem] overflow-hidden bg-gray-100 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500"
+                                className="group relative h-[300px] md:h-[360px] rounded-2xl overflow-hidden bg-black border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer"
                             >
+                                {/* Media Image */}
                                 <img
                                     src={post.media_type === 'VIDEO' ? (post.thumbnail_url || post.media_url) : post.media_url}
                                     alt="Instagram Post"
                                     loading="lazy"
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:opacity-40 group-hover:grayscale"
                                 />
 
-                                {/* Overlay Interaction */}
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-6 text-white">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <div className="flex items-center gap-2">
-                                            {post.media_type === 'VIDEO' ? (
-                                                <i className="fas fa-play text-xl"></i>
-                                            ) : (
-                                                <Heart className="w-5 h-5 fill-white" />
-                                            )}
-                                            <span className="font-black text-sm">{post.media_type === 'VIDEO' ? 'Assistir' : 'Ver Post'}</span>
+                                {/* Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
+
+                                {/* Content Info (Matches NewsCard style) */}
+                                <div className="absolute bottom-0 left-0 w-full p-5 text-white transition-all duration-500 group-hover:opacity-0 group-hover:translate-y-4">
+                                    <div className="flex flex-col items-start gap-2 mb-3">
+                                        {/* Faixa pequena escrito Instagram */}
+                                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[7px] font-black px-3 py-0.5 uppercase tracking-widest shadow-lg border-l-2 border-white inline-block skew-x-[-15deg]">
+                                            <span className="skew-x-[15deg] block">Instagram</span>
                                         </div>
+                                    </div>
+
+                                    {/* Caption as Title */}
+                                    <h3 className="text-sm font-[1000] leading-tight uppercase italic mb-3 line-clamp-3 drop-shadow-md tracking-tighter">
+                                        {post.caption || 'Confira os bastidores no nosso Instagram'}
+                                    </h3>
+
+                                    <div className="flex justify-between items-end border-t border-white/20 pt-2 opacity-80">
+                                        <span className="text-[7px] font-black uppercase tracking-widest">@lagoaformosanomomento</span>
+                                        <span className="text-[7px] font-bold uppercase">
+                                            {new Date(post.timestamp).toLocaleDateString()}
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Icon Indicator */}
-                                <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md p-2.5 rounded-2xl opacity-100 group-hover:opacity-0 transition-opacity border border-white/10">
+                                {/* Hover Interaction (Play icon for video) */}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                                            {post.media_type === 'VIDEO' ? (
+                                                <i className="fas fa-play text-white text-xl ml-1"></i>
+                                            ) : (
+                                                <Heart className="w-6 h-6 text-white" />
+                                            )}
+                                        </div>
+                                        <span className="text-[10px] font-black text-white uppercase tracking-widest">{post.media_type === 'VIDEO' ? 'Assistir' : 'Ver Post'}</span>
+                                    </div>
+                                </div>
+
+                                {/* Media Type Icon (Top Right) */}
+                                <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md p-2 rounded-xl border border-white/10 transition-opacity duration-300 group-hover:opacity-0">
                                     {post.media_type === 'VIDEO' ? (
-                                        <i className="fas fa-play text-white text-[10px]"></i>
+                                        <i className="fas fa-play text-white text-[9px]"></i>
                                     ) : post.media_type === 'CAROUSEL_ALBUM' ? (
-                                        <i className="fas fa-clone text-white text-[10px]"></i>
+                                        <i className="fas fa-clone text-white text-[9px]"></i>
                                     ) : (
-                                        <i className="fas fa-image text-white text-[10px]"></i>
+                                        <i className="fas fa-image text-white text-[9px]"></i>
                                     )}
                                 </div>
-                            </a>
+                            </div>
                         ))}
                     </div>
                 )}
