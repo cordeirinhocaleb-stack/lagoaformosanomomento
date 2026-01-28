@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Instagram, ExternalLink, Heart, MessageCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Instagram, ExternalLink, Heart, AlertCircle, Loader2 } from 'lucide-react';
 import { useAppControllerContext } from '@/providers/AppControllerProvider';
+import { useRouter } from 'next/navigation';
 
 interface InstaPost {
     id: string;
@@ -9,16 +10,17 @@ interface InstaPost {
     permalink: string;
     thumbnail_url?: string;
     timestamp: string;
+    caption?: string;
 }
 
 const InstagramFeed: React.FC = () => {
     const ctrl = useAppControllerContext();
+    const router = useRouter();
     const token = ctrl.systemSettings.instagramToken;
 
     const [posts, setPosts] = useState<InstaPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedPost, setSelectedPost] = useState<InstaPost | null>(null);
 
     useEffect(() => {
         if (!token) {
@@ -30,7 +32,7 @@ const InstagramFeed: React.FC = () => {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `https://graph.instagram.com/me/media?fields=id,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${token}`
+                    `https://graph.instagram.com/me/media?fields=id,media_type,media_url,permalink,thumbnail_url,timestamp,caption&access_token=${token}`
                 );
 
                 if (!response.ok) {
@@ -53,10 +55,9 @@ const InstagramFeed: React.FC = () => {
     }, [token]);
 
     const handlePostClick = (post: InstaPost, e: React.MouseEvent) => {
-        if (post.media_type === 'VIDEO') {
-            e.preventDefault();
-            setSelectedPost(post);
-        }
+        // Agora sempre navegamos para a página de "notícia" do Instagram
+        e.preventDefault();
+        router.push(`/noticia/instagram?id=${post.id}`);
     };
 
     // Se não tiver token, não renderiza nada ou mostra aviso sutil
@@ -126,7 +127,7 @@ const InstagramFeed: React.FC = () => {
                                             ) : (
                                                 <Heart className="w-5 h-5 fill-white" />
                                             )}
-                                            <span className="font-black text-sm">{post.media_type === 'VIDEO' ? 'Assistir' : 'Curtir'}</span>
+                                            <span className="font-black text-sm">{post.media_type === 'VIDEO' ? 'Assistir' : 'Ver Post'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -155,86 +156,6 @@ const InstagramFeed: React.FC = () => {
                     </div>
                 )}
             </div>
-
-            {/* Modal de Mídia (Vídeo Local) */}
-            {selectedPost && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-fadeIn">
-                    <div
-                        className="absolute inset-0 bg-black/95 backdrop-blur-2xl"
-                        onClick={() => setSelectedPost(null)}
-                    ></div>
-
-                    <div className="relative w-full max-w-lg aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 animate-zoomIn flex flex-col">
-                        {/* Header do Modal */}
-                        <div className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full border-2 border-pink-600 p-0.5">
-                                    <img
-                                        src="/logo-m.png"
-                                        alt="LFNM"
-                                        className="w-full h-full object-contain rounded-full bg-white"
-                                        onError={(e) => (e.currentTarget.src = 'https://instagram.com/favicon.ico')}
-                                    />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-black text-white uppercase tracking-widest">Lagoa Formosa</p>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No Momento</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setSelectedPost(null)}
-                                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors backdrop-blur-md"
-                            >
-                                <i className="fas fa-times"></i>
-                            </button>
-                        </div>
-
-                        {/* Player de Vídeo */}
-                        <div className="flex-grow flex items-center justify-center bg-black relative">
-                            {selectedPost.media_type === 'VIDEO' ? (
-                                <video
-                                    src={selectedPost.media_url}
-                                    className="w-full h-full object-contain"
-                                    controls
-                                    autoPlay
-                                    playsInline
-                                    loop
-                                />
-                            ) : (
-                                <img
-                                    src={selectedPost.media_url}
-                                    className="w-full h-full object-contain"
-                                    alt="Post"
-                                />
-                            )}
-                        </div>
-
-                        {/* Footer do Modal */}
-                        <div className="p-8 bg-gradient-to-t from-black to-transparent flex flex-col gap-4">
-                            <div className="flex items-center gap-4">
-                                <a
-                                    href={selectedPost.permalink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white h-12 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 transition-all hover:scale-[1.02] active:scale-95"
-                                >
-                                    <Instagram className="w-4 h-4" />
-                                    <span>Seguir no Instagram</span>
-                                </a>
-                                <button
-                                    onClick={() => setSelectedPost(null)}
-                                    className="px-6 h-12 bg-white/10 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-white/20 transition-colors"
-                                >
-                                    Fechar
-                                </button>
-                            </div>
-                            <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest text-center">
-                                Lagoa Formosa No Momento • Conteúdo Original
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </section>
     );
 };
