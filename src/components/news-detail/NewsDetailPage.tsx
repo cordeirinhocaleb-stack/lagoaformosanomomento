@@ -13,15 +13,14 @@ import LeftAdsRail from './components/layout/LeftAdsRail';
 import RightToolsRail from './components/layout/RightToolsRail';
 import BackToTopButton from './components/tools/BackToTopButton';
 import FontSizeControls from './components/tools/FontSizeControls';
-import AuthorProfileModal from '../../components/common/AuthorProfileModal';
+import AuthorProfileModal from '../common/AuthorProfileModal';
 import { AdvertiserCard } from '../../components/common/AdvertiserCard';
-import PartnersStrip from '../../components/home/PartnersStrip';
+import PartnersStrip from '../home/PartnersStrip';
 import CommentsSection from './components/article/CommentsSection';
 import ShareBar from './components/tools/ShareBar';
 import ReadingModeToggle from './components/tools/ReadingModeToggle';
 import PrintButton from './components/tools/PrintButton';
 import SavePostButton from './components/tools/SavePostButton';
-import Footer from '../../components/layout/Footer';
 
 interface NewsDetailProps {
     news: NewsItem;
@@ -114,7 +113,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
     const footerAds = useMemo(() => {
         return advertisers
-            .filter(ad => ad.isActive && ad.plan !== 'Master') // Evita duplicação se já for master no topo do footer
+            .filter(ad => ad.isActive)
             .filter(ad => !ad.displayLocations || ad.displayLocations.includes('article_footer'))
             .sort(() => Math.random() - 0.5);
     }, [advertisers]);
@@ -164,16 +163,6 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
             <ScrollProgress progress={progress} />
 
-            <div className={`sticky top-0 z-[90] bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 transition-all duration-500 ${readingMode ? '-translate-y-full' : ''}`}>
-                <CategoryMenu
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={onSelectCategory}
-                    selectedRegion={selectedRegion}
-                    onSelectRegion={onSelectRegion}
-                    user={user}
-                    onAdminClick={onAdminClick || (() => { })}
-                />
-            </div>
 
 
 
@@ -223,8 +212,8 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
             />
 
             <div ref={articleRef} className="w-full max-w-[1600px] mx-auto px-4 md:px-6 lg:px-4 flex-grow">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-6 md:pt-10">
-                    <aside className={`lg:col-span-3 transition-all duration-500 ${readingMode ? 'opacity-0' : 'opacity-100'} mb-8 lg:mb-0`}>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-0 md:pt-0">
+                    <aside className={`lg:col-span-3 transition-all duration-500 ${readingMode ? 'opacity-0' : 'opacity-100'} mb-0 lg:mb-0`}>
                         <div className="sticky top-28">
                             <LeftAdsRail
                                 advertisers={sidebarAds}
@@ -290,7 +279,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
             {/* Expansão Full-Width Pós-Artigo */}
             {!readingMode && (
-                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 space-y-16 pb-20">
+                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 space-y-0 pb-0">
                     <div className="max-w-4xl mx-auto w-full">
                         {/* Sobre o Autor - Mantido um pouco mais contido para leitura */}
                         <button
@@ -315,10 +304,10 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 
                     {/* Recomendações - Tela Cheia (Grid 4 colunas em telas grandes) */}
                     {recommendedNews.length > 0 && (
-                        <section className="pt-16 border-t-2 border-gray-100 dark:border-zinc-800">
-                            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                        <section className="pt-0">
+                            <div className="flex flex-col md:flex-row md:items-end justify-between mb-0 gap-4">
                                 <div>
-                                    <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-zinc-100 mb-2 flex items-center gap-3">
+                                    <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-zinc-100 mb-0 flex items-center gap-3">
                                         <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span> Continue por dentro
                                     </h4>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -345,62 +334,26 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
                         </section>
                     )}
 
-                    {/* Comentários - Tela Cheia */}
-                    <div className="pt-16 border-t-2 border-gray-100 dark:border-zinc-800">
-                        {/* Parceiros Master Lado a Lado (Random) */}
-                        {masterSupporters.length > 0 && (
-                            <div className="mb-16">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></div>
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Parceiros Master</h4>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {masterSupporters.map(ad => (
-                                        <AdvertiserCard
-                                            key={ad.id}
-                                            ad={ad}
-                                            onClick={onAdvertiserClick || (() => { })}
-                                            className="bg-zinc-50 dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 shadow-sm"
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
+                    {/* Comentários */}
+                    <div className="pt-0">
                         <CommentsSection newsId={news.id} user={user} onLogin={onLogin} />
                     </div>
 
-                    {/* Banner Principal - Apoiadores */}
-                    <div className="pt-16 border-t-2 border-gray-100 dark:border-zinc-800">
-                        <PartnersStrip
-                            advertisers={advertisers}
-                            onAdvertiserClick={onAdvertiserClick || (() => { })}
-                        />
-                    </div>
-
-                    {/* Apoiadores - Tela Cheia */}
-                    <div className="pt-16 border-t-2 border-gray-100 dark:border-zinc-800">
-                        <AdvertisersFooter
-                            advertisers={footerAds}
-                            onAdvertiserClick={onAdvertiserClick || (() => { })}
-                            onPlanRequest={onPricingClick}
-                            fullWidth
-                        />
-                    </div>
+                    <PartnersStrip
+                        advertisers={advertisers}
+                        onAdvertiserClick={onAdvertiserClick || (() => { })}
+                    />
                 </div>
             )}
 
             {!readingMode && (
-                <div className="bg-gray-50 dark:bg-zinc-900 py-16 text-center border-t border-gray-100 dark:border-zinc-800 mt-16">
+                <div className="bg-gray-50 dark:bg-zinc-900 py-8 text-center border-t border-gray-100 dark:border-zinc-800 mt-0">
                     <button onClick={onBack} className="bg-black text-white px-10 py-4 rounded-full font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-2xl active:scale-95 text-[10px]">
                         Voltar ao Portal
                     </button>
                 </div>
             )}
 
-            {!readingMode && (
-                <Footer settings={settings} />
-            )}
 
             <BackToTopButton />
         </div>
@@ -408,7 +361,7 @@ const NewsDetailPage: React.FC<NewsDetailProps> = (props) => {
 };
 
 const ScrollProgress = ({ progress }: { progress: number }) => (
-    <div className="fixed top-[50px] md:top-[60px] left-0 h-1.5 bg-transparent z-[100] w-full pointer-events-none">
+    <div className="fixed top-[56px] left-0 h-1 bg-transparent z-[100] w-full pointer-events-none">
         <div className="h-full bg-red-600 transition-all duration-150 ease-out shadow-[0_0_15px_rgba(220,38,38,0.8)] relative" style={{ width: `${progress}%` }}>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
                 <img src="https://lh3.googleusercontent.com/d/1u0-ygqjuvPa4STtU8gT8HFyF05luNo1P" className="w-12 h-12 md:w-14 md:h-14 object-contain animate-coin drop-shadow-[0_2px_10px_rgba(220,38,38,0.6)]" alt="Progresso" />

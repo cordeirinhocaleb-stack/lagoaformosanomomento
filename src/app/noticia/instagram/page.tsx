@@ -34,6 +34,13 @@ function InstagramViewContent() {
             onSelectCategory={ctrl.handleCategorySelection}
             selectedRegion={ctrl.selectedRegion}
             onSelectRegion={ctrl.handleRegionSelection}
+            // Novas Props para Layout de Notícia
+            advertisers={ctrl.advertisers}
+            allNews={ctrl.news}
+            onAdvertiserClick={ctrl.setSelectedAdvertiser}
+            adConfig={ctrl.adConfig}
+            onPricingClick={() => ctrl.modals.setShowPricingModal(true)}
+            onLogin={() => ctrl.modals.setShowLoginModal(true)}
         />
     );
 }

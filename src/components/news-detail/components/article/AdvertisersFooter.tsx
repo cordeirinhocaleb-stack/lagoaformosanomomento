@@ -12,13 +12,13 @@ interface AdvertisersFooterProps {
 }
 
 const AdvertisersFooter: React.FC<AdvertisersFooterProps> = ({ advertisers, onAdvertiserClick, onPlanRequest, className, fullWidth }) => {
-    const supporters = advertisers.filter(ad => ad.isActive).slice(0, 6);
+    const supporters = advertisers.filter(ad => ad.isActive && (ad.plan?.toLowerCase() === 'master' || ad.plan?.toLowerCase() === 'lancamento')).slice(0, 6);
 
     return (
         <div className={`mt-10 ${className || ''}`}>
             <div className="flex items-center justify-between mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-4">
                 <h3 className="text-sm font-[1000] uppercase tracking-widest text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                    <i className="fas fa-store text-red-600"></i> Parceiros Comerciais
+                    <i className="fas fa-crown text-amber-500"></i> Parceiros Master
                 </h3>
                 <button
                     onClick={onPlanRequest}

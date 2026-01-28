@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useAppControllerContext } from '@/providers/AppControllerProvider';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Home from '@/components/home/HomeContent';
@@ -22,6 +23,7 @@ import { trackVisit } from '@/services/stats/siteStatsService';
 
 export default function HomePage() {
     const ctrl = useAppControllerContext();
+    const router = useRouter();
     const { modals } = ctrl;
 
     React.useEffect(() => {
@@ -111,11 +113,11 @@ export default function HomePage() {
                 </span>
                 <main className="flex-grow w-full">
                     <Home
-                        news={ctrl.news} advertisers={ctrl.advertisers} user={ctrl.user}
+                        news={ctrl.allNewsMerged} advertisers={ctrl.advertisers} user={ctrl.user}
                         onNewsClick={(n) => {
                             ctrl.setSelectedNews(n);
                             const link = n.seo?.slug || n.slug || n.id;
-                            ctrl.updateHash(`/news/view?slug=${link}`);
+                            router.push(`/news/view?slug=${link}`);
                         }}
                         onAdvertiserClick={(adOrId) => {
                             // Registra o clique e atualiza estado local

@@ -15,7 +15,7 @@ interface DashboardTabProps {
     darkMode?: boolean;
 }
 
-type ActivityFilter = 'all' | 'site' | 'rss';
+type ActivityFilter = 'all' | 'site' | 'rss' | 'instagram';
 
 const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertisers, systemSettings, onEditPost, onNewPost, onManageAds, onDeletePost, onUpdateSystemSettings, darkMode = true }) => {
     const [activityFilter, setActivityFilter] = useState<ActivityFilter>('all');
@@ -39,14 +39,16 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
             filtered = filtered.filter(n => n.source === 'site' || !n.source);
         } else if (activityFilter === 'rss') {
             filtered = filtered.filter(n => n.source === 'rss_automation');
+        } else if (activityFilter === 'instagram') {
+            filtered = filtered.filter(n => n.source === 'instagram' || n.category === 'Instagram');
         }
 
         return filtered.sort((a, b) => {
             if (activityFilter === 'all') {
-                const isASite = a.source === 'site' || !a.source;
-                const isBSite = b.source === 'site' || !b.source;
-                if (isASite && !isBSite) { return -1; }
-                if (!isASite && isBSite) { return 1; }
+                const isALocal = a.source === 'site' || !a.source || a.source === 'instagram';
+                const isBLocal = b.source === 'site' || !b.source || b.source === 'instagram';
+                if (isALocal && !isBLocal) { return -1; }
+                if (!isALocal && isBLocal) { return 1; }
             }
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         }).slice(0, 40);
@@ -189,7 +191,8 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                         {[
                             { id: 'all', label: 'Tudo', icon: 'fa-list' },
                             { id: 'site', label: 'Local', icon: 'fa-pen-nib' },
-                            { id: 'rss', label: 'Externo', icon: 'fa-globe' }
+                            { id: 'rss', label: 'Externo', icon: 'fa-globe' },
+                            { id: 'instagram', label: 'Instagram', icon: 'fab fa-instagram' }
                         ].map(opt => (
                             <button
                                 key={opt.id}
@@ -235,6 +238,10 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                             <span className={`flex items-center gap-1.5 text-[8px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-blue-400 bg-blue-900/20 border-blue-900/50' : 'text-blue-600 bg-blue-50 border-blue-100'}`}>
                                                 <i className="fas fa-globe"></i> Mundo
                                             </span>
+                                        ) : n.source === 'instagram' ? (
+                                            <span className={`flex items-center gap-1.5 text-[8px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-pink-400 bg-pink-900/20 border-pink-900/50' : 'text-pink-600 bg-pink-50 border-pink-100'}`}>
+                                                <i className="fab fa-instagram"></i> Insta
+                                            </span>
                                         ) : (
                                             <span className={`flex items-center gap-1.5 text-[8px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-red-400 bg-red-950/20 border-red-900/50' : 'text-red-600 bg-red-50 border-red-100'}`}>
                                                 <i className="fas fa-pen-nib"></i> Local
@@ -251,11 +258,31 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                     </td>
                                     <td className="p-6 text-right pr-6 md:pr-8">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => onEditPost(n)} className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${darkMode ? 'bg-white/5 text-gray-400 hover:bg-white hover:text-black' : 'bg-gray-50 text-gray-400 hover:bg-black hover:text-white'}`}>
+                                            <button
+                                                onClick={() => {
+                                                    if (n.source === 'instagram') {
+                                                        alert("Posts do Instagram não podem ser editados no portal. Edite diretamente no Instagram.");
+                                                        return;
+                                                    }
+                                                    onEditPost(n);
+                                                }}
+                                                className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${n.source === 'instagram' ? 'opacity-20 cursor-not-allowed' : ''} ${darkMode ? 'bg-white/5 text-gray-400 hover:bg-white hover:text-black' : 'bg-gray-50 text-gray-400 hover:bg-black hover:text-white'}`}
+                                                title={n.source === 'instagram' ? "Post do Instagram (Somente Leitura)" : "Editar"}
+                                            >
                                                 <i className="fas fa-pen text-[10px]"></i>
                                             </button>
                                             {canDelete && (
-                                                <button onClick={() => handleDeleteClick(n.id)} className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${darkMode ? 'bg-white/5 text-gray-400 hover:bg-red-600 hover:text-white' : 'bg-gray-50 text-gray-400 hover:bg-red-600 hover:text-white'}`}>
+                                                <button
+                                                    onClick={() => {
+                                                        if (n.source === 'instagram') {
+                                                            alert("Posts do Instagram não podem ser excluídos pelo painel. Remova no Instagram.");
+                                                            return;
+                                                        }
+                                                        handleDeleteClick(n.id);
+                                                    }}
+                                                    className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${n.source === 'instagram' ? 'opacity-20 cursor-not-allowed' : ''} ${darkMode ? 'bg-white/5 text-gray-400 hover:bg-red-600 hover:text-white' : 'bg-gray-50 text-gray-400 hover:bg-red-600 hover:text-white'}`}
+                                                    title={n.source === 'instagram' ? "Post do Instagram (Somente Leitura)" : "Excluir"}
+                                                >
                                                     <i className="fas fa-trash text-[10px]"></i>
                                                 </button>
                                             )}
@@ -293,6 +320,10 @@ const DashboardTab: React.FC<DashboardTabProps> = ({ user, newsHistory, advertis
                                     {n.source === 'rss_automation' ? (
                                         <span className={`flex items-center gap-1.5 text-[9px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-blue-400 bg-blue-900/20 border-blue-900/50' : 'text-blue-600 bg-blue-50 border-blue-100'}`}>
                                             <i className="fas fa-globe"></i> Mundo
+                                        </span>
+                                    ) : n.source === 'instagram' ? (
+                                        <span className={`flex items-center gap-1.5 text-[9px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-pink-400 bg-pink-900/20 border-pink-900/50' : 'text-pink-600 bg-pink-50 border-pink-100'}`}>
+                                            <i className="fab fa-instagram"></i> Insta
                                         </span>
                                     ) : (
                                         <span className={`flex items-center gap-1.5 text-[9px] font-black uppercase px-2 py-1 rounded border w-fit ${darkMode ? 'text-red-400 bg-red-950/20 border-red-900/50' : 'text-red-600 bg-red-50 border-red-100'}`}>

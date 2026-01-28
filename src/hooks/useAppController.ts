@@ -55,6 +55,7 @@ export const useAppController = () => {
     const [dataSource, setDataSource] = useState<'database' | 'mock' | 'missing_tables'>('mock');
 
     const [externalCategories, setExternalCategories] = useState<Record<string, any[]>>({});
+    const [instaPosts, setInstaPosts] = useState<NewsItem[]>([]);
     const [adConfig, setAdConfig] = useState<AdPricingConfig>(INITIAL_AD_CONFIG);
     const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
 
@@ -212,6 +213,62 @@ export const useAppController = () => {
             n.category === 'Tecnologia'
         );
     }, [marqueeNews]);
+
+    // Instagram Posts Integration
+    useEffect(() => {
+        const fetchInsta = async () => {
+            const token = systemSettings.instagramToken;
+            if (!token) return;
+
+            try {
+                const response = await fetch(
+                    `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${token}`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data) {
+                        const converted: NewsItem[] = data.data.map((post: any) => ({
+                            id: post.id,
+                            title: post.caption || 'Publicação do Instagram',
+                            lead: post.caption || '',
+                            content: post.caption || '',
+                            imageUrl: post.media_type === 'VIDEO' ? post.thumbnail_url || post.media_url : post.media_url,
+                            category: 'Instagram',
+                            author: 'Instagram',
+                            authorId: 'instagram_bot',
+                            createdAt: post.timestamp,
+                            updatedAt: post.timestamp,
+                            status: 'published',
+                            source: 'instagram',
+                            mediaType: post.media_type === 'VIDEO' ? 'video' : 'image',
+                            bannerMediaType: post.media_type === 'VIDEO' ? 'video' : 'image',
+                            videoUrl: post.media_type === 'VIDEO' ? post.media_url : undefined,
+                            region: 'Lagoa Formosa e Região',
+                            city: 'Lagoa Formosa',
+                            views: 0,
+                            blocks: [],
+                            isBreaking: false,
+                            isFeatured: false,
+                            featuredPriority: 0,
+                            bannerImages: [],
+                            seo: { slug: post.id, metaTitle: post.caption || 'Post Instagram', metaDescription: '', focusKeyword: '' }
+                        } as NewsItem));
+                        setInstaPosts(converted);
+                    }
+                }
+            } catch (err) {
+                console.error("IG Fetch Error:", err);
+            }
+        };
+
+        if (isInitialized) {
+            fetchInsta();
+        }
+    }, [isInitialized, systemSettings.instagramToken]);
+
+    const allNewsMerged = useMemo(() => {
+        return [...news, ...instaPosts];
+    }, [news, instaPosts]);
 
     useEffect(() => {
         if (user?.themePreference === 'dark') { document.documentElement.classList.add('dark'); }
@@ -406,8 +463,9 @@ export const useAppController = () => {
         CURRENT_VERSION,
         showLoading, isInitialized,
         view, setView, updateHash, handleBackToHome,
-        internalNews, tickerNews, marqueeNews,
+        internalNews: [...internalNews, ...instaPosts], tickerNews, marqueeNews,
         brazilMarquee, worldMarquee,
+        allNewsMerged,
         handleCloseChangelog,
         handleNetworkReconnect,
         handleLogout,

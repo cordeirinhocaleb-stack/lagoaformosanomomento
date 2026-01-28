@@ -12,7 +12,6 @@ import WorldNewsGrid from '@/components/home/WorldNewsGrid';
 import LazyBlock from '@/components/common/LazyBlock';
 import DailyBread from '@/components/news/DailyBread';
 import PartnersStrip from '@/components/home/PartnersStrip';
-import InstagramFeed from '@/components/home/InstagramFeed';
 import DebugOverlay from '@/components/common/DebugOverlay';
 // PromoPopup removido da importação e uso
 
@@ -162,11 +161,11 @@ const Home: React.FC<HomeProps> = ({
         return [...processedInternalNews, ...convertedExternalNews];
     }, [news, externalCategories]);
 
-    // Filtragem de Anunciantes do Topo (Mantém ordem estável para evitar saltos no carrossel)
+    // Filtragem de Anunciantes do Topo (Master Only)
     const topAds = useMemo(() => {
         return advertisers
-            .filter(ad => !ad.displayLocations || ad.displayLocations.includes('home_top'))
-            .filter(ad => ad.isActive);
+            .filter(ad => ad.isActive && (ad.plan?.toLowerCase() === 'master' || ad.plan?.toLowerCase() === 'lancamento'))
+            .filter(ad => !ad.displayLocations || ad.displayLocations.includes('home_top'));
     }, [advertisers]);
 
     // --- 2. LÓGICA DE FILTRAGEM UNIFICADA ---
@@ -389,9 +388,6 @@ const Home: React.FC<HomeProps> = ({
                     )}
                 </LazyBlock>
             </div>
-
-            {/* 5. Instagram Feed */}
-            <InstagramFeed />
 
             {/* 6. Giro Rápido */}
             <LazyBlock threshold={0.1} minHeight="600px">

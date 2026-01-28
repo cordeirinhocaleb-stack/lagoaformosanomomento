@@ -51,7 +51,7 @@ export interface NewsItem {
     author: string;
     authorId: string;
     status: 'draft' | 'in_review' | 'published' | 'archived';
-    source?: 'site' | 'rss_automation';
+    source?: 'site' | 'rss_automation' | 'instagram';
     imageUrl: string;
     createdAt: string;
     updatedAt: string;

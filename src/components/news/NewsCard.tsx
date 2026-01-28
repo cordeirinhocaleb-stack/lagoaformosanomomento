@@ -99,7 +99,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
         }
     };
 
-    const isInternal = news.source === 'site' || !news.source;
+    const isInternal = news.source === 'site' || !news.source || news.source === 'instagram';
     const displayContent = useMemo(() => {
         if (!isInternal) return news.lead;
 
@@ -212,8 +212,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                 >
                     <div className="pb-20 pt-10 text-center">
                         <div className="mb-4 flex justify-center">
-                            <span className={`text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-full tracking-[0.3em] border ${isInternal ? 'bg-red-600 border-red-600' : 'bg-blue-600 border-blue-600'}`}>
-                                {isInternal ? 'Matéria Completa' : 'Resumo Externo'}
+                            <span className={`text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-full tracking-[0.3em] border ${news.source === 'instagram' ? 'bg-pink-600 border-pink-400' : (isInternal ? 'bg-red-600 border-red-600' : 'bg-blue-600 border-blue-600')}`}>
+                                {news.source === 'instagram' && <i className="fab fa-instagram mr-1.5"></i>}
+                                {news.source === 'instagram' ? 'Instagram' : (isInternal ? 'Matéria Completa' : 'Resumo Externo')}
                             </span>
                         </div>
                         <h3 className="text-lg md:text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-4">
@@ -230,6 +231,18 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                                 <div className="text-white text-xs font-bold">Esta notícia é um resumo. Leia na íntegra no site oficial.</div>
                             </div>
                         )}
+
+                        <div className="mt-8">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    executeNavigation();
+                                }}
+                                className="bg-red-600 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-xl active:scale-95"
+                            >
+                                <i className="fas fa-book-open mr-2"></i> Abrir Matéria Completa
+                            </button>
+                        </div>
                         <div className="mt-12 text-white/30 text-[8px] font-mono uppercase tracking-[0.2em] animate-pulse">
                             {hasVideo ? (
                                 <>
@@ -326,7 +339,10 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                 />
                 {!featured && (
                     <div className={`absolute top-2 left-0 transition-opacity ${(isHovering || isMobileActive) ? 'opacity-0' : 'opacity-100'}`}>
-                        <div className="bg-red-600 text-white px-2 py-0.5 text-[7px] font-black uppercase tracking-widest shadow-md rounded-r-md">{news.category}</div>
+                        <div className={`${news.source === 'instagram' ? 'bg-pink-600' : 'bg-red-600'} text-white px-2 py-0.5 text-[7px] font-black uppercase tracking-widest shadow-md rounded-r-md flex items-center gap-1`}>
+                            {news.source === 'instagram' && <i className="fab fa-instagram text-[8px]"></i>}
+                            {news.category}
+                        </div>
                     </div>
                 )}
                 {news.city && (
@@ -350,8 +366,11 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none"></div>
                     <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 text-white">
                         <div className="flex flex-col items-start gap-2 mb-2">
-                            <div className="bg-red-600 text-white text-[8px] font-black px-3 py-0.5 uppercase tracking-widest skew-x-[-15deg] shadow-lg border-l-2 border-white inline-block">
-                                <span className="skew-x-[15deg] block">{news.category}</span>
+                            <div className={`${news.source === 'instagram' ? 'bg-pink-600' : 'bg-red-600'} text-white text-[8px] font-black px-3 py-0.5 uppercase tracking-widest skew-x-[-15deg] shadow-lg border-l-2 border-white inline-block`}>
+                                <span className="skew-x-[15deg] flex items-center gap-1.5">
+                                    {news.source === 'instagram' && <i className="fab fa-instagram"></i>}
+                                    {news.category}
+                                </span>
                             </div>
                         </div>
                         <h3 className="text-lg md:text-xl font-[1000] leading-[0.95] uppercase italic mb-2 line-clamp-3 drop-shadow-md tracking-tighter">

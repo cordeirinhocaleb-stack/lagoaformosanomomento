@@ -32,7 +32,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
         }
     }, [initialNewsToEdit]);
 
-    const categories = ['Todas', 'Postagens do Site', 'Brasil', 'Mundo', ...Array.from(new Set(news.filter(n => !['Brasil', 'Mundo'].includes(n.category)).map(n => n.category))).sort()];
+    const categories = ['Todas', 'Postagens do Site', 'Instagram', 'Brasil', 'Mundo', ...Array.from(new Set(news.filter(n => !['Brasil', 'Mundo', 'Instagram'].includes(n.category)).map(n => n.category))).sort()];
 
     // Filter Logic
     const filteredNews = useMemo(() => {
@@ -48,6 +48,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, user, onAddNews, onUpda
                 matchesCategory = item.source === 'site' || (!item.source && item.category !== 'Brasil' && item.category !== 'Mundo'); // Fallback if source empty
             } else if (filterCategory === 'Minhas Publicações') {
                 matchesCategory = item.author === user.name || item.authorId === user.id;
+            } else if (filterCategory === 'Instagram') {
+                matchesCategory = item.source === 'instagram' || item.category === 'Instagram';
             } else if (filterCategory !== 'Todas') {
                 matchesCategory = item.category === filterCategory;
             }

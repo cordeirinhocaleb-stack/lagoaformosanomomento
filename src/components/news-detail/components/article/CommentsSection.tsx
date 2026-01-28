@@ -19,7 +19,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ newsId, user, onLogin
     };
 
     return (
-        <section className="mt-12 pt-8 border-t border-gray-100 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+        <section className="mt-0 pt-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             <h3 className="text-xl font-black uppercase tracking-tighter mb-6 flex items-center gap-3 dark:text-zinc-100">
                 <i className="fas fa-comments text-red-600"></i>
                 Comentários
@@ -103,7 +103,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ newsId, user, onLogin
             </div>
 
             <div className="mt-12">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6 flex items-center gap-4">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6 flex items-center gap-4 mt-0">
                     <span className="w-8 h-[2px] bg-red-600 block"></span>
                     Comentários Recentes
                 </h4>

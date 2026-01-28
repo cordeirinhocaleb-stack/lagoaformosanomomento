@@ -14,9 +14,9 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isPaused, setIsPaused] = useState(false);
 
-    // Filtra apenas parceiros ativos e garante que cada anunciante seja único pelo NOME
+    // Filtra apenas parceiros Master ativos (incluindo plano lancamento) e garante que cada anunciante seja único pelo NOME
     const activePartners = Array.from(new Map(
-        advertisers.filter(ad => ad.isActive).map(ad => [ad.name, ad])
+        advertisers.filter(ad => ad.isActive && (ad.plan?.toLowerCase() === 'master' || ad.plan?.toLowerCase() === 'lancamento')).map(ad => [ad.name, ad])
     ).values());
 
     // Lista final: 12x para garantir scroll infinito seguro em qualquer tela
@@ -95,7 +95,7 @@ const PartnersStrip: React.FC<PartnersStripProps> = ({ advertisers, onAdvertiser
 
     return (
         <div
-            className="w-full bg-white dark:bg-[#050505] pt-4 pb-1 md:pb-2 overflow-hidden relative group/strip border-b border-gray-100 dark:border-white/5"
+            className="w-full bg-white dark:bg-[#050505] pt-0 pb-1 md:pb-2 overflow-hidden relative group/strip border-b border-gray-100 dark:border-white/5"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >

@@ -16,10 +16,11 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
     const [isPaused, setIsPaused] = useState(false);
     const virtualPosRef = React.useRef(0);
 
-    const supporters = advertisers.filter(ad => ad.isActive);
+    // Filtra exclusivamente parceiros Master ativos (incluindo plano lancamento)
+    const supporters = advertisers.filter(ad => ad.isActive && (ad.plan?.toLowerCase() === 'master' || ad.plan?.toLowerCase() === 'lancamento'));
 
-    // Lista para loop infinito vertical (4x para garantir preenchimento da altura)
-    const loopSupporters = supporters.length >= 1 ? Array(4).fill(supporters).flat() : [];
+    // Lista para loop infinito vertical (6x para garantir preenchimento fluido em 2 colunas)
+    const loopSupporters = supporters.length >= 1 ? Array(6).fill(supporters).flat() : [];
 
     useEffect(() => {
         if (loopSupporters.length === 0 || isPaused) return;
@@ -40,14 +41,16 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
             const deltaTime = currentTime - lastTime;
             lastTime = currentTime;
 
-            // Medição da altura de um set completo
-            const currentSetHeight = container.scrollHeight / 4;
+            // Medição da altura de um set completo (considerando Grid)
+            // Em grid de 2 colunas, a altura total de um set é a metade se o array for duplicado, 
+            // mas aqui estamos apenas repetindo o set. A altura de 1 set é total/6.
+            const currentSetHeight = container.scrollHeight / 6;
             if (currentSetHeight <= 0) {
                 animationFrameId = requestAnimationFrame(scroll);
                 return;
             }
 
-            const speed = 0.052; // Velocidade 30% mais rápida (original: 0.04)
+            const speed = 0.045; // Velocidade suave para visualização lateral
             virtualPosRef.current += speed * deltaTime;
 
             // Loop Infinito Vertical
@@ -68,53 +71,46 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
     return (
         <nav aria-label="Nossos Apoiadores" className="space-y-4">
             <div
-                className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] p-5 shadow-sm overflow-hidden"
+                className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2rem] p-4 lg:p-5 shadow-sm overflow-hidden"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
             >
-                <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-6 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span> Apoiadores Master
-                </h5>
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <h5 className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 focus:outline-none">
+                        <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
+                        Parceiros <span className="text-red-600">Master</span>
+                    </h5>
+                </div>
 
                 <div
                     ref={scrollRef}
-                    className="flex flex-col gap-4 max-h-[500px] overflow-hidden scrollbar-hide"
+                    className="grid grid-cols-2 gap-2 lg:gap-3 max-h-[600px] overflow-hidden scrollbar-hide"
                 >
                     {loopSupporters.length > 0 ? loopSupporters.map((ad, idx) => (
                         <AdvertiserCard
                             key={`${ad.id}-${idx}`}
                             ad={ad}
                             onClick={onAdvertiserClick}
-                            className="min-h-[190px] w-full flex-shrink-0"
+                            className="min-h-[120px] lg:min-h-[160px] w-full flex-shrink-0"
+                            innerClassName="!p-1 lg:!p-2"
                         />
                     )) : (
-                        <p className="text-[8px] font-bold text-gray-300 text-center py-6 uppercase tracking-widest">Espaço Reservado</p>
+                        <div className="col-span-2 py-10 flex flex-col items-center justify-center opacity-40">
+                            <i className="fas fa-crown text-2xl mb-2"></i>
+                            <p className="text-[7px] font-bold text-gray-300 text-center uppercase tracking-widest leading-tight">Espaço Master<br />Disponível</p>
+                        </div>
                     )}
                 </div>
             </div>
 
-            {/* Bloco Comercial Dinâmico */}
-            <div
+            {/* Link para se tornar parceiro master */}
+            <button
                 onClick={onPlanRequest}
-                className="bg-zinc-900 border-2 border-dashed border-zinc-800 rounded-[2rem] p-5 lg:p-8 text-center group hover:border-red-600 transition-all cursor-pointer shadow-2xl relative overflow-hidden"
+                className="w-full bg-red-600 hover:bg-black text-white py-4 rounded-[1.5rem] text-[9px] font-black uppercase tracking-widest transition-all shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
             >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-red-600/10 rounded-full blur-2xl"></div>
-                <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 transition-transform">
-                        <i className="fas fa-rocket text-red-600 text-lg lg:text-xl group-hover:animate-bounce"></i>
-                    </div>
-
-                    <h5 className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2 lg:mb-3">Anuncie Aqui</h5>
-
-                    <p className="text-white text-[10px] lg:text-[11px] font-[1000] uppercase italic leading-tight tracking-tight whitespace-pre-line mb-3 lg:mb-4">
-                        {adConfig?.promoText || "Destaque sua marca para milhares de leitores todos os dias!"}
-                    </p>
-
-                    <button className="px-5 py-1.5 lg:px-6 lg:py-2 bg-red-600 text-white text-[8px] lg:text-[9px] font-black uppercase rounded-full group-hover:bg-white group-hover:text-black transition-all shadow-lg">
-                        Saber Mais
-                    </button>
-                </div>
-            </div>
+                <i className="fas fa-plus-circle"></i>
+                Seja um Parceiro Master
+            </button>
         </nav>
     );
 };

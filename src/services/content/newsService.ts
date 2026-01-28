@@ -25,6 +25,13 @@ export const updateNews = async (news: NewsItem) => {
     const payload = mapNewsToDb(news);
     Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
 
+    // Proteção: IDs do Instagram ou outros não-UUIDs não estão no banco 'news'
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(news.id);
+    if (!isUuid) {
+        console.warn("Attempted to update non-UUID news item:", news.id);
+        return;
+    }
+
     const { error } = await supabase.from('news').update(payload).eq('id', news.id);
 
     if (error) {
@@ -44,9 +51,18 @@ export const incrementNewsView = async (id: string): Promise<void> => {
     const supabase = getSupabase();
     if (!supabase) return;
 
-    // Fetch current views
-    const { data } = await supabase.from('news').select('views').eq('id', id).single();
-    if (data) {
-        await supabase.from('news').update({ views: (data.views || 0) + 1 }).eq('id', id);
+    // Proteção: IDs do Instagram ou outros não-UUIDs não estão no banco 'news'
+    // UUIDs têm 36 caracteres e hífens. IDs do Instagram são apenas números longos.
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (!isUuid) return;
+
+    try {
+        // Fetch current views
+        const { data } = await supabase.from('news').select('views').eq('id', id).single();
+        if (data) {
+            await supabase.from('news').update({ views: (data.views || 0) + 1 }).eq('id', id);
+        }
+    } catch (e) {
+        console.warn("View counter error:", e);
     }
 };

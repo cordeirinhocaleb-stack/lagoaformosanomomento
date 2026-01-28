@@ -6,6 +6,7 @@ export const CATEGORIES = [
   { id: 'all', name: 'Tudo', icon: 'fa-layer-group' },
   { id: 'Polícia', name: 'Polícia', icon: 'fa-shield-halved' },
   { id: 'Esporte', name: 'Esporte', icon: 'fa-trophy' },
+  { id: 'Instagram', name: 'Instagram', icon: 'fa-instagram' },
   { id: 'Cultura', name: 'Cultura', icon: 'fa-masks-theater' },
   { id: 'Cotidiano', name: 'Cotidiano', icon: 'fa-house-user' },
   { id: 'Política', name: 'Política', icon: 'fa-building-columns' },

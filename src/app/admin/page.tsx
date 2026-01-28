@@ -41,7 +41,7 @@ export default function AdminPage() {
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
             <Admin
                 user={ctrl.user}
-                newsHistory={ctrl.news}
+                newsHistory={ctrl.allNewsMerged}
                 allUsers={ctrl.users}
                 advertisers={ctrl.advertisers}
                 adConfig={ctrl.adConfig}

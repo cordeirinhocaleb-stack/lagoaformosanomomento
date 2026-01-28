@@ -58,7 +58,10 @@ const NewsList: React.FC<NewsListProps> = ({
                                     </div>
                                 </td>
                                 <td className="p-4">
-                                    <span className={`px-2 py-1 rounded border text-[9px] font-bold uppercase ${darkMode ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-gray-100 border-gray-200 text-gray-600'}`}>
+                                    <span className={`px-2 py-1 rounded border text-[9px] font-bold uppercase flex items-center gap-1.5 w-fit ${item.source === 'instagram'
+                                        ? 'bg-pink-500/10 border-pink-500/20 text-pink-500'
+                                        : (darkMode ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-gray-100 border-gray-200 text-gray-600')}`}>
+                                        {item.source === 'instagram' && <i className="fab fa-instagram text-[10px]"></i>}
                                         {item.category}
                                     </span>
                                 </td>
@@ -75,26 +78,46 @@ const NewsList: React.FC<NewsListProps> = ({
                                 <td className="p-4 text-right">
                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); onToggleHidden(item); }}
-                                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${item.hidden
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (item.source === 'instagram') {
+                                                    alert("Posts do Instagram não podem ser ocultados aqui.");
+                                                    return;
+                                                }
+                                                onToggleHidden(item);
+                                            }}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${item.source === 'instagram' ? 'opacity-20 cursor-not-allowed' : ''} ${item.hidden
                                                 ? 'bg-gray-500/10 text-gray-500 hover:bg-gray-500 hover:text-white'
                                                 : 'bg-green-500/10 text-green-500 hover:bg-green-600 hover:text-white'
                                                 }`}
-                                            title={item.hidden ? "Mostrar notícia" : "Esconder notícia"}
+                                            title={item.source === 'instagram' ? "Post Instagram" : (item.hidden ? "Mostrar notícia" : "Esconder notícia")}
                                         >
                                             <i className={`fas ${item.hidden ? 'fa-eye' : 'fa-eye-slash'} text-xs`}></i>
                                         </button>
                                         <button
-                                            onClick={() => onEdit(item)}
-                                            className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all"
-                                            title="Editar"
+                                            onClick={() => {
+                                                if (item.source === 'instagram') {
+                                                    alert("Posts do Instagram não podem ser editados. Edite diretamente no Instagram.");
+                                                    return;
+                                                }
+                                                onEdit(item);
+                                            }}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${item.source === 'instagram' ? 'opacity-20 cursor-not-allowed' : 'bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white'}`}
+                                            title={item.source === 'instagram' ? "Post Instagram (Somente Leitura)" : "Editar"}
                                         >
                                             <i className="fas fa-pen text-xs"></i>
                                         </button>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
-                                            className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all"
-                                            title="Excluir"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (item.source === 'instagram') {
+                                                    alert("Posts do Instagram não podem ser excluídos pelo painel.");
+                                                    return;
+                                                }
+                                                onDelete(item.id);
+                                            }}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${item.source === 'instagram' ? 'opacity-20 cursor-not-allowed' : 'bg-red-500/10 text-red-500 hover:bg-red-600 hover:text-white'}`}
+                                            title={item.source === 'instagram' ? "Post Instagram" : "Excluir"}
                                         >
                                             <i className="fas fa-trash text-xs"></i>
                                         </button>
@@ -130,7 +153,10 @@ const NewsList: React.FC<NewsListProps> = ({
                                     <span className="text-[10px] text-gray-500">{new Date(item.createdAt || item.created_at || Date.now()).toLocaleDateString()}</span>
                                 </div>
                                 <h4 className={`font-bold text-sm line-clamp-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{item.title}</h4>
-                                <p className="text-[10px] text-gray-500 uppercase font-black mt-1">{item.category}</p>
+                                <p className={`text-[10px] uppercase font-black mt-1 flex items-center gap-1 ${item.source === 'instagram' ? 'text-pink-500' : 'text-gray-500'}`}>
+                                    {item.source === 'instagram' && <i className="fab fa-instagram text-[11px]"></i>}
+                                    {item.category}
+                                </p>
                             </div>
                         </div>
 
