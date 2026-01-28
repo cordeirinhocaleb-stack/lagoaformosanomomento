@@ -324,15 +324,17 @@ const Home: React.FC<HomeProps> = ({
             />
 
             <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
-                <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
+                <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-stretch">
                     {/* Lateral Esquerda: Parceiros Master (Apenas Desktop) */}
-                    <aside className="hidden lg:block lg:col-span-3 sticky top-32 h-fit">
-                        <LeftAdsRail
-                            advertisers={advertisers}
-                            onAdvertiserClick={onAdvertiserClick}
-                            onPlanRequest={onPricingClick}
-                            isStatic={false}
-                        />
+                    <aside className="hidden lg:block lg:col-span-3 relative">
+                        <div className="absolute inset-0">
+                            <LeftAdsRail
+                                advertisers={advertisers}
+                                onAdvertiserClick={onAdvertiserClick}
+                                onPlanRequest={onPricingClick}
+                                isStatic={false}
+                            />
+                        </div>
                     </aside>
 
                     {/* Conteúdo Principal (Direita) */}
