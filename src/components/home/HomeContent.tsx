@@ -324,9 +324,9 @@ const Home: React.FC<HomeProps> = ({
             />
 
             <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
-                <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
+                <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-stretch">
                     {/* Lateral Esquerda: Parceiros Master (Apenas Desktop) */}
-                    <aside className="hidden lg:block lg:col-span-3">
+                    <aside className="hidden lg:block lg:col-span-3 h-full">
                         <LeftAdsRail
                             advertisers={advertisers}
                             onAdvertiserClick={onAdvertiserClick}
