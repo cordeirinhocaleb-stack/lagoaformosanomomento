@@ -18,7 +18,10 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
         const handleResize = () => {
             const w = window.innerWidth;
             if (w < 768) setVisibleCount(2); // Mobile (2 por vez)
-            else setVisibleCount(4); // Tablet e PC (4 por vez)
+            else {
+                setStartIndex(0); // Para forçar 4 fixos em telas maiores
+                setVisibleCount(4); // Tablet e PC (4 por vez)
+            }
         };
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -72,14 +75,14 @@ const WorldNewsGrid: React.FC<WorldNewsGridProps> = ({ externalCategories, selec
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {visibleCategories.map(cat => {
                         let theme: 'blue' | 'green' | 'orange' | 'purple' = 'blue';
                         if (['Política', 'Economia'].includes(cat)) theme = 'orange';
                         if (['Agro', 'Agronegócio'].includes(cat)) theme = 'green';
                         if (['Tecnologia', 'Mundo'].includes(cat)) theme = 'purple';
 
-                        const items = (externalCategories[cat] || []).slice(0, 3);
+                        const items = (externalCategories[cat] || []).slice(0, 4);
 
                         return (
                             <VerticalNewsColumn
