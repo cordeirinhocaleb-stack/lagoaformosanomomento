@@ -84,7 +84,7 @@ const LeftAdsRail: React.FC<LeftAdsRailProps> = ({ advertisers, onAdvertiserClic
 
                 <div
                     ref={scrollRef}
-                    className="grid grid-cols-2 gap-2 lg:gap-3 max-h-[600px] overflow-hidden scrollbar-hide"
+                    className="grid grid-cols-1 gap-4 max-h-[800px] overflow-hidden scrollbar-hide"
                 >
                     {loopSupporters.length > 0 ? loopSupporters.map((ad, idx) => (
                         <AdvertiserCard
