@@ -23,7 +23,7 @@ const MainNewsGrid: React.FC<MainNewsGridProps> = ({ news, highlights, onNewsCli
     };
 
     return (
-        <section className="mb-12 px-4 md:px-8 lg:px-12 pt-2">
+        <section className="mb-12 px-4 md:px-8 lg:px-4 pt-2">
 
             {/* BARRA DE INSTRUÇÕES ATUALIZADA */}
             <div className="flex justify-center mb-4 animate-fadeIn">

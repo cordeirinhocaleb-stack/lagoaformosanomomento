@@ -12,6 +12,7 @@ import WorldNewsGrid from '@/components/home/WorldNewsGrid';
 import LazyBlock from '@/components/common/LazyBlock';
 import DailyBread from '@/components/news/DailyBread';
 import PartnersStrip from '@/components/home/PartnersStrip';
+import LeftAdsRail from '@/components/news-detail/components/layout/LeftAdsRail';
 import DebugOverlay from '@/components/common/DebugOverlay';
 // PromoPopup removido da importação e uso
 
@@ -297,17 +298,18 @@ const Home: React.FC<HomeProps> = ({
 
     return (
         <div className="w-full">
-
             {/* 1. Barra de Plantão */}
             <BreakingNewsBar item={breakingNewsItem} onClick={handleSmartClick} />
 
-            {/* Parceiros Comerciais (Design Master) */}
-            <PartnersStrip
-                advertisers={topAds}
-                onAdvertiserClick={onAdvertiserClick}
-                onAdvertiserView={onAdvertiserView}
-                onPricingClick={onPricingClick}
-            />
+            {/* Parceiros Comerciais - Mobile Only (No PC eles ficam na sidebar esquerda) */}
+            <div className="lg:hidden">
+                <PartnersStrip
+                    advertisers={topAds}
+                    onAdvertiserClick={onAdvertiserClick}
+                    onAdvertiserView={onAdvertiserView}
+                    onPricingClick={onPricingClick}
+                />
+            </div>
 
             {/* 2. Hero Section (Contém FullWidthPromo e título da seção) */}
             <HeroSection
@@ -319,74 +321,86 @@ const Home: React.FC<HomeProps> = ({
                 onPlanRequest={onPricingClick}
             />
 
-            {/* 3. Menu de Categorias */}
-            <div ref={newsGridRef} className="w-full relative z-10">
-                <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
-                    <CategoryMenu
-                        selectedCategory={selectedCategory}
-                        onSelectCategory={handleCategoryClick}
-                        onAdminClick={onAdminClick}
-                        user={user}
-                        selectedRegion={selectedRegion}
-                        onSelectRegion={handleRegionClick}
-                    />
-                </div>
-            </div>
+            <div className="w-full max-w-[1920px] mx-auto px-4 md:px-8">
+                <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
+                    {/* Lateral Esquerda: Parceiros Master (Apenas Desktop) */}
+                    <aside className="hidden lg:block lg:col-span-3 sticky top-32 h-fit">
+                        <LeftAdsRail
+                            advertisers={advertisers}
+                            onAdvertiserClick={onAdvertiserClick}
+                            onPlanRequest={onPricingClick}
+                        />
+                    </aside>
 
-            {/* 4. Grid Principal */}
-            <div className="w-full relative z-20 mt-6 md:mt-8 w-full max-w-[1920px] mx-auto px-4 md:px-8">
-                <LazyBlock threshold={0.1} minHeight="800px">
-                    <MainNewsGrid
-                        news={paginatedNews} // Usa a lista paginada (8, 12 ou 18)
-                        highlights={verticalHighlights}
-                        onNewsClick={handleSmartClick}
-                    />
-
-                    {/* PAGINATION CONTROLS */}
-                    {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 mt-12 mb-8 animate-fadeIn">
-                            <button
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:border-black transition-all disabled:opacity-30 disabled:hover:border-gray-200 active:scale-95"
-                            >
-                                <i className="fas fa-chevron-left text-xs"></i>
-                            </button>
-
-                            <div className="flex gap-2 overflow-x-auto scrollbar-hide py-2 px-1 max-w-[280px] md:max-w-none">
-                                {Array.from({ length: totalPages }).map((_, i) => {
-                                    const page = i + 1;
-                                    const isActive = page === currentPage;
-                                    // Lógica simples: mostra todos se poucos, ou janela deslizante
-                                    // Para simplicidade visual neste design, mostramos todos com scroll horizontal no mobile
-                                    return (
-                                        <button
-                                            key={page}
-                                            onClick={() => handlePageChange(page)}
-                                            className={`
-                                          w-10 h-10 rounded-full text-[10px] font-black uppercase tracking-tight flex items-center justify-center transition-all shrink-0
-                                          ${isActive
-                                                    ? 'bg-black text-white shadow-lg scale-110'
-                                                    : 'bg-white border border-gray-200 text-gray-500 hover:border-red-500 hover:text-red-500'
-                                                }
-                                      `}
-                                        >
-                                            {page}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            <button
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:border-black transition-all disabled:opacity-30 disabled:hover:border-gray-200 active:scale-95"
-                            >
-                                <i className="fas fa-chevron-right text-xs"></i>
-                            </button>
+                    {/* Conteúdo Principal (Direita) */}
+                    <main className="lg:col-span-9">
+                        {/* 3. Menu de Categorias */}
+                        <div ref={newsGridRef} className="w-full relative z-10">
+                            <CategoryMenu
+                                selectedCategory={selectedCategory}
+                                onSelectCategory={handleCategoryClick}
+                                onAdminClick={onAdminClick}
+                                user={user}
+                                selectedRegion={selectedRegion}
+                                onSelectRegion={handleRegionClick}
+                            />
                         </div>
-                    )}
-                </LazyBlock>
+
+                        {/* 4. Grid Principal */}
+                        <div className="w-full relative z-20 mt-6 md:mt-8">
+                            <LazyBlock threshold={0.1} minHeight="800px">
+                                <MainNewsGrid
+                                    news={paginatedNews}
+                                    highlights={verticalHighlights}
+                                    onNewsClick={handleSmartClick}
+                                />
+
+                                {/* PAGINATION CONTROLS */}
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center items-center gap-2 mt-12 mb-8 animate-fadeIn">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:border-black transition-all disabled:opacity-30 disabled:hover:border-gray-200 active:scale-95"
+                                        >
+                                            <i className="fas fa-chevron-left text-xs"></i>
+                                        </button>
+
+                                        <div className="flex gap-2 overflow-x-auto scrollbar-hide py-2 px-1 max-w-[280px] md:max-w-none">
+                                            {Array.from({ length: totalPages }).map((_, i) => {
+                                                const page = i + 1;
+                                                const isActive = page === currentPage;
+                                                return (
+                                                    <button
+                                                        key={page}
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={`
+                                                            w-10 h-10 rounded-full text-[10px] font-black uppercase tracking-tight flex items-center justify-center transition-all shrink-0
+                                                            ${isActive
+                                                                ? 'bg-black text-white shadow-lg scale-110'
+                                                                : 'bg-white border border-gray-200 text-gray-500 hover:border-red-500 hover:text-red-500'
+                                                            }
+                                                        `}
+                                                    >
+                                                        {page}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:border-black transition-all disabled:opacity-30 disabled:hover:border-gray-200 active:scale-95"
+                                        >
+                                            <i className="fas fa-chevron-right text-xs"></i>
+                                        </button>
+                                    </div>
+                                )}
+                            </LazyBlock>
+                        </div>
+                    </main>
+                </div>
             </div>
 
             {/* 6. Giro Rápido */}
