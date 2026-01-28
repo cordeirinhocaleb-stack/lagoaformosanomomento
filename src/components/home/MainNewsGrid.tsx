@@ -45,7 +45,7 @@ const MainNewsGrid: React.FC<MainNewsGridProps> = ({ news, highlights, onNewsCli
           Tablet (md): grid-cols-3 
           PC (lg): grid-cols-4 
       */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 auto-rows-fr grid-flow-dense">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 auto-rows-fr grid-flow-dense">
                 {news.length > 0 ? (
                     news.map((item, index) => {
                         const isZoomed = zoomedId === item.id;

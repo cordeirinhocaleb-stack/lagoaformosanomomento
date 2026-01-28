@@ -226,10 +226,10 @@ const Home: React.FC<HomeProps> = ({
         // Determina o tamanho da página baseado no dispositivo
         let pageSize = 12; // Default for tablet/small laptop
         if (typeof window !== 'undefined') {
-            if (window.innerWidth < 768) pageSize = 8; // Mobile
-            else if (window.innerWidth >= 1900) pageSize = 20; // Extra Large Desktop
-            else if (window.innerWidth >= 1280) pageSize = 18; // Desktop Grande (original default)
-            else pageSize = 12; // Tablet / Laptop Pequeno
+            if (window.innerWidth < 768) pageSize = 10; // Mobile (1 coluna - fixo para não ser par)
+            else if (window.innerWidth >= 1900) pageSize = 21; // Extra Large Desktop (3 colunas, 7 linhas)
+            else if (window.innerWidth >= 1280) pageSize = 18; // Desktop Grande (3 colunas, 6 linhas)
+            else pageSize = 12; // Tablet / Laptop Pequeno (2 colunas, 6 linhas)
         }
 
         const total = Math.max(1, Math.ceil(source.length / pageSize));
