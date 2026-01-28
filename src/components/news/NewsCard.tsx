@@ -217,7 +217,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                                 {news.source === 'instagram' ? 'Instagram' : (isInternal ? 'Matéria Completa' : 'Resumo Externo')}
                             </span>
                         </div>
-                        <h3 className="text-base md:text-xl font-black text-white uppercase italic tracking-tighter leading-none mb-4">
+                        <h3 className="text-sm md:text-lg font-black text-white uppercase italic tracking-tighter leading-none mb-4">
                             {news.title}
                         </h3>
                         <div className={`w-6 h-1 mx-auto mb-4 rounded-full ${isInternal ? 'bg-red-600' : 'bg-blue-600'}`}></div>
@@ -373,7 +373,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
                                 </span>
                             </div>
                         </div>
-                        <h3 className="text-base md:text-lg font-[1000] leading-[0.95] uppercase italic mb-2 line-clamp-3 drop-shadow-md tracking-tighter">
+                        <h3 className="text-sm md:text-base font-[1000] leading-[0.95] uppercase italic mb-2 line-clamp-3 drop-shadow-md tracking-tighter">
                             {news.title}
                         </h3>
                         <div className="flex justify-between items-end border-t border-white/20 pt-2 opacity-80">
@@ -385,7 +385,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, featured, onClick, isZoomed, 
             ) : (
                 <div className={`p-4 flex flex-col justify-between flex-grow relative overflow-hidden bg-white h-full transition-opacity duration-500 ${(isHovering || isMobileActive) ? 'opacity-0' : 'opacity-100'}`}>
                     <div>
-                        <h3 className="text-sm md:text-base font-black text-gray-900 leading-tight mb-2 line-clamp-3 uppercase italic tracking-tight">{news.title}</h3>
+                        <h3 className="text-xs md:text-sm font-black text-gray-900 leading-tight mb-2 line-clamp-3 uppercase italic tracking-tight">{news.title}</h3>
                         <p className="text-[9px] text-gray-500 line-clamp-3 mb-3 leading-relaxed font-bold border-l-2 border-gray-200 pl-2">{news.lead}</p>
                     </div>
                     <div className="flex justify-between items-center border-t border-gray-50 pt-2 mt-auto">

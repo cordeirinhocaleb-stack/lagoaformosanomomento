@@ -119,7 +119,7 @@ export const AdvertiserCard: React.FC<AdvertiserCardProps> = ({ ad, onClick, onV
             role="button"
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(ad); } }}
-            className={`cursor-pointer group w-full bg-gray-50 dark:bg-zinc-800/50 rounded-[1.5rem] lg:rounded-[2.2rem] hover:bg-white dark:hover:bg-zinc-800 border-2 border-transparent hover:border-red-600 transition-all duration-300 active:scale-[0.98] overflow-hidden shadow-sm hover:shadow-2xl flex flex-col min-h-[130px] lg:min-h-[190px] ${className || ''}`}
+            className={`cursor-pointer group w-full bg-gray-50 dark:bg-zinc-800/50 rounded-2xl lg:rounded-[1.8rem] hover:bg-white dark:hover:bg-zinc-800 border-2 border-transparent hover:border-red-600 transition-all duration-300 active:scale-[0.98] overflow-hidden shadow-sm hover:shadow-2xl flex flex-col min-h-[130px] lg:min-h-[190px] ${className || ''}`}
         >
             <MediaBox
                 ad={ad}
@@ -225,7 +225,7 @@ export const AdvertiserCard: React.FC<AdvertiserCardProps> = ({ ad, onClick, onV
                             <span className="text-[7px] lg:text-[9px] font-[1000] uppercase tracking-wider">Telegram</span>
                         </div>
                     ) : (
-                        <div className="w-full py-1 lg:py-2 bg-red-600 text-white rounded-xl lg:rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 group-hover/btn:scale-105 group-active/btn:scale-95 transition-all duration-300 hover:shadow-xl">
+                        <div className="w-full py-1 lg:py-2 bg-red-600 text-white rounded-lg lg:rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 group-hover/btn:scale-105 group-active/btn:scale-95 transition-all duration-300 hover:shadow-xl">
                             <i className="fas fa-external-link-alt text-[9px] lg:text-[11px]"></i>
                             <span className="text-[7px] lg:text-[9px] font-[1000] uppercase tracking-wider">Ver Site</span>
                         </div>
