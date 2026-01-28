@@ -53,7 +53,7 @@ function NewsViewContent() {
             console.warn(`[NewsViewPage] News item not found for slug: ${slug}`);
             setNotFound(true);
         }
-    }, [isLoading, slug, ctrl.news, ctrl.setSelectedNews, ctrl.setView]);
+    }, [isLoading, slug, ctrl.allNewsMerged, ctrl.setSelectedNews, ctrl.setView]);
 
     const handleBack = () => {
         ctrl.setSelectedNews(null);

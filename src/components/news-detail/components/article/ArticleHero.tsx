@@ -162,7 +162,7 @@ const ArticleHero: React.FC<ArticleHeroProps> = ({ news, readTime, onBack, onAut
         // Robust check for video type
         // Trust the URL presence - if we have a video URL, it is a video regardless of mediaType flag
         const hasVideoUrl = !!news.bannerVideoUrl && news.bannerVideoUrl.length > 0;
-        const isVideo = news.bannerMediaType === 'video' || hasVideoUrl;
+        const isVideo = news.bannerMediaType === 'video' || (news.bannerMediaType !== 'image' && hasVideoUrl);
 
         if (isVideo && hasVideoUrl) {
             // Check if it's a YouTube video

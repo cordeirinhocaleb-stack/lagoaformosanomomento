@@ -227,32 +227,47 @@ export const useAppController = () => {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.data) {
-                        const converted: NewsItem[] = data.data.map((post: any) => ({
-                            id: post.id,
-                            title: post.caption || 'Publicação do Instagram',
-                            lead: post.caption || '',
-                            content: post.caption || '',
-                            imageUrl: post.media_type === 'VIDEO' ? post.thumbnail_url || post.media_url : post.media_url,
-                            category: 'Instagram',
-                            author: 'Instagram',
-                            authorId: 'instagram_bot',
-                            createdAt: post.timestamp,
-                            updatedAt: post.timestamp,
-                            status: 'published',
-                            source: 'instagram',
-                            mediaType: post.media_type === 'VIDEO' ? 'video' : 'image',
-                            bannerMediaType: post.media_type === 'VIDEO' ? 'video' : 'image',
-                            videoUrl: post.media_type === 'VIDEO' ? post.media_url : undefined,
-                            region: 'Lagoa Formosa e Região',
-                            city: 'Lagoa Formosa',
-                            views: 0,
-                            blocks: [],
-                            isBreaking: false,
-                            isFeatured: false,
-                            featuredPriority: 0,
-                            bannerImages: [],
-                            seo: { slug: post.id, metaTitle: post.caption || 'Post Instagram', metaDescription: '', focusKeyword: '' }
-                        } as NewsItem));
+                        const converted: NewsItem[] = data.data.map((post: any) => {
+                            const rawCaption = post.caption || '';
+                            // Summarize title: Remove hashtags and limit to 90 chars
+                            let summaryTitle = rawCaption.split('#')[0].trim();
+                            if (summaryTitle.length > 90) {
+                                summaryTitle = summaryTitle.substring(0, 87).trim() + '...';
+                            }
+                            if (!summaryTitle) summaryTitle = 'Publicação do Instagram';
+
+                            return {
+                                id: post.id,
+                                title: summaryTitle,
+                                lead: rawCaption,
+                                content: rawCaption,
+                                imageUrl: post.media_type === 'VIDEO' ? post.thumbnail_url || post.media_url : post.media_url,
+                                category: 'Instagram',
+                                author: 'Instagram',
+                                authorId: 'instagram_bot',
+                                createdAt: post.timestamp,
+                                updatedAt: post.timestamp,
+                                status: 'published',
+                                source: 'instagram',
+                                mediaType: post.media_type === 'VIDEO' ? 'video' : 'image',
+                                bannerMediaType: 'image',
+                                bannerVideoUrl: post.media_type === 'VIDEO' ? post.media_url : undefined,
+                                region: 'Lagoa Formosa e Região',
+                                city: 'Lagoa Formosa',
+                                views: 0,
+                                blocks: post.media_type === 'VIDEO' ? [{
+                                    id: `insta_vid_${post.id}`,
+                                    type: 'video',
+                                    content: post.media_url,
+                                    settings: { style: 'shorts', muted: false, autoplay: false, controls: true, caption: post.caption }
+                                }] : [],
+                                isBreaking: false,
+                                isFeatured: false,
+                                featuredPriority: 0,
+                                bannerImages: [],
+                                seo: { slug: post.id, metaTitle: post.caption || 'Post Instagram', metaDescription: '', focusKeyword: '' }
+                            } as NewsItem;
+                        });
                         setInstaPosts(converted);
                     }
                 }
