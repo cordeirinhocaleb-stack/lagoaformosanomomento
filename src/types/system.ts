@@ -56,6 +56,7 @@ export interface SystemSettings {
         url: string;
         anonKey: string;
     };
+    instagramToken?: string;
     socialWebhookUrl?: string; // Made optional
     cloudinary?: {
         images?: {

@@ -150,6 +150,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
         }));
     };
 
+    const handleInstagramUpdate = (token: string) => {
+        setSettings(prev => ({
+            ...prev,
+            instagramToken: token
+        }));
+    };
+
     const handlePixUpdate = (field: string, value: string) => {
         setSettings(prev => ({
             ...prev,
@@ -235,6 +242,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
                 <IntegrationSettings
                     settings={settings}
                     onUpdateCloudinary={handleCloudinaryUpdate}
+                    onUpdateInstagram={handleInstagramUpdate}
                     onTestCloudinary={testCloudinary}
                     onTestSupabase={testConnection}
                     cloudinaryImgStatus={cloudinaryImgStatus}

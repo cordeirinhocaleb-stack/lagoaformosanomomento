@@ -21,6 +21,7 @@ export const DEFAULT_SETTINGS: SystemSettings = {
         url: 'https://xlqyccbnlqahyxhfswzh.supabase.co',
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhscXljY2JubHFhaHl4aGZzd3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjYwNTMsImV4cCI6MjA4MjU0MjA1M30.5sFnDeMEtXBSrKGjt4vILrQEdsg4MytlftGp67Ieiio'
     },
+    instagramToken: 'IGAATnCkX9osxBZAGFScEdFaVpXVXdwVFc2RmpCa2J3Q0RwZA0c1UkJqaTVxTVJ1a1ZAKWWd1dDVoYmVrTkJhX1FtbWxPWHdiVlg3bHFFak1KZA0laRzVuVG9YRlNVRDg1cDFDWUp0dlhpMlo2SGFsSG51cklKSU4yLWNfU1pXVWg0WQZDZD',
     socialWebhookUrl: '',
     cloudinary: {
         images: {

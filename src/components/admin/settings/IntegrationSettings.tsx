@@ -4,6 +4,7 @@ import { SystemSettings } from '../../../types';
 interface IntegrationSettingsProps {
     settings: SystemSettings;
     onUpdateCloudinary: (type: 'images' | 'videos', field: 'cloudName' | 'uploadPreset', value: string) => void;
+    onUpdateInstagram: (token: string) => void;
     onTestCloudinary: (type: 'images' | 'videos') => void;
     onTestSupabase: () => void;
     cloudinaryImgStatus: 'idle' | 'checking' | 'success' | 'error';
@@ -15,6 +16,7 @@ interface IntegrationSettingsProps {
 const IntegrationSettings: React.FC<IntegrationSettingsProps> = ({
     settings,
     onUpdateCloudinary,
+    onUpdateInstagram,
     onTestCloudinary,
     onTestSupabase,
     cloudinaryImgStatus,
@@ -103,6 +105,48 @@ const IntegrationSettings: React.FC<IntegrationSettingsProps> = ({
                         {connectionStatus === 'checking' ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-plug"></i>}
                         {connectionStatus === 'success' ? 'Conectado' : 'Testar Conexão'}
                     </button>
+                </div>
+            </div>
+
+            {/* Instagram API */}
+            <div className={`p-6 md:p-8 rounded-[2rem] border shadow-sm relative overflow-hidden mt-6 transition-colors ${darkMode ? 'bg-[#0F0F0F] border-white/5' : 'bg-white border-gray-100'}`}>
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 text-2xl border border-pink-100">
+                        <i className="fab fa-instagram"></i>
+                    </div>
+                    <div>
+                        <h2 className={`text-xl font-black uppercase italic ${darkMode ? 'text-white' : 'text-gray-900'}`}>Instagram API</h2>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Feed de Redes Sociais</p>
+                    </div>
+                </div>
+
+                <div className={`p-6 rounded-2xl border relative z-10 ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2 block">Access Token</label>
+                            <div className="relative group">
+                                <input
+                                    type="password"
+                                    value={settings.instagramToken || ''}
+                                    onChange={(e) => onUpdateInstagram(e.target.value)}
+                                    placeholder="IGAATnCk..."
+                                    className={`w-full px-4 py-3 rounded-xl text-sm font-medium border transition-all ${darkMode
+                                        ? 'bg-black/50 border-white/10 text-white focus:border-pink-500/50 focus:ring-4 focus:ring-pink-500/10'
+                                        : 'bg-white border-gray-200 text-gray-900 focus:border-pink-300 focus:ring-4 focus:ring-pink-500/5'}`}
+                                />
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <p className="text-[8px] font-black uppercase text-pink-600">Confidencial</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-4 bg-pink-500/5 rounded-xl border border-pink-500/10">
+                            <i className="fas fa-info-circle text-pink-600 mt-1"></i>
+                            <p className="text-[10px] text-gray-400 font-bold leading-relaxed uppercase">
+                                Este token é utilizado para buscar as postagens mais recentes do Instagram.
+                                Certifique-se de usar um <span className="text-pink-600">Long-Lived Access Token</span> para evitar expiração rápida.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
